@@ -1076,7 +1076,7 @@ const page = () => {
                     key={tab.id}
                     onClick={() => handleTabClick(tab.id, index)}
                     className={`text-[16px] ${
-                      array.length === 8 ? "px-3" : "px-4"
+                      array.length === 8 ? "px-2" : "px-4"
                     } cursor-pointer select-none flex items-center justify-center ${
                       selectedTabIndex === index
                         ? "text-[#0592C6] font-semibold"
