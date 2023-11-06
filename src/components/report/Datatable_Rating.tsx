@@ -115,7 +115,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Task ID</span>,
+        customHeadLabelRender: () => (
+          <span className="font-bold">Task ID</span>
+        ),
       },
     },
     {
@@ -123,7 +125,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Project</span>,
+        customHeadLabelRender: () => (
+          <span className="font-bold">Project</span>
+        ),
       },
     },
     {
@@ -131,7 +135,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Task</span>,
+        customHeadLabelRender: () => (
+          <span className="font-bold">Task</span>
+        ),
       },
     },
     {
@@ -225,7 +231,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Ratings</span>,
+        customHeadLabelRender: () => (
+          <span className="font-bold">Ratings</span>
+        ),
         customBodyRender: (value: any) => {
           return <Rating name="read-only" value={value} readOnly />;
         },

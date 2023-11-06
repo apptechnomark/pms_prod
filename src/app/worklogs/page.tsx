@@ -77,10 +77,11 @@ const page = () => {
   };
 
   useEffect(() => {
-    if (
-      !hasPermissionWorklog("", "View", "WorkLogs") &&
-      !localStorage.getItem("isClient")
-    ) {
+    if (localStorage.getItem("isClient") === "false") {
+      if (!hasPermissionWorklog("", "View", "WorkLogs")) {
+        router.push("/");
+      }
+    } else {
       router.push("/");
     }
   }, [router]);

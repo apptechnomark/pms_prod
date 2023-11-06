@@ -69,14 +69,18 @@ const Home = () => {
               router.push("/dashboard");
           }
           if (response.data.ResponseData.IsClientUser === false) {
+            hasPermissionWorklog("", "View", "Report") &&
+              router.push("/reports");
+            hasPermissionWorklog("", "View", "Approvals") &&
+              router.push("/approvals");
             hasPermissionWorklog("", "View", "WorkLogs") &&
               (hasPermissionWorklog("", "ClientManager", "WorkLogs") ||
                 hasPermissionWorklog("", "ManageAssignee", "WorkLogs")) &&
               router.push("/worklogs");
-            hasPermissionWorklog("", "View", "Approvals") &&
-              router.push("/approvals");
             hasPermissionWorklog("", "View", "Settings") &&
               router.push("/settings");
+            hasPermissionWorklog("", "View", "Dashboard") &&
+              router.push("/admin-dashboard");
           }
         }
       }

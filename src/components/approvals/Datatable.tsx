@@ -1036,7 +1036,7 @@ const Datatable = ({
                   </ColorToolTip>
                 )}
 
-                {hasPermissionWorklog("", "Reject", "Approvals") &&
+                {/* {hasPermissionWorklog("", "Reject", "Approvals") &&
                   selectedRowsCount === 1 && (
                     <ColorToolTip title="Reject" arrow>
                       <span
@@ -1046,7 +1046,7 @@ const Datatable = ({
                         <RejectIcon />
                       </span>
                     </ColorToolTip>
-                  )}
+                  )} */}
 
                 {hasPermissionWorklog("", "Approve", "Approvals") &&
                   selectedRowsCount === 1 && (

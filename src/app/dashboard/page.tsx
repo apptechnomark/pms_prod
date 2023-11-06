@@ -45,6 +45,9 @@ import Dialog_TaskStatusInfo from "@/components/dashboard/dialog/Dialog_TaskStat
 import Dialog_PriorityInfo from "@/components/dashboard/dialog/Dialog_PriorityInfo";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
+import Dialog_OverallProjectSummary from "@/components/dashboard/dialog/Dialog_OverallProjectSummary";
+import Dialog_SummaryList from "@/components/dashboard/dialog/Dialog_SummaryList";
+import Dialog_ReturnTypeData from "@/components/dashboard/dialog/Dialog_ReturnTypeData";
 
 const page = () => {
   const router = useRouter();
@@ -57,9 +60,13 @@ const page = () => {
     useState<boolean>(false);
   const [isPriorityInfoDialogOpen, setIsPriorityInfoDialogOpen] =
     useState<boolean>(false);
+  const [isProjectStatusDialogOpen, setIsProjectStatusDialogOpen] =
+    useState<boolean>(false);
   const [clickedPriorityName, setClickedPriorityName] = useState<string>("");
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [clickedWorkTypeName, setClickedWorkTypeName] = useState<string>("");
+  const [clickedProjectStatusName, setClickedProjectStatusName] =
+    useState<string>("");
   const [isDatatableDialog, setIsDatatableDialog] = useState<boolean>(false);
   const [isOverdueClicked, setIsOverdueClicked] = useState<boolean>(true);
   const [isOnHoldClicked, setIsOnHoldClicked] = useState<boolean>(false);
@@ -74,6 +81,12 @@ const page = () => {
   const [anchorElProjects, setAnchorElProjects] = React.useState<
     HTMLButtonElement | null | any
   >(null);
+  const [summaryLabel, setSummaryLabel] = useState<string>("");
+  const [isSummaryListDialogOpen, setIsSummaryListDialogOpen] =
+    useState<boolean>(false);
+  const [isReturnTypeDialogOpen, setIsReturnTypeDialogOpen] =
+    useState<boolean>(false);
+  const [clickedReturnTypeValue, setClickedReturnTypeValue] = useState<any>("");
 
   const handleClickProjects = (event: any) => {
     setAnchorElProjects(event.currentTarget);
@@ -116,6 +129,24 @@ const page = () => {
     handleCloseProjects();
   };
 
+  // getting value from Overall Project Completion chart
+  const handleValueFromOverallProject = (
+    isDialogOpen: boolean,
+    selectedPointData: string
+  ) => {
+    setIsProjectStatusDialogOpen(isDialogOpen);
+    setClickedProjectStatusName(selectedPointData);
+  };
+
+  // getting value from Return Type chart
+  const handleValueFromReturnType = (
+    isDialogOpen: boolean,
+    selectedPointData: number
+  ) => {
+    setIsReturnTypeDialogOpen(isDialogOpen);
+    setClickedReturnTypeValue(selectedPointData);
+  };
+
   // getting value from Total hours chart
   const handleValueFromTotalHours = (
     isDialogOpen: boolean,
@@ -144,10 +175,12 @@ const page = () => {
   };
 
   useEffect(() => {
-    if (
-      !hasPermissionWorklog("", "View", "Dashboard") &&
-      localStorage.getItem("isClient")
-    ) {
+    if (localStorage.getItem("isClient") === "true") {
+      console.log(hasPermissionWorklog("", "View", "Dashboard"));
+      if (hasPermissionWorklog("", "View", "Dashboard") === false) {
+        router.push("/");
+      }
+    } else {
       router.push("/");
     }
   }, [router]);
@@ -248,7 +281,7 @@ const page = () => {
 
   useEffect(() => {
     // if (currentProjectId.length > 0) {
-    const getWorkTypes = async () => {
+    const getProjectSummary = async () => {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
       try {
@@ -290,7 +323,7 @@ const page = () => {
       }
     };
 
-    getWorkTypes();
+    getProjectSummary();
     // }
   }, [currentProjectId, workType]);
 
@@ -467,8 +500,14 @@ const page = () => {
           </section>
 
           <section className="flex gap-[25px] items-center px-[20px] py-[10px]">
-            <Card className="w-full border border-[#00ACE2]">
-              <div className="flex p-[20px] items-center">
+            <Card className="w-full border border-[#00ACE2] shadow-md hover:shadow-xl cursor-pointer">
+              <div
+                className="flex p-[20px] items-center"
+                onClick={() => {
+                  setIsSummaryListDialogOpen(true);
+                  setSummaryLabel("TotalCreatedTask");
+                }}
+              >
                 <span className="border-r border-lightSilver pr-[20px]">
                   <TotalTaskCreated />
                 </span>
@@ -482,14 +521,21 @@ const page = () => {
                 </div>
               </div>
             </Card>
-            <Card className="w-full border border-[#FD7E14]">
-              <div className="flex p-[20px] items-center">
+
+            <Card className="w-full border border-[#FD7E14] shadow-md hover:shadow-xl cursor-pointer">
+              <div
+                className="flex p-[20px] items-center"
+                onClick={() => {
+                  setIsSummaryListDialogOpen(true);
+                  setSummaryLabel("InProgressTask");
+                }}
+              >
                 <span className="border-r border-lightSilver pr-[20px]">
                   <InProgressWork />
                 </span>
                 <div className="inline-flex flex-col items-start pl-[20px]">
                   <span className="text-[14px] font-normal text-darkCharcoal">
-                    In Progress Work
+                    In Progress Task
                   </span>
                   <span className="text-[20px] text-slatyGrey font-semibold">
                     {projectSummary.InProgressTask}
@@ -497,8 +543,15 @@ const page = () => {
                 </div>
               </div>
             </Card>
-            <Card className="w-full border border-[#DB5383]">
-              <div className="flex p-[20px] items-center">
+
+            <Card className="w-full border border-[#DB5383] shadow-md hover:shadow-xl cursor-pointer">
+              <div
+                className="flex p-[20px] items-center"
+                onClick={() => {
+                  setIsSummaryListDialogOpen(true);
+                  setSummaryLabel("NotStartedTask");
+                }}
+              >
                 <span className="border-r border-lightSilver pr-[20px]">
                   <PendingTask />
                 </span>
@@ -512,8 +565,15 @@ const page = () => {
                 </div>
               </div>
             </Card>
-            <Card className="w-full border border-[#02B89D]">
-              <div className="flex p-[20px] items-center">
+
+            <Card className="w-full border border-[#02B89D] shadow-md hover:shadow-xl cursor-pointer">
+              <div
+                className="flex p-[20px] items-center"
+                onClick={() => {
+                  setIsSummaryListDialogOpen(true);
+                  setSummaryLabel("CompletedTask");
+                }}
+              >
                 <span className="border-r border-lightSilver pr-[20px]">
                   <CompletedTask />
                 </span>
@@ -532,6 +592,7 @@ const page = () => {
           <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
             <Card className="w-full h-[344px] border border-lightSilver rounded-lg">
               <Chart_OverallProjectCompletion
+                sendData={handleValueFromOverallProject}
                 onSelectedProjectIds={currentProjectId}
                 onSelectedWorkType={workType}
               />
@@ -566,14 +627,15 @@ const page = () => {
                 />
               </Card>
 
-              {workType !== 1 && (
+              {/* {workType !== 1 && (
                 <Card className="w-full h-[344px] border border-lightSilver rounded-lg justify-center flex">
                   <Chart_ReturnType
                     onSelectedProjectIds={currentProjectId}
                     onSelectedWorkType={workType}
+                    sendData={handleValueFromReturnType}
                   />
                 </Card>
-              )}
+              )} */}
             </div>
 
             <Card className="w-full h-full">
@@ -662,6 +724,31 @@ const page = () => {
           onClose={() => setIsPriorityInfoDialogOpen(false)}
           onSelectedProjectIds={currentProjectId}
           onSelectedPriorityName={clickedPriorityName}
+        />
+
+        <Dialog_OverallProjectSummary
+          onOpen={isProjectStatusDialogOpen}
+          onClose={() => setIsProjectStatusDialogOpen(false)}
+          onSelectedProjectIds={currentProjectId}
+          onSelectedWorkType={workType}
+          onSelectedTaskStatus={clickedProjectStatusName}
+        />
+
+        <Dialog_SummaryList
+          onOpen={isSummaryListDialogOpen}
+          onClose={() => setIsSummaryListDialogOpen(false)}
+          onSelectedProjectIds={currentProjectId}
+          onSelectedWorkType={workType}
+          onSelectedSummaryStatus={summaryLabel}
+        />
+
+        <Dialog_ReturnTypeData
+          onOpen={isReturnTypeDialogOpen}
+          onClose={() => setIsReturnTypeDialogOpen(false)}
+          onSelectedProjectIds={currentProjectId}
+          onSelectedReturnTypeValue={
+            clickedReturnTypeValue === "Individual Return" ? 1 : 2
+          }
         />
 
         <ToastContainer

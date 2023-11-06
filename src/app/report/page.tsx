@@ -69,12 +69,15 @@ const Report = () => {
   const [ratingData, setRatingData] = useState([]);
 
   useEffect(() => {
-    if (
-      !hasPermissionWorklog("", "View", "Report") &&
-      !hasPermissionWorklog("Task", "View", "Report") &&
-      !hasPermissionWorklog("Rating", "View", "Report") &&
-      localStorage.getItem("isClient")
-    ) {
+    if (localStorage.getItem("isClient") === "true") {
+      if (
+        (hasPermissionWorklog("", "View", "Report") &&
+          (hasPermissionWorklog("Task", "View", "Report") ||
+            hasPermissionWorklog("Rating", "View", "Report"))) === false
+      ) {
+        router.push("/");
+      }
+    } else {
       router.push("/");
     }
   }, [router]);

@@ -15,11 +15,13 @@ if (typeof Highcharts === "object") {
 interface ReturnTypeProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
+  sendData: any;
 }
 
 const Chart_ReturnType: React.FC<ReturnTypeProps> = ({
   onSelectedProjectIds,
   onSelectedWorkType,
+  sendData,
 }) => {
   const [data, setData] = useState<any | any[]>([]);
 
@@ -89,6 +91,18 @@ const Chart_ReturnType: React.FC<ReturnTypeProps> = ({
       series: {
         dataLabels: {
           enabled: false,
+        },
+        cursor: "pointer",
+        point: {
+          events: {
+            click: (event: { point: { name: string } }) => {
+              const selectedPointData = {
+                name: (event.point && event.point.name) || "",
+              };
+              // sending data to Parent component (page.tsx)
+              sendData(true, selectedPointData.name);
+            },
+          },
         },
       },
     },

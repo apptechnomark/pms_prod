@@ -21,6 +21,7 @@ import React, {
 } from "react";
 import axios from "axios";
 import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
+import dayjs from "dayjs";
 
 export interface ClientContentRef {
   clearAllData: () => void;
@@ -330,14 +331,16 @@ const ClientContent = forwardRef<
               setDateofImplementation(
                 response.data.ResponseData.DateOfImplementation === null
                   ? ""
-                  : response.data.ResponseData.DateOfImplementation.split(
-                      "T"
-                    )[0]
+                  : dayjs(
+                      response.data.ResponseData.DateOfImplementation
+                    ).format("MM/DD/YYYY")
               );
               setAgreementStartDate(
                 response.data.ResponseData.AgreementStartDate === null
                   ? ""
-                  : response.data.ResponseData.AgreementStartDate.split("T")[0]
+                  : dayjs(response.data.ResponseData.AgreementStartDate).format(
+                      "MM/DD/YYYY"
+                    )
               );
               setFteAgreement(
                 response.data.ResponseData.FTEAgreementTax === null
@@ -976,7 +979,7 @@ const ClientContent = forwardRef<
 
     // common functon for adding additional field's data
     const getFieldValue = (condition: any, value: any) => {
-      return condition && value !== "" ? value : null;
+      return condition && value.trim() !== "" ? value.trim() : null;
     };
 
     try {
@@ -1751,13 +1754,14 @@ const ClientContent = forwardRef<
               </div>
 
               <div className="flex flex-row gap-5">
-                <Text
+                <Tel
                   label="CPA Mobile Number"
                   placeholder="Enter CPA Mobile No."
                   value={cpaMobileNo}
                   getValue={(e) => setCpaMobileNo(e)}
                   getError={() => {}}
                   autoComplete="off"
+                  maxLength={14}
                 />
 
                 <Text
@@ -1783,6 +1787,7 @@ const ClientContent = forwardRef<
                 <Text
                   label="Zip"
                   placeholder="Enter Zip"
+                  type="number"
                   value={zip}
                   getValue={(e) => setZip(e)}
                   getError={() => {}}
@@ -1933,6 +1938,7 @@ const ClientContent = forwardRef<
                     getValue={(e) => setDateofImplementation(e)}
                     id="Date Of Implementation"
                     getError={() => {}}
+                    format="mm/dd/yyyy"
                   />
                 </span>
               </div>
@@ -1947,6 +1953,7 @@ const ClientContent = forwardRef<
                     getValue={(e) => setAgreementStartDate(e)}
                     id="Agreement Start Date"
                     getError={() => {}}
+                    format="mm/dd/yyyy"
                   />
                 </span>
 

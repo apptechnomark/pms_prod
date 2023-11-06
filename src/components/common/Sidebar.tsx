@@ -137,19 +137,20 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
       const permission: any = await localStorage.getItem("permission");
       if (permission.length > 0) {
         sidebarItems = [
-          // {
-          //   name: "Dashboard",
-          //   href: "/",
-          //   icon: <DashboardIcon />,
-          // },
+          hasPermissionWorklog("", "View", "Dashboard") &&
+            !isClient && {
+              name: "Dashboard",
+              href: "/admin-dashboard",
+              icon: <DashboardIcon />,
+            },
           // {
           //   name: "Workload",
           //   href: "/workload",
           //   icon: <WorkloadIcon />,
           // },
-          (hasPermissionWorklog("", "View", "WorkLogs") ||
-            hasPermissionWorklog("", "ClientManager", "WorkLogs") ||
-            hasPermissionWorklog("", "ManageAssignee", "WorkLogs")) &&
+          hasPermissionWorklog("", "View", "WorkLogs") &&
+            (hasPermissionWorklog("", "ClientManager", "WorkLogs") ||
+              hasPermissionWorklog("", "ManageAssignee", "WorkLogs")) &&
             !isClient && {
               name: "Work Logs",
               href: "/worklogs",
@@ -161,17 +162,26 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
               href: "/approvals",
               icon: <Approvals />,
             },
+          hasPermissionWorklog("", "View", "Report") &&
+            (hasPermissionWorklog("project", "View", "Report") ||
+              hasPermissionWorklog("user", "View", "Report") ||
+              hasPermissionWorklog("timesheet", "View", "Report") ||
+              hasPermissionWorklog("workload", "View", "Report") ||
+              hasPermissionWorklog("user log", "View", "Report") ||
+              hasPermissionWorklog("audit", "View", "Report") ||
+              hasPermissionWorklog("billing report", "View", "Report") ||
+              hasPermissionWorklog("custom report", "View", "Report")) &&
+            !isClient && {
+              name: "Reports",
+              href: "/reports",
+              icon: <Reports />,
+            },
           hasPermissionWorklog("", "View", "Settings") &&
             !isClient && {
               name: "Settings",
               href: "/settings",
               icon: <Settings />,
             },
-          // {
-          //   name: "Reports",
-          //   href: "/reports",
-          //   icon: <Reports />,
-          // },
           hasPermissionWorklog("", "View", "Dashboard") &&
             isClient && {
               name: "Dashboard",

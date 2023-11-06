@@ -120,10 +120,11 @@ const page = () => {
   const [orgTokenAvailable, setOrgTokenAvailable] = useState(false);
 
   useEffect(() => {
-    if (
-      !hasPermissionWorklog("", "View", "Settings") &&
-      !localStorage.getItem("isClient")
-    ) {
+    if (localStorage.getItem("isClient") === "false") {
+      if (!hasPermissionWorklog("", "View", "Settings")) {
+        router.push("/");
+      }
+    } else {
       router.push("/");
     }
   }, [router]);

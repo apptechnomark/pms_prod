@@ -219,14 +219,10 @@ const Project = ({
                   return {
                     ...child,
                     ClientName: (
-                      <span className="w-[155px] text-sm">
-                        {child.ClientName}
-                      </span>
+                      <span className="w-[155px] text-sm">{child.ClientName}</span>
                     ),
                     ProjectName: (
-                      <span className="w-[220px] text-sm">
-                        {child.ProjectName}
-                      </span>
+                      <span className="w-[220px] text-sm">{child.ProjectName}</span>
                     ),
                     SubProjectName: (
                       <span className="w-[180px] -ml-20 text-sm">

@@ -114,7 +114,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Task ID</span>,
+        customHeadLabelRender: () => (
+          <span className="font-bold">Task ID</span>
+        ),
       },
     },
     {
@@ -122,7 +124,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Task</span>,
+        customHeadLabelRender: () => (
+          <span className="font-bold">Task</span>
+        ),
       },
     },
     {
@@ -130,7 +134,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Type</span>,
+        customHeadLabelRender: () => (
+          <span className="font-bold">Type</span>
+        ),
       },
     },
     {
@@ -178,7 +184,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Status</span>,
+        customHeadLabelRender: () => (
+          <span className="font-bold">Status</span>
+        ),
         customBodyRender: (value: any, tableMeta: any) => {
           const statusColorCode = tableMeta.rowData[9];
           return (

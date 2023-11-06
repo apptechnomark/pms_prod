@@ -51,6 +51,7 @@ const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
             typeOfWork: null,
             priorityId: onSelectedPriorityId,
             statusId: null,
+            ReturnTypeId: null,
           },
           {
             headers: {

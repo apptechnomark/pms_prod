@@ -14,11 +14,12 @@ if (typeof Highcharts === "object") {
 interface OverallProjectCompletionProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
+  sendData: any;
 }
 
 const Chart_OverallProjectCompletion: React.FC<
   OverallProjectCompletionProps
-> = ({ onSelectedProjectIds, onSelectedWorkType }) => {
+> = ({ onSelectedProjectIds, onSelectedWorkType, sendData }) => {
   const [data, setData] = useState<any | any[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
@@ -84,6 +85,18 @@ const Chart_OverallProjectCompletion: React.FC<
       variablepie: {
         dataLabels: {
           enabled: false,
+        },
+        cursor: "pointer",
+        point: {
+          events: {
+            click: (event: { point: { name: string } }) => {
+              const selectedPointData = {
+                name: (event.point && event.point.name) || "",
+              };
+              // sending data to Parent component (page.tsx)
+              sendData(true, selectedPointData.name);
+            },
+          },
         },
       },
     },

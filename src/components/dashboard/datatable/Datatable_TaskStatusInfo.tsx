@@ -53,6 +53,7 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
             typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
             priorityId: null,
             statusId: onSelectedStatusId,
+            ReturnTypeId: null,
           },
           {
             headers: {

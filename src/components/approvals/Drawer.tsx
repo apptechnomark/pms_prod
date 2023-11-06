@@ -23,6 +23,7 @@ import {
   FormControlLabel,
   FormGroup,
   FormHelperText,
+  Grid,
   IconButton,
   InputLabel,
   MenuItem,
@@ -45,6 +46,22 @@ import ImageUploader from "../common/ImageUploader";
 import { Mention, MentionsInput } from "react-mentions";
 import mentionsInputStyle from "../worklog/mentionsInputStyle";
 import EditIcon from "@mui/icons-material/Edit";
+import {
+  days,
+  getAssigneeDropdownData,
+  getCCDropdownData,
+  getClientDropdownData,
+  getManagerDropdownData,
+  getProcessDropdownData,
+  getProjectDropdownData,
+  getReviewerDropdownData,
+  getStatusDropdownData,
+  getSubProcessDropdownData,
+  getTypeOfReturnDropdownData,
+  getTypeOfWorkDropdownData,
+  hours,
+  months,
+} from "@/utils/commonDropdownApiCall";
 
 const EditDrawer = ({
   onOpen,
@@ -101,7 +118,7 @@ const EditDrawer = ({
   const [userId, setUserId] = useState(0);
 
   // Task
-  const [clientName, setClientName] = useState<string | number>(0);
+  const [clientName, setClientName] = useState<any>(0);
   const [typeOfWork, setTypeOfWork] = useState<string | number>(0);
   const [projectName, setProjectName] = useState<string | number>(0);
   const [processName, setProcessName] = useState<string | number>(0);
@@ -120,6 +137,7 @@ const EditDrawer = ({
   const [dateOfReview, setDateOfReview] = useState<string>("");
   const [dateOfPreperation, setDateOfPreperation] = useState<string>("");
   const [assigneeDisable, setAssigneeDisable] = useState(true);
+  const [estTimeData, setEstTimeData] = useState([]);
 
   // Selected Taxation
   const [returnType, setReturnType] = useState<string | number>(0);
@@ -855,76 +873,6 @@ const EditDrawer = ({
     }
   };
 
-  const days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
-
-  const months = [
-    { label: "1", value: 1 },
-    { label: "2", value: 2 },
-    { label: "3", value: 3 },
-    { label: "4", value: 4 },
-    { label: "5", value: 5 },
-    { label: "6", value: 6 },
-    { label: "7", value: 7 },
-    { label: "8", value: 8 },
-    { label: "9", value: 9 },
-    { label: "10", value: 10 },
-    { label: "11", value: 11 },
-    { label: "12", value: 12 },
-    { label: "13", value: 13 },
-    { label: "14", value: 14 },
-    { label: "15", value: 15 },
-    { label: "16", value: 16 },
-    { label: "17", value: 17 },
-    { label: "18", value: 18 },
-    { label: "19", value: 19 },
-    { label: "20", value: 20 },
-    { label: "21", value: 21 },
-    { label: "22", value: 22 },
-    { label: "23", value: 23 },
-    { label: "24", value: 24 },
-    { label: "25", value: 25 },
-    { label: "26", value: 26 },
-    { label: "27", value: 27 },
-    { label: "28", value: 28 },
-    { label: "29", value: 29 },
-    { label: "Last Day of Month", value: -1 },
-  ];
-
-  const Hours = [
-    { label: "1", value: 1 },
-    { label: "2", value: 2 },
-    { label: "3", value: 3 },
-    { label: "4", value: 4 },
-    { label: "5", value: 5 },
-    { label: "6", value: 6 },
-    { label: "7", value: 7 },
-    { label: "8", value: 8 },
-    { label: "9", value: 9 },
-    { label: "10", value: 10 },
-    { label: "11", value: 11 },
-    { label: "12", value: 12 },
-    { label: "13", value: 13 },
-    { label: "14", value: 14 },
-    { label: "15", value: 15 },
-    { label: "16", value: 16 },
-    { label: "17", value: 17 },
-    { label: "18", value: 18 },
-    { label: "19", value: 19 },
-    { label: "20", value: 20 },
-    { label: "21", value: 21 },
-    { label: "22", value: 22 },
-    { label: "23", value: 23 },
-    { label: "24", value: 24 },
-  ];
-
   const currentYear = new Date().getFullYear();
   const Years = [];
 
@@ -933,17 +881,17 @@ const EditDrawer = ({
   }
 
   let Task = [
-    hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "TASK",
-    hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "SUB-TASK",
-    hasPermissionWorklog("CheckList", "View", "WorkLogs") && "CHECKLIST",
-    hasPermissionWorklog("Comment", "View", "WorkLogs") && "COMMENTS",
-    hasPermissionWorklog("Reccuring", "View", "WorkLogs") && "RECURRING",
-    (isManual === true || isManual === null) && "MANUAL TIME",
-    isPartiallySubmitted && "REVIEWER MANUAL TIME",
-    hasPermissionWorklog("Reminder", "View", "WorkLogs") && "REMINDER",
-    hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && "ERROR LOGS",
-    "REVIEWER'S NOTE",
-    "LOGS",
+    hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "Task",
+    hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "Sub-Task",
+    hasPermissionWorklog("CheckList", "View", "WorkLogs") && "Checklist",
+    hasPermissionWorklog("Comment", "View", "WorkLogs") && "Comments",
+    hasPermissionWorklog("Reccuring", "View", "WorkLogs") && "Recurring",
+    (isManual === true || isManual === null) && "Manual Time",
+    isPartiallySubmitted && "Reviewer Manual Time",
+    hasPermissionWorklog("Reminder", "View", "WorkLogs") && "Reminder",
+    hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && "Error Logs",
+    "Reviewer's Note",
+    // "Logs",
   ];
 
   useEffect(() => {
@@ -1899,151 +1847,6 @@ const EditDrawer = ({
   };
 
   // API CALLS dropdown data
-  const getData = async (api: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      let response: any;
-      if (api === "/WorkType/GetDropdown") {
-        response = await axios.post(
-          `${process.env.pms_api_url}${api}`,
-          {
-            clientId: 0,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-      } else if (api === "/project/getdropdown") {
-        response = await axios.post(
-          `${process.env.pms_api_url}${api}`,
-          {
-            clientId: clientName,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-      } else if (api === "/Process/GetDropdownByClient") {
-        response = await axios.post(
-          `${process.env.pms_api_url}${api}`,
-          {
-            clientId: clientName,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-      } else if ("/client/getdropdownforgroup") {
-        response = await axios.get(`${process.env.pms_api_url}${api}`, {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        });
-      } else if ("/status/GetDropdown") {
-        response = await axios.get(`${process.env.pms_api_url}${api}`, {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        });
-      }
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          if (api === "/client/getdropdownforgroup") {
-            setClientDropdownData(response.data.ResponseData);
-            getManagerData();
-            getData("/WorkType/GetDropdown");
-          }
-          if (api === "/WorkType/GetDropdown") {
-            setWorkTypeDropdownData(response.data.ResponseData);
-            getTypeOfReturn();
-            getData("/project/getdropdown");
-          }
-          if (api === "/project/getdropdown") {
-            setProjectDropdownData(response.data.ResponseData.List);
-            getData("/Process/GetDropdownByClient");
-          }
-          if (api === "/Process/GetDropdownByClient") {
-            setProcessDropdownData(response.data.ResponseData);
-            getData("/status/GetDropdown");
-          }
-          if (api === "/status/GetDropdown") {
-            setStatusDropdownData(response.data.ResponseData);
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error: any) {
-      if (error.response.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
-  };
-
-  const getManagerData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      let response = await axios.get(
-        `${process.env.api_url}/user/getmanagerdropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setManagerDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const getUserDetails = async () => {
     try {
       const headers = {
@@ -2073,189 +1876,74 @@ const EditDrawer = ({
     }));
   };
 
-  const getCCData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      let response = await axios.get(
-        `${process.env.api_url}/user/getdropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setCCDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getTypeOfReturn = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      let response = await axios.get(
-        `${process.env.worklog_api_url}/workitem/getformtypelist`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setTypeOfReturnDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  useEffect(() => {
+    const getData = async () => {
+      await setStatusDropdownData(await getStatusDropdownData());
+      await setCCDropdownData(await getCCDropdownData());
+    };
+    getData();
+  }, []);
 
   useEffect(() => {
-    getUserDetails();
-    onOpen && getData("/client/getdropdownforgroup");
-    onOpen && getCCData();
+    const getData = async () => {
+      getUserDetails();
+      setClientDropdownData(await getClientDropdownData());
+      setManagerDropdownData(await getManagerDropdownData());
+      clientName > 0 &&
+        setWorkTypeDropdownData(await getTypeOfWorkDropdownData(clientName));
+      clientName > 0 &&
+        setProjectDropdownData(await getProjectDropdownData(clientName));
+      const processData: any =
+        clientName > 0 && (await getProcessDropdownData(clientName));
+      setProcessDropdownData(await getProcessDropdownData(clientName));
+    };
+
+    onOpen && getData();
   }, [clientName, onOpen]);
 
   useEffect(() => {
     const getData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        let response = await axios.post(
-          `${process.env.pms_api_url}/Process/GetDropdownByClient`,
-          {
-            clientId: clientName,
-            processId: processName,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
+      const data: any =
+        processName !== 0 &&
+        (await getSubProcessDropdownData(clientName, processName));
+      data.length > 0 && setEstTimeData(data);
+      data.length > 0 &&
+        setSubProcessDropdownData(
+          await getSubProcessDropdownData(clientName, processName)
         );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setSubProcessDropdownData(response.data.ResponseData);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error: any) {
-        if (error.response.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
-      }
     };
-    processName !== 0 && getData();
+
+    getData();
   }, [processName]);
 
   useEffect(() => {
-    const getData = async (api: any) => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        let response = await axios.post(
-          `${process.env.api_url}${api}`,
-          {
-            ClientId: clientName,
-            WorktypeId: typeOfWork,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
+    const getData = async () => {
+      const assigneeData = await getAssigneeDropdownData(
+        clientName,
+        typeOfWork
+      );
+      assigneeData.length > 0 && setAssigneeDropdownData(assigneeData);
+      const UserId: any = localStorage.getItem("UserId");
+      assigneeData.length > 0 &&
+        setAssignee(
+          assigneeData
+            .map((i: any) =>
+              i.value === parseInt(UserId) ? i.value : undefined
+            )
+            .filter((i: any) => i !== undefined)[0]
         );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            if (api === "/user/GetAssigneeUserDropdown") {
-              setAssigneeDropdownData(response.data.ResponseData);
-            }
-            if (api === "/user/GetReviewerDropdown") {
-              setReviewerDropdownData(response.data.ResponseData);
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error: any) {
-        if (error.response.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
-      }
+      setReviewerDropdownData(
+        await getReviewerDropdownData(clientName, typeOfWork)
+      );
     };
-    typeOfWork !== 0 && getData("/user/GetAssigneeUserDropdown");
-    typeOfWork !== 0 && getData("/user/GetReviewerDropdown");
-  }, [typeOfWork]);
+
+    const getTypeOfReturn = async () => {
+      setTypeOfReturnDropdownData(await getTypeOfReturnDropdownData());
+    };
+
+    typeOfWork !== 0 && getData();
+    typeOfWork === 3 && getTypeOfReturn();
+  }, [typeOfWork, clientName]);
 
   const handleClose = () => {
     setClientName(0);
@@ -2277,6 +1965,7 @@ const EditDrawer = ({
     setManager(0);
     setClientTaskName("");
     setAllInfoDate("");
+    setEstTimeData([]);
 
     // Taxation selected
     setReturnType(0);
@@ -2447,8 +2136,8 @@ const EditDrawer = ({
                   </span>
                 </div>
                 {taskDrawer && (
-                  <>
-                    <div className="mt-[10px] pl-6">
+                  <Grid container className="px-8">
+                    <Grid item xs={3} className="pt-4">
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, minWidth: 300 }}
@@ -2470,6 +2159,8 @@ const EditDrawer = ({
                           ))}
                         </Select>
                       </FormControl>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, minWidth: 300 }}
@@ -2491,6 +2182,8 @@ const EditDrawer = ({
                           ))}
                         </Select>
                       </FormControl>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, minWidth: 300 }}
@@ -2512,70 +2205,8 @@ const EditDrawer = ({
                           ))}
                         </Select>
                       </FormControl>
-                      <TextField
-                        label={
-                          <span>
-                            Task Name
-                            <span className="!text-defaultRed">&nbsp;*</span>
-                          </span>
-                        }
-                        fullWidth
-                        className="pt-1"
-                        value={
-                          clientTaskName?.trim().length <= 0
-                            ? ""
-                            : clientTaskName
-                        }
-                        InputProps={{ readOnly: true }}
-                        inputProps={{ readOnly: true }}
-                        margin="normal"
-                        variant="standard"
-                        sx={{ mx: 0.75, maxWidth: 300, mt: -0.2, ml: 1 }}
-                      />
-                    </div>
-                    <div className="mt-[10px] pl-6">
-                      <FormControl
-                        variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300 }}
-                      >
-                        <InputLabel id="demo-simple-select-standard-label">
-                          Process Name
-                          <span className="text-defaultRed">&nbsp;*</span>
-                        </InputLabel>
-                        <Select
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          value={processName === 0 ? "" : processName}
-                          readOnly
-                        >
-                          {processDropdownData.map((i: any, index: number) => (
-                            <MenuItem value={i.Id} key={index}>
-                              {i.Name}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                      <FormControl
-                        variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300 }}
-                      >
-                        <InputLabel id="demo-simple-select-standard-label">
-                          Sub Process
-                          <span className="text-defaultRed">&nbsp;*</span>
-                        </InputLabel>
-                        <Select
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          value={subProcess === 0 ? "" : subProcess}
-                          readOnly
-                        >
-                          {subProcessDropdownData.map(
-                            (i: any, index: number) => (
-                              <MenuItem value={i.Id}>{i.Name}</MenuItem>
-                            )
-                          )}
-                        </Select>
-                      </FormControl>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, minWidth: 300 }}
@@ -2597,6 +2228,76 @@ const EditDrawer = ({
                           ))}
                         </Select>
                       </FormControl>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <FormControl
+                        variant="standard"
+                        sx={{ mx: 0.75, minWidth: 300 }}
+                      >
+                        <InputLabel id="demo-simple-select-standard-label">
+                          Process Name
+                          <span className="text-defaultRed">&nbsp;*</span>
+                        </InputLabel>
+                        <Select
+                          labelId="demo-simple-select-standard-label"
+                          id="demo-simple-select-standard"
+                          value={processName === 0 ? "" : processName}
+                          readOnly
+                        >
+                          {processDropdownData.map((i: any, index: number) => (
+                            <MenuItem value={i.Id} key={index}>
+                              {i.Name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <FormControl
+                        variant="standard"
+                        sx={{ mx: 0.75, minWidth: 300 }}
+                      >
+                        <InputLabel id="demo-simple-select-standard-label">
+                          Sub Process
+                          <span className="text-defaultRed">&nbsp;*</span>
+                        </InputLabel>
+                        <Select
+                          labelId="demo-simple-select-standard-label"
+                          id="demo-simple-select-standard"
+                          value={subProcess === 0 ? "" : subProcess}
+                          readOnly
+                        >
+                          {subProcessDropdownData.map(
+                            (i: any, index: number) => (
+                              <MenuItem value={i.Id}>{i.Name}</MenuItem>
+                            )
+                          )}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <TextField
+                        label={
+                          <span>
+                            Task Name
+                            <span className="!text-defaultRed">&nbsp;*</span>
+                          </span>
+                        }
+                        fullWidth
+                        className="pt-1"
+                        value={
+                          clientTaskName?.trim().length <= 0
+                            ? ""
+                            : clientTaskName
+                        }
+                        InputProps={{ readOnly: true }}
+                        inputProps={{ readOnly: true }}
+                        margin="normal"
+                        variant="standard"
+                        sx={{ mx: 0.75, maxWidth: 300, mt: -0.2, ml: 1 }}
+                      />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
                       <TextField
                         label={
                           <span>
@@ -2615,11 +2316,11 @@ const EditDrawer = ({
                         variant="standard"
                         sx={{ mx: 0.75, maxWidth: 300, mt: -0.2 }}
                       />
-                    </div>
-                    <div className="mt-[-5px] pl-6">
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
                       <FormControl
                         variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300, mt: 1.6 }}
+                        sx={{ mx: 0.75, minWidth: 300, mt: -1.2 }}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Priority
@@ -2636,6 +2337,31 @@ const EditDrawer = ({
                           <MenuItem value={3}>Low</MenuItem>
                         </Select>
                       </FormControl>
+                    </Grid>
+                    {typeOfWork === 3 && (
+                      <Grid item xs={3} className="pt-4">
+                        <FormControl
+                          variant="standard"
+                          sx={{ mx: 0.75, minWidth: 300, mt: -1.2 }}
+                        >
+                          <InputLabel id="demo-simple-select-standard-label">
+                            Complexity
+                            <span className="text-defaultRed">&nbsp;*</span>
+                          </InputLabel>
+                          <Select
+                            labelId="demo-simple-select-standard-label"
+                            id="demo-simple-select-standard"
+                            value={complexity === 0 ? "" : complexity}
+                            readOnly
+                          >
+                            <MenuItem value={1}>Moderate</MenuItem>
+                            <MenuItem value={2}>Intermediate</MenuItem>
+                            <MenuItem value={3}>Complex</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                    )}
+                    <Grid item xs={3} className="pt-4">
                       <TextField
                         label={
                           <span>
@@ -2646,41 +2372,39 @@ const EditDrawer = ({
                         fullWidth
                         value={
                           subProcess !== 0
-                            ? subProcessDropdownData.map((i: any) =>
-                                subProcess === i.Id
-                                  ? (() => {
-                                      const timeInSeconds = i.EstimatedHour;
-                                      const hours = Math.floor(
-                                        timeInSeconds / 3600
-                                      );
-                                      const minutes = Math.floor(
-                                        (timeInSeconds % 3600) / 60
-                                      );
-                                      const seconds = Math.floor(
-                                        timeInSeconds % 60
-                                      );
-                                      const formattedHours = hours
-                                        .toString()
-                                        .padStart(2, "0");
-                                      const formattedMinutes = minutes
-                                        .toString()
-                                        .padStart(2, "0");
-                                      const formattedSeconds = seconds
-                                        .toString()
-                                        .padStart(2, "0");
-
-                                      return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
-                                    })()
-                                  : null
-                              )
+                            ? (estTimeData as any[])
+                                .map((i) => {
+                                  const hours = Math.floor(
+                                    i.EstimatedHour / 3600
+                                  );
+                                  const minutes = Math.floor(
+                                    (i.EstimatedHour % 3600) / 60
+                                  );
+                                  const remainingSeconds = i.EstimatedHour % 60;
+                                  const formattedHours = hours
+                                    .toString()
+                                    .padStart(2, "0");
+                                  const formattedMinutes = minutes
+                                    .toString()
+                                    .padStart(2, "0");
+                                  const formattedSeconds = remainingSeconds
+                                    .toString()
+                                    .padStart(2, "0");
+                                  return subProcess === i.Id
+                                    ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
+                                    : null;
+                                })
+                                .filter((i) => i !== null)
                             : ""
                         }
                         InputProps={{ readOnly: true }}
                         inputProps={{ readOnly: true }}
                         margin="normal"
                         variant="standard"
-                        sx={{ mx: 0.75, maxWidth: 300 }}
+                        sx={{ mx: 0.75, maxWidth: 300, mt: -0.8 }}
                       />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
                       <TextField
                         label={
                           <span>
@@ -2695,8 +2419,10 @@ const EditDrawer = ({
                         inputProps={{ readOnly: true }}
                         margin="normal"
                         variant="standard"
-                        sx={{ mx: 0.75, maxWidth: 300 }}
+                        sx={{ mx: 0.75, maxWidth: 300, mt: -0.8 }}
                       />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
                       <TextField
                         label={
                           <span>
@@ -2707,46 +2433,46 @@ const EditDrawer = ({
                         fullWidth
                         value={
                           subProcess !== 0
-                            ? subProcessDropdownData.map((i: any) =>
-                                subProcess === i.Id
-                                  ? (() => {
-                                      const timeInSeconds =
-                                        i.EstimatedHour * quantity;
-                                      const hours = Math.floor(
-                                        timeInSeconds / 3600
-                                      );
-                                      const minutes = Math.floor(
-                                        (timeInSeconds % 3600) / 60
-                                      );
-                                      const seconds = Math.floor(
-                                        timeInSeconds % 60
-                                      );
-                                      const formattedHours = hours
-                                        .toString()
-                                        .padStart(2, "0");
-                                      const formattedMinutes = minutes
-                                        .toString()
-                                        .padStart(2, "0");
-                                      const formattedSeconds = seconds
-                                        .toString()
-                                        .padStart(2, "0");
-
-                                      return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
-                                    })()
-                                  : null
-                              )
+                            ? (estTimeData as any[])
+                                .map((i) => {
+                                  const hours = Math.floor(
+                                    (i.EstimatedHour * quantity) / 3600
+                                  );
+                                  const minutes = Math.floor(
+                                    ((i.EstimatedHour * quantity) % 3600) / 60
+                                  );
+                                  const remainingSeconds =
+                                    (i.EstimatedHour * quantity) % 60;
+                                  const formattedHours = hours
+                                    .toString()
+                                    .padStart(2, "0");
+                                  const formattedMinutes = minutes
+                                    .toString()
+                                    .padStart(2, "0");
+                                  const formattedSeconds = remainingSeconds
+                                    .toString()
+                                    .padStart(2, "0");
+                                  return subProcess === i.Id
+                                    ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
+                                    : null;
+                                })
+                                .filter((i) => i !== null)
                             : ""
                         }
                         InputProps={{ readOnly: true }}
                         inputProps={{ readOnly: true }}
                         margin="normal"
                         variant="standard"
-                        sx={{ mx: 0.75, maxWidth: 300 }}
+                        sx={{
+                          mx: 0.75,
+                          maxWidth: 300,
+                          mt: typeOfWork === 3 ? -0.9 : -0.8,
+                        }}
                       />
-                    </div>
-                    <div className="pl-6">
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
                       <div
-                        className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
@@ -2765,8 +2491,10 @@ const EditDrawer = ({
                           />
                         </LocalizationProvider>
                       </div>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
                       <div
-                        className={`inline-flex mt-[-1px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
@@ -2784,8 +2512,10 @@ const EditDrawer = ({
                           />
                         </LocalizationProvider>
                       </div>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
                       <div
-                        className={`inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
@@ -2797,9 +2527,11 @@ const EditDrawer = ({
                           />
                         </LocalizationProvider>
                       </div>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
                       <FormControl
                         variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300, mt: 1.5 }}
+                        sx={{ mx: 0.75, minWidth: 300, mt: -1.2 }}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Assignee
@@ -2818,11 +2550,15 @@ const EditDrawer = ({
                           ))}
                         </Select>
                       </FormControl>
-                    </div>
-                    <div className="mt-[10px] pl-6 flex items-center">
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
                       <FormControl
                         variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300 }}
+                        sx={{
+                          mx: 0.75,
+                          minWidth: 300,
+                          mt: typeOfWork === 3 ? -1.2 : -0.5,
+                        }}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Reviewer
@@ -2841,9 +2577,15 @@ const EditDrawer = ({
                           ))}
                         </Select>
                       </FormControl>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
                       <FormControl
                         variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300 }}
+                        sx={{
+                          mx: 0.75,
+                          minWidth: 300,
+                          mt: typeOfWork === 3 ? -1.2 : -0.5,
+                        }}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Manager
@@ -2862,61 +2604,17 @@ const EditDrawer = ({
                           ))}
                         </Select>
                       </FormControl>
-                      {typeOfWork !== 3 ? (
-                        <>
-                          {onEdit > 0 && (
-                            <>
-                              <TextField
-                                label={
-                                  <span>
-                                    Date of Preperation
-                                    <span className="!text-defaultRed">
-                                      &nbsp;*
-                                    </span>
-                                  </span>
-                                }
-                                type={inputTypePreperation}
-                                disabled
-                                fullWidth
-                                value={dateOfPreperation}
-                                InputProps={{ readOnly: true }}
-                                inputProps={{ readOnly: true }}
-                                margin="normal"
-                                variant="standard"
-                                sx={{
-                                  mx: 0.75,
-                                  maxWidth: 300,
-                                  mt: 0.3,
-                                  ml: 1.5,
-                                }}
-                              />
-                              <TextField
-                                label={
-                                  <span>
-                                    Date of Review
-                                    <span className="!text-defaultRed">
-                                      &nbsp;*
-                                    </span>
-                                  </span>
-                                }
-                                disabled
-                                type={inputTypeReview}
-                                fullWidth
-                                value={dateOfReview}
-                                InputProps={{ readOnly: true }}
-                                inputProps={{ readOnly: true }}
-                                margin="normal"
-                                variant="standard"
-                                sx={{ mx: 0.75, maxWidth: 300, mt: -0.4 }}
-                              />
-                            </>
-                          )}
-                        </>
-                      ) : (
-                        <>
+                    </Grid>
+                    {typeOfWork === 3 && (
+                      <>
+                        <Grid item xs={3} className="pt-4">
                           <FormControl
                             variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300, mt: -0.9, ml: 1.5 }}
+                            sx={{
+                              mx: 0.75,
+                              minWidth: 300,
+                              mt: -1.2,
+                            }}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Return Type
@@ -2932,9 +2630,11 @@ const EditDrawer = ({
                               <MenuItem value={2}>Business Return</MenuItem>
                             </Select>
                           </FormControl>
+                        </Grid>
+                        <Grid item xs={3} className="pt-4">
                           <FormControl
                             variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300, mt: -0.9 }}
+                            sx={{ mx: 0.75, minWidth: 300 }}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Type of Return
@@ -2955,12 +2655,8 @@ const EditDrawer = ({
                               )}
                             </Select>
                           </FormControl>
-                        </>
-                      )}
-                    </div>
-                    <div className="mt-[10px] pl-6 flex items-center">
-                      {typeOfWork === 3 && (
-                        <>
+                        </Grid>
+                        <Grid item xs={3} className="pt-4">
                           <FormControl
                             variant="standard"
                             sx={{ mx: 0.75, minWidth: 300 }}
@@ -2982,25 +2678,8 @@ const EditDrawer = ({
                               ))}
                             </Select>
                           </FormControl>
-                          <FormControl
-                            variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300 }}
-                          >
-                            <InputLabel id="demo-simple-select-standard-label">
-                              Complexity
-                              <span className="text-defaultRed">&nbsp;*</span>
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-standard-label"
-                              id="demo-simple-select-standard"
-                              value={complexity === 0 ? "" : complexity}
-                              readOnly
-                            >
-                              <MenuItem value={1}>Moderate</MenuItem>
-                              <MenuItem value={2}>Intermediate</MenuItem>
-                              <MenuItem value={3}>Complex</MenuItem>
-                            </Select>
-                          </FormControl>
+                        </Grid>
+                        <Grid item xs={3} className="pt-4">
                           <FormControl
                             variant="standard"
                             sx={{ mx: 0.75, minWidth: 300, ml: 1 }}
@@ -3022,6 +2701,8 @@ const EditDrawer = ({
                               ))}
                             </Select>
                           </FormControl>
+                        </Grid>
+                        <Grid item xs={3} className="pt-4">
                           <TextField
                             label={
                               <span>
@@ -3038,17 +2719,13 @@ const EditDrawer = ({
                             inputProps={{ readOnly: true }}
                             margin="normal"
                             variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 300, my: 0 }}
+                            sx={{ mx: 0.75, maxWidth: 300, mt: 0.3 }}
                           />
-                        </>
-                      )}
-                    </div>
-                    <div className="mt-[10px] pl-6 flex items-center">
-                      {typeOfWork === 3 && (
-                        <>
+                        </Grid>
+                        <Grid item xs={3} className="pt-4">
                           <FormControl
                             variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300 }}
+                            sx={{ mx: 0.75, minWidth: 300, mt: -1 }}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Checklist/Workpaper
@@ -3068,10 +2745,64 @@ const EditDrawer = ({
                               <MenuItem value={2}>False</MenuItem>
                             </Select>
                           </FormControl>
-                        </>
-                      )}
-                    </div>
-                  </>
+                        </Grid>
+                      </>
+                    )}
+                    {onEdit > 0 && (
+                      <>
+                        <Grid item xs={3} className="pt-4">
+                          <TextField
+                            label={
+                              <span>
+                                Date of Preperation
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            type={inputTypePreperation}
+                            disabled
+                            fullWidth
+                            value={dateOfPreperation}
+                            InputProps={{ readOnly: true }}
+                            inputProps={{ readOnly: true }}
+                            margin="normal"
+                            variant="standard"
+                            sx={{
+                              mx: 0.75,
+                              maxWidth: 300,
+                              mt: typeOfWork === 3 ? -0.6 : -0.2,
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={3} className="pt-4">
+                          <TextField
+                            label={
+                              <span>
+                                Date of Review
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            disabled
+                            type={inputTypeReview}
+                            fullWidth
+                            value={dateOfReview}
+                            InputProps={{ readOnly: true }}
+                            inputProps={{ readOnly: true }}
+                            margin="normal"
+                            variant="standard"
+                            sx={{
+                              mx: 0.75,
+                              maxWidth: 300,
+                              mt: typeOfWork === 3 ? -0.6 : -0.2,
+                            }}
+                          />
+                        </Grid>
+                      </>
+                    )}
+                  </Grid>
                 )}
               </div>
             )}
@@ -4211,7 +3942,7 @@ const EditDrawer = ({
                           value={reminderTime === 0 ? "" : reminderTime}
                           readOnly
                         >
-                          {Hours.map((i: any, index: number) => (
+                          {hours.map((i: any, index: number) => (
                             <MenuItem value={i.value} key={index}>
                               {i.label}
                             </MenuItem>

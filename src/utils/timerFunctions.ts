@@ -19,4 +19,25 @@ const toSeconds = (time: string) => {
   } else console.error("Please provide the time in hh:mm:ss format!");
 };
 
-export { toHoursAndMinutes, toSeconds };
+const getDates = (startDate?: any, endDate?: any) => {
+  let array = [];
+  let date = new Date();
+
+  let firstDay = startDate
+    ? startDate
+    : new Date(date.getFullYear(), date.getMonth(), 1).toString().split(" ")[2];
+  let lastDay = endDate ? endDate : new Date().toString().split(" ")[2];
+
+  for (let i = firstDay; i <= parseInt(lastDay); i++) {
+    let d =
+      date.getFullYear() +
+      "-" +
+      (date.getMonth() + 1) +
+      "-" +
+      (i.toString().length > 1 ? i : "0" + i);
+    array.push(d);
+  }
+  return array;
+};
+
+export { toHoursAndMinutes, toSeconds, getDates };

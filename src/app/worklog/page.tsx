@@ -52,12 +52,15 @@ const Worklog = () => {
   const [workTypeCompleteData, setWorkTypeCompleteData] = useState([]);
 
   useEffect(() => {
-    if (
-      !hasPermissionWorklog("", "View", "Worklogs") &&
-      !hasPermissionWorklog("Task", "View", "Worklogs") &&
-      !hasPermissionWorklog("Rating", "View", "Worklogs") &&
-      localStorage.getItem("isClient")
-    ) {
+    if (localStorage.getItem("isClient") === "true") {
+      if (
+        (hasPermissionWorklog("", "View", "Worklogs") &&
+          (hasPermissionWorklog("Task/SubTask", "View", "Worklogs") ||
+            hasPermissionWorklog("Rating", "View", "Worklogs"))) === false
+      ) {
+        router.push("/");
+      }
+    } else {
       router.push("/");
     }
   }, [router]);
