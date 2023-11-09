@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import TablePagination from "@mui/material/TablePagination";
 
 interface TaskStatusInfoProps {
   onSelectedProjectIds: number[];
@@ -39,6 +40,24 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
   onSelectedStatusId,
 }) => {
   const [data, setData] = useState<any | any[]>([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [tableDataCount, setTableDataCount] = useState(0);
+
+  // functions for handling pagination
+  const handleChangePage = (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value));
+    setPage(0);
+  };
 
   useEffect(() => {
     // if (onSelectedProjectIds.length > 0) {
@@ -49,6 +68,10 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
         const response = await axios.post(
           `${process.env.report_api_url}/clientdashboard/taskstatusandprioritylist`,
           {
+            PageNo: page + 1,
+            PageSize: rowsPerPage,
+            SortColumn: null,
+            IsDesc: true,
             projectIds: onSelectedProjectIds,
             typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
             priorityId: null,
@@ -67,7 +90,8 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
           response.status === 200 &&
           response.data.ResponseStatus === "Success"
         ) {
-          setData(response.data.ResponseData);
+          setData(response.data.ResponseData.List);
+          setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
           const errorMessage = response.data.Message || "Something went wrong.";
           toast.error(errorMessage);
@@ -80,7 +104,13 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
     // Fetch data when component mounts
     getData();
     // }
-  }, [onSelectedProjectIds, onSelectedWorkType, onSelectedStatusId]);
+  }, [
+    onSelectedProjectIds,
+    onSelectedWorkType,
+    onSelectedStatusId,
+    page,
+    rowsPerPage,
+  ]);
 
   // Table Columns
   const columns = [
@@ -304,6 +334,7 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
     print: false,
     download: false,
     search: false,
+    pagination: false,
     selectToolbarPlacement: "none",
     draggableColumns: {
       enabled: true,
@@ -332,6 +363,14 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
           title={undefined}
           options={options}
           data-tableid="taskStatusInfo_Datatable"
+        />
+        <TablePagination
+          component="div"
+          count={tableDataCount}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </ThemeProvider>
     </div>

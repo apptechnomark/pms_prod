@@ -57,10 +57,14 @@ const getYears = () => {
 };
 
 const getFormattedDate = (newValue: any) => {
-  const date = new Date(dayjs(newValue.$d).toString())
-    .toLocaleDateString()
-    .split("/");
-  return `${date[0]}-${date[1]}-${date[2]}`;
+  if (newValue !== "") {
+    console.log("", newValue);
+    return `${newValue.$y}-${
+      (newValue.$M + 1).toString().length > 1
+        ? newValue.$M + 1
+        : `0${newValue.$M + 1}`
+    }- ${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+  }
 };
 
 const CustomReportFilter = ({
@@ -531,6 +535,9 @@ const CustomReportFilter = ({
     }
   };
 
+  console.log(receivedDate, dueDate, allInfoDate);
+  console.log("date", getFormattedDate(receivedDate));
+
   return (
     <>
       {savedFilters.length > 0 && !defaultFilter ? (
@@ -878,19 +885,7 @@ const CustomReportFilter = ({
                     <DatePicker
                       label="Received Date"
                       value={receivedDate === "" ? null : dayjs(receivedDate)}
-                      onChange={(newValue: any) =>
-                        setReceivedDate(
-                          (newValue.$D.toString().length > 1
-                            ? newValue.$D
-                            : `0${newValue.$D}`) +
-                            "-" +
-                            (newValue.$M.toString().length > 1
-                              ? newValue.$M
-                              : `0${newValue.$M}`) +
-                            "-" +
-                            newValue.$y.toString()
-                        )
-                      }
+                      onChange={(newValue: any) => setReceivedDate(newValue)}
                     />
                   </LocalizationProvider>
                 </div>
@@ -901,19 +896,7 @@ const CustomReportFilter = ({
                     <DatePicker
                       label="Due Date"
                       value={dueDate === "" ? null : dayjs(dueDate)}
-                      onChange={(newValue: any) =>
-                        setDueDate(
-                          (newValue.$D.toString().length > 1
-                            ? newValue.$D
-                            : `0${newValue.$D}`) +
-                            "-" +
-                            (newValue.$M.toString().length > 1
-                              ? newValue.$M
-                              : `0${newValue.$M}`) +
-                            "-" +
-                            newValue.$y
-                        )
-                      }
+                      onChange={(newValue: any) => setDueDate(newValue)}
                     />
                   </LocalizationProvider>
                 </div>
@@ -925,7 +908,6 @@ const CustomReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="All Info Date"
-                      format="DD/MM/YYYY"
                       value={allInfoDate === "" ? null : dayjs(allInfoDate)}
                       onChange={(newValue: any) => setAllInfoDate(newValue)}
                     />

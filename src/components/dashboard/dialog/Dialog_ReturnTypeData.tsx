@@ -62,6 +62,10 @@ const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
         const response = await axios.post(
           `${process.env.report_api_url}/clientdashboard/taskstatusandprioritylist`,
           {
+            PageNo: 1,
+            PageSize: 1000,
+            SortColumn: null,
+            IsDesc: true,
             projectIds: onSelectedProjectIds,
             typeOfWork: null,
             priorityId: null,
@@ -80,7 +84,7 @@ const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
           response.status === 200 &&
           response.data.ResponseStatus === "Success"
         ) {
-          setData(response.data.ResponseData);
+          setData(response.data.ResponseData.List);
         } else {
           const errorMessage = response.data.Message || "Something went wrong.";
           toast.error(errorMessage);
@@ -128,7 +132,11 @@ const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
             </FormControl>
           </div>
 
-          <Datatable_ReturnTypeData currReturnTypeData={data} />
+          <Datatable_ReturnTypeData
+            onSelectedProjectIds={onSelectedProjectIds}
+            onSelectedReturnTypeValue={onSelectedReturnTypeValue}
+            onCurrSelectedReturnType={returnType}
+          />
         </DialogContent>
       </Dialog>
     </div>

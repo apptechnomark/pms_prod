@@ -48,60 +48,11 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
 }) => {
   const [summaryList, setSummaryList] = useState<Status[]>([]);
   const [summaryName, setSummaryName] = useState<string>("");
-  const [searchValue, setSearchValue] = useState("");
-  const [dashboardSummaryData, setDashboardSummaryData] = useState([]);
 
   const handleClose = () => {
     onClose();
     setSummaryName("");
   };
-
-  // API for List By Summary
-  useEffect(() => {
-    const getProjectSummaryData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/dashboard/dashboardsummarylist`,
-          {
-            WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-            Key: summaryName ? summaryName : onClickedSummaryTitle,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setDashboardSummaryData(response.data.ResponseData);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    getProjectSummaryData();
-  }, [onSelectedWorkType, onClickedSummaryTitle, summaryName]);
 
   // API for Dashboard Summary list
   useEffect(() => {
@@ -203,7 +154,9 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
             </FormControl>
           </div>
           <Datatable_DashboardSummaryList
-            currDashboardSummaryData={dashboardSummaryData}
+            onSelectedWorkType={onSelectedWorkType}
+            onClickedSummaryTitle={onClickedSummaryTitle}
+            onCurrSelectedSummaryTitle={summaryName}
           />
         </DialogContent>
       </Dialog>

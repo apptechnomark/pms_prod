@@ -334,6 +334,14 @@ const page = () => {
     }
   }, [isAllProject]);
 
+  // Summary Status Icons mapping
+  const statusIconMapping: any = {
+    "Total Task Created": <TotalTaskCreated />,
+    "Pending Task": <PendingTask />,
+    "In Progress Task": <InProgressWork />,
+    "Completed Task": <CompletedTask />,
+  };
+
   return (
     <Wrapper className="min-h-screen overflow-y-auto">
       <div>
@@ -500,93 +508,37 @@ const page = () => {
           </section>
 
           <section className="flex gap-[25px] items-center px-[20px] py-[10px]">
-            <Card className="w-full border border-[#00ACE2] shadow-md hover:shadow-xl cursor-pointer">
-              <div
-                className="flex p-[20px] items-center"
-                onClick={() => {
-                  setIsSummaryListDialogOpen(true);
-                  setSummaryLabel("TotalCreatedTask");
-                }}
-              >
-                <span className="border-r border-lightSilver pr-[20px]">
-                  <TotalTaskCreated />
-                </span>
-                <div className="inline-flex flex-col items-start pl-[20px]">
-                  <span className="text-[14px] font-normal text-darkCharcoal">
-                    Total Task Created
-                  </span>
-                  <span className="text-[20px] text-slatyGrey font-semibold">
-                    {projectSummary.TotalCreatedTask}
-                  </span>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="w-full border border-[#FD7E14] shadow-md hover:shadow-xl cursor-pointer">
-              <div
-                className="flex p-[20px] items-center"
-                onClick={() => {
-                  setIsSummaryListDialogOpen(true);
-                  setSummaryLabel("InProgressTask");
-                }}
-              >
-                <span className="border-r border-lightSilver pr-[20px]">
-                  <InProgressWork />
-                </span>
-                <div className="inline-flex flex-col items-start pl-[20px]">
-                  <span className="text-[14px] font-normal text-darkCharcoal">
-                    In Progress Task
-                  </span>
-                  <span className="text-[20px] text-slatyGrey font-semibold">
-                    {projectSummary.InProgressTask}
-                  </span>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="w-full border border-[#DB5383] shadow-md hover:shadow-xl cursor-pointer">
-              <div
-                className="flex p-[20px] items-center"
-                onClick={() => {
-                  setIsSummaryListDialogOpen(true);
-                  setSummaryLabel("NotStartedTask");
-                }}
-              >
-                <span className="border-r border-lightSilver pr-[20px]">
-                  <PendingTask />
-                </span>
-                <div className="inline-flex flex-col items-start pl-[20px]">
-                  <span className="text-[14px] font-normal text-darkCharcoal">
-                    Pending Task
-                  </span>
-                  <span className="text-[20px] text-slatyGrey font-semibold">
-                    {projectSummary.NotStartedTask}
-                  </span>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="w-full border border-[#02B89D] shadow-md hover:shadow-xl cursor-pointer">
-              <div
-                className="flex p-[20px] items-center"
-                onClick={() => {
-                  setIsSummaryListDialogOpen(true);
-                  setSummaryLabel("CompletedTask");
-                }}
-              >
-                <span className="border-r border-lightSilver pr-[20px]">
-                  <CompletedTask />
-                </span>
-                <div className="inline-flex flex-col items-start pl-[20px]">
-                  <span className="text-[14px] font-normal text-darkCharcoal">
-                    Completed Task
-                  </span>
-                  <span className="text-[20px] text-slatyGrey font-semibold">
-                    {projectSummary.CompletedTask}
-                  </span>
-                </div>
-              </div>
-            </Card>
+            {projectSummary &&
+              projectSummary.map((item: any) => (
+                <Card
+                  key={item.Key}
+                  className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
+                  style={{ borderColor: item.ColorCode }}
+                >
+                  <div
+                    className="flex p-[20px] items-center"
+                    onClick={() => {
+                      setSummaryLabel(item.Key),
+                        setIsSummaryListDialogOpen(true);
+                    }}
+                  >
+                    <span
+                      style={{ color: item.ColorCode }}
+                      className={`border-r border-lightSilver pr-[20px]`}
+                    >
+                      {statusIconMapping[item.Key]}
+                    </span>
+                    <div className="inline-flex flex-col items-start pl-[20px]">
+                      <span className="text-[14px] font-normal text-darkCharcoal">
+                        {item.Key}
+                      </span>
+                      <span className="text-[20px] text-slatyGrey font-semibold">
+                        {item.Value}
+                      </span>
+                    </div>
+                  </div>
+                </Card>
+              ))}
           </section>
 
           <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
@@ -627,7 +579,7 @@ const page = () => {
                 />
               </Card>
 
-              {/* {workType !== 1 && (
+              {workType !== 1 && (
                 <Card className="w-full h-[344px] border border-lightSilver rounded-lg justify-center flex">
                   <Chart_ReturnType
                     onSelectedProjectIds={currentProjectId}
@@ -635,7 +587,7 @@ const page = () => {
                     sendData={handleValueFromReturnType}
                   />
                 </Card>
-              )} */}
+              )}
             </div>
 
             <Card className="w-full h-full">
@@ -740,6 +692,7 @@ const page = () => {
           onSelectedProjectIds={currentProjectId}
           onSelectedWorkType={workType}
           onSelectedSummaryStatus={summaryLabel}
+          onCurrProjectSummary={projectSummary}
         />
 
         <Dialog_ReturnTypeData

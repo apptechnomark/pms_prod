@@ -5,6 +5,8 @@ import { CircularProgress } from "@mui/material";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Home = () => {
   const router = useRouter();
@@ -55,7 +57,8 @@ const Home = () => {
           );
         }
         const local: any = await localStorage.getItem("permission");
-        if (local.length > 0) {
+
+        if (local.length > 2) {
           if (response.data.ResponseData.IsClientUser === true) {
             hasPermissionWorklog("", "View", "Report") &&
               (hasPermissionWorklog("Task", "View", "Report") ||
@@ -82,6 +85,13 @@ const Home = () => {
             hasPermissionWorklog("", "View", "Dashboard") &&
               router.push("/admin-dashboard");
           }
+        } else {
+          setTimeout(
+            () => toast.warning("You don't have required permissions"),
+            10000
+          );
+          setTimeout(() => router.push("/login"), 15000);
+          localStorage.clear();
         }
       }
     } catch (error: any) {
@@ -99,6 +109,18 @@ const Home = () => {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <CircularProgress />
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 };

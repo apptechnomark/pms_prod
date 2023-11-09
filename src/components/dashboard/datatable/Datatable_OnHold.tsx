@@ -3,6 +3,7 @@ import axios from "axios";
 import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { toast } from "react-toastify";
+import TablePagination from "@mui/material/TablePagination";
 
 interface OnHoldProps {
   onSelectedProjectIds: number[];
@@ -37,6 +38,9 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
   onSelectedWorkType,
 }) => {
   const [data, setData] = useState<any | any[]>([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [tableDataCount, setTableDataCount] = useState(0);
   const [options, setOptions] = useState<any>({
     filterType: "checkbox",
     responsive: "standard",
@@ -63,6 +67,21 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
       },
     },
   });
+
+  // functions for handling pagination
+  const handleChangePage = (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value));
+    setPage(0);
+  };
 
   // Resizing the table according to the fileds
   useEffect(() => {
@@ -98,6 +117,10 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
         const response = await axios.post(
           `${process.env.report_api_url}/clientdashboard/tasklistbyproject`,
           {
+            PageNo: page + 1,
+            PageSize: rowsPerPage,
+            SortColumn: null,
+            IsDesc: true,
             projectIds: onSelectedProjectIds,
             typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
             onHold: true,
@@ -112,7 +135,8 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            setData(response.data.ResponseData);
+            setData(response.data.ResponseData.List);
+            setTableDataCount(response.data.ResponseData.TotalCount);
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -136,7 +160,7 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
 
     // calling function
     getData();
-  }, [onSelectedProjectIds, onSelectedWorkType]);
+  }, [onSelectedProjectIds, onSelectedWorkType, page, rowsPerPage]);
 
   // Table Columns
   const columns = [
@@ -248,6 +272,14 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
           title={undefined}
           options={options}
           data-tableid="dashboard_OnHold_Datatable"
+        />
+        <TablePagination
+          component="div"
+          count={tableDataCount}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </ThemeProvider>
     </div>

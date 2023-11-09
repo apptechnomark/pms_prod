@@ -90,7 +90,15 @@ const Project = ({ filteredData }: any) => {
     newPage: number
   ) => {
     setPage(newPage);
-    getData({ ...filteredData, pageNo: newPage + 1, pageSize: rowsPerPage });
+    if (filteredData !== null) {
+      getData({ ...filteredData, pageNo: newPage + 1, pageSize: rowsPerPage });
+    } else {
+      getData({
+        ...project_InitialFilter,
+        pageNo: newPage + 1,
+        pageSize: rowsPerPage,
+      });
+    }
   };
 
   const handleChangeRowsPerPage = (
@@ -98,11 +106,15 @@ const Project = ({ filteredData }: any) => {
   ) => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
-    getData({
-      ...filteredData,
-      pageNo: 1,
-      pageSize: event.target.value,
-    });
+    if (filteredData !== null) {
+      getData({ ...filteredData, pageNo: 1, pageSize: rowsPerPage });
+    } else {
+      getData({
+        ...project_InitialFilter,
+        pageNo: 1,
+        pageSize: rowsPerPage,
+      });
+    }
   };
 
   useEffect(() => {
@@ -112,6 +124,8 @@ const Project = ({ filteredData }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       getData(filteredData);
+      setPage(0);
+      setRowsPerPage(10);
     }
   }, [filteredData]);
 
@@ -167,7 +181,7 @@ const Project = ({ filteredData }: any) => {
         customBodyRender: (value: any, tableMeta: any) => {
           return (
             <div className="flex items-center gap-2">
-              {value === null || value === 0 ? "00:00:00" : `${value}:00:00`}
+              {value === null || value === 0 ? "00:00:00" : `${value}`}
             </div>
           );
         },

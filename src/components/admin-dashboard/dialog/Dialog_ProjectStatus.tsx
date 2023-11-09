@@ -51,7 +51,6 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
   const [allProjectStatus, setAllProjectStatus] = useState<Status[]>([]);
   const [projectStatus, setProjectStatus] = useState<string>("");
   //   const [searchValue, setSearchValue] = useState("");
-  const [data, setData] = useState([]);
 
   const handleClose = () => {
     onClose();
@@ -113,55 +112,6 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
     }
   }, [onSelectedWorkType, onSelectedProjectIds, onOpen]);
 
-  // API for Project Status list
-  useEffect(() => {
-    const getProjectStatusData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/dashboard/projectstatuslist`,
-          {
-            WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-            //   GlobalSearch: value,
-            ProjectId: null,
-            Key: projectStatus ? projectStatus : onSelectedProjectStatus,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setData(response.data.ResponseData);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    getProjectStatusData();
-  }, [onSelectedWorkType, onSelectedProjectStatus, projectStatus]);
-
   return (
     <div>
       <Dialog
@@ -215,7 +165,12 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
               </Select>
             </FormControl>
           </div>
-          <Datatable_ProjectStatus currTaskStatusData={data} />
+          <Datatable_ProjectStatus
+            onSelectedWorkType={onSelectedWorkType}
+            onSelectedProjectStatus={onSelectedProjectStatus}
+            onSelectedProjectIds={onSelectedProjectIds}
+            onCurrSelectedProjectStatus={projectStatus}
+          />
         </DialogContent>
       </Dialog>
     </div>

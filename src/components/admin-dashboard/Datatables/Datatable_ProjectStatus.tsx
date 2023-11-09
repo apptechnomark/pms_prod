@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import axios from "axios";
+import { toast } from "react-toastify";
+import TablePagination from "@mui/material/TablePagination";
 
 interface ProjectStatusProps {
-  currTaskStatusData: any[];
+  onSelectedWorkType: number;
+  onSelectedProjectStatus: string;
+  onSelectedProjectIds: number[];
+  onCurrSelectedProjectStatus: string;
 }
 
 const getMuiTheme = () =>
@@ -30,8 +36,94 @@ const getMuiTheme = () =>
   });
 
 const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
-  currTaskStatusData,
+  onSelectedWorkType,
+  onSelectedProjectStatus,
+  onSelectedProjectIds,
+  onCurrSelectedProjectStatus,
 }) => {
+  const [data, setData] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [tableDataCount, setTableDataCount] = useState(0);
+
+  // functions for handling pagination
+  const handleChangePage = (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value));
+    setPage(0);
+  };
+
+  // API for Project Status list
+  useEffect(() => {
+    if (onCurrSelectedProjectStatus !== "" || onSelectedProjectStatus !== "") {
+      const getProjectStatusData = async () => {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.report_api_url}/dashboard/projectstatuslist`,
+            {
+              PageNo: page + 1,
+              PageSize: rowsPerPage,
+              SortColumn: null,
+              IsDesc: true,
+              WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+              //   GlobalSearch: value,
+              ProjectId: null,
+              Key: onCurrSelectedProjectStatus
+                ? onCurrSelectedProjectStatus
+                : onSelectedProjectStatus,
+            },
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              setData(response.data.ResponseData.List);
+              setTableDataCount(response.data.ResponseData.TotalCount);
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Please try again later.");
+              } else {
+                toast.error(data);
+              }
+            }
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Please try again.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      getProjectStatusData();
+    }
+  }, [
+    onSelectedWorkType,
+    onSelectedProjectStatus,
+    onCurrSelectedProjectStatus,
+    page,
+    rowsPerPage,
+  ]);
   // Table Columns
   const columns = [
     {
@@ -84,9 +176,7 @@ const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Status</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Status</span>,
         customBodyRender: (value: any, tableMeta: any) => {
           const statusColorCode = tableMeta.rowData[12];
 
@@ -290,6 +380,7 @@ const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
     print: false,
     download: false,
     search: false,
+    pagination: false,
     selectToolbarPlacement: "none",
     draggableColumns: {
       enabled: true,
@@ -313,11 +404,19 @@ const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
     <div>
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
-          data={currTaskStatusData}
+          data={data}
           columns={columns}
           title={undefined}
           options={options}
           data-tableid="ProjectStatusList_Datatable"
+        />
+        <TablePagination
+          component="div"
+          count={tableDataCount}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </ThemeProvider>
     </div>

@@ -420,7 +420,11 @@ const CustomReport = ({ filteredData }: any) => {
             body: {
               noMatch: (
                 <div className="flex items-start">
-                  <span>Please apply filter to view data.</span>
+                  <span>
+                    {filteredData === null
+                      ? "Please apply filter to view data."
+                      : "Currently there is no record available."}
+                  </span>
                 </div>
               ),
               toolTip: "",

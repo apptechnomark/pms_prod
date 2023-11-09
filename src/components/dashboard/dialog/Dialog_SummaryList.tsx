@@ -22,6 +22,7 @@ interface SummaryListProps {
   onSelectedWorkType: number;
   onSelectedProjectIds: number[];
   onSelectedSummaryStatus: string;
+  onCurrProjectSummary: string[];
 }
 
 const Transition = React.forwardRef(function Transition(
@@ -39,63 +40,14 @@ const Dialog_SummaryList: React.FC<SummaryListProps> = ({
   onSelectedWorkType,
   onSelectedProjectIds,
   onSelectedSummaryStatus,
+  onCurrProjectSummary,
 }) => {
-  const [allTaskList, setAllTaskList] = useState<string[] | any>([]);
   const [taskStatusName, setTaskStatusName] = useState<string>("");
-  const [data, setData] = useState([]);
 
   const handleClose = () => {
     onClose();
     setTaskStatusName("");
   };
-
-  // API for Project Status list
-  useEffect(() => {
-    const getSummaryData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/clientdashboard/summarylist`,
-          {
-            TypeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-            ProjectIds: onSelectedProjectIds ? onSelectedProjectIds : [],
-            Key: onSelectedSummaryStatus,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setData(response.data.ResponseData);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    getSummaryData();
-  }, [onSelectedWorkType, onSelectedSummaryStatus, onSelectedProjectIds]);
 
   return (
     <div>
@@ -120,19 +72,26 @@ const Dialog_SummaryList: React.FC<SummaryListProps> = ({
               <Select
                 labelId="Project Staus"
                 id="Project Staus"
-                value={taskStatusName ? taskStatusName : onSelectedSummaryStatus}
+                value={
+                  taskStatusName ? taskStatusName : onSelectedSummaryStatus
+                }
                 onChange={(e) => setTaskStatusName(e.target.value)}
                 sx={{ height: "36px" }}
               >
-                {allTaskList.map((i: any, index: number) => (
-                  <MenuItem value={i.name} key={index}>
-                    {i.name}
+                {onCurrProjectSummary.map((i: any, index: number) => (
+                  <MenuItem value={i.Key} key={index}>
+                    {i.Key}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
           </div>
-          <Datatable_SummaryList currSummaryListData={data} />
+          <Datatable_SummaryList
+            onSelectedProjectIds={onSelectedProjectIds}
+            onSelectedWorkType={onSelectedWorkType}
+            onSelectedSummaryStatus={onSelectedSummaryStatus}
+            onCurrSelectedSummaryStatus={taskStatusName}
+          />
         </DialogContent>
       </Dialog>
     </div>

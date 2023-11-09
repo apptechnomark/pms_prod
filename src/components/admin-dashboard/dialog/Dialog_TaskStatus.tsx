@@ -50,7 +50,6 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
   const [status, setStatus] = useState<number | any>(0);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [searchValue, setSearchValue] = useState("");
-  const [data, setData] = useState([]);
 
   const handleClose = () => {
     onClose();
@@ -122,58 +121,6 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
     // }
   }, []);
 
-  // API for task status list
-  const getTaskStatusData = async (value: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/taskstatuslist`,
-        {
-          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-          GlobalSearch: value,
-          StatusId: status === 0 ? null : status,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    if (searchValue.length >= 0) {
-      getTaskStatusData(searchValue);
-    } else {
-      getTaskStatusData("");
-    }
-  }, [searchValue, status]);
-
   return (
     <div>
       <Dialog
@@ -228,7 +175,12 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
               </Select>
             </FormControl>
           </div>
-          <Datatable_TaskStatus currTaskStatusData={data} />
+          <Datatable_TaskStatus
+            onSelectedWorkType={onSelectedWorkType}
+            onSelectedStatusName={onSelectedStatusName}
+            onCurrSelectedStatus={status}
+            onSearchValue={searchValue}
+          />
         </DialogContent>
       </Dialog>
     </div>

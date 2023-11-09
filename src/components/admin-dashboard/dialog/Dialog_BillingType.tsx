@@ -50,7 +50,6 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
   const [billingType, setBillingType] = useState<number | any>(0);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [searchValue, setSearchValue] = useState("");
-  const [data, setData] = useState([]);
 
   const handleClose = () => {
     onClose();
@@ -122,58 +121,6 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
     // }
   }, []);
 
-  // API for billing type list
-  const getBillingTypeData = async (value: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/billingstatuslist`,
-        {
-          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-          GlobalSearch: value,
-          BillingTypeId: billingType === 0 ? null : billingType,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    if (searchValue.length >= 0) {
-      getBillingTypeData(searchValue);
-    } else {
-      getBillingTypeData("");
-    }
-  }, [searchValue, billingType]);
-
   return (
     <div>
       <Dialog
@@ -228,7 +175,12 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
               </Select>
             </FormControl>
           </div>
-          <Datatable_BillingType currTaskStatusData={data} />
+          <Datatable_BillingType
+            onSelectedWorkType={onSelectedWorkType}
+            onSelectedStatusName={onSelectedStatusName}
+            onCurrentSelectedBillingType={billingType}
+            onSearchValue={searchValue}
+          />
         </DialogContent>
       </Dialog>
     </div>

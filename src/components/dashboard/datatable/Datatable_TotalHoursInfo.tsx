@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import TablePagination from "@mui/material/TablePagination";
 
 interface TotalHoursInfoProps {
   onSelectedProjectIds: number[];
@@ -36,7 +37,28 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
   onSelectedProjectIds,
   onSelectedWorkType,
 }) => {
-  const [data, setData] = useState<any | any[]>([]);
+  const [clientDetails, setClientDetails] = useState<any | any[]>([]);
+  const [clientProjectDetails, setClientProjectDetails] = useState<any | any[]>(
+    []
+  );
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [tableDataCount, setTableDataCount] = useState(0);
+
+  // functions for handling pagination
+  const handleChangePage = (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value));
+    setPage(0);
+  };
 
   // API Call
   useEffect(() => {
@@ -48,6 +70,10 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
         const response = await axios.post(
           `${process.env.report_api_url}/clientdashboard/clienttotalhoursinformationlist`,
           {
+            PageNo: page + 1,
+            PageSize: rowsPerPage,
+            SortColumn: "",
+            IsDesc: true,
             projectIds: onSelectedProjectIds,
             typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
           },
@@ -63,7 +89,9 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
           response.status === 200 &&
           response.data.ResponseStatus === "Success"
         ) {
-          setData(response.data.ResponseData);
+          setClientDetails(response.data.ResponseData.ClientDetail);
+          setClientProjectDetails(response.data.ResponseData.List);
+          setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
           const errorMessage = response.data.Message || "Something went wrong.";
           toast.error(errorMessage);
@@ -76,31 +104,30 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
     // Fetch data when component mounts
     getData();
     // }
-  }, [onSelectedProjectIds, onSelectedWorkType]);
+  }, [onSelectedProjectIds, onSelectedWorkType, page, rowsPerPage]);
 
   // extracting data
-  const { ClientDetail, ClientProjectDetails } = data;
   const tableData = [];
 
   // Add ClientDetail as the first row
-  if (ClientDetail) {
+  if (clientDetails) {
     tableData.push({
       ProjectName: <span className="font-extrabold">Project List</span>,
       TaskName: <span className="font-extrabold">Task List</span>,
-      ContractedTotalHours: ClientDetail.ContractedTotalHours || "--",
-      ContractedAccountingHrs: ClientDetail.ContractedAccountingHrs || "--",
-      ContractedAuditHrs: ClientDetail.ContractedAuditHrs || "--",
-      ContractedTaxHrs: ClientDetail.ContractedTaxHrs || "--",
-      ActualAccountingHrs: ClientDetail.ActualAccountingHrs || null,
-      ActualAuditHrs: ClientDetail.ActualAuditHrs || null,
-      ActualTaxHrs: ClientDetail.ActualTaxHrs || null,
-      ActualTotalHours: ClientDetail.ActualTotalHours || "--",
+      ContractedTotalHours: clientDetails.ContractedTotalHours || "--",
+      ContractedAccountingHrs: clientDetails.ContractedAccountingHrs || "--",
+      ContractedAuditHrs: clientDetails.ContractedAuditHrs || "--",
+      ContractedTaxHrs: clientDetails.ContractedTaxHrs || "--",
+      ActualAccountingHrs: clientDetails.ActualAccountingHrs || null,
+      ActualAuditHrs: clientDetails.ActualAuditHrs || null,
+      ActualTaxHrs: clientDetails.ActualTaxHrs || null,
+      ActualTotalHours: clientDetails.ActualTotalHours || "--",
     });
   }
 
   // Add ClientProjectDetails as subsequent rows
-  if (ClientProjectDetails && ClientProjectDetails.length > 0) {
-    ClientProjectDetails.forEach((project: any) => {
+  if (clientProjectDetails && clientProjectDetails.length > 0) {
+    clientProjectDetails.forEach((project: any) => {
       tableData.push({
         ProjectName: project.ProjectName || null,
         TaskName: project.TaskName || null,
@@ -271,6 +298,7 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
     print: false,
     download: false,
     search: false,
+    pagination: false,
     selectToolbarPlacement: "none",
     draggableColumns: {
       enabled: true,
@@ -299,6 +327,15 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
           title={undefined}
           options={options}
           data-tableid="totalHoursInfo_Datatable"
+        />
+        <TablePagination
+          component="div"
+          // rowsPerPageOptions={[5, 10, 15]}
+          count={tableDataCount}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </ThemeProvider>
     </div>

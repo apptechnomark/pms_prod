@@ -23,6 +23,7 @@ const Chart_BillingType: React.FC<Chart_BillingTypeProps> = ({
   sendData,
 }) => {
   const [data, setData] = useState<any | any[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
 
   // API for Dashboard Summary
   useEffect(() => {
@@ -45,7 +46,7 @@ const Chart_BillingType: React.FC<Chart_BillingTypeProps> = ({
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            const chartData = response.data.ResponseData.map(
+            const chartData = response.data.ResponseData.List.map(
               (item: { Percentage: any; Key: any; Value: any }) => ({
                 name: item.Key,
                 y: item.Value,
@@ -54,6 +55,7 @@ const Chart_BillingType: React.FC<Chart_BillingTypeProps> = ({
             );
 
             setData(chartData);
+            setTotalCount(response.data.ResponseData.TotalCount);
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -150,6 +152,20 @@ const Chart_BillingType: React.FC<Chart_BillingTypeProps> = ({
         <div className="mt-5">
           <HighchartsReact highcharts={Highcharts} options={chartOptions} />
         </div>
+        {data.length > 0 && (
+          <span
+            className={`flex flex-col items-center absolute bottom-[5.9rem] z-0 ${
+              totalCount <= 1 ? "left-[8.45rem]" : "left-[8.35rem]"
+            }`}
+          >
+            <span className="text-xl font-semibold text-darkCharcoal">
+              {totalCount}
+            </span>
+            <span className="text-lg text-slatyGrey">
+              {totalCount > 1 ? "Tasks" : "Task"}
+            </span>
+          </span>
+        )}
       </div>
     </div>
   );

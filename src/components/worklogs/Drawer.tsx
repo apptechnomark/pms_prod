@@ -2119,6 +2119,7 @@ const EditDrawer = ({
       reviewerData.length > 0 && setReviewerDropdownData(reviewerData);
       const UserId: any = await localStorage.getItem("UserId");
       reviewerData.length > 0 &&
+        onEdit === 0 &&
         setReviewer(
           reviewerData
             .map((i: any) =>

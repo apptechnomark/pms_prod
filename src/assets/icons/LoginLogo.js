@@ -454,7 +454,7 @@ const LoginLogo = () => {
       <g
         id="📝-Pages-New"
         stroke="none"
-        stroke-width="1"
+        strokeWidth="1"
         fill="none"
         fill-rule="evenodd"
       >
@@ -591,7 +591,7 @@ const LoginLogo = () => {
                   ></use>
                   <use
                     stroke="#8EEAF6"
-                    stroke-width="4.004"
+                    strokeWidth="4.004"
                     xlinkHref="#path-6"
                   ></use>
                 </g>
@@ -867,7 +867,7 @@ const LoginLogo = () => {
                     d="M28.0824059,35.1582406 C28.0824059,35.1582406 30.0876252,38.4012871 34.0052272,37.2475322"
                     id="Path"
                     stroke="#F77B7B"
-                    stroke-width="1.5"
+                    strokeWidth="1.5"
                     stroke-linecap="round"
                     transform="translate(31.043817, 36.326987) rotate(-18.000000) translate(-31.043817, -36.326987) "
                   ></path>
@@ -983,7 +983,7 @@ const LoginLogo = () => {
                     y2="199.577514"
                     id="Path-38"
                     stroke="#FFFFFF"
-                    stroke-width="2"
+                    strokeWidth="2"
                     stroke-linecap="round"
                   ></line>
                   <line
@@ -993,7 +993,7 @@ const LoginLogo = () => {
                     y2="201.342168"
                     id="Path-38"
                     stroke="#FFFFFF"
-                    stroke-width="2"
+                    strokeWidth="2"
                     stroke-linecap="round"
                   ></line>
                   <line
@@ -1003,7 +1003,7 @@ const LoginLogo = () => {
                     y2="203.106821"
                     id="Path-38"
                     stroke="#FFFFFF"
-                    stroke-width="2"
+                    strokeWidth="2"
                     stroke-linecap="round"
                   ></line>
                   <path
@@ -1037,7 +1037,7 @@ const LoginLogo = () => {
                     y2="198.748505"
                     id="Path-39"
                     stroke="#FFFFFF"
-                    stroke-width="2"
+                    strokeWidth="2"
                     stroke-linecap="round"
                   ></line>
                   <line
@@ -1047,7 +1047,7 @@ const LoginLogo = () => {
                     y2="201.392936"
                     id="Path-39"
                     stroke="#FFFFFF"
-                    stroke-width="2"
+                    strokeWidth="2"
                     stroke-linecap="round"
                   ></line>
                   <line
@@ -1057,7 +1057,7 @@ const LoginLogo = () => {
                     y2="204.037367"
                     id="Path-39"
                     stroke="#FFFFFF"
-                    stroke-width="2"
+                    strokeWidth="2"
                     stroke-linecap="round"
                   ></line>
                   <path
@@ -1472,7 +1472,7 @@ const LoginLogo = () => {
                     d="M23.1629909,34.2395688 C23.1629909,34.2395688 25.174384,37.4906544 29.10285,36.3347801"
                     id="Path"
                     stroke="#F77B7B"
-                    stroke-width="1.5"
+                    strokeWidth="1.5"
                     stroke-linecap="round"
                     transform="translate(26.132920, 35.411438) rotate(-18.000000) translate(-26.132920, -35.411438) "
                   ></path>

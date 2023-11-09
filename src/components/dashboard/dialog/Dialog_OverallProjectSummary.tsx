@@ -44,7 +44,6 @@ const Dialog_OverallProjectSummary: React.FC<
 }) => {
   const [allTaskList, setAllTaskList] = useState<string[] | any>([]);
   const [taskStatusName, setTaskStatusName] = useState<string>("");
-  const [data, setData] = useState([]);
 
   const handleClose = () => {
     onClose();
@@ -105,59 +104,6 @@ const Dialog_OverallProjectSummary: React.FC<
     }
   }, [onSelectedWorkType, onSelectedProjectIds, onSelectedProjectIds, onOpen]);
 
-  // API for Project Status list
-  useEffect(() => {
-    const getOverallProjectSummaryData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/clientdashboard/overallprojectcompletionlist`,
-          {
-            TypeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-            ProjectIds: onSelectedProjectIds ? onSelectedProjectIds : [],
-            Key: taskStatusName ? taskStatusName : onSelectedTaskStatus,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setData(response.data.ResponseData);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    getOverallProjectSummaryData();
-  }, [
-    onSelectedWorkType,
-    onSelectedTaskStatus,
-    onSelectedProjectIds,
-    taskStatusName,
-  ]);
-
   return (
     <div>
       <Dialog
@@ -194,7 +140,10 @@ const Dialog_OverallProjectSummary: React.FC<
             </FormControl>
           </div>
           <Datatable_OverallProjectSummary
-            currOverallProjectSummaryData={data}
+            onSelectedProjectIds={onSelectedProjectIds}
+            onSelectedWorkType={onSelectedWorkType}
+            onSelectedTaskStatus={onSelectedTaskStatus}
+            onCurrselectedtaskStatus={taskStatusName}
           />
         </DialogContent>
       </Dialog>

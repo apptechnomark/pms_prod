@@ -3,9 +3,12 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import TablePagination from "@mui/material/TablePagination";
 
 interface ReturnTypeDataProps {
-  currReturnTypeData: any[];
+  onSelectedProjectIds: number[];
+  onSelectedReturnTypeValue: any;
+  onCurrSelectedReturnType: string;
 }
 
 const getMuiTheme = () =>
@@ -32,8 +35,84 @@ const getMuiTheme = () =>
   });
 
 const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
-  currReturnTypeData,
+  onSelectedProjectIds,
+  onSelectedReturnTypeValue,
+  onCurrSelectedReturnType,
 }) => {
+  const [data, setData] = useState<any | any[]>([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [tableDataCount, setTableDataCount] = useState(0);
+
+  // functions for handling pagination
+  const handleChangePage = (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value));
+    setPage(0);
+  };
+
+  useEffect(() => {
+    // if (onSelectedProjectIds.length > 0) {
+    const getData = async () => {
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.report_api_url}/clientdashboard/taskstatusandprioritylist`,
+          {
+            PageNo: page + 1,
+            PageSize: rowsPerPage,
+            SortColumn: null,
+            IsDesc: true,
+            projectIds: onSelectedProjectIds,
+            typeOfWork: null,
+            priorityId: null,
+            statusId: null,
+            ReturnTypeId: onCurrSelectedReturnType
+              ? onCurrSelectedReturnType
+              : onSelectedReturnTypeValue,
+          },
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
+
+        if (
+          response.status === 200 &&
+          response.data.ResponseStatus === "Success"
+        ) {
+          setData(response.data.ResponseData.List);
+        } else {
+          const errorMessage = response.data.Message || "Something went wrong.";
+          toast.error(errorMessage);
+        }
+      } catch (error) {
+        toast.error("Error fetching data. Please try again later.");
+      }
+    };
+
+    // Fetch data when component mounts
+    getData();
+    // }
+  }, [
+    onSelectedProjectIds,
+    onSelectedReturnTypeValue,
+    onCurrSelectedReturnType,
+    page,
+    rowsPerPage,
+  ]);
+
   // Table Columns
   const columns = [
     {
@@ -256,6 +335,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
     print: false,
     download: false,
     search: false,
+    pagination: false,
     selectToolbarPlacement: "none",
     draggableColumns: {
       enabled: true,
@@ -279,11 +359,19 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
     <div>
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
-          data={currReturnTypeData}
+          data={data}
           columns={columns}
           title={undefined}
           options={options}
           data-tableid="priorityInfo_Datatable"
+        />
+        <TablePagination
+          component="div"
+          count={tableDataCount}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </ThemeProvider>
     </div>

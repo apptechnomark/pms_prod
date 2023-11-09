@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import TablePagination from "@mui/material/TablePagination";
 
 interface PriorityInfoProps {
   onSelectedProjectIds: number[];
@@ -37,6 +38,24 @@ const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
   onSelectedPriorityId,
 }) => {
   const [data, setData] = useState<any | any[]>([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [tableDataCount, setTableDataCount] = useState(0);
+
+  // functions for handling pagination
+  const handleChangePage = (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value));
+    setPage(0);
+  };
 
   useEffect(() => {
     // if (onSelectedProjectIds.length > 0) {
@@ -47,6 +66,10 @@ const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
         const response = await axios.post(
           `${process.env.report_api_url}/clientdashboard/taskstatusandprioritylist`,
           {
+            PageNo: page + 1,
+            PageSize: rowsPerPage,
+            SortColumn: null,
+            IsDesc: true,
             projectIds: onSelectedProjectIds,
             typeOfWork: null,
             priorityId: onSelectedPriorityId,
@@ -65,7 +88,8 @@ const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
           response.status === 200 &&
           response.data.ResponseStatus === "Success"
         ) {
-          setData(response.data.ResponseData);
+          setData(response.data.ResponseData.List);
+          setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
           const errorMessage = response.data.Message || "Something went wrong.";
           toast.error(errorMessage);
@@ -78,7 +102,7 @@ const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
     // Fetch data when component mounts
     getData();
     // }
-  }, [onSelectedProjectIds, onSelectedPriorityId]);
+  }, [onSelectedProjectIds, onSelectedPriorityId, page, rowsPerPage]);
 
   // Table Columns
   const columns = [
@@ -302,6 +326,7 @@ const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
     print: false,
     download: false,
     search: false,
+    pagination: false,
     selectToolbarPlacement: "none",
     draggableColumns: {
       enabled: true,
@@ -330,6 +355,14 @@ const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
           title={undefined}
           options={options}
           data-tableid="priorityInfo_Datatable"
+        />
+        <TablePagination
+          component="div"
+          count={tableDataCount}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </ThemeProvider>
     </div>
