@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 // MUI Imports
 import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
-import { Card } from "@mui/material";
+import { Card, Grid } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -103,7 +103,7 @@ const page = () => {
     setClickedProjectStatusName(selectedPointData);
   };
 
-    useEffect(() => {
+  useEffect(() => {
     if (
       !hasPermissionWorklog("", "View", "Dashboard") &&
       localStorage.getItem("isClient")
@@ -243,108 +243,122 @@ const page = () => {
               </Select>
             </FormControl>
           </section> */}
-
-          <section className="flex gap-[25px] items-center px-[20px] py-[10px]">
+          <Grid
+            container
+            className="flex items-center px-[20px] py-[10px]"
+            gap={1}
+          >
             {dashboardSummary &&
               dashboardSummary.slice(0, 4).map((item: any) => (
-                <Card
-                  key={item.Key}
-                  className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
-                  style={{ borderColor: item.ColorCode }}
-                >
-                  <div
-                    className="flex p-[20px] items-center"
-                    onClick={() => {
-                      setClickedCardName(item.Key),
-                        setIsSummaryDialogOpen(true);
-                    }}
+                <Grid xs={2.9} item key={item.Key}>
+                  <Card
+                    className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
+                    style={{ borderColor: item.ColorCode }}
                   >
-                    <span
-                      style={{ color: item.ColorCode }}
-                      className={`border-r border-lightSilver pr-[20px]`}
+                    <div
+                      className="flex p-[20px] items-center"
+                      onClick={() => {
+                        setClickedCardName(item.Key),
+                          setIsSummaryDialogOpen(true);
+                      }}
                     >
-                      {statusIconMapping[item.Key]}
-                    </span>
-                    <div className="inline-flex flex-col items-start pl-[20px]">
-                      <span className="text-[14px] font-normal text-darkCharcoal">
-                        {item.Key}
+                      <span
+                        style={{ color: item.ColorCode }}
+                        className={`border-r border-lightSilver pr-[20px]`}
+                      >
+                        {statusIconMapping[item.Key]}
                       </span>
-                      <span className="text-[20px] text-slatyGrey font-semibold">
-                        {item.Value}
-                      </span>
+                      <div className="inline-flex flex-col items-start pl-[20px]">
+                        <span className="text-[14px] font-normal text-darkCharcoal">
+                          {item.Key}
+                        </span>
+                        <span className="text-[20px] text-slatyGrey font-semibold">
+                          {item.Value}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </Grid>
               ))}
-          </section>
+          </Grid>
 
-          <section className="flex gap-[25px] items-center px-[20px] py-[10px]">
+          <Grid
+            container
+            className="flex items-center px-[20px] py-[10px]"
+            gap={1}
+          >
             {dashboardSummary &&
               dashboardSummary.slice(4, 8).map((item: any) => (
-                <Card
-                  key={item.Key}
-                  className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
-                  style={{ borderColor: item.ColorCode }}
-                >
-                  <div
-                    className="flex p-[20px] items-center"
-                    onClick={() => {
-                      setClickedCardName(item.Key),
-                        setIsSummaryDialogOpen(true);
-                    }}
+                <Grid xs={2.9} item key={item.Key}>
+                  <Card
+                    className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
+                    style={{ borderColor: item.ColorCode }}
                   >
-                    <span
-                      style={{ color: item.ColorCode }}
-                      className={`border-r border-lightSilver pr-[20px]`}
+                    <div
+                      className="flex p-[20px] items-center"
+                      onClick={() => {
+                        setClickedCardName(item.Key),
+                          setIsSummaryDialogOpen(true);
+                      }}
                     >
-                      {statusIconMapping[item.Key]}
-                    </span>
-                    <div className="inline-flex flex-col items-start pl-[20px]">
-                      <span className="text-[14px] font-normal text-darkCharcoal">
-                        {item.Key}
+                      <span
+                        style={{ color: item.ColorCode }}
+                        className={`border-r border-lightSilver pr-[20px]`}
+                      >
+                        {statusIconMapping[item.Key]}
                       </span>
-                      <span className="text-[20px] text-slatyGrey font-semibold">
-                        {item.Value}
-                      </span>
+                      <div className="inline-flex flex-col items-start pl-[20px]">
+                        <span className="text-[14px] font-normal text-darkCharcoal">
+                          {item.Key}
+                        </span>
+                        <span className="text-[20px] text-slatyGrey font-semibold">
+                          {item.Value}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </Grid>
               ))}
-          </section>
+          </Grid>
 
-          <section className="flex gap-[25px] items-center px-[20px] py-[10px]">
+          <Grid
+            container
+            className="flex items-center px-[20px] py-[10px]"
+            gap={1}
+          >
             {dashboardSummary &&
               dashboardSummary.slice(8, 12).map((item: any) => (
-                <Card
-                  key={item.Key}
-                  className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
-                  style={{ borderColor: item.ColorCode }}
-                >
-                  <div
-                    className="flex p-[20px] items-center"
-                    onClick={() => {
-                      setClickedCardName(item.Key),
-                        setIsSummaryDialogOpen(true);
-                    }}
+                <Grid xs={2.9} item key={item.Key}>
+                  <Card
+                    className={`w-full border shadow-md hover:shadow-xl cursor-pointer`}
+                    style={{ borderColor: item.ColorCode }}
                   >
-                    <span
-                      style={{ color: item.ColorCode }}
-                      className={`border-r border-lightSilver pr-[20px]`}
+                    <div
+                      className="flex p-[20px] items-center"
+                      onClick={() => {
+                        setClickedCardName(item.Key),
+                          setIsSummaryDialogOpen(true);
+                      }}
                     >
-                      {statusIconMapping[item.Key]}
-                    </span>
-                    <div className="inline-flex flex-col items-start pl-[20px]">
-                      <span className="text-[14px] font-normal text-darkCharcoal">
-                        {item.Key}
+                      <span
+                        style={{ color: item.ColorCode }}
+                        className={`border-r border-lightSilver pr-[20px]`}
+                      >
+                        {statusIconMapping[item.Key]}
                       </span>
-                      <span className="text-[20px] text-slatyGrey font-semibold">
-                        {item.Value}
-                      </span>
+                      <div className="inline-flex flex-col items-start pl-[20px]">
+                        <span className="text-[14px] font-normal text-darkCharcoal">
+                          {item.Key}
+                        </span>
+                        <span className="text-[20px] text-slatyGrey font-semibold">
+                          {item.Value}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </Grid>
               ))}
-          </section>
+          </Grid>
 
           {/* Task Status Chart */}
           <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
