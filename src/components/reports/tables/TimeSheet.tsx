@@ -52,7 +52,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
           <div className="font-bold text-sm capitalize">start date</div>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          return <span>{value.split("T")[0]}</span>;
+          return <span>{value && value.split("T")[0]}</span>;
         },
       },
     },
@@ -65,7 +65,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
           <div className="font-bold text-sm capitalize">end date</div>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          return <span>{value.split("T")[0]}</span>;
+          return <span>{value && value.split("T")[0]}</span>;
         },
       },
     },
@@ -77,6 +77,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         customHeadLabelRender: () => (
           <div className="font-bold text-sm capitalize">client</div>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -87,6 +90,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         customHeadLabelRender: () => (
           <div className="font-bold text-sm capitalize">project</div>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -97,6 +103,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         customHeadLabelRender: () => (
           <div className="font-bold text-sm capitalize">task/process</div>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -107,6 +116,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         customHeadLabelRender: () => (
           <div className="font-bold text-sm capitalize">sub process</div>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -140,6 +152,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         customHeadLabelRender: () => (
           <div className="font-bold text-sm capitalize">estimated time</div>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -150,6 +165,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         customHeadLabelRender: () => (
           <div className="font-bold text-sm capitalize">status</div>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -160,6 +178,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         customHeadLabelRender: () => (
           <div className="font-bold text-sm capitalize">quantity</div>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -170,6 +191,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         customHeadLabelRender: () => (
           <div className="font-bold text-sm capitalize">std time</div>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -183,7 +207,6 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
           </div>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          console.log(value, tableMeta, dateWiseLogsData[0].LogsDetails);
           return (
             <span>
               {!value
@@ -204,6 +227,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         customHeadLabelRender: () => (
           <div className="font-bold text-sm capitalize">reviewer status</div>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
   ];

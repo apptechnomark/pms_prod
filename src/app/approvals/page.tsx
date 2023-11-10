@@ -22,7 +22,7 @@ import FilterDialog_Approval from "@/components/approvals/FilterDialog_Approval"
 const page = () => {
   const router = useRouter();
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [hasEditId, setHasEditId] = useState("");
+  const [hasEditId, setHasEditId] = useState(0);
   const [iconIndex, setIconIndex] = useState<number>(0);
   const [hasId, setHasId] = useState("");
   const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
@@ -31,6 +31,8 @@ const page = () => {
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
   const [currentFilterData, setCurrentFilterData] = useState([]);
+  const [hasRecurring, setHasRecurring] = useState(false);
+  const [hasComment, setHasComment] = useState(false);
 
   const handleCloseFilter = () => {
     setisFilterOpen(false);
@@ -72,7 +74,10 @@ const page = () => {
 
   const handleDrawerClose = () => {
     setOpenDrawer(false);
-    setHasEditId("");
+    setHasEditId(0);
+    setHasRecurring(false);
+    setHasComment(false);
+    setHasId("");
   };
 
   // To Toggle Drawer for Edit
@@ -86,6 +91,20 @@ const page = () => {
   // For refreshing data in Datatable from drawer
   const handleDataFetch = (getData: () => void) => {
     setDataFunction(() => getData);
+  };
+
+  // To Toggle Drawer for Recurring
+  const handleSetRecurring = (rowData: any, selectedId: number) => {
+    setHasRecurring(true);
+    setOpenDrawer(rowData);
+    setHasEditId(selectedId);
+  };
+
+  // To Toggle Drawer for Comments
+  const handleSetComments = (rowData: any, selectedId: number) => {
+    setHasComment(true);
+    setOpenDrawer(rowData);
+    setHasEditId(selectedId);
   };
 
   return (
@@ -126,6 +145,8 @@ const page = () => {
           currentFilterData={currentFilterData}
           onFilterOpen={isFilterOpen}
           onCloseDrawer={openDrawer}
+          onRecurring={handleSetRecurring}
+          onComment={handleSetComments}
         />
 
         <Drawer
@@ -135,6 +156,8 @@ const page = () => {
           onEdit={hasEditId}
           hasIconIndex={iconIndex > 0 ? iconIndex : 0}
           onHasId={hasId}
+          onRecurring={hasRecurring}
+          onComment={hasComment}
         />
 
         <FilterDialog_Approval

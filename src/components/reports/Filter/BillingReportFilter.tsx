@@ -1,13 +1,15 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
+  FormControlLabel,
   InputBase,
   InputLabel,
   MenuItem,
@@ -50,6 +52,8 @@ const BillingReportFilter = ({
   const [reviewer, setReviewer] = useState<number | string>(0);
   const [typeOfReturn, setTypeOfReturn] = useState<number | string>(0);
   const [noOfPages, setNoOfPages] = useState<number | string>("");
+  const [isBTC, setIsBTC] = useState<boolean>(false);
+  const isBTCRef_ForPreviousValue = useRef<boolean>(false);
 
   const [clientDropdown, setClientDropdown] = useState<any[]>([]);
   const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
@@ -98,6 +102,11 @@ const BillingReportFilter = ({
     }
   };
 
+  const handleIsBTCChange = (e: any) => {
+    isBTCRef_ForPreviousValue.current = isBTC;
+    setIsBTC(e.target.checked);
+  };
+
   const handleResetAll = () => {
     setClientName(0);
     setProjectName(0);
@@ -106,6 +115,7 @@ const BillingReportFilter = ({
     setTypeOfReturn(0);
     setNoOfPages("");
     setResetting(true);
+    setIsBTC(false);
 
     sendFilterToPage({
       ...billingreport_InitialFilter,
@@ -115,6 +125,7 @@ const BillingReportFilter = ({
       reviewerId: null,
       typeofReturnId: null,
       numberOfPages: null,
+      IsBTC: false,
     });
   };
 
@@ -130,6 +141,7 @@ const BillingReportFilter = ({
     setReviewer(0);
     setTypeOfReturn(0);
     setNoOfPages("");
+    setIsBTC(false);
   };
 
   const handleFilterApply = () => {
@@ -141,6 +153,7 @@ const BillingReportFilter = ({
       reviewerId: reviewer !== 0 ? reviewer : null,
       typeofReturnId: typeOfReturn !== 0 ? typeOfReturn : null,
       numberOfPages: noOfPages.toString().trim().length > 0 ? noOfPages : null,
+      IsBTC: isBTC,
     });
 
     onDialogClose(false);
@@ -157,6 +170,7 @@ const BillingReportFilter = ({
           reviewerId: savedFilters[index].AppliedFilter.reviewerId,
           typeofReturnId: savedFilters[index].AppliedFilter.typeofReturnId,
           numberOfPages: savedFilters[index].AppliedFilter.numberOfPages,
+          IsBTC: savedFilters[index].AppliedFilter.IsBTC,
         });
       }
     }
@@ -181,6 +195,7 @@ const BillingReportFilter = ({
             typeofReturnId: typeOfReturn !== 0 ? typeOfReturn : null,
             numberOfPages:
               noOfPages.toString().trim().length > 0 ? noOfPages : null,
+            IsBTC: isBTC,
           },
           type: billingReport,
         },
@@ -220,22 +235,27 @@ const BillingReportFilter = ({
   };
 
   useEffect(() => {
-    getFilterList();
-  }, []);
-
-  useEffect(() => {
     const isAnyFieldSelected =
       clientName !== 0 ||
       projectName !== 0 ||
       assignee !== 0 ||
       reviewer !== 0 ||
       typeOfReturn !== 0 ||
-      noOfPages.toString().trim().length > 0;
+      noOfPages.toString().trim().length > 0 ||
+      isBTC !== isBTCRef_ForPreviousValue.current;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
     setResetting(false);
-  }, [clientName, projectName, assignee, reviewer, typeOfReturn, noOfPages]);
+  }, [
+    clientName,
+    projectName,
+    assignee,
+    reviewer,
+    typeOfReturn,
+    noOfPages,
+    isBTC,
+  ]);
 
   useEffect(() => {
     // handleFilterApply();
@@ -568,6 +588,37 @@ const BillingReportFilter = ({
                     variant="standard"
                     value={noOfPages}
                     onChange={handleNoOfPageChange}
+                  />
+                </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
+                <FormControl
+                  variant="standard"
+                  sx={{
+                    mt: 0.35,
+                    mx: 0.75,
+                    minWidth: 100,
+                  }}
+                >
+                  {/* <InputLabel id="department">Department</InputLabel> */}
+                  {/* <Select
+                    labelId="department"
+                    id="department"
+                    value={dept === 0 ? "" : dept}
+                    onChange={(e) => setDept(e.target.value)}
+                  >
+                    {deptDropdown.map((i: any, index: number) => (
+                      <MenuItem value={i.value} key={index}>
+                        {i.label}
+                      </MenuItem>
+                    ))}
+                  </Select> */}
+                  <FormControlLabel
+                    sx={{ color: "#818181" }}
+                    control={
+                      <Checkbox checked={isBTC} onChange={handleIsBTCChange} />
+                    }
+                    label="Is Invoice Raised"
                   />
                 </FormControl>
               </div>

@@ -125,7 +125,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-2">{value === null || "" ? "--" : value}</div>
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
           );
         },
       },
@@ -140,7 +140,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-2">{value === null || "" ? "--" : value}</div>
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
           );
         },
       },
@@ -155,7 +155,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-2">{value === null || "" ? "--" : value}</div>
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
           );
         },
       },
@@ -169,7 +169,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
           <span className="font-extrabold">Start Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -194,7 +194,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
           <span className="font-extrabold">End Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -219,7 +219,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
           <span className="font-extrabold">Due Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -254,7 +254,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
                   style={{ backgroundColor: statusColorCode }}
                 ></div>
               </div>
-              {value === null || "" ? "--" : value}
+              {value === null || "" ? "-" : value}
             </div>
           );
         },
@@ -294,7 +294,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
                   }`}
                 ></div>
               </div>
-              {value === null || "" ? "--" : value}
+              {value === null || "" ? "-" : value}
             </div>
           );
         },
@@ -310,7 +310,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
         ),
         customBodyRender: (value: any) => {
           return (
-            <div className="ml-2">{value === null || "" ? "--" : value}</div>
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
           );
         },
       },

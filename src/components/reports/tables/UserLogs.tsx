@@ -115,6 +115,9 @@ const UserLogs = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">user name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -125,6 +128,9 @@ const UserLogs = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">reporting to</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -135,6 +141,9 @@ const UserLogs = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">department</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {

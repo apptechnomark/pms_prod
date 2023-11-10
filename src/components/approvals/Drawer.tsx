@@ -70,6 +70,8 @@ const EditDrawer = ({
   onDataFetch,
   onHasId,
   hasIconIndex,
+  onRecurring,
+  onComment,
 }: any) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState(0);
@@ -86,6 +88,8 @@ const EditDrawer = ({
   const [logsDrawer, setLogsDrawer] = useState(true);
   const [reasonDrawer, setReasonDrawer] = useState(true);
   const [reviewerErrDrawer, setReviewerErrDrawer] = useState(true);
+  const [editData, setEditData] = useState<any>([]);
+  const [isCreatedByClient, setIsCreatedByClient] = useState(false);
 
   // Dropdowns
   const [clientDropdownData, setClientDropdownData] = useState([]);
@@ -93,7 +97,8 @@ const EditDrawer = ({
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [processDropdownData, setProcessDropdownData] = useState([]);
   const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
-  const [statusDropdownData, setStatusDropdownData] = useState([]);
+  const [statusDropdownData, setStatusDropdownData] = useState<any>([]);
+  const [statusDropdownDataUse, setStatusDropdownDataUse] = useState<any>([]);
   const [assigneeDropdownData, setAssigneeDropdownData] = useState<any>([]);
   const [reviewerDropdownData, setReviewerDropdownData] = useState([]);
   const [cCDropdownData, setCCDropdownData] = useState<any>([]);
@@ -115,66 +120,9 @@ const EditDrawer = ({
   const [inputTypeDate, setInputTypeDate] = useState(["text"]);
   const [inputTypeStartTime, setInputTypeStartTime] = useState(["text"]);
   const [inputTypeEndTime, setInputTypeEndTime] = useState(["text"]);
-  const [userId, setUserId] = useState(0);
-
-  // Task
-  const [clientName, setClientName] = useState<any>(0);
-  const [typeOfWork, setTypeOfWork] = useState<string | number>(0);
-  const [projectName, setProjectName] = useState<string | number>(0);
-  const [processName, setProcessName] = useState<string | number>(0);
-  const [subProcess, setSubProcess] = useState<string | number>(0);
-  const [clientTaskName, setClientTaskName] = useState<string>("");
-  const [status, setStatus] = useState<string | number>(0);
-  const [description, setDescription] = useState<string>("");
-  const [priority, setPriority] = useState<string | number>(0);
-  const [quantity, setQuantity] = useState<any>("");
-  const [receiverDate, setReceiverDate] = useState<any>("");
-  const [allInfoDate, setAllInfoDate] = useState<any>("");
-  const [manager, setManager] = useState<any>(0);
-  const [dueDate, setDueDate] = useState<any>("");
-  const [assignee, setAssignee] = useState<string | number>(0);
-  const [reviewer, setReviewer] = useState<string | number>(0);
-  const [dateOfReview, setDateOfReview] = useState<string>("");
-  const [dateOfPreperation, setDateOfPreperation] = useState<string>("");
-  const [assigneeDisable, setAssigneeDisable] = useState(true);
-  const [estTimeData, setEstTimeData] = useState([]);
-
-  // Selected Taxation
-  const [returnType, setReturnType] = useState<string | number>(0);
-  const [typeOfReturn, setTypeOfReturn] = useState<string | number>(0);
-  const [returnYear, setReturnYear] = useState<string | number>(0);
-  const [complexity, setComplexity] = useState<string | number>("");
-  const [countYear, setCountYear] = useState<string | number>(0);
-  const [noOfPages, setNoOfPages] = useState<string | number>(0);
-  const [checklistWorkpaper, setChecklistWorkpaper] = useState<any>(0);
-
-  // Sub-Task
-  const [subTaskFields, setSubTaskFields] = useState([
-    {
-      SubtaskId: 0,
-      Title: "",
-      Description: "",
-    },
-  ]);
-
-  // Recurring
-  const [recurringStartDate, setRecurringStartDate] = useState("");
-  const [recurringEndDate, setRecurringEndDate] = useState("");
-  const [recurringTime, setRecurringTime] = useState<any>(1);
-  const [recurringMonth, setRecurringMonth] = useState<any>(0);
 
   // ErrorLog
   const [errorLogData, setErrorLogData] = useState([]);
-
-  // Reminder
-  const [reminderDate, setReminderDate] = useState("");
-  const [reminderTime, setReminderTime] = useState<any>(0);
-  const [reminderNotification, setReminderNotification] = useState<any>([]);
-  const [reminderCheckboxValue, setReminderCheckboxValue] = useState<any>(1);
-
-  // CheclkList
-  const [checkListData, setCheckListData] = useState([]);
-  const [itemStates, setItemStates] = useState<any>({});
 
   // Comments
   const [commentSelect, setCommentSelect] = useState<number | string>(1);
@@ -207,233 +155,6 @@ const EditDrawer = ({
       IsApproved: false,
     },
   ]);
-
-  // Comments
-  const [commentData, setCommentData] = useState([]);
-  const [value, setValue] = useState("");
-  const [valueError, setValueError] = useState(false);
-  const [valueEdit, setValueEdit] = useState("");
-  const [valueEditError, setValueEditError] = useState(false);
-  const [mention, setMention] = useState<any>([]);
-  let commentAttachment: any = [];
-  const [editingCommentIndex, setEditingCommentIndex] = useState(-1);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const users =
-    assigneeDropdownData?.length > 0 &&
-    assigneeDropdownData.map(
-      (i: any) =>
-        new Object({
-          id: i.value,
-          display: i.label,
-        })
-    );
-
-  const handleEditClick = (index: any, message: any) => {
-    setEditingCommentIndex(index);
-    setValueEdit(message);
-  };
-
-  const handleSaveClick = async (e: any, i: any, type: any) => {
-    e.preventDefault();
-    setValueEditError(
-      valueEdit.trim().length < 5 || valueEdit.trim().length > 500
-    );
-
-    if (
-      valueEdit.trim().length > 5 &&
-      valueEdit.trim().length < 501 &&
-      !valueEditError
-    ) {
-      if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`,
-            {
-              workitemId: onEdit,
-              CommentId: i.CommentId,
-              Message: valueEdit,
-              TaggedUsers: mention,
-              Attachment: i.Attachment,
-              type: type,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Comment updated successfully.`);
-              setMention([]);
-              setValueEdit("");
-              getCommentData(1);
-              setEditingCommentIndex(-1);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
-      } else {
-        toast.error("User don't have permission to Update Task.");
-        getCommentData(1);
-      }
-    }
-  };
-
-  const handleCommentChange = (e: any) => {
-    setMention(
-      e
-        .split("(")
-        .map((i: any, index: number) => {
-          if (i.includes(")")) {
-            return parseInt(i.split(")")[0]);
-          }
-        })
-        .filter((i: any) => i !== undefined)
-    );
-    setValueError(false);
-  };
-
-  const handleFileChange = (e: any) => {
-    const selectedFiles = e.target.files;
-
-    if (selectedFiles) {
-      for (let i = 0; i < selectedFiles.length; i++) {
-        const selectedFile = selectedFiles[i];
-        const fileName = selectedFile.name;
-        const fileExtension = fileName.split(".").pop();
-        let newFileName;
-
-        const uuidv4 = () => {
-          return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-            /[xy]/g,
-            function (c) {
-              const r = (Math.random() * 16) | 0,
-                v = c == "x" ? r : (r & 0x3) | 0x8;
-
-              return v.toString(16);
-            }
-          );
-        };
-
-        if (!fileName.toLowerCase().includes(".")) {
-          newFileName = `${uuidv4().slice(0, 32)}.txt`;
-        } else {
-          newFileName = `${uuidv4().slice(0, 32)}.${fileExtension}`;
-        }
-
-        const filePath = URL.createObjectURL(selectedFile).slice(5);
-        const fileObject = {
-          AttachmentId: 0,
-          SystemFileName: newFileName,
-          UserFileName: fileName,
-          AttachmentPath: filePath,
-        };
-        commentAttachment.push(fileObject);
-      }
-    }
-  };
-
-  const handleSubmitComment = async (
-    e: { preventDefault: () => void },
-    type: any
-  ) => {
-    e.preventDefault();
-    setValueError(value.trim().length < 5 || value.trim().length > 500);
-
-    if (value.trim().length > 5 && value.trim().length < 501 && !valueError) {
-      if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`,
-            {
-              workitemId: onEdit,
-              CommentId: 0,
-              Message: value,
-              TaggedUsers: mention,
-              Attachment: commentAttachment.length > 0 ? commentAttachment : [],
-              type: type,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Comment sent successfully.`);
-              setMention([]);
-              commentAttachment = [];
-              setValueEdit("");
-              setValue("");
-              getCommentData(commentSelect);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
-      } else {
-        toast.error("User don't have permission to Update Task.");
-        getCommentData(1);
-      }
-    }
-  };
-
-  const extractText = (inputString: any) => {
-    const regex = /@\[([^\]]+)\]\([^)]+\)|\[([^\]]+)\]|[^@\[\]]+/g;
-    const matches = [];
-    let match;
-    while ((match = regex.exec(inputString)) !== null) {
-      matches.push(match[1] || match[2] || match[0]);
-    }
-    return matches;
-  };
 
   const saveReviewerManualTimelog = async () => {
     const local: any = await localStorage.getItem("UserId");
@@ -908,7 +629,9 @@ const EditDrawer = ({
       setIsPartiallySubmitted(true);
       scrollToPanel(isManual === null || isManual === true ? 6 : 5);
     }
-  }, [onEdit]);
+    onRecurring && scrollToPanel(4);
+    onComment && scrollToPanel(3);
+  }, [onEdit, onRecurring, onComment]);
 
   const handleTabClick = (index: number) => {
     setActiveTab(index);
@@ -919,6 +642,1207 @@ const EditDrawer = ({
     const panel = document.getElementById(`tabpanel-${index}`);
     if (panel) {
       panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  // Task
+  const [clientName, setClientName] = useState<any>(0);
+  const [clientNameErr, setClientNameErr] = useState(false);
+  const [typeOfWork, setTypeOfWork] = useState<string | number>(0);
+  const [typeOfWorkErr, setTypeOfWorkErr] = useState(false);
+  const [projectName, setProjectName] = useState<any>(0);
+  const [projectNameErr, setProjectNameErr] = useState(false);
+  const [clientTaskName, setClientTaskName] = useState<string>("");
+  const [clientTaskNameErr, setClientTaskNameErr] = useState(false);
+  const [processName, setProcessName] = useState<any>(0);
+  const [processNameErr, setProcessNameErr] = useState(false);
+  const [subProcess, setSubProcess] = useState<any>(0);
+  const [subProcessErr, setSubProcessErr] = useState(false);
+  const [manager, setManager] = useState<any>(0);
+  const [managerErr, setManagerErr] = useState(false);
+  const [status, setStatus] = useState<any>(0);
+  const [editStatus, setEditStatus] = useState<any>(0);
+  const [statusErr, setStatusErr] = useState(false);
+  const [description, setDescription] = useState<string>("");
+  const [priority, setPriority] = useState<string | number>(0);
+  const [quantity, setQuantity] = useState<any>(1);
+  const [quantityErr, setQuantityErr] = useState(false);
+  const [receiverDate, setReceiverDate] = useState<any>("");
+  const [receiverDateErr, setReceiverDateErr] = useState(false);
+  const [dueDate, setDueDate] = useState<any>("");
+  const [dueDateErr, setDueDateErr] = useState(false);
+  const [allInfoDate, setAllInfoDate] = useState<any>("");
+  const [assignee, setAssignee] = useState<any>([]);
+  const [assigneeErr, setAssigneeErr] = useState(false);
+  const [reviewer, setReviewer] = useState<any>([]);
+  const [reviewerErr, setReviewerErr] = useState(false);
+  const [dateOfReview, setDateOfReview] = useState<string>("");
+  const [dateOfPreperation, setDateOfPreperation] = useState<string>("");
+  const [assigneeDisable, setAssigneeDisable] = useState<any>(true);
+  const [estTimeData, setEstTimeData] = useState([]);
+  const [userId, setUserId] = useState(0);
+  const [returnYear, setReturnYear] = useState<string | number>(0);
+  const [returnYearErr, setReturnYearErr] = useState(false);
+  const [noOfPages, setNoOfPages] = useState<any>(0);
+  const [checklistWorkpaper, setChecklistWorkpaper] = useState<any>(0);
+  const [checklistWorkpaperErr, setChecklistWorkpaperErr] = useState(false);
+
+  const handleSubmit = (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+
+    const validateField = (value: any) => {
+      if (
+        value === 0 ||
+        value === "" ||
+        value === null ||
+        (Array.isArray(value) && value.length === 0)
+      ) {
+        return true;
+      }
+      return false;
+    };
+
+    const fieldValidations = {
+      clientName: validateField(clientName),
+      typeOfWork: validateField(typeOfWork),
+      projectName: validateField(projectName),
+      processName: validateField(processName),
+      subProcess: validateField(subProcess),
+      clientTaskName: validateField(clientTaskName),
+      quantity: validateField(quantity),
+      receiverDate: validateField(receiverDate),
+      dueDate: validateField(dueDate),
+      assignee: assigneeDisable && validateField(assignee),
+      reviewer: validateField(reviewer),
+      manager: validateField(manager),
+      returnYear: typeOfWork === 3 && validateField(returnYear),
+      checklistWorkpaper: typeOfWork === 3 && validateField(checklistWorkpaper),
+      recurringStartDate: recurringSwitch && validateField(recurringStartDate),
+      recurringEndDate: recurringSwitch && validateField(recurringEndDate),
+      recurringMonth:
+        recurringSwitch && recurringTime === 3 && validateField(recurringMonth),
+      selectedDays:
+        recurringSwitch && recurringTime === 2 && validateField(selectedDays),
+      reminderTime: reminderSwitch && validateField(reminderTime),
+      reminderNotification:
+        reminderSwitch && validateField(reminderNotification),
+      reminderDate:
+        reminderSwitch &&
+        reminderCheckboxValue === 2 &&
+        validateField(reminderDate),
+    };
+
+    setClientNameErr(fieldValidations.clientName);
+    setTypeOfWorkErr(fieldValidations.typeOfWork);
+    setProjectNameErr(fieldValidations.projectName);
+    setProcessNameErr(fieldValidations.processName);
+    setSubProcessErr(fieldValidations.subProcess);
+    setClientTaskNameErr(fieldValidations.clientTaskName);
+    setQuantityErr(fieldValidations.quantity);
+    setReceiverDateErr(fieldValidations.receiverDate);
+    setDueDateErr(fieldValidations.dueDate);
+    assigneeDisable && setAssigneeErr(fieldValidations.assignee);
+    setReviewerErr(fieldValidations.reviewer);
+    setManagerErr(fieldValidations.manager);
+    typeOfWork === 3 && setReturnYearErr(fieldValidations.returnYear);
+    typeOfWork === 3 &&
+      setChecklistWorkpaperErr(fieldValidations.checklistWorkpaper);
+    onEdit === 0 &&
+      recurringSwitch &&
+      setRecurringStartDateErr(fieldValidations.recurringStartDate);
+    onEdit === 0 &&
+      recurringSwitch &&
+      setRecurringEndDateErr(fieldValidations.recurringEndDate);
+    onEdit === 0 &&
+      recurringSwitch &&
+      recurringTime === 3 &&
+      setRecurringMonthErr(fieldValidations.recurringMonth);
+    onEdit === 0 &&
+      recurringSwitch &&
+      recurringTime === 2 &&
+      setRecurringWeekErr(fieldValidations.selectedDays);
+    onEdit === 0 &&
+      reminderSwitch &&
+      setReminderTimeErr(fieldValidations.reminderTime);
+    onEdit === 0 &&
+      reminderSwitch &&
+      setReminderNotificationErr(fieldValidations.reminderNotification);
+    onEdit === 0 &&
+      reminderSwitch &&
+      reminderCheckboxValue === 2 &&
+      setReminderDateErr(fieldValidations.reminderDate);
+
+    onEdit === 0 &&
+      receiverDate.length > 0 &&
+      dueDate.length > 0 &&
+      setDueDateErr(dayjs(receiverDate) > dayjs(dueDate));
+    setClientTaskNameErr(
+      clientTaskName.trim().length < 4 || clientTaskName.trim().length > 50
+    );
+    setQuantityErr(
+      quantity.length <= 0 ||
+        quantity.length > 4 ||
+        quantity <= 0 ||
+        quantity.toString().includes(".")
+    );
+
+    const hasErrors = Object.values(fieldValidations).some((error) => error);
+
+    const fieldValidationsEdit = {
+      clientName: validateField(clientName),
+      typeOfWork: validateField(typeOfWork),
+      projectName: validateField(projectName),
+      processName: validateField(processName),
+      subProcess: validateField(subProcess),
+      clientTaskName: validateField(clientTaskName),
+      status: validateField(status),
+      quantity: validateField(quantity),
+      receiverDate: validateField(receiverDate),
+      dueDate: validateField(dueDate),
+      assignee: validateField(assignee),
+      reviewer: validateField(reviewer),
+      manager: validateField(manager),
+      returnYear: typeOfWork === 3 && validateField(returnYear),
+      checklistWorkpaper: typeOfWork === 3 && validateField(checklistWorkpaper),
+    };
+
+    const hasEditErrors = Object.values(fieldValidationsEdit).some(
+      (error) => error
+    );
+
+    // Sub-Task
+    let hasSubErrors = false;
+    const newTaskErrors = subTaskFields.map(
+      (field) =>
+        (onEdit === 0 && subTaskSwitch && field.Title.trim().length < 5) ||
+        (onEdit === 0 && subTaskSwitch && field.Title.trim().length > 500)
+    );
+    subTaskSwitch && setTaskNameErr(newTaskErrors);
+    const newSubTaskDescErrors = subTaskFields.map(
+      (field) =>
+        (onEdit === 0 &&
+          subTaskSwitch &&
+          field.Description.trim().length < 5) ||
+        (onEdit === 0 && subTaskSwitch && field.Description.trim().length > 500)
+    );
+    subTaskSwitch && setSubTaskDescriptionErr(newSubTaskDescErrors);
+    hasSubErrors =
+      newTaskErrors.some((error) => error) ||
+      newSubTaskDescErrors.some((error) => error);
+
+    // Maual
+    let hasManualErrors = false;
+    const newInputDateErrors = manualFields.map(
+      (field) => onEdit === 0 && manualSwitch && field.inputDate === ""
+    );
+    manualSwitch && setInputDateErrors(newInputDateErrors);
+    const newStartTimeErrors = manualFields.map(
+      (field) =>
+        (onEdit === 0 && manualSwitch && field.startTime.trim().length === 0) ||
+        (onEdit === 0 && manualSwitch && field.startTime.trim().length < 8)
+    );
+    manualSwitch && setStartTimeErrors(newStartTimeErrors);
+    const newEndTimeErrors = manualFields.map(
+      (field) =>
+        (onEdit === 0 && manualSwitch && field.endTime.trim().length === 0) ||
+        (onEdit === 0 && manualSwitch && field.endTime.trim().length < 8) ||
+        (onEdit === 0 && manualSwitch && field.endTime <= field.startTime) ||
+        field.startTime
+          .split(":")
+          .reduce(
+            (acc, timePart, index) =>
+              acc + parseInt(timePart) * [3600, 60, 1][index],
+            0
+          ) +
+          "07:59:59"
+            .split(":")
+            .reduce(
+              (acc, timePart, index) =>
+                acc + parseInt(timePart) * [3600, 60, 1][index],
+              0
+            ) <
+          field.endTime
+            .split(":")
+            .reduce(
+              (acc, timePart, index) =>
+                acc + parseInt(timePart) * [3600, 60, 1][index],
+              0
+            )
+    );
+    manualSwitch && setEndTimeErrors(newEndTimeErrors);
+    const newManualDescErrors = manualFields.map(
+      (field) =>
+        (onEdit === 0 && manualSwitch && field.manualDesc.trim().length < 5) ||
+        (onEdit === 0 && manualSwitch && field.manualDesc.trim().length > 500)
+    );
+    manualSwitch && setManualDescErrors(newManualDescErrors);
+    hasManualErrors =
+      newInputDateErrors.some((error) => error) ||
+      newStartTimeErrors.some((error) => error) ||
+      newEndTimeErrors.some((error) => error) ||
+      newManualDescErrors.some((error) => error);
+
+    const data = {
+      WorkItemId: onEdit > 0 ? onEdit : 0,
+      ClientId: clientName,
+      WorkTypeId: typeOfWork,
+      taskName: clientTaskName,
+      ProjectId: projectName === 0 ? null : projectName,
+      ProcessId: processName === 0 ? null : processName,
+      SubProcessId: subProcess === 0 ? null : subProcess,
+      StatusId: status,
+      Priority: priority === 0 ? 0 : priority,
+      Quantity: quantity,
+      Description:
+        description.toString().length <= 0
+          ? null
+          : description.toString().trim(),
+      ReceiverDate: dayjs(receiverDate).format("YYYY/MM/DD"),
+      DueDate: dayjs(dueDate).format("YYYY/MM/DD"),
+      allInfoDate: allInfoDate === "" ? null : allInfoDate,
+      AssignedId: assignee,
+      ReviewerId: reviewer,
+      managerId: manager,
+      TaxReturnType: null,
+      TaxCustomFields:
+        typeOfWork !== 3
+          ? null
+          : {
+              ReturnYear: returnYear,
+              Complexity: null,
+              CountYear: null,
+              NoOfPages: noOfPages,
+            },
+      checklistWorkpaper:
+        checklistWorkpaper === 1
+          ? true
+          : checklistWorkpaper === 2
+          ? false
+          : null,
+      ManualTimeList:
+        onEdit > 0
+          ? null
+          : manualSwitch
+          ? manualFields.map(
+              (i: any) =>
+                new Object({
+                  Date: i.inputDate,
+                  startTime:
+                    dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.startTime,
+                  endTime:
+                    dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.endTime,
+                  comment: i.manualDesc,
+                })
+            )
+          : null,
+      SubTaskList:
+        onEdit > 0
+          ? null
+          : subTaskSwitch
+          ? subTaskFields.map(
+              (i: any) =>
+                new Object({
+                  SubtaskId: i.SubtaskId,
+                  Title: i.Title.trim(),
+                  Description: i.Description.trim(),
+                })
+            )
+          : null,
+      RecurringObj:
+        onEdit > 0
+          ? null
+          : recurringSwitch
+          ? {
+              Type: recurringTime,
+              IsActive: true,
+              StartDate: dayjs(recurringStartDate).format("YYYY/MM/DD"),
+              EndDate: dayjs(recurringEndDate).format("YYYY/MM/DD"),
+              triggerIdList:
+                recurringTime === 1
+                  ? []
+                  : recurringTime === 2
+                  ? selectedDays
+                  : recurringMonth.map((i: any) => i.value),
+            }
+          : null,
+      ReminderObj:
+        onEdit > 0
+          ? null
+          : reminderSwitch
+          ? {
+              Type: reminderCheckboxValue,
+              IsActive: true,
+              ReminderDate: reminderDate.length > 0 ? reminderDate : null,
+              ReminderTime: reminderTime,
+              ReminderUserList: reminderNotification.map((i: any) => i.value),
+            }
+          : null,
+    };
+
+    const saveWorklog = async () => {
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/workitem/saveworkitem`,
+          data,
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            toast.success(
+              `Worklog ${onEdit > 0 ? "Updated" : "created"} successfully.`
+            );
+            onEdit > 0 && getEditData();
+            onEdit > 0 && typeOfWork === 3 && getCheckListData();
+            onEdit === 0 && onClose();
+            onEdit === 0 && handleClose();
+          } else {
+            const data = response.data.Message;
+            onEdit > 0 && getEditData();
+            if (data === null) {
+              toast.error("Please try again later.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Failed Please try again.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          router.push("/login");
+          localStorage.clear();
+        }
+      }
+    };
+
+    if (
+      (onEdit > 0 && editStatus === 4) ||
+      (onEdit > 0 && editStatus === 5) ||
+      (onEdit > 0 && status === 7) ||
+      (onEdit > 0 && status === 8) ||
+      (onEdit > 0 && status === 9) ||
+      (onEdit > 0 && status === 13)
+    ) {
+      toast.warning(
+        "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+      );
+      getEditData();
+    } else if (
+      onEdit > 0 &&
+      editStatus !== 4 &&
+      editStatus !== 5 &&
+      status !== 7 &&
+      status !== 8 &&
+      status !== 9 &&
+      status !== 13 &&
+      typeOfWork !== 3 &&
+      !hasEditErrors &&
+      clientTaskName.trim().length > 3 &&
+      clientTaskName.trim().length < 50 &&
+      !dueDateErr &&
+      quantity > 0 &&
+      quantity < 10000 &&
+      !quantityErr &&
+      !quantity.toString().includes(".")
+    ) {
+      if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
+        saveWorklog();
+      } else {
+        toast.error("User don't have permission to Update Task.");
+        getEditData();
+      }
+    } else if (
+      onEdit > 0 &&
+      editStatus !== 4 &&
+      editStatus !== 5 &&
+      status !== 7 &&
+      status !== 8 &&
+      status !== 9 &&
+      status !== 13 &&
+      typeOfWork === 3 &&
+      !hasEditErrors &&
+      clientTaskName.trim().length > 3 &&
+      clientTaskName.trim().length < 50 &&
+      !dueDateErr &&
+      quantity > 0 &&
+      quantity < 10000 &&
+      !quantityErr &&
+      !quantity.toString().includes(".")
+    ) {
+      if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
+        saveWorklog();
+      } else {
+        toast.error("User don't have permission to Update Task.");
+        getEditData();
+      }
+    }
+  };
+
+  // Sub Task
+  const [subTaskSwitch, setSubTaskSwitch] = useState(false);
+  const [subTaskFields, setSubTaskFields] = useState([
+    {
+      SubtaskId: 0,
+      Title: "",
+      Description: "",
+    },
+  ]);
+  const [taskNameErr, setTaskNameErr] = useState([false]);
+  const [subTaskDescriptionErr, setSubTaskDescriptionErr] = useState([false]);
+  const [deletedSubTask, setDeletedSubTask] = useState<any>([]);
+
+  const addTaskField = () => {
+    setSubTaskFields([
+      ...subTaskFields,
+      {
+        SubtaskId: 0,
+        Title: "",
+        Description: "",
+      },
+    ]);
+    setTaskNameErr([...taskNameErr, false]),
+      setSubTaskDescriptionErr([...subTaskDescriptionErr, false]);
+  };
+
+  const removeTaskField = (index: number) => {
+    setDeletedSubTask([...deletedSubTask, subTaskFields[index].SubtaskId]);
+
+    const newTaskFields = [...subTaskFields];
+    newTaskFields.splice(index, 1);
+    setSubTaskFields(newTaskFields);
+
+    const newTaskErrors = [...taskNameErr];
+    newTaskErrors.splice(index, 1);
+    setTaskNameErr(newTaskErrors);
+
+    const newSubTaskDescriptionErrors = [...subTaskDescriptionErr];
+    newSubTaskDescriptionErrors.splice(index, 1);
+    setSubTaskDescriptionErr(newSubTaskDescriptionErrors);
+  };
+
+  const handleSubTaskChange = (e: any, index: number) => {
+    const newTaskFields = [...subTaskFields];
+    newTaskFields[index].Title = e.target.value;
+    setSubTaskFields(newTaskFields);
+
+    const newTaskErrors = [...taskNameErr];
+    newTaskErrors[index] = e.target.value.trim().length === 0;
+    setTaskNameErr(newTaskErrors);
+  };
+
+  const handleSubTaskDescriptionChange = (e: any, index: number) => {
+    const newTaskFields = [...subTaskFields];
+    newTaskFields[index].Description = e.target.value;
+    setSubTaskFields(newTaskFields);
+
+    const newSubTaskDescErrors = [...subTaskDescriptionErr];
+    newSubTaskDescErrors[index] = e.target.value.trim().length === 0;
+    setSubTaskDescriptionErr(newSubTaskDescErrors);
+  };
+
+  const handleSubmitSubTask = async () => {
+    if (
+      editStatus === 4 ||
+      editStatus === 5 ||
+      status === 7 ||
+      status === 8 ||
+      status === 9 ||
+      status === 13
+    ) {
+      toast.warning(
+        "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+      );
+      getWorklogData();
+    } else {
+      let hasSubErrors = false;
+      const newTaskErrors = subTaskFields.map(
+        (field) =>
+          (subTaskSwitch && field.Title.trim().length < 5) ||
+          (subTaskSwitch && field.Title.trim().length > 500)
+      );
+      subTaskSwitch && setTaskNameErr(newTaskErrors);
+      const newSubTaskDescErrors = subTaskFields.map(
+        (field) =>
+          (subTaskSwitch && field.Description.trim().length < 5) ||
+          (subTaskSwitch && field.Description.trim().length > 500)
+      );
+      subTaskSwitch && setSubTaskDescriptionErr(newSubTaskDescErrors);
+      hasSubErrors =
+        newTaskErrors.some((error) => error) ||
+        newSubTaskDescErrors.some((error) => error);
+
+      if (!hasSubErrors) {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`,
+            {
+              workitemId: onEdit,
+              subtasks: subTaskSwitch
+                ? subTaskFields.map(
+                    (i: any) =>
+                      new Object({
+                        SubtaskId: i.SubtaskId,
+                        Title: i.Title.trim(),
+                        Description: i.Description.trim(),
+                      })
+                  )
+                : null,
+              deletedWorkitemSubtaskIds: deletedSubTask,
+            },
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              toast.success(`Sub Task Updated successfully.`);
+              setDeletedSubTask([]);
+              setSubTaskFields([
+                {
+                  SubtaskId: 0,
+                  Title: "",
+                  Description: "",
+                },
+              ]);
+              getWorklogData();
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Please try again later.");
+              } else {
+                toast.error(data);
+              }
+            }
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Failed Please try again.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            router.push("/login");
+            localStorage.clear();
+          }
+        }
+      }
+    }
+  };
+
+  // Checklist
+  const [addChecklistField, setAddChecklistField] = useState(false);
+  const [checkListName, setCheckListName] = useState("");
+  const [checkListNameError, setCheckListNameError] = useState(false);
+  const [checkListData, setCheckListData] = useState([]);
+  const [itemStates, setItemStates] = useState<any>({});
+  const toggleGeneralOpen = (index: any) => {
+    setItemStates((prevStates: any) => ({
+      ...prevStates,
+      [index]: !prevStates[index],
+    }));
+  };
+
+  const toggleAddChecklistField = (index: any) => {
+    setItemStates((prevStates: any) => ({
+      ...prevStates,
+      [`addChecklistField_${index}`]: !prevStates[`addChecklistField_${index}`],
+    }));
+  };
+
+  const handleSaveCheckListName = async (Category: any, index: number) => {
+    if (
+      editStatus === 4 ||
+      status === 7 ||
+      status === 8 ||
+      status === 9 ||
+      status === 13
+    ) {
+      toast.warning(
+        "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+      );
+      getCheckListData();
+    } else {
+      setCheckListNameError(
+        checkListName.trim().length < 5 || checkListName.trim().length > 500
+      );
+
+      if (
+        !checkListNameError &&
+        checkListName.trim().length > 4 &&
+        checkListName.trim().length < 500
+      ) {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.worklog_api_url}/workitem/checklist/createbyworkitem`,
+            {
+              workItemId: onEdit,
+              category: Category,
+              title: checkListName,
+              isCheck: true,
+            },
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              toast.success(`Checklist created successfully.`);
+              setCheckListName("");
+              getCheckListData();
+              toggleAddChecklistField(index);
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Please try again later.");
+              } else {
+                toast.error(data);
+              }
+            }
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Failed Please try again.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            router.push("/login");
+            localStorage.clear();
+          }
+        }
+      }
+    }
+  };
+
+  const handleChangeChecklist = async (
+    Category: any,
+    IsCheck: any,
+    Title: any
+  ) => {
+    if (
+      editStatus === 4 ||
+      status === 7 ||
+      status === 8 ||
+      status === 9 ||
+      status === 13
+    ) {
+      toast.warning(
+        "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+      );
+      getCheckListData();
+    } else {
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/workitem/checklist/savebyworkitem`,
+          {
+            workItemId: onEdit,
+            category: Category,
+            title: Title,
+            isCheck: IsCheck,
+          },
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            toast.success(`CheckList Updated successfully.`);
+            getCheckListData();
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Please try again later.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Failed Please try again.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          router.push("/login");
+          localStorage.clear();
+        }
+      }
+    }
+  };
+
+  // Comments
+  const [commentData, setCommentData] = useState([]);
+  const [value, setValue] = useState("");
+  const [valueError, setValueError] = useState(false);
+  const [valueEdit, setValueEdit] = useState("");
+  const [valueEditError, setValueEditError] = useState(false);
+  const [mention, setMention] = useState<any>([]);
+  let commentAttachment: any = [];
+  const [editingCommentIndex, setEditingCommentIndex] = useState(-1);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const users =
+    assigneeDropdownData?.length > 0 &&
+    assigneeDropdownData.map(
+      (i: any) =>
+        new Object({
+          id: i.value,
+          display: i.label,
+        })
+    );
+
+  const handleEditClick = (index: any, message: any) => {
+    setEditingCommentIndex(index);
+    setValueEdit(message);
+  };
+
+  const handleSaveClick = async (e: any, i: any, type: any) => {
+    e.preventDefault();
+    setValueEditError(
+      valueEdit.trim().length < 5 || valueEdit.trim().length > 500
+    );
+
+    if (
+      valueEdit.trim().length > 5 &&
+      valueEdit.trim().length < 501 &&
+      !valueEditError
+    ) {
+      if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`,
+            {
+              workitemId: onEdit,
+              CommentId: i.CommentId,
+              Message: valueEdit,
+              TaggedUsers: mention,
+              Attachment: i.Attachment,
+              type: type,
+            },
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              toast.success(`Comment updated successfully.`);
+              setMention([]);
+              setValueEdit("");
+              getCommentData(1);
+              setEditingCommentIndex(-1);
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Please try again later.");
+              } else {
+                toast.error(data);
+              }
+            }
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Failed Please try again.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            router.push("/login");
+            localStorage.clear();
+          }
+        }
+      } else {
+        toast.error("User don't have permission to Update Task.");
+        getCommentData(1);
+      }
+    }
+  };
+
+  const handleCommentChange = (e: any) => {
+    setMention(
+      e
+        .split("(")
+        .map((i: any, index: number) => {
+          if (i.includes(")")) {
+            return parseInt(i.split(")")[0]);
+          }
+        })
+        .filter((i: any) => i !== undefined)
+    );
+    setValueError(false);
+  };
+
+  const handleFileChange = (e: any) => {
+    const selectedFiles = e.target.files;
+
+    if (selectedFiles) {
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const selectedFile = selectedFiles[i];
+        const fileName = selectedFile.name;
+        const fileExtension = fileName.split(".").pop();
+        let newFileName;
+
+        const uuidv4 = () => {
+          return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+            /[xy]/g,
+            function (c) {
+              const r = (Math.random() * 16) | 0,
+                v = c == "x" ? r : (r & 0x3) | 0x8;
+
+              return v.toString(16);
+            }
+          );
+        };
+
+        if (!fileName.toLowerCase().includes(".")) {
+          newFileName = `${uuidv4().slice(0, 32)}.txt`;
+        } else {
+          newFileName = `${uuidv4().slice(0, 32)}.${fileExtension}`;
+        }
+
+        const filePath = URL.createObjectURL(selectedFile).slice(5);
+        const fileObject = {
+          AttachmentId: 0,
+          SystemFileName: newFileName,
+          UserFileName: fileName,
+          AttachmentPath: filePath,
+        };
+        commentAttachment.push(fileObject);
+      }
+    }
+  };
+
+  const handleSubmitComment = async (
+    e: { preventDefault: () => void },
+    type: any
+  ) => {
+    e.preventDefault();
+    setValueError(value.trim().length < 5 || value.trim().length > 500);
+
+    if (value.trim().length > 5 && value.trim().length < 501 && !valueError) {
+      if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`,
+            {
+              workitemId: onEdit,
+              CommentId: 0,
+              Message: value,
+              TaggedUsers: mention,
+              Attachment: commentAttachment.length > 0 ? commentAttachment : [],
+              type: type,
+            },
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              toast.success(`Comment sent successfully.`);
+              setMention([]);
+              commentAttachment = [];
+              setValueEdit("");
+              setValue("");
+              getCommentData(commentSelect);
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Please try again later.");
+              } else {
+                toast.error(data);
+              }
+            }
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Failed Please try again.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            router.push("/login");
+            localStorage.clear();
+          }
+        }
+      } else {
+        toast.error("User don't have permission to Update Task.");
+        getCommentData(1);
+      }
+    }
+  };
+
+  const extractText = (inputString: any) => {
+    const regex = /@\[([^\]]+)\]\([^)]+\)|\[([^\]]+)\]|[^@\[\]]+/g;
+    const matches = [];
+    let match;
+    while ((match = regex.exec(inputString)) !== null) {
+      matches.push(match[1] || match[2] || match[0]);
+    }
+    return matches;
+  };
+
+  // Recurring
+  const [recurringSwitch, setRecurringSwitch] = useState(false);
+  const [recurringStartDate, setRecurringStartDate] = useState("");
+  const [recurringStartDateErr, setRecurringStartDateErr] = useState(false);
+  const [recurringEndDate, setRecurringEndDate] = useState("");
+  const [recurringEndDateErr, setRecurringEndDateErr] = useState(false);
+  const [recurringTime, setRecurringTime] = useState<any>(1);
+  const [recurringMonth, setRecurringMonth] = useState<any>(0);
+  const [recurringMonthErr, setRecurringMonthErr] = useState(false);
+  const [recurringWeekErr, setRecurringWeekErr] = useState(false);
+  const handleSubmitRecurring = async () => {
+    const validateField = (value: any) => {
+      if (
+        value === 0 ||
+        value === "" ||
+        value === null ||
+        (Array.isArray(value) && value.length === 0)
+      ) {
+        return true;
+      }
+      return false;
+    };
+
+    const fieldValidations = {
+      recurringStartDate: recurringSwitch && validateField(recurringStartDate),
+      recurringEndDate: recurringSwitch && validateField(recurringEndDate),
+      recurringMonth:
+        recurringSwitch && recurringTime === 3 && validateField(recurringMonth),
+      selectedDays:
+        recurringSwitch && recurringTime === 2 && validateField(selectedDays),
+    };
+
+    recurringSwitch &&
+      setRecurringStartDateErr(fieldValidations.recurringStartDate);
+    recurringSwitch &&
+      setRecurringEndDateErr(fieldValidations.recurringEndDate);
+    recurringSwitch &&
+      recurringTime === 3 &&
+      setRecurringMonthErr(fieldValidations.recurringMonth);
+    recurringSwitch &&
+      recurringTime === 2 &&
+      setRecurringWeekErr(fieldValidations.selectedDays);
+
+    const hasErrors = Object.values(fieldValidations).some((error) => error);
+
+    if (!hasErrors) {
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/workitem/recurring/savebyworkitem`,
+          {
+            WorkitemId: onEdit,
+            Type: recurringTime,
+            StartDate: dayjs(recurringStartDate).format("YYYY/MM/DD"),
+            EndDate: dayjs(recurringEndDate).format("YYYY/MM/DD"),
+            Triggers:
+              recurringTime === 1
+                ? []
+                : recurringTime === 2
+                ? selectedDays
+                : recurringMonth.map((i: any) => i.value),
+          },
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            toast.success(`Recurring Updated successfully.`);
+            setDeletedSubTask([]);
+            getRecurringData();
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Please try again later.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Failed Please try again.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          router.push("/login");
+          localStorage.clear();
+        }
+      }
+    }
+  };
+
+  // Reminder
+  const [reminderSwitch, setReminderSwitch] = useState(false);
+  const [reminderDate, setReminderDate] = useState("");
+  const [reminderDateErr, setReminderDateErr] = useState(false);
+  const [reminderTime, setReminderTime] = useState<any>(0);
+  const [reminderTimeErr, setReminderTimeErr] = useState(false);
+  const [reminderNotification, setReminderNotification] = useState<any>([]);
+  const [reminderNotificationErr, setReminderNotificationErr] = useState(false);
+  const [reminderCheckboxValue, setReminderCheckboxValue] = useState<any>(1);
+  const [reminderId, setReminderId] = useState(0);
+  const handleSubmitReminder = async () => {
+    if (
+      editStatus === 4 ||
+      status === 7 ||
+      status === 8 ||
+      status === 9 ||
+      status === 13
+    ) {
+      toast.warning(
+        "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+      );
+      getReminderData();
+    } else {
+      const validateField = (value: any) => {
+        if (
+          value === 0 ||
+          value === "" ||
+          value === null ||
+          (Array.isArray(value) && value.length === 0)
+        ) {
+          return true;
+        }
+        return false;
+      };
+
+      const fieldValidations = {
+        reminderTime: reminderSwitch && validateField(reminderTime),
+        reminderNotification:
+          reminderSwitch && validateField(reminderNotification),
+        reminderDate:
+          reminderSwitch &&
+          reminderCheckboxValue === 2 &&
+          validateField(reminderDate),
+      };
+
+      reminderSwitch && setReminderTimeErr(fieldValidations.reminderTime);
+      reminderSwitch &&
+        setReminderNotificationErr(fieldValidations.reminderNotification);
+      reminderSwitch &&
+        reminderCheckboxValue === 2 &&
+        setReminderDateErr(fieldValidations.reminderDate);
+
+      const hasErrors = Object.values(fieldValidations).some((error) => error);
+
+      if (!hasErrors) {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.worklog_api_url}/workitem/reminder/savebyworkitem`,
+            {
+              ReminderId: reminderId,
+              ReminderType: reminderCheckboxValue,
+              WorkitemId: onEdit,
+              ReminderDate:
+                reminderCheckboxValue === 2
+                  ? dayjs(reminderDate).format("YYYY/MM/DD")
+                  : null,
+              ReminderTime: reminderTime,
+              ReminderUserIds: reminderNotification.map((i: any) => i.value),
+            },
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              toast.success(`Reminder Updated successfully.`);
+              getReminderData();
+              setReminderId(0);
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Please try again later.");
+              } else {
+                toast.error(data);
+              }
+            }
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Failed Please try again.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            router.push("/login");
+            localStorage.clear();
+          }
+        }
+      }
     }
   };
 
@@ -959,6 +1883,12 @@ const EditDrawer = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           const data = await response.data.ResponseData;
+          setSubTaskSwitch(
+            data.length <= 0
+              ? !hasPermissionWorklog("Task/SubTask", "save", "WorkLogs") &&
+                  false
+              : hasPermissionWorklog("Task/SubTask", "save", "WorkLogs") && true
+          );
           setSubTaskFields(
             data.length <= 0
               ? [
@@ -1014,6 +1944,11 @@ const EditDrawer = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           const data = await response.data.ResponseData;
+          setRecurringSwitch(
+            data.length <= 0
+              ? !hasPermissionWorklog("Reccuring", "save", "WorkLogs") && false
+              : hasPermissionWorklog("Reccuring", "save", "WorkLogs") && true
+          );
           setRecurringStartDate(data.length <= 0 ? "" : data.StartDate);
           setRecurringEndDate(data.length <= 0 ? "" : data.EndDate);
           setRecurringTime(data.length <= 0 ? 0 : data.Type);
@@ -1043,7 +1978,7 @@ const EditDrawer = ({
         }
       }
     } catch (error: any) {
-      if (error.response && error.response.status === 401) {
+      if (error.response && error.response?.status === 401) {
         router.push("/login");
         localStorage.clear();
       }
@@ -1148,6 +2083,12 @@ const EditDrawer = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           const data = await response.data.ResponseData;
+          setReminderId(data.ReminderId);
+          setReminderSwitch(
+            data === null
+              ? !hasPermissionWorklog("Reminder", "save", "WorkLogs") && false
+              : hasPermissionWorklog("Reminder", "save", "WorkLogs") && true
+          );
           setReminderCheckboxValue(data.ReminderType);
           setReminderDate(data.ReminderDate);
           setReminderTime(data.ReminderTime);
@@ -1175,7 +2116,7 @@ const EditDrawer = ({
         }
       }
     } catch (error: any) {
-      if (error.response && error.response.status === 401) {
+      if (error.response && error.response?.status === 401) {
         router.push("/login");
         localStorage.clear();
       }
@@ -1411,7 +2352,122 @@ const EditDrawer = ({
         }
       }
     } catch (error: any) {
-      if (error.response && error.response.status === 401) {
+      if (error.response && error.response?.status === 401) {
+        router.push("/login");
+        localStorage.clear();
+      }
+    }
+  };
+
+  const getEditData = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/getbyid`,
+        {
+          WorkitemId: onEdit,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          const data = await response.data.ResponseData;
+          setEditData(data);
+          setIsCreatedByClient(data.IsCreatedByClient);
+          setIsManual(data.IsManual);
+          setClientName(data.ClientId);
+          setTypeOfWork(data.WorkTypeId);
+          setProjectName(data.ProjectId);
+          setProcessName(data.ProcessId);
+          setSubProcess(data.SubProcessId);
+          setClientTaskName(data.TaskName === null ? "" : data.TaskName);
+          setStatus(data.StatusId);
+          setAllInfoDate(data.AllInfoDate === null ? "" : data.AllInfoDate);
+          setEditStatus(data.StatusId);
+          data.StatusId === 2 && data.IsManual === true
+            ? setStatusDropdownDataUse(
+                statusDropdownData
+                  .map((i: any) =>
+                    i.Type === "OnHoldFromClient" ||
+                    i.Type === "WithDraw" ||
+                    i.Type === "Stop" ||
+                    i.value === data.StatusId
+                      ? i
+                      : ""
+                  )
+                  .filter((i: any) => i !== "")
+              )
+            : data.StatusId === 2
+            ? setStatusDropdownDataUse(
+                statusDropdownData
+                  .map((i: any) =>
+                    i.Type === "OnHoldFromClient" ||
+                    i.Type === "WithDraw" ||
+                    i.value === data.StatusId
+                      ? i
+                      : ""
+                  )
+                  .filter((i: any) => i !== "")
+              )
+            : setStatusDropdownDataUse(
+                statusDropdownData
+                  .map((i: any) =>
+                    i.Type === "OnHoldFromClient" ||
+                    i.Type === "WithDraw" ||
+                    i.value === data.StatusId
+                      ? i
+                      : ""
+                  )
+                  .filter((i: any) => i !== "")
+              );
+          setPriority(data.Priority);
+          setQuantity(data.Quantity);
+          setDescription(data.Description === null ? "" : data.Description);
+          setReceiverDate(data.ReceiverDate);
+          setDueDate(data.DueDate);
+          setDateOfReview(data.ReviewerDate);
+          setDateOfPreperation(data.PreparationDate);
+          setAssignee(data.AssignedId);
+          setReviewer(data.ReviewerId);
+          setManager(data.ManagerId === null ? 0 : data.ManagerId);
+          setReturnYear(
+            data.TypeOfReturnId === 0 ? null : data.TaxCustomFields.ReturnYear
+          );
+          setNoOfPages(
+            data.TypeOfReturnId === 0 ? null : data.TaxCustomFields.NoOfPages
+          );
+          setChecklistWorkpaper(
+            data.ChecklistWorkpaper === true
+              ? 1
+              : data.ChecklistWorkpaper === false
+              ? 2
+              : 0
+          );
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error: any) {
+      if (error.response && error.response?.status === 401) {
         router.push("/login");
         localStorage.clear();
       }
@@ -1420,100 +2476,6 @@ const EditDrawer = ({
 
   useEffect(() => {
     if (onEdit > 0) {
-      const getEditData = async () => {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/getbyid`,
-            {
-              WorkitemId: onEdit,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              const data = await response.data.ResponseData;
-              setIsManual(data.IsManual);
-              setClientName(data.ClientId);
-              setTypeOfWork(data.WorkTypeId);
-              setProjectName(data.ProjectId);
-              setProcessName(data.ProcessId);
-              setSubProcess(data.SubProcessId);
-              setClientTaskName(data.TaskName === null ? "" : data.TaskName);
-              setStatus(data.StatusId);
-              setAllInfoDate(data.AllInfoDate === null ? "" : data.AllInfoDate);
-              setStatus(data.StatusId);
-              setPriority(data.Priority);
-              setQuantity(data.Quantity);
-              setDescription(data.Description === null ? "" : data.Description);
-              setReceiverDate(data.ReceiverDate);
-              setDueDate(data.DueDate);
-              setDateOfReview(data.ReviewerDate);
-              setDateOfPreperation(data.PreparationDate);
-              setAssignee(data.AssignedId);
-              setReviewer(data.ReviewerId);
-              setManager(data.ManagerId === null ? 0 : data.ManagerId);
-              setReturnType(data.TaxReturnType);
-              setTypeOfReturn(data.TypeOfReturnId);
-              setReturnYear(
-                data.TypeOfReturnId === 0
-                  ? null
-                  : data.TaxCustomFields.ReturnYear
-              );
-              setComplexity(
-                data.TypeOfReturnId === 0
-                  ? null
-                  : data.TaxCustomFields.Complexity
-              );
-              setCountYear(
-                data.TypeOfReturnId === 0
-                  ? null
-                  : data.TaxCustomFields.CountYear
-              );
-              setNoOfPages(
-                data.TypeOfReturnId === 0
-                  ? null
-                  : data.TaxCustomFields.NoOfPages
-              );
-              setChecklistWorkpaper(
-                data.ChecklistWorkpaper === true
-                  ? 1
-                  : data.ChecklistWorkpaper === false
-                  ? 2
-                  : 0
-              );
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error: any) {
-          if (error.response && error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
-      };
-
-      // Call the function here
       getEditData();
       getWorklogData();
       getRecurringData();
@@ -1559,7 +2521,6 @@ const EditDrawer = ({
   const [errorLogPriorityErr, setErrorLogPriorityErr] = useState([false]);
   const [errorCountErr, setErrorCountErr] = useState([false]);
   const [natureOfErr, setNatureOfErr] = useState([false]);
-  const [ccErr, setCCErr] = useState([false]);
   const [remarkErr, setRemarkErr] = useState([false]);
   const [attachmentsErr, setAttachmentsErr] = useState([false]);
   const [deletedErrorLog, setDeletedErrorLog] = useState<any>([]);
@@ -1595,7 +2556,6 @@ const EditDrawer = ({
     setErrorLogPriorityErr([...errorLogPriorityErr, false]);
     setErrorCountErr([...errorCountErr, false]);
     setNatureOfErr([...natureOfErr, false]);
-    setCCErr([...ccErr, false]);
     setRemarkErr([...remarkErr, false]);
     setAttachmentsErr([...attachmentsErr, false]);
   };
@@ -1626,10 +2586,6 @@ const EditDrawer = ({
     const newNatureOfErrErrors = [...natureOfErr];
     newNatureOfErrErrors.splice(index, 1);
     setNatureOfErr(newNatureOfErrErrors);
-
-    const newCCErrors = [...ccErr];
-    newCCErrors.splice(index, 1);
-    setCCErr(newCCErrors);
 
     const newRemarkErrors = [...remarkErr];
     newRemarkErrors.splice(index, 1);
@@ -1695,10 +2651,6 @@ const EditDrawer = ({
     const newFields = [...errorLogFields];
     newFields[index].CC = newValue;
     setErrorLogFields(newFields);
-
-    const newErrors = [...ccErr];
-    newErrors[index] = newValue.length === 0;
-    setCCErr(newErrors);
   };
 
   const handleRemarksChange = (e: any, index: number) => {
@@ -1742,11 +2694,9 @@ const EditDrawer = ({
     );
     setErrorLogPriorityErr(newPriorityErrors);
     const newErrorCountErrors = errorLogFields.map(
-      (field) => field.ErrorCount < 0 || field.ErrorCount > 9999
+      (field) => field.ErrorCount <= 0 || field.ErrorCount > 9999
     );
     setErrorCountErr(newErrorCountErrors);
-    const newCCErrors = errorLogFields.map((field) => field.CC.length <= 0);
-    setCCErr(newCCErrors);
     const newRemarkErrors = errorLogFields.map(
       (field) =>
         field.Remark.trim().length < 5 || field.Remark.trim().length > 500
@@ -1763,7 +2713,6 @@ const EditDrawer = ({
       newNatureOfErrors.some((error) => error) ||
       newPriorityErrors.some((error) => error) ||
       newErrorCountErrors.some((error) => error) ||
-      newCCErrors.some((error) => error) ||
       newRemarkErrors.some((error) => error);
     // ||
     // newAttachmentsErrors.some((error) => error);
@@ -1869,13 +2818,6 @@ const EditDrawer = ({
     }
   };
 
-  const toggleGeneralOpen = (index: any) => {
-    setItemStates((prevStates: any) => ({
-      ...prevStates,
-      [index]: !prevStates[index],
-    }));
-  };
-
   useEffect(() => {
     const getData = async () => {
       await setStatusDropdownData(await getStatusDropdownData());
@@ -1895,7 +2837,9 @@ const EditDrawer = ({
         setProjectDropdownData(await getProjectDropdownData(clientName));
       const processData: any =
         clientName > 0 && (await getProcessDropdownData(clientName));
-      setProcessDropdownData(await getProcessDropdownData(clientName));
+      setProcessDropdownData(
+        processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
+      );
     };
 
     onOpen && getData();
@@ -1909,7 +2853,7 @@ const EditDrawer = ({
       data.length > 0 && setEstTimeData(data);
       data.length > 0 &&
         setSubProcessDropdownData(
-          await getSubProcessDropdownData(clientName, processName)
+          data.map((i: any) => new Object({ label: i.Name, value: i.Id }))
         );
     };
 
@@ -1946,37 +2890,52 @@ const EditDrawer = ({
   }, [typeOfWork, clientName]);
 
   const handleClose = () => {
+    setEditData([]);
+    setIsCreatedByClient(false);
+    setUserId(0);
     setClientName(0);
+    setClientNameErr(false);
     setTypeOfWork(0);
+    setTypeOfWorkErr(false);
     setProjectName(0);
+    setProjectNameErr(false);
+    setClientTaskName("");
+    setClientTaskNameErr(false);
     setProcessName(0);
+    setProcessNameErr(false);
     setSubProcess(0);
+    setSubProcessErr(false);
+    setManager(0);
+    setManagerErr(false);
+    setEditStatus(0);
     setStatus(0);
+    setStatusErr(false);
     setDescription("");
     setPriority(0);
-    setQuantity("");
+    setQuantity(1);
+    setQuantityErr(false);
     setReceiverDate("");
+    setReceiverDateErr(false);
     setDueDate("");
+    setDueDateErr(false);
+    setAllInfoDate("");
     setAssignee(0);
+    setAssigneeErr(false);
+    setAssigneeDisable(true);
     setReviewer(0);
+    setReviewerErr(false);
     setDateOfReview("");
     setDateOfPreperation("");
     setAssigneeDisable(true);
-    setManager(0);
-    setClientTaskName("");
-    setAllInfoDate("");
     setEstTimeData([]);
-
-    // Taxation selected
-    setReturnType(0);
-    setTypeOfReturn(0);
     setReturnYear(0);
-    setComplexity(0);
-    setCountYear(0);
-    setNoOfPages("");
+    setReturnYearErr(false);
+    setNoOfPages(0);
     setChecklistWorkpaper(0);
+    setChecklistWorkpaperErr(false);
 
     // Sub-Task
+    setSubTaskSwitch(false);
     setSubTaskFields([
       {
         SubtaskId: 0,
@@ -1984,16 +2943,37 @@ const EditDrawer = ({
         Description: "",
       },
     ]);
+    setTaskNameErr([false]);
+    setSubTaskDescriptionErr([false]);
+
+    // Sub-Task
+    setSubTaskSwitch(false);
+    setSubTaskFields([
+      {
+        SubtaskId: 0,
+        Title: "",
+        Description: "",
+      },
+    ]);
+    setTaskNameErr([false]);
+    setSubTaskDescriptionErr([false]);
 
     // Checklist
+    setAddChecklistField(false);
+    setCheckListName("");
+    setCheckListNameError(false);
     setCheckListData([]);
     setItemStates({});
 
     // Recurring
+    setRecurringSwitch(false);
     setRecurringStartDate("");
+    setRecurringStartDateErr(false);
     setRecurringEndDate("");
+    setRecurringEndDateErr(false);
     setRecurringTime(1);
     setRecurringMonth(0);
+    setRecurringMonthErr(false);
 
     // Manual
     setManualFields([
@@ -2028,21 +3008,32 @@ const EditDrawer = ({
     setDeletedManualTime([]);
 
     // Reminder
+    setReminderSwitch(false);
     setReminderCheckboxValue(1);
     setReminderDate("");
+    setReminderDateErr(false);
     setReminderTime(0);
+    setReminderTimeErr(false);
     setReminderNotification(0);
-
-    // Error Logs
-    setErrorLogData([]);
+    setReminderNotificationErr(false);
+    setReminderId(0);
 
     // Comments
     setCommentData([]);
+    setValue("");
+    setValueError(false);
+    setValueEdit("");
+    setValueEditError(false);
+    setMention([]);
+    commentAttachment = [];
+    setEditingCommentIndex(-1);
+    setCommentSelect(1);
 
     // Reviewer note
     setReviewerNoteData([]);
 
     // Error Logs
+    setErrorLogData([]);
     setErrorLogFields([
       {
         SubmitedBy: "",
@@ -2072,17 +3063,43 @@ const EditDrawer = ({
     setErrorLogPriorityErr([false]);
     setErrorCountErr([false]);
     setNatureOfErr([false]);
-    setCCErr([false]);
     setRemarkErr([false]);
     setAttachmentsErr([false]);
     setDeletedErrorLog([]);
 
+    // Dropdown
+    setClientDropdownData([]);
+    setWorkTypeDropdownData([]);
+    setProjectDropdownData([]);
+    setProcessDropdownData([]);
+    setSubProcessDropdownData([]);
+    setStatusDropdownDataUse([]);
+    setAssigneeDropdownData([]);
+    setReviewerDropdownData([]);
+
+    // Others
+    scrollToPanel(0);
     onDataFetch();
+
+    if (typeof window !== "undefined") {
+      const pathname = window.location.href.includes("=");
+      if (pathname) {
+        onClose();
+        router.push("/worklogs");
+      } else {
+        onClose();
+      }
+    }
     onClose();
   };
 
   const getAttachmentData = (data1: any, data2: any) => {
     // console.log(data1, data2);
+  };
+
+  const isWeekend = (date: any) => {
+    const day = date.day();
+    return day === 6 || day === 0;
   };
 
   return (
@@ -2118,7 +3135,7 @@ const EditDrawer = ({
           </div>
         </div>
         <div className="overflow-y-scroll !h-[91%]">
-          <form>
+          <form onSubmit={handleSubmit}>
             {hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && (
               <div className="pt-1" id="tabpanel-0">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
@@ -2126,44 +3143,87 @@ const EditDrawer = ({
                     <TaskIcon />
                     <span className="ml-[21px]">Task</span>
                   </span>
-                  <span
-                    className={`cursor-pointer ${
-                      taskDrawer ? "rotate-180" : ""
-                    }`}
-                    onClick={() => setTaskDrawer(!taskDrawer)}
-                  >
-                    <ChevronDownIcon />
-                  </span>
+                  <div className="flex gap-4">
+                    {onEdit > 0 && (
+                      <span>Created By : {editData.CreatedByName}</span>
+                    )}
+                    <span
+                      className={`cursor-pointer ${
+                        taskDrawer ? "rotate-180" : ""
+                      }`}
+                      onClick={() => setTaskDrawer(!taskDrawer)}
+                    >
+                      <ChevronDownIcon />
+                    </span>
+                  </div>
                 </div>
                 {taskDrawer && (
                   <Grid container className="px-8">
                     <Grid item xs={3} className="pt-4">
-                      <FormControl
-                        variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300 }}
-                      >
-                        <InputLabel id="demo-simple-select-standard-label">
-                          Client Name
-                          <span className="text-defaultRed">&nbsp;*</span>
-                        </InputLabel>
-                        <Select
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          value={clientName === 0 ? "" : clientName}
-                          readOnly
-                        >
-                          {clientDropdownData.map((i: any, index: number) => (
-                            <MenuItem value={i.value} key={index}>
-                              {i.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={clientDropdownData}
+                        value={
+                          clientDropdownData.find(
+                            (i: any) => i.value === clientName
+                          ) || null
+                        }
+                        onChange={(e, value: any) => {
+                          value && setClientName(value.value);
+                          setTypeOfWorkErr(false);
+                          setProjectName(0);
+                          setProjectNameErr(false);
+                          setProcessName(0);
+                          setProcessNameErr(false);
+                          setSubProcess(0);
+                          setSubProcessErr(false);
+                          setDescription("");
+                          setManager(0);
+                          setManagerErr(false);
+                          setPriority(0);
+                          setQuantity(1);
+                          setQuantityErr(false);
+                          setReceiverDate("");
+                          setReceiverDateErr(false);
+                          setDueDate("");
+                          setDueDateErr(false);
+                          assigneeDisable && setAssignee(0);
+                          assigneeDisable && setAssigneeErr(false);
+                          setReviewer(0);
+                          setReviewerErr(false);
+                        }}
+                        disabled={isCreatedByClient && editData.ClientId > 0}
+                        sx={{ mx: 0.75, width: 300 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Client Name
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={clientNameErr}
+                            onBlur={(e) => {
+                              if (clientName > 0) {
+                                setClientNameErr(false);
+                              }
+                            }}
+                            helperText={
+                              clientNameErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <FormControl
                         variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300 }}
+                        sx={{ mx: 0.75, width: 300, mt: -0.3 }}
+                        error={typeOfWorkErr}
+                        disabled={isCreatedByClient && editData.WorkTypeId > 0}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Type of Work
@@ -2173,7 +3233,38 @@ const EditDrawer = ({
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
                           value={typeOfWork === 0 ? "" : typeOfWork}
-                          readOnly
+                          onChange={(e) => {
+                            setProjectName(0);
+                            setProjectNameErr(false);
+                            setProcessName(0);
+                            setProcessNameErr(false);
+                            setSubProcess(0);
+                            setSubProcessErr(false);
+                            setDescription("");
+                            setManager(0);
+                            setManagerErr(false);
+                            setPriority(0);
+                            setQuantity(1);
+                            setQuantityErr(false);
+                            setReceiverDate("");
+                            setReceiverDateErr(false);
+                            setDueDate("");
+                            setDueDateErr(false);
+                            assigneeDisable && setAssignee(0);
+                            assigneeDisable && setAssigneeErr(false);
+                            setReviewer(0);
+                            setReviewerErr(false);
+                            setTypeOfWork(e.target.value);
+                            setDateOfReview("");
+                            setDateOfPreperation("");
+                            setReturnYear(0);
+                            setNoOfPages(0);
+                          }}
+                          onBlur={(e: any) => {
+                            if (e.target.value > 0) {
+                              setTypeOfWorkErr(false);
+                            }
+                          }}
                         >
                           {workTypeDropdownData.map((i: any, index: number) => (
                             <MenuItem value={i.value} key={index}>
@@ -2181,99 +3272,182 @@ const EditDrawer = ({
                             </MenuItem>
                           ))}
                         </Select>
+                        {typeOfWorkErr && (
+                          <FormHelperText>
+                            This is a required field.
+                          </FormHelperText>
+                        )}
                       </FormControl>
                     </Grid>
                     <Grid item xs={3} className="pt-4">
-                      <FormControl
-                        variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300 }}
-                      >
-                        <InputLabel id="demo-simple-select-standard-label">
-                          Project Name
-                          <span className="text-defaultRed">&nbsp;*</span>
-                        </InputLabel>
-                        <Select
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          value={projectName === 0 ? "" : projectName}
-                          readOnly
-                        >
-                          {projectDropdownData.map((i: any, index: number) => (
-                            <MenuItem value={i.value} key={index}>
-                              {i.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={projectDropdownData}
+                        value={
+                          projectDropdownData.find(
+                            (i: any) => i.value === projectName
+                          ) || null
+                        }
+                        disabled={isCreatedByClient && editData.ProjectId > 0}
+                        onChange={(e, value: any) => {
+                          value && setProjectName(value.value);
+                        }}
+                        sx={{ mx: 0.75, width: 300 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Project Name
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={projectNameErr}
+                            onBlur={(e) => {
+                              if (projectName > 0) {
+                                setProjectNameErr(false);
+                              }
+                            }}
+                            helperText={
+                              projectNameErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
-                      <FormControl
-                        variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300 }}
-                      >
-                        <InputLabel id="demo-simple-select-standard-label">
-                          Status
-                          <span className="text-defaultRed">&nbsp;*</span>
-                        </InputLabel>
-                        <Select
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          value={status === 0 ? "" : status}
-                          readOnly
-                        >
-                          {statusDropdownData.map((i: any, index: number) => (
-                            <MenuItem value={i.value} key={index}>
-                              {i.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                      <Autocomplete
+                        id="combo-box-demo"
+                        options={
+                          onEdit === 0
+                            ? statusDropdownData
+                            : statusDropdownDataUse
+                        }
+                        disabled={
+                          onEdit === 0 ||
+                          status === 7 ||
+                          status === 8 ||
+                          status === 9
+                        }
+                        value={
+                          onEdit === 0 && manualSwitch
+                            ? statusDropdownData.find(
+                                (i: any) => i.value === status
+                              ) || null
+                            : onEdit === 0
+                            ? statusDropdownData.find(
+                                (i: any) => i.value === status
+                              ) || null
+                            : statusDropdownDataUse.find(
+                                (i: any) => i.value === status
+                              ) || null
+                        }
+                        onChange={(e, value: any) => {
+                          value && setStatus(value.value);
+                        }}
+                        sx={{ mx: 0.75, width: 300 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Status
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={statusErr}
+                            onBlur={(e) => {
+                              if (subProcess > 0) {
+                                setStatusErr(false);
+                              }
+                            }}
+                            helperText={
+                              statusErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
-                      <FormControl
-                        variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300 }}
-                      >
-                        <InputLabel id="demo-simple-select-standard-label">
-                          Process Name
-                          <span className="text-defaultRed">&nbsp;*</span>
-                        </InputLabel>
-                        <Select
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          value={processName === 0 ? "" : processName}
-                          readOnly
-                        >
-                          {processDropdownData.map((i: any, index: number) => (
-                            <MenuItem value={i.Id} key={index}>
-                              {i.Name}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={processDropdownData}
+                        value={
+                          processDropdownData.find(
+                            (i: any) => i.value === processName
+                          ) || null
+                        }
+                        disabled={isCreatedByClient && editData.ProcessId > 0}
+                        onChange={(e, value: any) => {
+                          value && setProcessName(value.value);
+                        }}
+                        sx={{ mx: 0.75, width: 300 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Process Name
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={processNameErr}
+                            onBlur={(e) => {
+                              if (processName > 0) {
+                                setProcessNameErr(false);
+                              }
+                            }}
+                            helperText={
+                              processNameErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
-                      <FormControl
-                        variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300 }}
-                      >
-                        <InputLabel id="demo-simple-select-standard-label">
-                          Sub Process
-                          <span className="text-defaultRed">&nbsp;*</span>
-                        </InputLabel>
-                        <Select
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          value={subProcess === 0 ? "" : subProcess}
-                          readOnly
-                        >
-                          {subProcessDropdownData.map(
-                            (i: any, index: number) => (
-                              <MenuItem value={i.Id}>{i.Name}</MenuItem>
-                            )
-                          )}
-                        </Select>
-                      </FormControl>
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={subProcessDropdownData}
+                        value={
+                          subProcessDropdownData.find(
+                            (i: any) => i.value === subProcess
+                          ) || null
+                        }
+                        disabled={
+                          isCreatedByClient && editData.SubProcessId > 0
+                        }
+                        onChange={(e, value: any) => {
+                          value && setSubProcess(value.value);
+                        }}
+                        sx={{ mx: 0.75, width: 300 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Sub Process
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={subProcessErr}
+                            onBlur={(e) => {
+                              if (subProcess > 0) {
+                                setSubProcessErr(false);
+                              }
+                            }}
+                            helperText={
+                              subProcessErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <TextField
@@ -2290,47 +3464,66 @@ const EditDrawer = ({
                             ? ""
                             : clientTaskName
                         }
-                        InputProps={{ readOnly: true }}
-                        inputProps={{ readOnly: true }}
+                        onChange={(e) => {
+                          setClientTaskName(e.target.value);
+                          setClientTaskNameErr(false);
+                        }}
+                        onBlur={(e: any) => {
+                          if (e.target.value.trim().length > 4) {
+                            setClientTaskNameErr(false);
+                          }
+                          if (
+                            e.target.value.trim().length > 4 &&
+                            e.target.value.trim().length < 50
+                          ) {
+                            setClientTaskNameErr(false);
+                          }
+                        }}
+                        error={clientTaskNameErr}
+                        helperText={
+                          clientTaskNameErr &&
+                          clientTaskName?.trim().length > 0 &&
+                          clientTaskName?.trim().length < 4
+                            ? "Minimum 4 characters required."
+                            : clientTaskNameErr &&
+                              clientTaskName?.trim().length > 50
+                            ? "Maximum 50 characters allowed."
+                            : clientTaskNameErr
+                            ? "This is a required field."
+                            : ""
+                        }
                         margin="normal"
                         variant="standard"
-                        sx={{ mx: 0.75, maxWidth: 300, mt: -0.2, ml: 1 }}
+                        sx={{ mx: 0.75, width: 300, mt: -0.5 }}
                       />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <TextField
-                        label={
-                          <span>
-                            Description
-                            <span className="!text-defaultRed">&nbsp;*</span>
-                          </span>
-                        }
+                        label="Description"
                         fullWidth
                         className="pt-1"
                         value={
                           description?.trim().length <= 0 ? "" : description
                         }
-                        InputProps={{ readOnly: true }}
-                        inputProps={{ readOnly: true }}
+                        onChange={(e) => setDescription(e.target.value)}
                         margin="normal"
                         variant="standard"
-                        sx={{ mx: 0.75, maxWidth: 300, mt: -0.2 }}
+                        sx={{ mx: 0.75, width: 300, mt: -0.5 }}
                       />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <FormControl
                         variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300, mt: -1.2 }}
+                        sx={{ mx: 0.75, width: 300, mt: -1.2 }}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Priority
-                          <span className="text-defaultRed">&nbsp;*</span>
                         </InputLabel>
                         <Select
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
                           value={priority === 0 ? "" : priority}
-                          readOnly
+                          onChange={(e) => setPriority(e.target.value)}
                         >
                           <MenuItem value={1}>High</MenuItem>
                           <MenuItem value={2}>Medium</MenuItem>
@@ -2338,40 +3531,13 @@ const EditDrawer = ({
                         </Select>
                       </FormControl>
                     </Grid>
-                    {typeOfWork === 3 && (
-                      <Grid item xs={3} className="pt-4">
-                        <FormControl
-                          variant="standard"
-                          sx={{ mx: 0.75, minWidth: 300, mt: -1.2 }}
-                        >
-                          <InputLabel id="demo-simple-select-standard-label">
-                            Complexity
-                            <span className="text-defaultRed">&nbsp;*</span>
-                          </InputLabel>
-                          <Select
-                            labelId="demo-simple-select-standard-label"
-                            id="demo-simple-select-standard"
-                            value={complexity === 0 ? "" : complexity}
-                            readOnly
-                          >
-                            <MenuItem value={1}>Moderate</MenuItem>
-                            <MenuItem value={2}>Intermediate</MenuItem>
-                            <MenuItem value={3}>Complex</MenuItem>
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                    )}
                     <Grid item xs={3} className="pt-4">
                       <TextField
-                        label={
-                          <span>
-                            Estimated Time
-                            <span className="!text-defaultRed">&nbsp;*</span>
-                          </span>
-                        }
+                        label="Estimated Time"
+                        disabled
                         fullWidth
                         value={
-                          subProcess !== 0
+                          subProcess > 0
                             ? (estTimeData as any[])
                                 .map((i) => {
                                   const hours = Math.floor(
@@ -2397,11 +3563,9 @@ const EditDrawer = ({
                                 .filter((i) => i !== null)
                             : ""
                         }
-                        InputProps={{ readOnly: true }}
-                        inputProps={{ readOnly: true }}
                         margin="normal"
                         variant="standard"
-                        sx={{ mx: 0.75, maxWidth: 300, mt: -0.8 }}
+                        sx={{ mx: 0.75, width: 300, mt: -0.8 }}
                       />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
@@ -2412,27 +3576,54 @@ const EditDrawer = ({
                             <span className="!text-defaultRed">&nbsp;*</span>
                           </span>
                         }
+                        onFocus={(e) =>
+                          e.target.addEventListener(
+                            "wheel",
+                            function (e) {
+                              e.preventDefault();
+                            },
+                            { passive: false }
+                          )
+                        }
                         type="number"
                         fullWidth
                         value={quantity}
-                        InputProps={{ readOnly: true }}
-                        inputProps={{ readOnly: true }}
+                        onChange={(e) => {
+                          setQuantity(e.target.value);
+                          setQuantityErr(false);
+                        }}
+                        onBlur={(e: any) => {
+                          if (
+                            e.target.value.trim().length > 0 &&
+                            e.target.value.trim().length < 5 &&
+                            !e.target.value.trim().includes(".")
+                          ) {
+                            setQuantityErr(false);
+                          }
+                        }}
+                        error={quantityErr}
+                        helperText={
+                          quantityErr && quantity.toString().includes(".")
+                            ? "Only intiger value allowed."
+                            : quantityErr && quantity === ""
+                            ? "This is a required field."
+                            : quantityErr && quantity <= 0
+                            ? "Enter valid number."
+                            : quantityErr && quantity.length > 4
+                            ? "Maximum 4 numbers allowed."
+                            : ""
+                        }
                         margin="normal"
                         variant="standard"
-                        sx={{ mx: 0.75, maxWidth: 300, mt: -0.8 }}
+                        sx={{ mx: 0.75, width: 300, mt: -0.8 }}
                       />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <TextField
-                        label={
-                          <span>
-                            Standard Time
-                            <span className="!text-defaultRed">&nbsp;*</span>
-                          </span>
-                        }
+                        label="Standard Time"
                         fullWidth
                         value={
-                          subProcess !== 0
+                          subProcess > 0
                             ? (estTimeData as any[])
                                 .map((i) => {
                                   const hours = Math.floor(
@@ -2459,8 +3650,7 @@ const EditDrawer = ({
                                 .filter((i) => i !== null)
                             : ""
                         }
-                        InputProps={{ readOnly: true }}
-                        inputProps={{ readOnly: true }}
+                        disabled
                         margin="normal"
                         variant="standard"
                         sx={{
@@ -2472,7 +3662,9 @@ const EditDrawer = ({
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <div
-                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                          receiverDateErr ? "datepickerError" : ""
+                        }`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
@@ -2484,17 +3676,46 @@ const EditDrawer = ({
                                 </span>
                               </span>
                             }
+                            onError={() => setReceiverDateErr(false)}
                             value={
                               receiverDate === "" ? null : dayjs(receiverDate)
                             }
-                            readOnly
+                            shouldDisableDate={isWeekend}
+                            maxDate={dayjs(Date.now())}
+                            onChange={(newDate: any) => {
+                              setReceiverDate(newDate.$d);
+                              setReceiverDateErr(false);
+                              const selectedDate = dayjs(newDate.$d);
+                              let nextDate: any = selectedDate;
+                              if (
+                                selectedDate.day() === 4 ||
+                                selectedDate.day() === 5
+                              ) {
+                                nextDate = nextDate.add(4, "day");
+                              } else {
+                                nextDate = dayjs(newDate.$d)
+                                  .add(2, "day")
+                                  .toDate();
+                              }
+                              setDueDate(nextDate);
+                            }}
+                            slotProps={{
+                              textField: {
+                                helperText: receiverDateErr
+                                  ? "This is a required field."
+                                  : "",
+                                readOnly: true,
+                              } as Record<string, any>,
+                            }}
                           />
                         </LocalizationProvider>
                       </div>
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <div
-                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                          dueDateErr ? "datepickerError" : ""
+                        }`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
@@ -2506,16 +3727,33 @@ const EditDrawer = ({
                                 </span>
                               </span>
                             }
+                            onError={() => setDueDateErr(false)}
                             value={dueDate === "" ? null : dayjs(dueDate)}
-                            minDate={dayjs(receiverDate)}
-                            readOnly
+                            disabled
+                            onChange={(newDate: any) => {
+                              setDueDate(newDate.$d);
+                              setDueDateErr(false);
+                            }}
+                            slotProps={{
+                              textField: {
+                                helperText:
+                                  dueDateErr && dueDate < receiverDate
+                                    ? "Due Date must be grater than Received Date"
+                                    : dueDateErr
+                                    ? "This is a required field."
+                                    : "",
+                                readOnly: true,
+                              } as Record<string, any>,
+                            }}
                           />
                         </LocalizationProvider>
                       </div>
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <div
-                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                          receiverDateErr ? "datepickerError" : ""
+                        }`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
@@ -2523,143 +3761,148 @@ const EditDrawer = ({
                             value={
                               allInfoDate === "" ? null : dayjs(allInfoDate)
                             }
-                            readOnly
+                            onChange={(newDate: any) =>
+                              setAllInfoDate(newDate.$d)
+                            }
                           />
                         </LocalizationProvider>
                       </div>
                     </Grid>
                     <Grid item xs={3} className="pt-4">
-                      <FormControl
-                        variant="standard"
-                        sx={{ mx: 0.75, minWidth: 300, mt: -1.2 }}
-                      >
-                        <InputLabel id="demo-simple-select-standard-label">
-                          Assignee
-                          <span className="text-defaultRed">&nbsp;*</span>
-                        </InputLabel>
-                        <Select
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          value={assignee === 0 ? "" : assignee}
-                          readOnly
-                        >
-                          {assigneeDropdownData.map((i: any, index: number) => (
-                            <MenuItem value={i.value} key={index}>
-                              {i.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={3} className="pt-4">
-                      <FormControl
-                        variant="standard"
-                        sx={{
-                          mx: 0.75,
-                          minWidth: 300,
-                          mt: typeOfWork === 3 ? -1.2 : -0.5,
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={assigneeDropdownData}
+                        disabled={!assigneeDisable}
+                        value={
+                          assigneeDropdownData.find(
+                            (i: any) => i.value === assignee
+                          ) || null
+                        }
+                        onChange={(e, value: any) => {
+                          value && setAssignee(value.value);
                         }}
-                      >
-                        <InputLabel id="demo-simple-select-standard-label">
-                          Reviewer
-                          <span className="text-defaultRed">&nbsp;*</span>
-                        </InputLabel>
-                        <Select
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          value={reviewer === 0 ? "" : reviewer}
-                          readOnly
-                        >
-                          {reviewerDropdownData.map((i: any, index: number) => (
-                            <MenuItem value={i.value} key={index}>
-                              {i.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                        sx={{ width: 300, mt: -1, mx: 0.75 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Assignee
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={assigneeErr}
+                            onBlur={(e) => {
+                              if (assignee > 0) {
+                                setAssigneeErr(false);
+                              }
+                            }}
+                            helperText={
+                              assigneeErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
                     </Grid>
-                    <Grid item xs={3} className="pt-4">
-                      <FormControl
-                        variant="standard"
-                        sx={{
-                          mx: 0.75,
-                          minWidth: 300,
-                          mt: typeOfWork === 3 ? -1.2 : -0.5,
+                    <Grid
+                      item
+                      xs={3}
+                      className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                    >
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={reviewerDropdownData}
+                        value={
+                          reviewerDropdownData.find(
+                            (i: any) => i.value === reviewer
+                          ) || null
+                        }
+                        onChange={(e, value: any) => {
+                          value && setReviewer(value.value);
                         }}
-                      >
-                        <InputLabel id="demo-simple-select-standard-label">
-                          Manager
-                          <span className="text-defaultRed">&nbsp;*</span>
-                        </InputLabel>
-                        <Select
-                          labelId="demo-simple-select-standard-label"
-                          id="demo-simple-select-standard"
-                          value={manager === 0 ? "" : manager}
-                          readOnly
-                        >
-                          {managerDropdownData.map((i: any, index: number) => (
-                            <MenuItem value={i.value} key={index}>
-                              {i.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                        sx={{
+                          width: 300,
+                          mt: typeOfWork === 3 ? 0.2 : -1,
+                          mx: 0.75,
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Reviewer
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={reviewerErr}
+                            onBlur={(e) => {
+                              if (reviewer > 0) {
+                                setReviewerErr(false);
+                              }
+                            }}
+                            helperText={
+                              reviewerErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      xs={3}
+                      className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                    >
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={managerDropdownData}
+                        value={
+                          managerDropdownData.find(
+                            (i: any) => i.value === manager
+                          ) || null
+                        }
+                        onChange={(e, value: any) => {
+                          value && setManager(value.value);
+                        }}
+                        sx={{
+                          width: 300,
+                          mt: typeOfWork === 3 ? 0.2 : -1,
+                          mx: 0.75,
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Manager
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={managerErr}
+                            onBlur={(e) => {
+                              if (manager > 0) {
+                                setManagerErr(false);
+                              }
+                            }}
+                            helperText={
+                              managerErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
                     </Grid>
                     {typeOfWork === 3 && (
                       <>
                         <Grid item xs={3} className="pt-4">
                           <FormControl
                             variant="standard"
-                            sx={{
-                              mx: 0.75,
-                              minWidth: 300,
-                              mt: -1.2,
-                            }}
-                          >
-                            <InputLabel id="demo-simple-select-standard-label">
-                              Return Type
-                              <span className="text-defaultRed">&nbsp;*</span>
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-standard-label"
-                              id="demo-simple-select-standard"
-                              value={returnType === 0 ? "" : returnType}
-                              readOnly
-                            >
-                              <MenuItem value={1}>Individual Return</MenuItem>
-                              <MenuItem value={2}>Business Return</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </Grid>
-                        <Grid item xs={3} className="pt-4">
-                          <FormControl
-                            variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300 }}
-                          >
-                            <InputLabel id="demo-simple-select-standard-label">
-                              Type of Return
-                              <span className="text-defaultRed">&nbsp;*</span>
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-standard-label"
-                              id="demo-simple-select-standard"
-                              value={typeOfReturn === 0 ? "" : typeOfReturn}
-                              readOnly
-                            >
-                              {typeOfReturnDropdownData.map(
-                                (i: any, index: number) => (
-                                  <MenuItem value={i.value} key={index}>
-                                    {i.label}
-                                  </MenuItem>
-                                )
-                              )}
-                            </Select>
-                          </FormControl>
-                        </Grid>
-                        <Grid item xs={3} className="pt-4">
-                          <FormControl
-                            variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300 }}
+                            sx={{ width: 300, mt: -0.3, mx: 0.75 }}
+                            error={returnYearErr}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Return Year
@@ -2669,7 +3912,12 @@ const EditDrawer = ({
                               labelId="demo-simple-select-standard-label"
                               id="demo-simple-select-standard"
                               value={returnYear === 0 ? "" : returnYear}
-                              readOnly
+                              onChange={(e) => setReturnYear(e.target.value)}
+                              onBlur={(e: any) => {
+                                if (e.target.value > 0) {
+                                  setReturnYearErr(false);
+                                }
+                              }}
                             >
                               {Years.map((i: any, index: number) => (
                                 <MenuItem value={i.value} key={index}>
@@ -2677,55 +3925,30 @@ const EditDrawer = ({
                                 </MenuItem>
                               ))}
                             </Select>
-                          </FormControl>
-                        </Grid>
-                        <Grid item xs={3} className="pt-4">
-                          <FormControl
-                            variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300, ml: 1 }}
-                          >
-                            <InputLabel id="demo-simple-select-standard-label">
-                              Current Year
-                              <span className="text-defaultRed">&nbsp;*</span>
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-standard-label"
-                              id="demo-simple-select-standard"
-                              value={countYear === 0 ? "" : countYear}
-                              readOnly
-                            >
-                              {Years.map((i: any, index: number) => (
-                                <MenuItem value={i.value} key={index}>
-                                  {i.label}
-                                </MenuItem>
-                              ))}
-                            </Select>
+                            {returnYearErr && (
+                              <FormHelperText>
+                                This is a required field.
+                              </FormHelperText>
+                            )}
                           </FormControl>
                         </Grid>
                         <Grid item xs={3} className="pt-4">
                           <TextField
-                            label={
-                              <span>
-                                No of Pages
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
+                            label="No of Pages"
                             type="number"
                             fullWidth
                             value={noOfPages === 0 ? "" : noOfPages}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
+                            onChange={(e) => setNoOfPages(e.target.value)}
                             margin="normal"
                             variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 300, mt: 0.3 }}
+                            sx={{ width: 300, mt: 0, mx: 0.75 }}
                           />
                         </Grid>
                         <Grid item xs={3} className="pt-4">
                           <FormControl
                             variant="standard"
-                            sx={{ mx: 0.75, minWidth: 300, mt: -1 }}
+                            sx={{ width: 300, mt: -0.8, mx: 0.75 }}
+                            error={checklistWorkpaperErr}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Checklist/Workpaper
@@ -2739,64 +3962,78 @@ const EditDrawer = ({
                                   ? ""
                                   : checklistWorkpaper
                               }
-                              readOnly
+                              onChange={(e) =>
+                                setChecklistWorkpaper(e.target.value)
+                              }
+                              onBlur={(e: any) => {
+                                if (e.target.value > 0) {
+                                  setChecklistWorkpaperErr(false);
+                                }
+                              }}
                             >
-                              <MenuItem value={1}>True</MenuItem>
-                              <MenuItem value={2}>False</MenuItem>
+                              <MenuItem value={1}>Yes</MenuItem>
+                              <MenuItem value={2}>No</MenuItem>
                             </Select>
+                            {checklistWorkpaperErr && (
+                              <FormHelperText>
+                                This is a required field.
+                              </FormHelperText>
+                            )}
                           </FormControl>
                         </Grid>
                       </>
                     )}
                     {onEdit > 0 && (
                       <>
-                        <Grid item xs={3} className="pt-4">
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                        >
                           <TextField
-                            label={
-                              <span>
-                                Date of Preperation
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
+                            label="Date of Preperation"
                             type={inputTypePreperation}
                             disabled
                             fullWidth
                             value={dateOfPreperation}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
+                            onChange={(e) =>
+                              setDateOfPreperation(e.target.value)
+                            }
+                            onFocus={() => setInputTypePreperation("date")}
+                            onBlur={(e: any) => {
+                              setInputTypePreperation("text");
+                            }}
                             margin="normal"
                             variant="standard"
                             sx={{
+                              width: 300,
+                              mt: typeOfWork === 3 ? -0.4 : -1,
                               mx: 0.75,
-                              maxWidth: 300,
-                              mt: typeOfWork === 3 ? -0.6 : -0.2,
                             }}
                           />
                         </Grid>
-                        <Grid item xs={3} className="pt-4">
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                        >
                           <TextField
-                            label={
-                              <span>
-                                Date of Review
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
+                            label="Date of Review"
                             disabled
                             type={inputTypeReview}
                             fullWidth
                             value={dateOfReview}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
+                            onChange={(e) => setDateOfReview(e.target.value)}
+                            onFocus={() => setInputTypeReview("date")}
+                            onBlur={(e: any) => {
+                              setInputTypeReview("text");
+                            }}
                             margin="normal"
                             variant="standard"
                             sx={{
+                              width: 300,
+                              mt: typeOfWork === 3 ? -0.4 : -1,
                               mx: 0.75,
-                              maxWidth: 300,
-                              mt: typeOfWork === 3 ? -0.6 : -0.2,
                             }}
                           />
                         </Grid>
@@ -2814,19 +4051,55 @@ const EditDrawer = ({
                     <TaskIcon />
                     <span className="ml-[21px]">Sub-Task</span>
                   </span>
-                  <span
-                    className={`cursor-pointer ${
-                      subTaskDrawer ? "rotate-180" : ""
-                    }`}
-                    onClick={() => setSubTaskDrawer(!subTaskDrawer)}
-                  >
-                    <ChevronDownIcon />
+                  <span className="flex items-center">
+                    {onEdit > 0 && subTaskSwitch && (
+                      <Button
+                        variant="contained"
+                        className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
+                        onClick={handleSubmitSubTask}
+                      >
+                        Update
+                      </Button>
+                    )}
+                    {hasPermissionWorklog(
+                      "Task/SubTask",
+                      "Save",
+                      "WorkLogs"
+                    ) ? (
+                      <Switch
+                        checked={subTaskSwitch}
+                        onChange={(e) => {
+                          setSubTaskSwitch(e.target.checked);
+                          onEdit === 0 &&
+                            setSubTaskFields([
+                              {
+                                SubtaskId: 0,
+                                Title: "",
+                                Description: "",
+                              },
+                            ]);
+                          onEdit === 0 && setTaskNameErr([false]);
+                          onEdit === 0 && setSubTaskDescriptionErr([false]);
+                          onEdit === 0 && setDeletedSubTask([]);
+                        }}
+                      />
+                    ) : (
+                      <></>
+                    )}
+                    <span
+                      className={`cursor-pointer ${
+                        subTaskDrawer ? "rotate-180" : ""
+                      }`}
+                      onClick={() => setSubTaskDrawer(!subTaskDrawer)}
+                    >
+                      <ChevronDownIcon />
+                    </span>
                   </span>
                 </div>
                 {subTaskDrawer && (
                   <div className="mt-3 pl-6">
                     {subTaskFields.map((field, index) => (
-                      <div className="w-[100%]" key={index}>
+                      <div className="w-[100%] flex" key={index}>
                         <TextField
                           label={
                             <span>
@@ -2835,9 +4108,28 @@ const EditDrawer = ({
                             </span>
                           }
                           fullWidth
+                          disabled={!subTaskSwitch}
                           value={field.Title}
-                          InputProps={{ readOnly: true }}
-                          inputProps={{ readOnly: true }}
+                          onChange={(e) => handleSubTaskChange(e, index)}
+                          onBlur={(e: any) => {
+                            if (e.target.value.trim().length > 0) {
+                              const newTaskNameErrors = [...taskNameErr];
+                              newTaskNameErrors[index] = false;
+                              setTaskNameErr(newTaskNameErrors);
+                            }
+                          }}
+                          error={taskNameErr[index]}
+                          helperText={
+                            taskNameErr[index] &&
+                            field.Title.length > 0 &&
+                            field.Title.length < 5
+                              ? "Minumum 5 characters required."
+                              : taskNameErr[index] && field.Title.length > 500
+                              ? "Maximum 500 characters allowed."
+                              : taskNameErr[index]
+                              ? "This is a required field."
+                              : ""
+                          }
                           margin="normal"
                           variant="standard"
                           sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
@@ -2850,13 +4142,68 @@ const EditDrawer = ({
                             </span>
                           }
                           fullWidth
+                          disabled={!subTaskSwitch}
                           value={field.Description}
-                          InputProps={{ readOnly: true }}
-                          inputProps={{ readOnly: true }}
+                          onChange={(e) =>
+                            handleSubTaskDescriptionChange(e, index)
+                          }
+                          onBlur={(e: any) => {
+                            if (e.target.value.trim().length > 0) {
+                              const newSubTaskDescErrors = [
+                                ...subTaskDescriptionErr,
+                              ];
+                              newSubTaskDescErrors[index] = false;
+                              setSubTaskDescriptionErr(newSubTaskDescErrors);
+                            }
+                          }}
+                          error={subTaskDescriptionErr[index]}
+                          helperText={
+                            subTaskDescriptionErr[index] &&
+                            field.Description.length > 0 &&
+                            field.Description.length < 5
+                              ? "Minumum 5 characters required."
+                              : subTaskDescriptionErr[index] &&
+                                field.Description.length > 500
+                              ? "Maximum 500 characters allowed."
+                              : subTaskDescriptionErr[index]
+                              ? "This is a required field."
+                              : ""
+                          }
                           margin="normal"
                           variant="standard"
                           sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
                         />
+                        {index === 0 ? (
+                          <span
+                            className="cursor-pointer"
+                            onClick={addTaskField}
+                          >
+                            <svg
+                              className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                              focusable="false"
+                              aria-hidden="true"
+                              viewBox="0 0 24 24"
+                              data-testid="AddIcon"
+                            >
+                              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                            </svg>
+                          </span>
+                        ) : (
+                          <span
+                            className="cursor-pointer"
+                            onClick={() => removeTaskField(index)}
+                          >
+                            <svg
+                              className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                              focusable="false"
+                              aria-hidden="true"
+                              viewBox="0 0 24 24"
+                              data-testid="RemoveIcon"
+                            >
+                              <path d="M19 13H5v-2h14v2z"></path>
+                            </svg>
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -2892,20 +4239,113 @@ const EditDrawer = ({
                           <span className="text-large font-semibold mr-6">
                             {i.Category}
                           </span>
-                          <ThreeDotIcon />
+                          {/* <ThreeDotIcon /> */}
                         </span>
                         {itemStates[index] && (
                           <FormGroup className="ml-8 mt-2">
                             {i.Activities.map((j: any, index: number) => (
                               <FormControlLabel
                                 control={
-                                  <Checkbox checked={j.IsCheck} disabled />
+                                  <Checkbox
+                                    checked={j.IsCheck}
+                                    onChange={(e) =>
+                                      hasPermissionWorklog(
+                                        "CheckList",
+                                        "save",
+                                        "WorkLogs"
+                                      ) &&
+                                      handleChangeChecklist(
+                                        i.Category,
+                                        e.target.checked,
+                                        j.Title
+                                      )
+                                    }
+                                  />
                                 }
                                 label={j.Title}
                               />
                             ))}
                           </FormGroup>
                         )}
+                        {hasPermissionWorklog(
+                          "CheckList",
+                          "save",
+                          "WorkLogs"
+                        ) &&
+                          itemStates[index] &&
+                          !itemStates[`addChecklistField_${index}`] && (
+                            <span
+                              className="flex items-center gap-3 ml-8 cursor-pointer text-[#6E6D7A]"
+                              onClick={() => toggleAddChecklistField(index)}
+                            >
+                              <AddIcon /> Add new checklist item
+                            </span>
+                          )}
+                        {itemStates[index] &&
+                          itemStates[`addChecklistField_${index}`] && (
+                            <>
+                              <TextField
+                                label={
+                                  <span>
+                                    Add Name
+                                    <span className="text-defaultRed">
+                                      &nbsp;*
+                                    </span>
+                                  </span>
+                                }
+                                fullWidth
+                                className="ml-8"
+                                value={
+                                  checkListName?.trim().length <= 0
+                                    ? ""
+                                    : checkListName
+                                }
+                                onChange={(e) => {
+                                  setCheckListName(e.target.value);
+                                  setCheckListNameError(false);
+                                }}
+                                onBlur={(e: any) => {
+                                  if (e.target.value.trim().length > 5) {
+                                    setCheckListNameError(false);
+                                  }
+                                  if (
+                                    e.target.value.trim().length > 5 &&
+                                    e.target.value.trim().length < 500
+                                  ) {
+                                    setCheckListNameError(false);
+                                  }
+                                }}
+                                error={checkListNameError}
+                                helperText={
+                                  checkListNameError &&
+                                  checkListName.trim().length > 0 &&
+                                  checkListName.trim().length < 5
+                                    ? "Minimum 5 characters required."
+                                    : checkListNameError &&
+                                      checkListName.trim().length > 500
+                                    ? "Maximum 500 characters allowed."
+                                    : checkListNameError
+                                    ? "This is a required field."
+                                    : ""
+                                }
+                                margin="normal"
+                                variant="standard"
+                                sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                              />
+                              <Button
+                                type="button"
+                                variant="contained"
+                                className="rounded-[4px] !h-[36px] mr-6 !bg-secondary mt-2"
+                                onClick={() =>
+                                  handleSaveCheckListName(i.Category, index)
+                                }
+                              >
+                                <span className="flex items-center justify-center gap-[10px] px-[5px]">
+                                  Save
+                                </span>
+                              </Button>
+                            </>
+                          )}
                       </div>
                     ))}
                 </div>
@@ -3132,27 +4572,57 @@ const EditDrawer = ({
             )}
 
             {hasPermissionWorklog("Reccuring", "View", "WorkLogs") && (
-              <div className="mt-14" id="tabpanel-4">
+              <div
+                className="mt-14"
+                id={`${onEdit > 0 ? "tabpanel-4" : "tabpanel-2"}`}
+              >
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
                     <HistoryIcon />
                     <span className="ml-[21px]">Recurring</span>
                   </span>
-
-                  <span
-                    className={`cursor-pointer ${
-                      recurringDrawer ? "rotate-180" : ""
-                    }`}
-                    onClick={() => setRecurringDrawer(!recurringDrawer)}
-                  >
-                    <ChevronDownIcon />
+                  <span className="flex items-center">
+                    {onEdit > 0 && recurringSwitch && (
+                      <Button
+                        variant="contained"
+                        className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
+                        onClick={handleSubmitRecurring}
+                      >
+                        Update
+                      </Button>
+                    )}
+                    {hasPermissionWorklog("Reccuring", "Save", "WorkLogs") ? (
+                      <Switch
+                        checked={recurringSwitch}
+                        onChange={(e) => {
+                          setRecurringSwitch(e.target.checked);
+                          setRecurringStartDate("");
+                          setRecurringStartDateErr(false);
+                          setRecurringEndDate("");
+                          setRecurringEndDateErr(false);
+                          setRecurringTime(1);
+                        }}
+                      />
+                    ) : (
+                      <></>
+                    )}
+                    <span
+                      className={`cursor-pointer ${
+                        recurringDrawer ? "rotate-180" : ""
+                      }`}
+                      onClick={() => setRecurringDrawer(!recurringDrawer)}
+                    >
+                      <ChevronDownIcon />
+                    </span>
                   </span>
                 </div>
                 {recurringDrawer && (
                   <>
                     <div className="mt-0 pl-6">
                       <div
-                        className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                        className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                          recurringStartDateErr ? "datepickerError" : ""
+                        }`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
@@ -3164,18 +4634,33 @@ const EditDrawer = ({
                                 </span>
                               </span>
                             }
+                            disabled={!recurringSwitch}
+                            onError={() => setRecurringStartDateErr(false)}
                             maxDate={dayjs(recurringEndDate)}
                             value={
                               recurringStartDate === ""
                                 ? null
                                 : dayjs(recurringStartDate)
                             }
-                            readOnly
+                            onChange={(newDate: any) => {
+                              setRecurringStartDate(newDate.$d);
+                              setRecurringStartDateErr(false);
+                            }}
+                            slotProps={{
+                              textField: {
+                                helperText: recurringStartDateErr
+                                  ? "This is a required field."
+                                  : "",
+                                readOnly: true,
+                              } as Record<string, any>,
+                            }}
                           />
                         </LocalizationProvider>
                       </div>
                       <div
-                        className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                        className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                          recurringEndDateErr ? "datepickerError" : ""
+                        }`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
@@ -3188,12 +4673,25 @@ const EditDrawer = ({
                               </span>
                             }
                             minDate={dayjs(recurringStartDate)}
+                            disabled={!recurringSwitch}
+                            onError={() => setRecurringEndDateErr(false)}
                             value={
                               recurringEndDate === ""
                                 ? null
                                 : dayjs(recurringEndDate)
                             }
-                            readOnly
+                            onChange={(newDate: any) => {
+                              setRecurringEndDate(newDate.$d);
+                              setRecurringEndDateErr(false);
+                            }}
+                            slotProps={{
+                              textField: {
+                                helperText: recurringEndDateErr
+                                  ? "This is a required field."
+                                  : "",
+                                readOnly: true,
+                              } as Record<string, any>,
+                            }}
                           />
                         </LocalizationProvider>
                       </div>
@@ -3202,6 +4700,7 @@ const EditDrawer = ({
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, minWidth: 145 }}
+                        disabled={!recurringSwitch}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           {recurringTime === 1 ? (
@@ -3225,7 +4724,12 @@ const EditDrawer = ({
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
                           value={recurringTime === 0 ? "" : recurringTime}
-                          readOnly
+                          onChange={(e) => {
+                            setRecurringTime(e.target.value);
+                            setRecurringMonth(0);
+                            setSelectedDays([]);
+                            setRecurringWeekErr(false);
+                          }}
                         >
                           <MenuItem value={1}>Day</MenuItem>
                           <MenuItem value={2}>Week</MenuItem>
@@ -3264,7 +4768,6 @@ const EditDrawer = ({
                           disableCloseOnSelect
                           onChange={handleMultiSelectMonth}
                           style={{ width: 500 }}
-                          readOnly
                           renderInput={(params) => (
                             <TextField
                               {...params}
@@ -3278,6 +4781,17 @@ const EditDrawer = ({
                               }
                               placeholder="Please Select..."
                               variant="standard"
+                              error={recurringMonthErr}
+                              onBlur={(e) => {
+                                if (recurringMonth.length > 0) {
+                                  setRecurringMonthErr(false);
+                                }
+                              }}
+                              helperText={
+                                recurringMonthErr
+                                  ? "This is a required field."
+                                  : ""
+                              }
                             />
                           )}
                           sx={{ mx: 0.75, maxWidth: 350, mt: 2 }}
@@ -3289,6 +4803,11 @@ const EditDrawer = ({
                         recurringTime === 3 && "mt-2"
                       }`}
                     >
+                      {recurringWeekErr && (
+                        <span className="text-defaultRed ml-8 text-sm p-0">
+                          Please Select day.
+                        </span>
+                      )}
                       <span className="text-darkCharcoal ml-8 text-[14px]">
                         {recurringTime === 1
                           ? "Occurs every day"
@@ -3826,25 +5345,47 @@ const EditDrawer = ({
             {hasPermissionWorklog("Reminder", "View", "WorkLogs") && (
               <div
                 className="my-14"
-                id={`${
-                  (isManual === true || isManual === null) &&
-                  isPartiallySubmitted
-                    ? "tabpanel-7"
-                    : "tabpanel-6"
-                }`}
+                id={`${onEdit > 0 ? "tabpanel-6" : "tabpanel-4"}`}
               >
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
                     <BellIcon />
                     <span className="ml-[21px]">Reminder</span>
                   </span>
-                  <span
-                    className={`cursor-pointer ${
-                      reminderDrawer ? "rotate-180" : ""
-                    }`}
-                    onClick={() => setReminderDrawer(!reminderDrawer)}
-                  >
-                    <ChevronDownIcon />
+                  <span className="flex items-center">
+                    {onEdit > 0 && reminderSwitch && (
+                      <Button
+                        variant="contained"
+                        className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
+                        onClick={handleSubmitReminder}
+                      >
+                        Update
+                      </Button>
+                    )}
+                    {hasPermissionWorklog("Reminder", "Save", "WorkLogs") ? (
+                      <Switch
+                        checked={reminderSwitch}
+                        onChange={(e) => {
+                          setReminderSwitch(e.target.checked);
+                          setReminderDate("");
+                          setReminderDateErr(false);
+                          setReminderTime(0);
+                          setReminderTimeErr(false);
+                          setReminderNotification(0);
+                          setReminderNotificationErr(false);
+                        }}
+                      />
+                    ) : (
+                      <></>
+                    )}
+                    <span
+                      className={`cursor-pointer ${
+                        reminderDrawer ? "rotate-180" : ""
+                      }`}
+                      onClick={() => setReminderDrawer(!reminderDrawer)}
+                    >
+                      <ChevronDownIcon />
+                    </span>
                   </span>
                 </div>
                 {reminderDrawer && (
@@ -3856,37 +5397,48 @@ const EditDrawer = ({
                         name="radio-buttons-group"
                         row={true}
                         className="ml-2 gap-10"
+                        onChange={(e) => {
+                          setReminderCheckboxValue(parseInt(e.target.value));
+                          onEdit === 0 && setReminderDate("");
+                          setReminderDateErr(false);
+                          onEdit === 0 && setReminderTime(0);
+                          setReminderTimeErr(false);
+                          onEdit === 0 && setReminderNotification(0);
+                          setReminderNotificationErr(false);
+                        }}
                       >
                         <FormControlLabel
+                          disabled={!reminderSwitch}
                           value={1}
                           control={<Radio />}
                           label="Due Date"
-                          disabled
                         />
                         <FormControlLabel
+                          disabled={!reminderSwitch}
                           value={2}
                           control={<Radio />}
                           label="Specific Date"
-                          disabled
                         />
                         <FormControlLabel
+                          disabled={!reminderSwitch}
                           value={3}
                           control={<Radio />}
                           label="Daily"
-                          disabled
                         />
                         <FormControlLabel
+                          disabled={!reminderSwitch}
                           value={4}
                           control={<Radio />}
                           label="Days Before Due Date"
-                          disabled
                         />
                       </RadioGroup>
                     </div>
                     <div className="pl-6 flex">
                       {reminderCheckboxValue === 2 && onEdit === 0 && (
                         <div
-                          className={`inline-flex mt-[0px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                          className={`inline-flex mt-[0px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                            reminderDateErr ? "datepickerError" : ""
+                          }`}
                         >
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
@@ -3898,17 +5450,34 @@ const EditDrawer = ({
                                   </span>
                                 </span>
                               }
+                              disabled={!reminderSwitch}
+                              onError={() => setReminderDateErr(false)}
                               value={
                                 reminderDate === "" ? null : dayjs(reminderDate)
                               }
-                              readOnly
+                              onChange={(newDate: any) => {
+                                setReminderDate(newDate.$d);
+                                setReminderDateErr(false);
+                              }}
+                              slotProps={{
+                                textField: {
+                                  helperText: reminderDateErr
+                                    ? "This is a required field."
+                                    : "",
+                                  readOnly: true,
+                                } as Record<string, any>,
+                              }}
                             />
                           </LocalizationProvider>
                         </div>
                       )}
 
                       {reminderCheckboxValue === 2 && onEdit > 0 && (
-                        <div className="inline-flex mt-[0px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]">
+                        <div
+                          className={`inline-flex mt-[0px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                            reminderDateErr ? "datepickerError" : ""
+                          }`}
+                        >
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
                               label={
@@ -3919,10 +5488,23 @@ const EditDrawer = ({
                                   </span>
                                 </span>
                               }
+                              disabled={!reminderSwitch}
+                              onError={() => setReminderDateErr(false)}
                               value={
                                 reminderDate === "" ? null : dayjs(reminderDate)
                               }
-                              readOnly
+                              onChange={(newDate: any) => {
+                                setReminderDate(newDate.$d);
+                                setReminderDateErr(false);
+                              }}
+                              slotProps={{
+                                textField: {
+                                  helperText: reminderDateErr
+                                    ? "This is a required field."
+                                    : "",
+                                  readOnly: true,
+                                } as Record<string, any>,
+                              }}
                             />
                           </LocalizationProvider>
                         </div>
@@ -3931,6 +5513,7 @@ const EditDrawer = ({
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, minWidth: 100 }}
+                        error={reminderTimeErr}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Hour
@@ -3939,8 +5522,14 @@ const EditDrawer = ({
                         <Select
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
+                          disabled={!reminderSwitch}
                           value={reminderTime === 0 ? "" : reminderTime}
-                          readOnly
+                          onChange={(e) => setReminderTime(e.target.value)}
+                          onBlur={(e: any) => {
+                            if (e.target.value > 0) {
+                              setReminderTimeErr(false);
+                            }
+                          }}
                         >
                           {hours.map((i: any, index: number) => (
                             <MenuItem value={i.value} key={index}>
@@ -3948,11 +5537,17 @@ const EditDrawer = ({
                             </MenuItem>
                           ))}
                         </Select>
+                        {reminderTimeErr && (
+                          <FormHelperText>
+                            This is a required field.
+                          </FormHelperText>
+                        )}
                       </FormControl>
                       <Autocomplete
                         multiple
                         limitTags={2}
                         id="checkboxes-tags-demo"
+                        disabled={!reminderSwitch}
                         options={
                           Array.isArray(assigneeDropdownData)
                             ? assigneeDropdownData
@@ -3967,7 +5562,6 @@ const EditDrawer = ({
                         disableCloseOnSelect
                         onChange={handleMultiSelect}
                         style={{ width: 500 }}
-                        readOnly
                         renderInput={(params) => (
                           <TextField
                             {...params}
@@ -3978,6 +5572,17 @@ const EditDrawer = ({
                               </span>
                             }
                             variant="standard"
+                            error={reminderNotificationErr}
+                            onBlur={(e) => {
+                              if (reminderNotification.length > 0) {
+                                setReminderNotificationErr(false);
+                              }
+                            }}
+                            helperText={
+                              reminderNotificationErr
+                                ? "This is a required field."
+                                : ""
+                            }
                           />
                         )}
                         sx={{ mx: 0.75, maxWidth: 380, mt: 0.3 }}
@@ -4288,7 +5893,7 @@ const EditDrawer = ({
                             }}
                             error={errorCountErr[index]}
                             helperText={
-                              errorCountErr[index] && field.ErrorCount < 0
+                              errorCountErr[index] && field.ErrorCount <= 0
                                 ? "Add valid number."
                                 : errorCountErr[index] &&
                                   field.ErrorCount.toString().length > 4
@@ -4331,22 +5936,9 @@ const EditDrawer = ({
                               style={{ width: 500 }}
                               renderInput={(params) => (
                                 <TextField
-                                  label={
-                                    <span>
-                                      cc
-                                      <span className="text-defaultRed">
-                                        &nbsp;*
-                                      </span>
-                                    </span>
-                                  }
+                                  label="cc"
                                   {...params}
                                   variant="standard"
-                                  error={ccErr[index]}
-                                  helperText={
-                                    ccErr[index]
-                                      ? "This is a required field."
-                                      : ""
-                                  }
                                 />
                               )}
                               sx={{ mx: 0.75, maxWidth: 230, mt: 1 }}
@@ -4642,6 +6234,29 @@ const EditDrawer = ({
                 </div>
               )}
             </div> */}
+
+            <div className="sticky bottom-0 !h-[9%] bg-whiteSmoke border-b z-30 border-lightSilver flex p-2 justify-end items-center">
+              <div>
+                <Button
+                  variant="outlined"
+                  className="rounded-[4px] !h-[36px] !text-secondary"
+                  onClick={handleClose}
+                >
+                  <span className="flex items-center justify-center gap-[10px] px-[5px]">
+                    Close
+                  </span>
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary"
+                >
+                  <span className="flex items-center justify-center gap-[10px] px-[5px]">
+                    {onEdit > 0 ? "Save Task" : "Create Task"}
+                  </span>
+                </Button>
+              </div>
+            </div>
           </form>
         </div>
       </div>

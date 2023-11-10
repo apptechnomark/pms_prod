@@ -1,7 +1,12 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
-import { TablePagination, ThemeProvider, createTheme } from "@mui/material";
+import {
+  TablePagination,
+  TextField,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
@@ -46,7 +51,7 @@ const BillingReport = ({
   const [page, setPage] = useState<number>(0);
   const [btcData, setBTCData] = useState<any>([]);
 
-  const [btcTime, setBTCTime] = useState<string>("");
+  const [btcTime, setBTCTime] = useState<string>("0000-00-00T00:00:00");
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
   const [editingRowIndex, setEditingRowIndex] = useState<number[]>([]);
@@ -111,6 +116,7 @@ const BillingReport = ({
         if (response.data.ResponseStatus === "Success") {
           toast.success("BTC Data saved successfully!");
           onSaveBTCDataComplete(false);
+          setBTCTime("0000-00-00T00:00:00");
           setBTCData([]);
           getData(
             filteredData !== null ? filteredData : billingreport_InitialFilter
@@ -158,34 +164,42 @@ const BillingReport = ({
   };
 
   const handleBTCData = (newValue: any, workItemId: any) => {
-    setBTCData((prevData: any) => {
-      const existingIndex = prevData.findIndex(
-        (obj: any) => obj.workItemId === workItemId
-      );
-
-      if (existingIndex !== -1) {
-        // If workItemId exists, update btcValue
-        return prevData.map((obj: any, index: number) =>
-          index === existingIndex
-            ? {
-                ...obj,
-                btcValue: toSeconds(
-                  `${newValue.$H}:${newValue.$m}:${newValue.$s}`
-                ),
-              }
-            : obj
+    if (newValue !== null) {
+      setBTCData((prevData: any) => {
+        const existingIndex = prevData.findIndex(
+          (obj: any) => obj.workItemId === workItemId
         );
-      } else {
-        // If workItemId doesn't exist, add a new object
-        return [
-          ...prevData,
-          {
-            workItemId: workItemId,
-            btcValue: toSeconds(`${newValue.$H}:${newValue.$m}:${newValue.$s}`),
-          },
-        ];
-      }
-    });
+
+        if (existingIndex !== -1) {
+          // If workItemId exists, update btcValue
+          return prevData.map((obj: any, index: number) =>
+            index === existingIndex
+              ? {
+                  ...obj,
+                  btcValue: toSeconds(
+                    `${newValue.$H}:${newValue.$m}:${newValue.$s}`
+                  ),
+                  IsBTC: true,
+                }
+              : obj
+          );
+        } else {
+          // If workItemId doesn't exist, add a new object
+          return [
+            ...prevData,
+            {
+              workItemId: workItemId,
+              btcValue: toSeconds(
+                `${newValue.$H}:${newValue.$m}:${newValue.$s}`
+              ),
+              IsBTC: true,
+            },
+          ];
+        }
+      });
+    } else {
+      setBTCTime("0000-00-00T00:00:00");
+    }
   };
 
   useEffect(() => {
@@ -215,6 +229,9 @@ const BillingReport = ({
         customHeadLabelRender: () => (
           <span className="font-extrabold capitalize">Task ID</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -225,6 +242,9 @@ const BillingReport = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">client name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -235,6 +255,9 @@ const BillingReport = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">project name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -245,6 +268,9 @@ const BillingReport = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">task name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -255,6 +281,9 @@ const BillingReport = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">process name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -267,6 +296,9 @@ const BillingReport = ({
             prepared/assignee
           </span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -277,6 +309,43 @@ const BillingReport = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">reviewer</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
+      },
+    },
+    {
+      name: "PreparationDate",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm capitalize">Preparation Date</span>
+        ),
+        customBodyRender: (value: any, tableMeta: any) => {
+          return (
+            <div className="flex items-center gap-2">
+              {value === null || "" ? "-" : value.split("T")[0]}
+            </div>
+          );
+        },
+      },
+    },
+    {
+      name: "ReviewerDate",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm capitalize">Reviewer Date</span>
+        ),
+        customBodyRender: (value: any, tableMeta: any) => {
+          return (
+            <div className="flex items-center gap-2">
+              {value === null || "" ? "-" : value.split("T")[0]}
+            </div>
+          );
+        },
       },
     },
     {
@@ -287,6 +356,9 @@ const BillingReport = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">type of return</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -297,6 +369,9 @@ const BillingReport = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">no. of pages</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -368,32 +443,72 @@ const BillingReport = ({
       },
     },
     {
+      name: "IsBTC",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm capitalize">Invoice Status</span>
+        ),
+        customBodyRender: (value: any, tableMeta: any) => {
+          return (
+            <div className="capitalize">
+              {value === 0 ? "invoice pending" : "invoice raised"}
+            </div>
+          );
+        },
+      },
+    },
+    {
       name: "BTC",
       options: {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">btc time</span>
+          <span className="font-bold text-sm capitalize">BTC time</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
           return (
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-              {editingRowIndex.includes(tableMeta.rowIndex) ? (
-                <TimeField
-                  label="BTC Time"
-                  value={btcTime}
-                  onChange={(newValue: any) =>
-                    handleBTCData(
-                      newValue,
-                      billingReportData[tableMeta.rowIndex].WorkItemId
-                    )
-                  }
-                  format="HH:mm:ss"
-                  variant="standard"
-                />
+              {!billingReportData[tableMeta.rowIndex].IsBTC ? (
+                editingRowIndex.includes(tableMeta.rowIndex) ? (
+                  <TimeField
+                    label="BTC Time"
+                    value={btcTime}
+                    inputProps={<TextField placeholder="00:00:00" />}
+                    onChange={(newValue: any) =>
+                      handleBTCData(
+                        newValue,
+                        billingReportData[tableMeta.rowIndex].WorkItemId
+                      )
+                    }
+                    format="HH:mm:ss"
+                    variant="standard"
+                  />
+                ) : (
+                  <TimeField
+                    readOnly={editingRowIndex.includes(tableMeta.rowIndex)}
+                    label="BTC Time"
+                    format="HH:mm:ss"
+                    variant="standard"
+                    value={
+                      value === null || value === 0
+                        ? dayjs("0000-00-00T00:00:00")
+                        : dayjs(`0000-00-00T${value}`)
+                    }
+                    onChange={(newValue: any) => setBTCTime(newValue)}
+                    onClick={() =>
+                      setEditingRowIndex([
+                        ...editingRowIndex,
+                        tableMeta.rowIndex,
+                      ])
+                    }
+                    onBlur={() => setEditingRowIndex([])}
+                  />
+                )
               ) : (
                 <TimeField
-                  readOnly={editingRowIndex.includes(tableMeta.rowIndex)}
+                  readOnly
                   label="BTC Time"
                   format="HH:mm:ss"
                   variant="standard"
@@ -402,11 +517,6 @@ const BillingReport = ({
                       ? dayjs("0000-00-00T00:00:00")
                       : dayjs(`0000-00-00T${value}`)
                   }
-                  onChange={(newValue: any) => setBTCTime(newValue)}
-                  onClick={() =>
-                    setEditingRowIndex([...editingRowIndex, tableMeta.rowIndex])
-                  }
-                  onBlur={() => setEditingRowIndex([])}
                 />
               )}
             </LocalizationProvider>

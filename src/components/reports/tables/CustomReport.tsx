@@ -134,6 +134,9 @@ const CustomReport = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize ">client name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -144,6 +147,9 @@ const CustomReport = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">project name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -154,6 +160,9 @@ const CustomReport = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">task name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -164,6 +173,9 @@ const CustomReport = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">process name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -174,6 +186,9 @@ const CustomReport = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">assign by</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -184,6 +199,9 @@ const CustomReport = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">assignee</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -194,6 +212,9 @@ const CustomReport = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">reviewer</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -204,6 +225,9 @@ const CustomReport = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">return type</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -214,6 +238,9 @@ const CustomReport = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">type of return</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -224,6 +251,9 @@ const CustomReport = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">no. of pages</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -234,6 +264,9 @@ const CustomReport = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">return year</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -244,6 +277,9 @@ const CustomReport = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">current year</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -279,6 +315,9 @@ const CustomReport = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">priority</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {

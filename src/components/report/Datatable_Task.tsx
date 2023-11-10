@@ -114,9 +114,10 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Task ID</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Task ID</span>,
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -124,9 +125,10 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Task</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Task</span>,
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -134,9 +136,10 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Type</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Type</span>,
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -160,20 +163,26 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
 
           return (
             <div>
-              <div className="inline-block mr-1">
-                <div
-                  className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
-                    isHighPriority
-                      ? "bg-defaultRed"
-                      : isMediumPriority
-                      ? "bg-yellowColor"
-                      : isLowPriority
-                      ? "bg-primary"
-                      : "bg-lightSilver"
-                  }`}
-                ></div>
-              </div>
-              {value}
+              {value === null || value === "" ? (
+                "-"
+              ) : (
+                <>
+                  <div className="inline-block mr-1">
+                    <div
+                      className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
+                        isHighPriority
+                          ? "bg-defaultRed"
+                          : isMediumPriority
+                          ? "bg-yellowColor"
+                          : isLowPriority
+                          ? "bg-primary"
+                          : "bg-lightSilver"
+                      }`}
+                    ></div>
+                  </div>
+                  {value}
+                </>
+              )}
             </div>
           );
         },
@@ -184,20 +193,24 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Status</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Status</span>,
         customBodyRender: (value: any, tableMeta: any) => {
           const statusColorCode = tableMeta.rowData[9];
           return (
             <div>
-              <div className="inline-block mr-3">
-                <div
-                  className="w-[10px] h-[10px] rounded-full inline-block"
-                  style={{ backgroundColor: statusColorCode }}
-                ></div>
-              </div>
-              {value}
+              {value === null || value === "" ? (
+                "-"
+              ) : (
+                <>
+                  <div className="inline-block mr-3">
+                    <div
+                      className="w-[10px] h-[10px] rounded-full inline-block"
+                      style={{ backgroundColor: statusColorCode }}
+                    ></div>
+                  </div>
+                  {value}
+                </>
+              )}
             </div>
           );
         },
@@ -211,6 +224,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold">Assigned To</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     // {
@@ -221,6 +237,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
     //     customHeadLabelRender: () => (
     //       <span className="font-bold">MONTH CLOSE</span>
     //     ),
+    // customBodyRender: (value: any) => {
+    //   return <div>{value === null || value === "" ? "-" : value}</div>;
+    // },
     //   },
     // },
     {
@@ -231,6 +250,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold">Hours Logged</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -242,7 +264,7 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
           <span className="font-bold">Start Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || value === "") {
             return "-";
           }
 
@@ -267,7 +289,7 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
           <span className="font-bold">Due Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || value === "") {
             return "-";
           }
 

@@ -144,8 +144,14 @@ const Workload = ({ filteredData }: any) => {
                     }
               }
             >
-              <span>{value}</span>
-              <span>{workloadData[tableMeta.rowIndex].DepartmentName}</span>
+              {value === null || "" ? (
+                "-"
+              ) : (
+                <>
+                  <span>{value}</span>
+                  <span>{workloadData[tableMeta.rowIndex].DepartmentName}</span>
+                </>
+              )}
             </div>
           );
         },
@@ -159,6 +165,9 @@ const Workload = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">designation</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -229,6 +238,9 @@ const Workload = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">client name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -239,6 +251,9 @@ const Workload = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">project</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -249,6 +264,22 @@ const Workload = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">task/process</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
+      },
+    },
+    {
+      name: "Quantity",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm capitalize">quantity</span>
+        ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
   ];

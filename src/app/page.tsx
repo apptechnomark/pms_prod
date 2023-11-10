@@ -77,7 +77,7 @@ const Home = () => {
             hasPermissionWorklog("", "View", "Approvals") &&
               router.push("/approvals");
             hasPermissionWorklog("", "View", "WorkLogs") &&
-              (hasPermissionWorklog("", "ClientManager", "WorkLogs") ||
+              (hasPermissionWorklog("", "TaskManager", "WorkLogs") ||
                 hasPermissionWorklog("", "ManageAssignee", "WorkLogs")) &&
               router.push("/worklogs");
             hasPermissionWorklog("", "View", "Settings") &&

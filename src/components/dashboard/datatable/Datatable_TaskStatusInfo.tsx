@@ -168,7 +168,7 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
           <span className="font-extrabold">Start Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -193,7 +193,7 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
           <span className="font-extrabold">End Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -218,7 +218,7 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
           <span className="font-extrabold">Due Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 

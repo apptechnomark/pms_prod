@@ -138,6 +138,9 @@ const Project = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">project</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -148,6 +151,9 @@ const Project = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">client name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -158,6 +164,9 @@ const Project = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">type of work</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -168,6 +177,9 @@ const Project = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">billing type</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {

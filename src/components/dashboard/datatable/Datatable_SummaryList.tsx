@@ -213,7 +213,6 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
         ),
         customBodyRender: (value: any, tableMeta: any) => {
           const statusColorCode = tableMeta.rowData[11];
-          console.log(tableMeta.rowData);
 
           return (
             <div className="">
@@ -278,7 +277,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
           <span className="font-extrabold">Start Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -303,7 +302,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
           <span className="font-extrabold">End Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -328,7 +327,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
           <span className="font-extrabold">Due Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 

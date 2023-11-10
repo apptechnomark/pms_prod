@@ -128,8 +128,14 @@ const User = ({ filteredData }: any) => {
         customBodyRender: (value: any, tableMeta: any) => {
           return (
             <div className="flex flex-col">
-              <span>{value}</span>
-              <span>{userData[tableMeta.rowIndex].DepartmentName}</span>
+              {value === null || "" ? (
+                "-"
+              ) : (
+                <>
+                  <span>{value}</span>
+                  <span>{userData[tableMeta.rowIndex].DepartmentName}</span>
+                </>
+              )}
             </div>
           );
         },
@@ -143,6 +149,9 @@ const User = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">designation</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     ...dates.slice(-7).map(
@@ -196,6 +205,9 @@ const User = ({ filteredData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">present days</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {

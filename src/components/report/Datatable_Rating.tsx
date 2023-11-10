@@ -115,9 +115,10 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Task ID</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Task ID</span>,
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -125,9 +126,10 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Project</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Project</span>,
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -135,9 +137,10 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Task</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Task</span>,
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -149,7 +152,7 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
           <span className="font-bold">Return Type</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null ? "-" : value}</div>;
+          return <div>{value === null || value === "" ? "-" : value}</div>;
         },
       },
     },
@@ -162,7 +165,7 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
           <span className="font-bold">Type Of Return</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null ? "-" : value}</div>;
+          return <div>{value === null || value === "" ? "-" : value}</div>;
         },
       },
     },
@@ -175,7 +178,7 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
           <span className="font-bold">Rating Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || value === "") {
             return "-";
           }
 
@@ -200,7 +203,7 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
           <span className="font-bold">Date Submitted</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || value === "") {
             return "-";
           }
 
@@ -224,6 +227,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
         customHeadLabelRender: () => (
           <span className="font-bold">Hours Logged</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -231,11 +237,22 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Ratings</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Ratings</span>,
         customBodyRender: (value: any) => {
           return <Rating name="read-only" value={value} readOnly />;
+        },
+      },
+    },
+    {
+      name: "Comments",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => (
+          <span className="font-bold">Comments</span>
+        ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
         },
       },
     },

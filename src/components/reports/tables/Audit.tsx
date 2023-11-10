@@ -108,6 +108,9 @@ const Audit = () => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">User name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -118,6 +121,9 @@ const Audit = () => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">Department</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -131,7 +137,7 @@ const Audit = () => {
           </span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          return <div>{value.split("T")[0]}</div>;
+          return <div>{value && value.split("T")[0]}</div>;
         },
       },
     },
@@ -181,6 +187,9 @@ const Audit = () => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">client name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -191,6 +200,9 @@ const Audit = () => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">project name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -201,6 +213,9 @@ const Audit = () => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">sub process name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -211,6 +226,9 @@ const Audit = () => {
         customHeadLabelRender: () => (
           <span className="font-bold text-sm capitalize">process name</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {

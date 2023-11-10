@@ -69,6 +69,7 @@ const EditDrawer = ({
   onDataFetch,
   onRecurring,
   onComment,
+  onHasId,
 }: any) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState(0);
@@ -87,8 +88,6 @@ const EditDrawer = ({
   const [logsDrawer, setLogsDrawer] = useState(true);
   const [reasonDrawer, setReasonDrawer] = useState(true);
   const [reviewerErrDrawer, setReviewerErrDrawer] = useState(true);
-
-  const [workItemId, setWorkItemId] = useState(0);
 
   // Task
   const [clientName, setClientName] = useState<any>(0);
@@ -111,12 +110,8 @@ const EditDrawer = ({
   const [description, setDescription] = useState<string>("");
   const [descriptionErr, setDescriptionErr] = useState(false);
   const [priority, setPriority] = useState<string | number>(0);
-  const [estTime, setEstTime] = useState<string>("");
-  const [estTimeErr, setEstTimeErr] = useState(false);
   const [quantity, setQuantity] = useState<any>(1);
   const [quantityErr, setQuantityErr] = useState(false);
-  const [stdTime, setStdTime] = useState<string>("");
-  const [stdTimeErr, setStdTimeErr] = useState(false);
   const [receiverDate, setReceiverDate] = useState<any>("");
   const [receiverDateErr, setReceiverDateErr] = useState(false);
   const [dueDate, setDueDate] = useState<any>("");
@@ -230,7 +225,6 @@ const EditDrawer = ({
   const [reminderTimeErr, setReminderTimeErr] = useState(false);
   const [reminderNotification, setReminderNotification] = useState<any>([]);
   const [reminderNotificationErr, setReminderNotificationErr] = useState(false);
-
   const [reminderCheckboxValue, setReminderCheckboxValue] = useState<any>(1);
   const [reminderId, setReminderId] = useState(0);
 
@@ -565,6 +559,261 @@ const EditDrawer = ({
     const newManualDescErrors = [...manualDescErrors];
     newManualDescErrors[index] = e.target.value.trim().length === 0;
     setManualDescErrors(newManualDescErrors);
+  };
+
+  // Error Logs
+  const [errorLogFields, setErrorLogFields] = useState([
+    {
+      SubmitedBy: "",
+      SubmitedOn: "",
+      ErrorLogId: 0,
+      ErrorType: 0,
+      RootCause: 0,
+      Priority: 0,
+      ErrorCount: 0,
+      NatureOfError: 0,
+      CC: [],
+      Remark: "",
+      Attachments: "",
+      // [
+      //   {
+      //     AttachmentId: 0,
+      //     UserFileName: "Attachment300.txt",
+      //     SystemFileName: "Attachment3_system.txt",
+      //     AttachmentPath: "/path/to/attachment300.txt",
+      //   },
+      // ],
+      isSolved: false,
+    },
+  ]);
+  const [errorTypeErr, setErrorTypeErr] = useState([false]);
+  const [rootCauseErr, setRootCauseErr] = useState([false]);
+  const [errorLogPriorityErr, setErrorLogPriorityErr] = useState([false]);
+  const [errorCountErr, setErrorCountErr] = useState([false]);
+  const [natureOfErr, setNatureOfErr] = useState([false]);
+  const [remarkErr, setRemarkErr] = useState([false]);
+  const [attachmentsErr, setAttachmentsErr] = useState([false]);
+  const [deletedErrorLog, setDeletedErrorLog] = useState<any>([]);
+
+  const handleRootCauseChange = (e: any, index: number) => {
+    const newFields = [...errorLogFields];
+    newFields[index].RootCause = e.target.value;
+    setErrorLogFields(newFields);
+
+    const newErrors = [...rootCauseErr];
+    newErrors[index] = e.target.value === 0;
+    setRootCauseErr(newErrors);
+  };
+
+  const handleNatureOfErrorChange = (e: any, index: number) => {
+    const newFields = [...errorLogFields];
+    newFields[index].NatureOfError = e.target.value;
+    setErrorLogFields(newFields);
+
+    const newErrors = [...natureOfErr];
+    newErrors[index] = e.target.value === 0;
+    setNatureOfErr(newErrors);
+  };
+
+  const handlePriorityChange = (e: any, index: number) => {
+    const newFields = [...errorLogFields];
+    newFields[index].Priority = e.target.value;
+    setErrorLogFields(newFields);
+
+    const newErrors = [...errorLogPriorityErr];
+    newErrors[index] = e.target.value === 0;
+    setErrorLogPriorityErr(newErrors);
+  };
+
+  const handleErrorCountChange = (e: any, index: number) => {
+    const newFields = [...errorLogFields];
+    newFields[index].ErrorCount = e.target.value;
+    setErrorLogFields(newFields);
+
+    const newErrors = [...errorCountErr];
+    newErrors[index] =
+      e.target.value < 0 || e.target.value.toString().length > 4;
+    setErrorCountErr(newErrors);
+  };
+
+  const handleCCChange = (newValue: any, index: any) => {
+    const newFields = [...errorLogFields];
+    newFields[index].CC = newValue;
+    setErrorLogFields(newFields);
+  };
+
+  const handleAttachmentsChange = (e: any, index: number) => {
+    const newFields = [...errorLogFields];
+    newFields[index].Attachments = e.target.value;
+    setErrorLogFields(newFields);
+
+    const newErrors = [...attachmentsErr];
+    newErrors[index] = e.target.value.trim().length <= 0;
+    setAttachmentsErr(newErrors);
+  };
+
+  const handleCheckboxChange = async (
+    onEdit: any,
+    errorLogId: any,
+    checked: any
+  ) => {
+    let hasErrorLogErrors = false;
+    const newErrorTypeErrors = errorLogFields.map(
+      (field) => field.ErrorType === 0
+    );
+    setErrorTypeErr(newErrorTypeErrors);
+    const newRootCauseErrors = errorLogFields.map(
+      (field) => field.RootCause === 0
+    );
+    setRootCauseErr(newRootCauseErrors);
+    const newNatureOfErrors = errorLogFields.map(
+      (field) => field.NatureOfError === 0
+    );
+    setNatureOfErr(newNatureOfErrors);
+    const newPriorityErrors = errorLogFields.map(
+      (field) => field.Priority === 0
+    );
+    setErrorLogPriorityErr(newPriorityErrors);
+    const newErrorCountErrors = errorLogFields.map(
+      (field) => field.ErrorCount <= 0 || field.ErrorCount > 9999
+    );
+    setErrorCountErr(newErrorCountErrors);
+    const newRemarkErrors = errorLogFields.map(
+      (field) =>
+        field.Remark.trim().length < 5 || field.Remark.trim().length > 500
+    );
+    setRemarkErr(newRemarkErrors);
+    // const newAttachmentsErrors = errorLogFields.map(
+    //   (field) => field.Attachments.length === 0
+    // );
+    // setAttachmentsErr(newAttachmentsErrors);
+
+    hasErrorLogErrors =
+      newErrorTypeErrors.some((error) => error) ||
+      newRootCauseErrors.some((error) => error) ||
+      newNatureOfErrors.some((error) => error) ||
+      newPriorityErrors.some((error) => error) ||
+      newErrorCountErrors.some((error) => error) ||
+      newRemarkErrors.some((error) => error);
+    // ||
+    // newAttachmentsErrors.some((error) => error);
+
+    if (!hasErrorLogErrors) {
+      if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`,
+            {
+              WorkItemId: onEdit,
+              Errors: errorLogFields.map(
+                (i: any) =>
+                  new Object({
+                    ErrorLogId: i.ErrorLogId,
+                    ErrorType: i.ErrorType,
+                    RootCause: i.RootCause,
+                    Priority: i.Priority,
+                    ErrorCount: i.ErrorCount,
+                    NatureOfError: i.NatureOfError,
+                    CC: i.CC.map((j: any) => j.value),
+                    Remark: i.Remark,
+                    Attachments: null,
+                    // [
+                    //   {
+                    //     AttachmentId: 0,
+                    //     UserFileName: "Attachment300.txt",
+                    //     SystemFileName: "Attachment3_system.txt",
+                    //     AttachmentPath: "/path/to/attachment300.txt",
+                    //   },
+                    // ],
+                  })
+              ),
+              IsClientWorklog: false,
+              SubmissionId: onHasId,
+              DeletedErrorlogIds: [],
+            },
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              try {
+                const response = await axios.post(
+                  `${process.env.worklog_api_url}/workitem/errorlog/SolveByworkitem`,
+                  {
+                    WorkItemId: onEdit,
+                    ErrorLogId: errorLogId,
+                    IsSolved: checked,
+                  },
+                  {
+                    headers: {
+                      Authorization: `bearer ${token}`,
+                      org_token: `${Org_Token}`,
+                    },
+                  }
+                );
+
+                if (response.status === 200) {
+                  if (response.data.ResponseStatus === "Success") {
+                    toast.success(
+                      `${
+                        checked ? "Error log Resolved." : "Error log changed."
+                      }`
+                    );
+                    getErrorLogData();
+                    onDataFetch();
+                  } else {
+                    const data = response.data.Message;
+                    if (data === null) {
+                      toast.error("Please try again later.");
+                    } else {
+                      toast.error(data);
+                    }
+                  }
+                } else {
+                  const data = response.data.Message;
+                  if (data === null) {
+                    toast.error("Failed Please try again.");
+                  } else {
+                    toast.error(data);
+                  }
+                }
+              } catch (error) {
+                console.error(error);
+              }
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Please try again later.");
+              } else {
+                toast.error(data);
+              }
+            }
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Failed Please try again.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            router.push("/login");
+            localStorage.clear();
+          }
+        }
+      } else {
+        toast.error("User don't have permission to Update Task.");
+        getErrorLogData();
+      }
+    }
   };
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
@@ -928,7 +1177,6 @@ const EditDrawer = ({
         toast.error("User don't have permission to Create Task.");
       }
     }
-    console.log(fieldValidations);
 
     if (
       onEdit === 0 &&
@@ -1368,7 +1616,62 @@ const EditDrawer = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          setErrorLogData(response.data.ResponseData);
+          response.data.ResponseData.length <= 0
+            ? setErrorLogFields([
+                {
+                  SubmitedBy: "",
+                  SubmitedOn: "",
+                  ErrorLogId: 0,
+                  ErrorType: 0,
+                  RootCause: 0,
+                  Priority: 0,
+                  ErrorCount: 0,
+                  NatureOfError: 0,
+                  CC: [],
+                  Remark: "",
+                  Attachments: "",
+                  // [
+                  //   {
+                  //     AttachmentId: 0,
+                  //     UserFileName: "Attachment300.txt",
+                  //     SystemFileName: "Attachment3_system.txt",
+                  //     AttachmentPath: "/path/to/attachment300.txt",
+                  //   },
+                  // ],
+                  isSolved: false,
+                },
+              ])
+            : setErrorLogFields(
+                response.data.ResponseData.map(
+                  (i: any) =>
+                    new Object({
+                      SubmitedBy: i.SubmitedBy,
+                      SubmitedOn: i.SubmitedOn,
+                      ErrorLogId: i.ErrorLogId,
+                      ErrorType: i.ErrorType,
+                      RootCause: i.RootCause,
+                      Priority: i.Priority,
+                      ErrorCount: i.ErrorCount,
+                      NatureOfError: i.NatureOfError,
+                      CC: i.CC.map((i: any) =>
+                        cCDropdownData.find(
+                          (j: { value: any }) => j.value === i
+                        )
+                      ).filter(Boolean),
+                      Remark: i.Remark,
+                      Attachments: "",
+                      // [
+                      //   {
+                      //     AttachmentId: 0,
+                      //     UserFileName: "Attachment300.txt",
+                      //     SystemFileName: "Attachment3_system.txt",
+                      //     AttachmentPath: "/path/to/attachment300.txt",
+                      //   },
+                      // ],
+                      isSolved: i.IsSolved,
+                    })
+                )
+              );
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -2560,61 +2863,10 @@ const EditDrawer = ({
     return matches;
   };
 
-  const handleCheckboxChange = async (
-    onEdit: any,
-    errorLogId: any,
-    checked: any
-  ) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/errorlog/SolveByworkitem`,
-        {
-          WorkItemId: onEdit,
-          ErrorLogId: errorLogId,
-          IsSolved: checked,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success(
-            `${checked ? "Error log Resolved." : "Error log changed."}`
-          );
-          getErrorLogData();
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Failed Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const handleClose = () => {
     setEditData([]);
     setIsCreatedByClient(false);
     setUserId(0);
-    setWorkItemId(0);
     setClientName(0);
     setClientNameErr(false);
     setTypeOfWork(0);
@@ -2634,12 +2886,8 @@ const EditDrawer = ({
     setStatusErr(false);
     setDescription("");
     setPriority(0);
-    setEstTime("");
-    setEstTimeErr(false);
     setQuantity(1);
     setQuantityErr(false);
-    setStdTime("");
-    setStdTimeErr(false);
     setReceiverDate("");
     setReceiverDateErr(false);
     setDueDate("");
@@ -2654,8 +2902,6 @@ const EditDrawer = ({
     setDateOfPreperation("");
     setAssigneeDisable(true);
     setEstTimeData([]);
-
-    // Taxation selected
     setReturnYear(0);
     setReturnYearErr(false);
     setNoOfPages(0);
@@ -2726,6 +2972,38 @@ const EditDrawer = ({
 
     // Error Logs
     setErrorLogData([]);
+    setErrorLogFields([
+      {
+        SubmitedBy: "",
+        SubmitedOn: "",
+        ErrorLogId: 0,
+        ErrorType: 0,
+        RootCause: 0,
+        Priority: 0,
+        ErrorCount: 0,
+        NatureOfError: 0,
+        CC: [],
+        Remark: "",
+        Attachments: "",
+        // [
+        //   {
+        //     AttachmentId: 0,
+        //     UserFileName: "Attachment300.txt",
+        //     SystemFileName: "Attachment3_system.txt",
+        //     AttachmentPath: "/path/to/attachment300.txt",
+        //   },
+        // ],
+        isSolved: false,
+      },
+    ]);
+    setErrorTypeErr([false]);
+    setRootCauseErr([false]);
+    setErrorLogPriorityErr([false]);
+    setErrorCountErr([false]);
+    setNatureOfErr([false]);
+    setRemarkErr([false]);
+    setAttachmentsErr([false]);
+    setDeletedErrorLog([]);
 
     // Comments
     setCommentData([]);
@@ -2742,7 +3020,6 @@ const EditDrawer = ({
     setReviewerNoteData([]);
 
     // Dropdown
-
     setClientDropdownData([]);
     setTypeOfWorkDropdownData([]);
     setProjectDropdownData([]);
@@ -2813,31 +3090,97 @@ const EditDrawer = ({
                     <TaskIcon />
                     <span className="ml-[21px]">Task</span>
                   </span>
-                  <span
-                    className={`cursor-pointer ${
-                      taskDrawer ? "rotate-180" : ""
-                    }`}
-                    onClick={() => setTaskDrawer(!taskDrawer)}
-                  >
-                    <ChevronDownIcon />
-                  </span>
+                  <div className="flex gap-4">
+                    {onEdit > 0 && (
+                      <span>Created By : {editData.CreatedByName}</span>
+                    )}
+                    <span
+                      className={`cursor-pointer ${
+                        taskDrawer ? "rotate-180" : ""
+                      }`}
+                      onClick={() => setTaskDrawer(!taskDrawer)}
+                    >
+                      <ChevronDownIcon />
+                    </span>
+                  </div>
                 </div>
                 {taskDrawer && (
-                  <>
-                    <Grid container className="px-8">
-                      <Grid item xs={3} className="pt-4">
-                        <Autocomplete
-                          disablePortal
-                          id="combo-box-demo"
-                          options={clientDropdownData}
-                          value={
-                            clientDropdownData.find(
-                              (i: any) => i.value === clientName
-                            ) || null
-                          }
-                          onChange={(e, value: any) => {
-                            value && setClientName(value.value);
-                            setTypeOfWorkErr(false);
+                  <Grid container className="px-8">
+                    <Grid item xs={3} className="pt-4">
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={clientDropdownData}
+                        value={
+                          clientDropdownData.find(
+                            (i: any) => i.value === clientName
+                          ) || null
+                        }
+                        onChange={(e, value: any) => {
+                          value && setClientName(value.value);
+                          setTypeOfWorkErr(false);
+                          setProjectName(0);
+                          setProjectNameErr(false);
+                          setProcessName(0);
+                          setProcessNameErr(false);
+                          setSubProcess(0);
+                          setSubProcessErr(false);
+                          setDescription("");
+                          setManager(0);
+                          setManagerErr(false);
+                          setPriority(0);
+                          setQuantity(1);
+                          setQuantityErr(false);
+                          setReceiverDate("");
+                          setReceiverDateErr(false);
+                          setDueDate("");
+                          setDueDateErr(false);
+                          assigneeDisable && setAssignee(0);
+                          assigneeDisable && setAssigneeErr(false);
+                          setReviewer(0);
+                          setReviewerErr(false);
+                        }}
+                        disabled={isCreatedByClient && editData.ClientId > 0}
+                        sx={{ mx: 0.75, width: 300 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Client Name
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={clientNameErr}
+                            onBlur={(e) => {
+                              if (clientName > 0) {
+                                setClientNameErr(false);
+                              }
+                            }}
+                            helperText={
+                              clientNameErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <FormControl
+                        variant="standard"
+                        sx={{ mx: 0.75, width: 300, mt: -0.3 }}
+                        error={typeOfWorkErr}
+                        disabled={isCreatedByClient && editData.WorkTypeId > 0}
+                      >
+                        <InputLabel id="demo-simple-select-standard-label">
+                          Type of Work
+                          <span className="text-defaultRed">&nbsp;*</span>
+                        </InputLabel>
+                        <Select
+                          labelId="demo-simple-select-standard-label"
+                          id="demo-simple-select-standard"
+                          value={typeOfWork === 0 ? "" : typeOfWork}
+                          onChange={(e) => {
                             setProjectName(0);
                             setProjectNameErr(false);
                             setProcessName(0);
@@ -2858,885 +3201,794 @@ const EditDrawer = ({
                             assigneeDisable && setAssigneeErr(false);
                             setReviewer(0);
                             setReviewerErr(false);
+                            setTypeOfWork(e.target.value);
+                            setDateOfReview("");
+                            setDateOfPreperation("");
+                            setReturnYear(0);
+                            setNoOfPages(0);
                           }}
-                          disabled={isCreatedByClient && editData.ClientId > 0}
-                          sx={{ mx: 0.75, width: 300 }}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              variant="standard"
-                              label={
-                                <span>
-                                  Client Name
-                                  <span className="text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
+                          onBlur={(e: any) => {
+                            if (e.target.value > 0) {
+                              setTypeOfWorkErr(false);
+                            }
+                          }}
+                        >
+                          {typeOfWorkDropdownData.map(
+                            (i: any, index: number) => (
+                              <MenuItem value={i.value} key={index}>
+                                {i.label}
+                              </MenuItem>
+                            )
+                          )}
+                        </Select>
+                        {typeOfWorkErr && (
+                          <FormHelperText>
+                            This is a required field.
+                          </FormHelperText>
+                        )}
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={projectDropdownData}
+                        value={
+                          projectDropdownData.find(
+                            (i: any) => i.value === projectName
+                          ) || null
+                        }
+                        disabled={isCreatedByClient && editData.ProjectId > 0}
+                        onChange={(e, value: any) => {
+                          value && setProjectName(value.value);
+                        }}
+                        sx={{ mx: 0.75, width: 300 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Project Name
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={projectNameErr}
+                            onBlur={(e) => {
+                              if (projectName > 0) {
+                                setProjectNameErr(false);
                               }
-                              error={clientNameErr}
-                              onBlur={(e) => {
-                                if (clientName > 0) {
-                                  setClientNameErr(false);
+                            }}
+                            helperText={
+                              projectNameErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <Autocomplete
+                        id="combo-box-demo"
+                        options={
+                          onEdit === 0
+                            ? statusDropdownData
+                            : statusDropdownDataUse
+                        }
+                        disabled={
+                          onEdit === 0 ||
+                          status === 7 ||
+                          status === 8 ||
+                          status === 9
+                        }
+                        value={
+                          onEdit === 0 && manualSwitch
+                            ? statusDropdownData.find(
+                                (i: any) => i.value === status
+                              ) || null
+                            : onEdit === 0
+                            ? statusDropdownData.find(
+                                (i: any) => i.value === status
+                              ) || null
+                            : statusDropdownDataUse.find(
+                                (i: any) => i.value === status
+                              ) || null
+                        }
+                        onChange={(e, value: any) => {
+                          value && setStatus(value.value);
+                        }}
+                        sx={{ mx: 0.75, width: 300 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Status
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={statusErr}
+                            onBlur={(e) => {
+                              if (subProcess > 0) {
+                                setStatusErr(false);
+                              }
+                            }}
+                            helperText={
+                              statusErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={processDropdownData}
+                        value={
+                          processDropdownData.find(
+                            (i: any) => i.value === processName
+                          ) || null
+                        }
+                        disabled={isCreatedByClient && editData.ProcessId > 0}
+                        onChange={(e, value: any) => {
+                          value && setProcessName(value.value);
+                        }}
+                        sx={{ mx: 0.75, width: 300 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Process Name
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={processNameErr}
+                            onBlur={(e) => {
+                              if (processName > 0) {
+                                setProcessNameErr(false);
+                              }
+                            }}
+                            helperText={
+                              processNameErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={subProcessDropdownData}
+                        value={
+                          subProcessDropdownData.find(
+                            (i: any) => i.value === subProcess
+                          ) || null
+                        }
+                        disabled={
+                          isCreatedByClient && editData.SubProcessId > 0
+                        }
+                        onChange={(e, value: any) => {
+                          value && setSubProcess(value.value);
+                        }}
+                        sx={{ mx: 0.75, width: 300 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Sub Process
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={subProcessErr}
+                            onBlur={(e) => {
+                              if (subProcess > 0) {
+                                setSubProcessErr(false);
+                              }
+                            }}
+                            helperText={
+                              subProcessErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <TextField
+                        label={
+                          <span>
+                            Task Name
+                            <span className="!text-defaultRed">&nbsp;*</span>
+                          </span>
+                        }
+                        fullWidth
+                        className="pt-1"
+                        value={
+                          clientTaskName?.trim().length <= 0
+                            ? ""
+                            : clientTaskName
+                        }
+                        onChange={(e) => {
+                          setClientTaskName(e.target.value);
+                          setClientTaskNameErr(false);
+                        }}
+                        onBlur={(e: any) => {
+                          if (e.target.value.trim().length > 4) {
+                            setClientTaskNameErr(false);
+                          }
+                          if (
+                            e.target.value.trim().length > 4 &&
+                            e.target.value.trim().length < 50
+                          ) {
+                            setClientTaskNameErr(false);
+                          }
+                        }}
+                        error={clientTaskNameErr}
+                        helperText={
+                          clientTaskNameErr &&
+                          clientTaskName?.trim().length > 0 &&
+                          clientTaskName?.trim().length < 4
+                            ? "Minimum 4 characters required."
+                            : clientTaskNameErr &&
+                              clientTaskName?.trim().length > 50
+                            ? "Maximum 50 characters allowed."
+                            : clientTaskNameErr
+                            ? "This is a required field."
+                            : ""
+                        }
+                        margin="normal"
+                        variant="standard"
+                        sx={{ mx: 0.75, width: 300, mt: -0.5 }}
+                      />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <TextField
+                        label="Description"
+                        fullWidth
+                        className="pt-1"
+                        value={
+                          description?.trim().length <= 0 ? "" : description
+                        }
+                        onChange={(e) => setDescription(e.target.value)}
+                        margin="normal"
+                        variant="standard"
+                        sx={{ mx: 0.75, width: 300, mt: -0.5 }}
+                      />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <FormControl
+                        variant="standard"
+                        sx={{ mx: 0.75, width: 300, mt: -1.2 }}
+                      >
+                        <InputLabel id="demo-simple-select-standard-label">
+                          Priority
+                        </InputLabel>
+                        <Select
+                          labelId="demo-simple-select-standard-label"
+                          id="demo-simple-select-standard"
+                          value={priority === 0 ? "" : priority}
+                          onChange={(e) => setPriority(e.target.value)}
+                        >
+                          <MenuItem value={1}>High</MenuItem>
+                          <MenuItem value={2}>Medium</MenuItem>
+                          <MenuItem value={3}>Low</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <TextField
+                        label="Estimated Time"
+                        disabled
+                        fullWidth
+                        value={
+                          subProcess > 0
+                            ? (estTimeData as any[])
+                                .map((i) => {
+                                  const hours = Math.floor(
+                                    i.EstimatedHour / 3600
+                                  );
+                                  const minutes = Math.floor(
+                                    (i.EstimatedHour % 3600) / 60
+                                  );
+                                  const remainingSeconds = i.EstimatedHour % 60;
+                                  const formattedHours = hours
+                                    .toString()
+                                    .padStart(2, "0");
+                                  const formattedMinutes = minutes
+                                    .toString()
+                                    .padStart(2, "0");
+                                  const formattedSeconds = remainingSeconds
+                                    .toString()
+                                    .padStart(2, "0");
+                                  return subProcess === i.Id
+                                    ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
+                                    : null;
+                                })
+                                .filter((i) => i !== null)
+                            : ""
+                        }
+                        margin="normal"
+                        variant="standard"
+                        sx={{ mx: 0.75, width: 300, mt: -0.8 }}
+                      />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <TextField
+                        label={
+                          <span>
+                            Quantity
+                            <span className="!text-defaultRed">&nbsp;*</span>
+                          </span>
+                        }
+                        onFocus={(e) =>
+                          e.target.addEventListener(
+                            "wheel",
+                            function (e) {
+                              e.preventDefault();
+                            },
+                            { passive: false }
+                          )
+                        }
+                        type="number"
+                        fullWidth
+                        value={quantity}
+                        onChange={(e) => {
+                          setQuantity(e.target.value);
+                          setQuantityErr(false);
+                        }}
+                        onBlur={(e: any) => {
+                          if (
+                            e.target.value.trim().length > 0 &&
+                            e.target.value.trim().length < 5 &&
+                            !e.target.value.trim().includes(".")
+                          ) {
+                            setQuantityErr(false);
+                          }
+                        }}
+                        error={quantityErr}
+                        helperText={
+                          quantityErr && quantity.toString().includes(".")
+                            ? "Only intiger value allowed."
+                            : quantityErr && quantity === ""
+                            ? "This is a required field."
+                            : quantityErr && quantity <= 0
+                            ? "Enter valid number."
+                            : quantityErr && quantity.length > 4
+                            ? "Maximum 4 numbers allowed."
+                            : ""
+                        }
+                        margin="normal"
+                        variant="standard"
+                        sx={{ mx: 0.75, width: 300, mt: -0.8 }}
+                      />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <TextField
+                        label="Standard Time"
+                        fullWidth
+                        value={
+                          subProcess > 0
+                            ? (estTimeData as any[])
+                                .map((i) => {
+                                  const hours = Math.floor(
+                                    (i.EstimatedHour * quantity) / 3600
+                                  );
+                                  const minutes = Math.floor(
+                                    ((i.EstimatedHour * quantity) % 3600) / 60
+                                  );
+                                  const remainingSeconds =
+                                    (i.EstimatedHour * quantity) % 60;
+                                  const formattedHours = hours
+                                    .toString()
+                                    .padStart(2, "0");
+                                  const formattedMinutes = minutes
+                                    .toString()
+                                    .padStart(2, "0");
+                                  const formattedSeconds = remainingSeconds
+                                    .toString()
+                                    .padStart(2, "0");
+                                  return subProcess === i.Id
+                                    ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
+                                    : null;
+                                })
+                                .filter((i) => i !== null)
+                            : ""
+                        }
+                        disabled
+                        margin="normal"
+                        variant="standard"
+                        sx={{
+                          mx: 0.75,
+                          maxWidth: 300,
+                          mt: typeOfWork === 3 ? -0.9 : -0.8,
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <div
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                          receiverDateErr ? "datepickerError" : ""
+                        }`}
+                      >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            label={
+                              <span>
+                                Received Date
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            onError={() => setReceiverDateErr(false)}
+                            value={
+                              receiverDate === "" ? null : dayjs(receiverDate)
+                            }
+                            shouldDisableDate={isWeekend}
+                            maxDate={dayjs(Date.now())}
+                            onChange={(newDate: any) => {
+                              setReceiverDate(newDate.$d);
+                              setReceiverDateErr(false);
+                              const selectedDate = dayjs(newDate.$d);
+                              let nextDate: any = selectedDate;
+                              if (
+                                selectedDate.day() === 4 ||
+                                selectedDate.day() === 5
+                              ) {
+                                nextDate = nextDate.add(4, "day");
+                              } else {
+                                nextDate = dayjs(newDate.$d)
+                                  .add(2, "day")
+                                  .toDate();
+                              }
+                              setDueDate(nextDate);
+                            }}
+                            slotProps={{
+                              textField: {
+                                helperText: receiverDateErr
+                                  ? "This is a required field."
+                                  : "",
+                                readOnly: true,
+                              } as Record<string, any>,
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </div>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <div
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                          dueDateErr ? "datepickerError" : ""
+                        }`}
+                      >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            label={
+                              <span>
+                                Due Date
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            onError={() => setDueDateErr(false)}
+                            value={dueDate === "" ? null : dayjs(dueDate)}
+                            disabled
+                            onChange={(newDate: any) => {
+                              setDueDate(newDate.$d);
+                              setDueDateErr(false);
+                            }}
+                            slotProps={{
+                              textField: {
+                                helperText:
+                                  dueDateErr && dueDate < receiverDate
+                                    ? "Due Date must be grater than Received Date"
+                                    : dueDateErr
+                                    ? "This is a required field."
+                                    : "",
+                                readOnly: true,
+                              } as Record<string, any>,
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </div>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <div
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
+                          receiverDateErr ? "datepickerError" : ""
+                        }`}
+                      >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            label="All Info Date"
+                            value={
+                              allInfoDate === "" ? null : dayjs(allInfoDate)
+                            }
+                            onChange={(newDate: any) =>
+                              setAllInfoDate(newDate.$d)
+                            }
+                          />
+                        </LocalizationProvider>
+                      </div>
+                    </Grid>
+                    <Grid item xs={3} className="pt-4">
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={assigneeDropdownData}
+                        disabled={!assigneeDisable}
+                        value={
+                          assigneeDropdownData.find(
+                            (i: any) => i.value === assignee
+                          ) || null
+                        }
+                        onChange={(e, value: any) => {
+                          value && setAssignee(value.value);
+                        }}
+                        sx={{ width: 300, mt: -1, mx: 0.75 }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Assignee
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={assigneeErr}
+                            onBlur={(e) => {
+                              if (assignee > 0) {
+                                setAssigneeErr(false);
+                              }
+                            }}
+                            helperText={
+                              assigneeErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      xs={3}
+                      className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                    >
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={reviewerDropdownData}
+                        value={
+                          reviewerDropdownData.find(
+                            (i: any) => i.value === reviewer
+                          ) || null
+                        }
+                        onChange={(e, value: any) => {
+                          value && setReviewer(value.value);
+                        }}
+                        sx={{
+                          width: 300,
+                          mt: typeOfWork === 3 ? 0.2 : -1,
+                          mx: 0.75,
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Reviewer
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={reviewerErr}
+                            onBlur={(e) => {
+                              if (reviewer > 0) {
+                                setReviewerErr(false);
+                              }
+                            }}
+                            helperText={
+                              reviewerErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid
+                      item
+                      xs={3}
+                      className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                    >
+                      <Autocomplete
+                        disablePortal
+                        id="combo-box-demo"
+                        options={managerDropdownData}
+                        value={
+                          managerDropdownData.find(
+                            (i: any) => i.value === manager
+                          ) || null
+                        }
+                        onChange={(e, value: any) => {
+                          value && setManager(value.value);
+                        }}
+                        sx={{
+                          width: 300,
+                          mt: typeOfWork === 3 ? 0.2 : -1,
+                          mx: 0.75,
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            label={
+                              <span>
+                                Manager
+                                <span className="text-defaultRed">&nbsp;*</span>
+                              </span>
+                            }
+                            error={managerErr}
+                            onBlur={(e) => {
+                              if (manager > 0) {
+                                setManagerErr(false);
+                              }
+                            }}
+                            helperText={
+                              managerErr ? "This is a required field." : ""
+                            }
+                          />
+                        )}
+                      />
+                    </Grid>
+                    {typeOfWork === 3 && (
+                      <>
+                        <Grid item xs={3} className="pt-4">
+                          <FormControl
+                            variant="standard"
+                            sx={{ width: 300, mt: -0.3, mx: 0.75 }}
+                            error={returnYearErr}
+                          >
+                            <InputLabel id="demo-simple-select-standard-label">
+                              Return Year
+                              <span className="text-defaultRed">&nbsp;*</span>
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              value={returnYear === 0 ? "" : returnYear}
+                              onChange={(e) => setReturnYear(e.target.value)}
+                              onBlur={(e: any) => {
+                                if (e.target.value > 0) {
+                                  setReturnYearErr(false);
                                 }
                               }}
-                              helperText={
-                                clientNameErr ? "This is a required field." : ""
-                              }
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <FormControl
-                          variant="standard"
-                          sx={{ mx: 0.75, width: 300, mt: -0.3 }}
-                          error={typeOfWorkErr}
-                          disabled={
-                            isCreatedByClient && editData.WorkTypeId > 0
-                          }
-                        >
-                          <InputLabel id="demo-simple-select-standard-label">
-                            Type of Work
-                            <span className="text-defaultRed">&nbsp;*</span>
-                          </InputLabel>
-                          <Select
-                            labelId="demo-simple-select-standard-label"
-                            id="demo-simple-select-standard"
-                            value={typeOfWork === 0 ? "" : typeOfWork}
-                            onChange={(e) => {
-                              setProjectName(0);
-                              setProjectNameErr(false);
-                              setProcessName(0);
-                              setProcessNameErr(false);
-                              setSubProcess(0);
-                              setSubProcessErr(false);
-                              setDescription("");
-                              setManager(0);
-                              setManagerErr(false);
-                              setPriority(0);
-                              setQuantity(1);
-                              setQuantityErr(false);
-                              setReceiverDate("");
-                              setReceiverDateErr(false);
-                              setDueDate("");
-                              setDueDateErr(false);
-                              assigneeDisable && setAssignee(0);
-                              assigneeDisable && setAssigneeErr(false);
-                              setReviewer(0);
-                              setReviewerErr(false);
-                              setTypeOfWork(e.target.value);
-                              setDateOfReview("");
-                              setDateOfPreperation("");
-                              setReturnYear(0);
-                              setNoOfPages(0);
-                            }}
-                            onBlur={(e: any) => {
-                              if (e.target.value > 0) {
-                                setTypeOfWorkErr(false);
-                              }
-                            }}
-                          >
-                            {typeOfWorkDropdownData.map(
-                              (i: any, index: number) => (
+                            >
+                              {Years.map((i: any, index: number) => (
                                 <MenuItem value={i.value} key={index}>
                                   {i.label}
                                 </MenuItem>
-                              )
+                              ))}
+                            </Select>
+                            {returnYearErr && (
+                              <FormHelperText>
+                                This is a required field.
+                              </FormHelperText>
                             )}
-                          </Select>
-                          {typeOfWorkErr && (
-                            <FormHelperText>
-                              This is a required field.
-                            </FormHelperText>
-                          )}
-                        </FormControl>
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <Autocomplete
-                          disablePortal
-                          id="combo-box-demo"
-                          options={projectDropdownData}
-                          value={
-                            projectDropdownData.find(
-                              (i: any) => i.value === projectName
-                            ) || null
-                          }
-                          disabled={isCreatedByClient && editData.ProjectId > 0}
-                          onChange={(e, value: any) => {
-                            value && setProjectName(value.value);
-                          }}
-                          sx={{ mx: 0.75, width: 300 }}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              variant="standard"
-                              label={
-                                <span>
-                                  Project Name
-                                  <span className="text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
-                              error={projectNameErr}
-                              onBlur={(e) => {
-                                if (projectName > 0) {
-                                  setProjectNameErr(false);
-                                }
-                              }}
-                              helperText={
-                                projectNameErr
-                                  ? "This is a required field."
-                                  : ""
-                              }
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <Autocomplete
-                          id="combo-box-demo"
-                          options={
-                            onEdit === 0
-                              ? statusDropdownData
-                              : statusDropdownDataUse
-                          }
-                          disabled={
-                            onEdit === 0 ||
-                            status === 7 ||
-                            status === 8 ||
-                            status === 9
-                          }
-                          value={
-                            onEdit === 0 && manualSwitch
-                              ? statusDropdownData.find(
-                                  (i: any) => i.value === status
-                                ) || null
-                              : onEdit === 0
-                              ? statusDropdownData.find(
-                                  (i: any) => i.value === status
-                                ) || null
-                              : statusDropdownDataUse.find(
-                                  (i: any) => i.value === status
-                                ) || null
-                          }
-                          onChange={(e, value: any) => {
-                            value && setStatus(value.value);
-                          }}
-                          sx={{ mx: 0.75, width: 300 }}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              variant="standard"
-                              label={
-                                <span>
-                                  Status
-                                  <span className="text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
-                              error={statusErr}
-                              onBlur={(e) => {
-                                if (subProcess > 0) {
-                                  setStatusErr(false);
-                                }
-                              }}
-                              helperText={
-                                statusErr ? "This is a required field." : ""
-                              }
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <Autocomplete
-                          disablePortal
-                          id="combo-box-demo"
-                          options={processDropdownData}
-                          value={
-                            processDropdownData.find(
-                              (i: any) => i.value === processName
-                            ) || null
-                          }
-                          disabled={isCreatedByClient && editData.ProcessId > 0}
-                          onChange={(e, value: any) => {
-                            value && setProcessName(value.value);
-                          }}
-                          sx={{ mx: 0.75, width: 300 }}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              variant="standard"
-                              label={
-                                <span>
-                                  Process Name
-                                  <span className="text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
-                              error={processNameErr}
-                              onBlur={(e) => {
-                                if (processName > 0) {
-                                  setProcessNameErr(false);
-                                }
-                              }}
-                              helperText={
-                                processNameErr
-                                  ? "This is a required field."
-                                  : ""
-                              }
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <Autocomplete
-                          disablePortal
-                          id="combo-box-demo"
-                          options={subProcessDropdownData}
-                          value={
-                            subProcessDropdownData.find(
-                              (i: any) => i.value === subProcess
-                            ) || null
-                          }
-                          disabled={
-                            isCreatedByClient && editData.SubProcessId > 0
-                          }
-                          onChange={(e, value: any) => {
-                            value && setSubProcess(value.value);
-                          }}
-                          sx={{ mx: 0.75, width: 300 }}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              variant="standard"
-                              label={
-                                <span>
-                                  Sub Process
-                                  <span className="text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
-                              error={subProcessErr}
-                              onBlur={(e) => {
-                                if (subProcess > 0) {
-                                  setSubProcessErr(false);
-                                }
-                              }}
-                              helperText={
-                                subProcessErr ? "This is a required field." : ""
-                              }
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <TextField
-                          label={
-                            <span>
-                              Task Name
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          }
-                          fullWidth
-                          className="pt-1"
-                          value={
-                            clientTaskName?.trim().length <= 0
-                              ? ""
-                              : clientTaskName
-                          }
-                          onChange={(e) => {
-                            setClientTaskName(e.target.value);
-                            setClientTaskNameErr(false);
-                          }}
-                          onBlur={(e: any) => {
-                            if (e.target.value.trim().length > 4) {
-                              setClientTaskNameErr(false);
-                            }
-                            if (
-                              e.target.value.trim().length > 4 &&
-                              e.target.value.trim().length < 50
-                            ) {
-                              setClientTaskNameErr(false);
-                            }
-                          }}
-                          error={clientTaskNameErr}
-                          helperText={
-                            clientTaskNameErr &&
-                            clientTaskName?.trim().length > 0 &&
-                            clientTaskName?.trim().length < 4
-                              ? "Minimum 4 characters required."
-                              : clientTaskNameErr &&
-                                clientTaskName?.trim().length > 50
-                              ? "Maximum 50 characters allowed."
-                              : clientTaskNameErr
-                              ? "This is a required field."
-                              : ""
-                          }
-                          margin="normal"
-                          variant="standard"
-                          sx={{ mx: 0.75, width: 300, mt: -0.5 }}
-                        />
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <TextField
-                          label="Description"
-                          fullWidth
-                          className="pt-1"
-                          value={
-                            description?.trim().length <= 0 ? "" : description
-                          }
-                          onChange={(e) => setDescription(e.target.value)}
-                          margin="normal"
-                          variant="standard"
-                          sx={{ mx: 0.75, width: 300, mt: -0.5 }}
-                        />
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <FormControl
-                          variant="standard"
-                          sx={{ mx: 0.75, width: 300, mt: -1.2 }}
-                        >
-                          <InputLabel id="demo-simple-select-standard-label">
-                            Priority
-                          </InputLabel>
-                          <Select
-                            labelId="demo-simple-select-standard-label"
-                            id="demo-simple-select-standard"
-                            value={priority === 0 ? "" : priority}
-                            onChange={(e) => setPriority(e.target.value)}
+                          </FormControl>
+                        </Grid>
+                        <Grid item xs={3} className="pt-4">
+                          <TextField
+                            label="No of Pages"
+                            type="number"
+                            fullWidth
+                            value={noOfPages === 0 ? "" : noOfPages}
+                            onChange={(e) => setNoOfPages(e.target.value)}
+                            margin="normal"
+                            variant="standard"
+                            sx={{ width: 300, mt: 0, mx: 0.75 }}
+                          />
+                        </Grid>
+                        <Grid item xs={3} className="pt-4">
+                          <FormControl
+                            variant="standard"
+                            sx={{ width: 300, mt: -0.8, mx: 0.75 }}
+                            error={checklistWorkpaperErr}
                           >
-                            <MenuItem value={1}>High</MenuItem>
-                            <MenuItem value={2}>Medium</MenuItem>
-                            <MenuItem value={3}>Low</MenuItem>
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <TextField
-                          label="Estimated Time"
-                          disabled
-                          fullWidth
-                          value={
-                            subProcess > 0
-                              ? (estTimeData as any[])
-                                  .map((i) => {
-                                    const hours = Math.floor(
-                                      i.EstimatedHour / 3600
-                                    );
-                                    const minutes = Math.floor(
-                                      (i.EstimatedHour % 3600) / 60
-                                    );
-                                    const remainingSeconds =
-                                      i.EstimatedHour % 60;
-                                    const formattedHours = hours
-                                      .toString()
-                                      .padStart(2, "0");
-                                    const formattedMinutes = minutes
-                                      .toString()
-                                      .padStart(2, "0");
-                                    const formattedSeconds = remainingSeconds
-                                      .toString()
-                                      .padStart(2, "0");
-                                    return subProcess === i.Id
-                                      ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
-                                      : null;
-                                  })
-                                  .filter((i) => i !== null)
-                              : ""
-                          }
-                          onBlur={(e: any) => {
-                            if (e.target.value.trim().length > 0) {
-                              setEstTimeErr(false);
-                            }
-                          }}
-                          margin="normal"
-                          variant="standard"
-                          sx={{ mx: 0.75, width: 300, mt: -0.8 }}
-                        />
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <TextField
-                          label={
-                            <span>
-                              Quantity
-                              <span className="!text-defaultRed">&nbsp;*</span>
-                            </span>
-                          }
-                          onFocus={(e) =>
-                            e.target.addEventListener(
-                              "wheel",
-                              function (e) {
-                                e.preventDefault();
-                              },
-                              { passive: false }
-                            )
-                          }
-                          type="number"
-                          fullWidth
-                          value={quantity}
-                          onChange={(e) => {
-                            setQuantity(e.target.value);
-                            setQuantityErr(false);
-                          }}
-                          onBlur={(e: any) => {
-                            if (
-                              e.target.value.trim().length > 0 &&
-                              e.target.value.trim().length < 5 &&
-                              !e.target.value.trim().includes(".")
-                            ) {
-                              setQuantityErr(false);
-                            }
-                          }}
-                          error={quantityErr}
-                          helperText={
-                            quantityErr && quantity.toString().includes(".")
-                              ? "Only intiger value allowed."
-                              : quantityErr && quantity === ""
-                              ? "This is a required field."
-                              : quantityErr && quantity <= 0
-                              ? "Enter valid number."
-                              : quantityErr && quantity.length > 4
-                              ? "Maximum 4 numbers allowed."
-                              : ""
-                          }
-                          margin="normal"
-                          variant="standard"
-                          sx={{ mx: 0.75, width: 300, mt: -0.8 }}
-                        />
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <TextField
-                          label="Standard Time"
-                          fullWidth
-                          value={
-                            subProcess > 0
-                              ? (estTimeData as any[])
-                                  .map((i) => {
-                                    const hours = Math.floor(
-                                      (i.EstimatedHour * quantity) / 3600
-                                    );
-                                    const minutes = Math.floor(
-                                      ((i.EstimatedHour * quantity) % 3600) / 60
-                                    );
-                                    const remainingSeconds =
-                                      (i.EstimatedHour * quantity) % 60;
-                                    const formattedHours = hours
-                                      .toString()
-                                      .padStart(2, "0");
-                                    const formattedMinutes = minutes
-                                      .toString()
-                                      .padStart(2, "0");
-                                    const formattedSeconds = remainingSeconds
-                                      .toString()
-                                      .padStart(2, "0");
-                                    return subProcess === i.Id
-                                      ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
-                                      : null;
-                                  })
-                                  .filter((i) => i !== null)
-                              : ""
-                          }
-                          disabled
-                          margin="normal"
-                          variant="standard"
-                          sx={{
-                            mx: 0.75,
-                            maxWidth: 300,
-                            mt: typeOfWork === 3 ? -0.9 : -0.8,
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <div
-                          className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                            receiverDateErr ? "datepickerError" : ""
-                          }`}
-                        >
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                              label={
-                                <span>
-                                  Received Date
-                                  <span className="!text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
-                              onError={() => setReceiverDateErr(false)}
+                            <InputLabel id="demo-simple-select-standard-label">
+                              Checklist/Workpaper
+                              <span className="text-defaultRed">&nbsp;*</span>
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
                               value={
-                                receiverDate === "" ? null : dayjs(receiverDate)
+                                checklistWorkpaper === 0
+                                  ? ""
+                                  : checklistWorkpaper
                               }
-                              shouldDisableDate={isWeekend}
-                              maxDate={dayjs(Date.now())}
-                              onChange={(newDate: any) => {
-                                setReceiverDate(newDate.$d);
-                                setReceiverDateErr(false);
-                                const selectedDate = dayjs(newDate.$d);
-                                let nextDate: any = selectedDate;
-                                if (
-                                  selectedDate.day() === 4 ||
-                                  selectedDate.day() === 5
-                                ) {
-                                  nextDate = nextDate.add(4, "day");
-                                } else {
-                                  nextDate = dayjs(newDate.$d)
-                                    .add(2, "day")
-                                    .toDate();
-                                }
-                                setDueDate(nextDate);
-                              }}
-                              slotProps={{
-                                textField: {
-                                  helperText: receiverDateErr
-                                    ? "This is a required field."
-                                    : "",
-                                  readOnly: true,
-                                } as Record<string, any>,
-                              }}
-                            />
-                          </LocalizationProvider>
-                        </div>
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <div
-                          className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                            dueDateErr ? "datepickerError" : ""
-                          }`}
-                        >
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                              label={
-                                <span>
-                                  Due Date
-                                  <span className="!text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
-                              onError={() => setDueDateErr(false)}
-                              value={dueDate === "" ? null : dayjs(dueDate)}
-                              disabled
-                              onChange={(newDate: any) => {
-                                setDueDate(newDate.$d);
-                                setDueDateErr(false);
-                              }}
-                              slotProps={{
-                                textField: {
-                                  helperText:
-                                    dueDateErr && dueDate < receiverDate
-                                      ? "Due Date must be grater than Received Date"
-                                      : dueDateErr
-                                      ? "This is a required field."
-                                      : "",
-                                  readOnly: true,
-                                } as Record<string, any>,
-                              }}
-                            />
-                          </LocalizationProvider>
-                        </div>
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <div
-                          className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                            receiverDateErr ? "datepickerError" : ""
-                          }`}
-                        >
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DatePicker
-                              label="All Info Date"
-                              value={
-                                allInfoDate === "" ? null : dayjs(allInfoDate)
-                              }
-                              onChange={(newDate: any) =>
-                                setAllInfoDate(newDate.$d)
-                              }
-                            />
-                          </LocalizationProvider>
-                        </div>
-                      </Grid>
-                      <Grid item xs={3} className="pt-4">
-                        <Autocomplete
-                          disablePortal
-                          id="combo-box-demo"
-                          options={assigneeDropdownData}
-                          disabled={!assigneeDisable}
-                          value={
-                            assigneeDropdownData.find(
-                              (i: any) => i.value === assignee
-                            ) || null
-                          }
-                          onChange={(e, value: any) => {
-                            value && setAssignee(value.value);
-                          }}
-                          sx={{ width: 300, mt: -1, mx: 0.75 }}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              variant="standard"
-                              label={
-                                <span>
-                                  Assignee
-                                  <span className="text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
-                              error={assigneeErr}
-                              onBlur={(e) => {
-                                if (assignee > 0) {
-                                  setAssigneeErr(false);
-                                }
-                              }}
-                              helperText={
-                                assigneeErr ? "This is a required field." : ""
-                              }
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid
-                        item
-                        xs={3}
-                        className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
-                      >
-                        <Autocomplete
-                          disablePortal
-                          id="combo-box-demo"
-                          options={reviewerDropdownData}
-                          value={
-                            reviewerDropdownData.find(
-                              (i: any) => i.value === reviewer
-                            ) || null
-                          }
-                          onChange={(e, value: any) => {
-                            value && setReviewer(value.value);
-                          }}
-                          sx={{
-                            width: 300,
-                            mt: typeOfWork === 3 ? 0.2 : -1,
-                            mx: 0.75,
-                          }}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              variant="standard"
-                              label={
-                                <span>
-                                  Reviewer
-                                  <span className="text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
-                              error={reviewerErr}
-                              onBlur={(e) => {
-                                if (reviewer > 0) {
-                                  setReviewerErr(false);
-                                }
-                              }}
-                              helperText={
-                                reviewerErr ? "This is a required field." : ""
-                              }
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid
-                        item
-                        xs={3}
-                        className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
-                      >
-                        <Autocomplete
-                          disablePortal
-                          id="combo-box-demo"
-                          options={managerDropdownData}
-                          value={
-                            managerDropdownData.find(
-                              (i: any) => i.value === manager
-                            ) || null
-                          }
-                          onChange={(e, value: any) => {
-                            value && setManager(value.value);
-                          }}
-                          sx={{
-                            width: 300,
-                            mt: typeOfWork === 3 ? 0.2 : -1,
-                            mx: 0.75,
-                          }}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              variant="standard"
-                              label={
-                                <span>
-                                  Manager
-                                  <span className="text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
-                              error={managerErr}
-                              onBlur={(e) => {
-                                if (manager > 0) {
-                                  setManagerErr(false);
-                                }
-                              }}
-                              helperText={
-                                managerErr ? "This is a required field." : ""
-                              }
-                            />
-                          )}
-                        />
-                      </Grid>
-                      {typeOfWork === 3 && (
-                        <>
-                          <Grid item xs={3} className="pt-4">
-                            <FormControl
-                              variant="standard"
-                              sx={{ width: 300, mt: -0.3, mx: 0.75 }}
-                              error={returnYearErr}
-                            >
-                              <InputLabel id="demo-simple-select-standard-label">
-                                Return Year
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                value={returnYear === 0 ? "" : returnYear}
-                                onChange={(e) => setReturnYear(e.target.value)}
-                                onBlur={(e: any) => {
-                                  if (e.target.value > 0) {
-                                    setReturnYearErr(false);
-                                  }
-                                }}
-                              >
-                                {Years.map((i: any, index: number) => (
-                                  <MenuItem value={i.value} key={index}>
-                                    {i.label}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                              {returnYearErr && (
-                                <FormHelperText>
-                                  This is a required field.
-                                </FormHelperText>
-                              )}
-                            </FormControl>
-                          </Grid>
-                          <Grid item xs={3} className="pt-4">
-                            <TextField
-                              label="No of Pages"
-                              type="number"
-                              fullWidth
-                              value={noOfPages === 0 ? "" : noOfPages}
-                              onChange={(e) => setNoOfPages(e.target.value)}
-                              margin="normal"
-                              variant="standard"
-                              sx={{ width: 300, mt: 0, mx: 0.75 }}
-                            />
-                          </Grid>
-                          <Grid item xs={3} className="pt-4">
-                            <FormControl
-                              variant="standard"
-                              sx={{ width: 300, mt: -0.8, mx: 0.75 }}
-                              error={checklistWorkpaperErr}
-                            >
-                              <InputLabel id="demo-simple-select-standard-label">
-                                Checklist/Workpaper
-                                <span className="text-defaultRed">&nbsp;*</span>
-                              </InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                value={
-                                  checklistWorkpaper === 0
-                                    ? ""
-                                    : checklistWorkpaper
-                                }
-                                onChange={(e) =>
-                                  setChecklistWorkpaper(e.target.value)
-                                }
-                                onBlur={(e: any) => {
-                                  if (e.target.value > 0) {
-                                    setChecklistWorkpaperErr(false);
-                                  }
-                                }}
-                              >
-                                <MenuItem value={1}>Yes</MenuItem>
-                                <MenuItem value={2}>No</MenuItem>
-                              </Select>
-                              {checklistWorkpaperErr && (
-                                <FormHelperText>
-                                  This is a required field.
-                                </FormHelperText>
-                              )}
-                            </FormControl>
-                          </Grid>
-                        </>
-                      )}
-                      {onEdit > 0 && (
-                        <>
-                          <Grid
-                            item
-                            xs={3}
-                            className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
-                          >
-                            <TextField
-                              label="Date of Preperation"
-                              type={inputTypePreperation}
-                              disabled
-                              fullWidth
-                              value={dateOfPreperation}
                               onChange={(e) =>
-                                setDateOfPreperation(e.target.value)
+                                setChecklistWorkpaper(e.target.value)
                               }
-                              onFocus={() => setInputTypePreperation("date")}
                               onBlur={(e: any) => {
-                                setInputTypePreperation("text");
+                                if (e.target.value > 0) {
+                                  setChecklistWorkpaperErr(false);
+                                }
                               }}
-                              margin="normal"
-                              variant="standard"
-                              sx={{
-                                width: 300,
-                                mt: typeOfWork === 3 ? -0.4 : -1,
-                                mx: 0.75,
-                              }}
-                            />
-                          </Grid>
-                          <Grid
-                            item
-                            xs={3}
-                            className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
-                          >
-                            <TextField
-                              label="Date of Review"
-                              disabled
-                              type={inputTypeReview}
-                              fullWidth
-                              value={dateOfReview}
-                              onChange={(e) => setDateOfReview(e.target.value)}
-                              onFocus={() => setInputTypeReview("date")}
-                              onBlur={(e: any) => {
-                                setInputTypeReview("text");
-                              }}
-                              margin="normal"
-                              variant="standard"
-                              sx={{
-                                width: 300,
-                                mt: typeOfWork === 3 ? -0.4 : -1,
-                                mx: 0.75,
-                              }}
-                            />
-                          </Grid>
-                        </>
-                      )}
-                    </Grid>
-                  </>
+                            >
+                              <MenuItem value={1}>Yes</MenuItem>
+                              <MenuItem value={2}>No</MenuItem>
+                            </Select>
+                            {checklistWorkpaperErr && (
+                              <FormHelperText>
+                                This is a required field.
+                              </FormHelperText>
+                            )}
+                          </FormControl>
+                        </Grid>
+                      </>
+                    )}
+                    {onEdit > 0 && (
+                      <>
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                        >
+                          <TextField
+                            label="Date of Preperation"
+                            type={inputTypePreperation}
+                            disabled
+                            fullWidth
+                            value={dateOfPreperation}
+                            onChange={(e) =>
+                              setDateOfPreperation(e.target.value)
+                            }
+                            onFocus={() => setInputTypePreperation("date")}
+                            onBlur={(e: any) => {
+                              setInputTypePreperation("text");
+                            }}
+                            margin="normal"
+                            variant="standard"
+                            sx={{
+                              width: 300,
+                              mt: typeOfWork === 3 ? -0.4 : -1,
+                              mx: 0.75,
+                            }}
+                          />
+                        </Grid>
+                        <Grid
+                          item
+                          xs={3}
+                          className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                        >
+                          <TextField
+                            label="Date of Review"
+                            disabled
+                            type={inputTypeReview}
+                            fullWidth
+                            value={dateOfReview}
+                            onChange={(e) => setDateOfReview(e.target.value)}
+                            onFocus={() => setInputTypeReview("date")}
+                            onBlur={(e: any) => {
+                              setInputTypeReview("text");
+                            }}
+                            margin="normal"
+                            variant="standard"
+                            sx={{
+                              width: 300,
+                              mt: typeOfWork === 3 ? -0.4 : -1,
+                              mx: 0.75,
+                            }}
+                          />
+                        </Grid>
+                      </>
+                    )}
+                  </Grid>
                 )}
               </div>
             )}
@@ -5176,8 +5428,8 @@ const EditDrawer = ({
                   </div>
                   {reviewerErrDrawer && (
                     <div className="mt-3 pl-6">
-                      {errorLogData.length > 0 &&
-                        errorLogData.map((i: any, index: number) => (
+                      {errorLogFields.length > 0 &&
+                        errorLogFields.map((i: any, index: number) => (
                           <>
                             <div className="ml-1 mt-8">
                               <span className="font-bold">Correction By</span>
@@ -5194,6 +5446,7 @@ const EditDrawer = ({
                               <FormControl
                                 variant="standard"
                                 sx={{ mx: 0.75, minWidth: 230 }}
+                                error={errorTypeErr[index]}
                               >
                                 <InputLabel id="demo-simple-select-standard-label">
                                   Error Type
@@ -5210,10 +5463,16 @@ const EditDrawer = ({
                                   <MenuItem value={1}>Internal</MenuItem>
                                   <MenuItem value={2}>External</MenuItem>
                                 </Select>
+                                {errorTypeErr[index] && (
+                                  <FormHelperText>
+                                    This is a required field.
+                                  </FormHelperText>
+                                )}
                               </FormControl>
                               <FormControl
                                 variant="standard"
                                 sx={{ mx: 0.75, minWidth: 230 }}
+                                error={rootCauseErr[index]}
                               >
                                 <InputLabel id="demo-simple-select-standard-label">
                                   Root Cause
@@ -5225,15 +5484,33 @@ const EditDrawer = ({
                                   labelId="demo-simple-select-standard-label"
                                   id="demo-simple-select-standard"
                                   value={i.RootCause}
-                                  readOnly
+                                  onChange={(e) =>
+                                    handleRootCauseChange(e, index)
+                                  }
+                                  onBlur={(e: any) => {
+                                    if (e.target.value > 0) {
+                                      const newRootCauseErrors = [
+                                        ...rootCauseErr,
+                                      ];
+                                      newRootCauseErrors[index] = false;
+                                      setRootCauseErr(newRootCauseErrors);
+                                    }
+                                  }}
+                                  readOnly={i.RootCause > 0}
                                 >
                                   <MenuItem value={1}>Procedural</MenuItem>
                                   <MenuItem value={2}>DataEntry</MenuItem>
                                 </Select>
+                                {rootCauseErr[index] && (
+                                  <FormHelperText>
+                                    This is a required field.
+                                  </FormHelperText>
+                                )}
                               </FormControl>
                               <FormControl
                                 variant="standard"
                                 sx={{ mx: 0.75, minWidth: 230 }}
+                                error={natureOfErr[index]}
                               >
                                 <InputLabel id="demo-simple-select-standard-label">
                                   Nature of Error
@@ -5245,7 +5522,19 @@ const EditDrawer = ({
                                   labelId="demo-simple-select-standard-label"
                                   id="demo-simple-select-standard"
                                   value={i.NatureOfError}
-                                  readOnly
+                                  onChange={(e) =>
+                                    handleNatureOfErrorChange(e, index)
+                                  }
+                                  onBlur={(e: any) => {
+                                    if (e.target.value > 0) {
+                                      const newNatureOfErrorErrors = [
+                                        ...natureOfErr,
+                                      ];
+                                      newNatureOfErrorErrors[index] = false;
+                                      setNatureOfErr(newNatureOfErrorErrors);
+                                    }
+                                  }}
+                                  readOnly={i.NatureOfError > 0}
                                 >
                                   <MenuItem value={1}>
                                     Memo/Decriprion Not Updated
@@ -5273,10 +5562,16 @@ const EditDrawer = ({
                                     Review Check List Not Prepared
                                   </MenuItem>
                                 </Select>
+                                {natureOfErr[index] && (
+                                  <FormHelperText>
+                                    This is a required field.
+                                  </FormHelperText>
+                                )}
                               </FormControl>
                               <FormControl
                                 variant="standard"
                                 sx={{ mx: 0.75, minWidth: 230 }}
+                                error={errorLogPriorityErr[index]}
                               >
                                 <InputLabel id="demo-simple-select-standard-label">
                                   Priority
@@ -5288,12 +5583,29 @@ const EditDrawer = ({
                                   labelId="demo-simple-select-standard-label"
                                   id="demo-simple-select-standard"
                                   value={i.Priority}
-                                  readOnly
+                                  onChange={(e) =>
+                                    handlePriorityChange(e, index)
+                                  }
+                                  onBlur={(e: any) => {
+                                    if (e.target.value > 0) {
+                                      const newPriorityErrors = [
+                                        ...errorLogPriorityErr,
+                                      ];
+                                      newPriorityErrors[index] = false;
+                                      setErrorLogPriorityErr(newPriorityErrors);
+                                    }
+                                  }}
+                                  readOnly={i.Priority > 0}
                                 >
                                   <MenuItem value={1}>High</MenuItem>
                                   <MenuItem value={2}>Medium</MenuItem>
                                   <MenuItem value={3}>Low</MenuItem>
                                 </Select>
+                                {errorLogPriorityErr[index] && (
+                                  <FormHelperText>
+                                    This is a required field.
+                                  </FormHelperText>
+                                )}
                               </FormControl>
                               <TextField
                                 label={
@@ -5307,40 +5619,58 @@ const EditDrawer = ({
                                 type="number"
                                 fullWidth
                                 value={i.ErrorCount}
+                                onChange={(e) =>
+                                  handleErrorCountChange(e, index)
+                                }
+                                onBlur={(e: any) => {
+                                  if (e.target.value.length > 0) {
+                                    const newErrorCountErrors = [
+                                      ...errorCountErr,
+                                    ];
+                                    newErrorCountErrors[index] = false;
+                                    setErrorCountErr(newErrorCountErrors);
+                                  }
+                                }}
+                                error={errorCountErr[index]}
+                                helperText={
+                                  errorCountErr[index] && i.ErrorCount <= 0
+                                    ? "Add valid number."
+                                    : errorCountErr[index] &&
+                                      i.ErrorCount.toString().length > 4
+                                    ? "Maximum 4 numbers allowed."
+                                    : errorCountErr[index]
+                                    ? "This is a required field."
+                                    : ""
+                                }
                                 margin="normal"
                                 variant="standard"
                                 sx={{ mx: 0.75, maxWidth: 180, mt: 0.4 }}
-                                InputProps={{ readOnly: true }}
-                                inputProps={{ readOnly: true }}
                               />
                               <div className="flex items-center justify-start ml-2">
                                 <Autocomplete
                                   multiple
                                   limitTags={2}
                                   id="checkboxes-tags-demo"
-                                  readOnly
+                                  readOnly={
+                                    cCDropdownData.filter((obj: any) =>
+                                      i.CC.includes(obj.value)
+                                    ).length > 0
+                                  }
                                   options={
                                     Array.isArray(cCDropdownData)
                                       ? cCDropdownData
                                       : []
                                   }
-                                  value={cCDropdownData.filter((obj: any) =>
-                                    i.CC.includes(obj.value)
-                                  )}
+                                  value={i.CC}
+                                  onChange={(e, newValue) =>
+                                    handleCCChange(newValue, index)
+                                  }
                                   getOptionLabel={(option) => option.label}
                                   disableCloseOnSelect
-                                  onChange={handleMultiSelect}
                                   style={{ width: 500 }}
                                   renderInput={(params) => (
                                     <TextField
-                                      label={
-                                        <span>
-                                          cc
-                                          <span className="text-defaultRed">
-                                            &nbsp;*
-                                          </span>
-                                        </span>
-                                      }
+                                      label="cc"
                                       {...params}
                                       variant="standard"
                                     />

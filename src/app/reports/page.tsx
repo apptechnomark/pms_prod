@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import axios from "axios";
-import { Button } from "@mui/material";
+import { Box, Button, CircularProgress } from "@mui/material";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
@@ -16,6 +16,7 @@ import LineIcon from "@/assets/icons/reports/LineIcon";
 // import MoreIcon from "@/assets/icons/reports/MoreIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import ExportIcon from "@/assets/icons/ExportIcon";
+import Loading from "@/assets/icons/reports/Loading";
 
 // Tabs components
 import Client from "@/components/reports/tables/Client";
@@ -64,6 +65,7 @@ const page = () => {
   const [filteredData, setFilteredData] = useState<any>(null);
   const [hasBTC, setHasBTC] = useState<boolean>(false);
   const [saveBTCData, setSaveBTCData] = useState<boolean>(false);
+  const [isExporting, setIsExporting] = useState<boolean>(false);
   const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
     (() => void) | null
   >(null);
@@ -121,6 +123,7 @@ const page = () => {
   };
 
   const handleExport = async () => {
+    setIsExporting(true);
     const token = localStorage.getItem("token");
     const Org_Token = localStorage.getItem("Org_Token");
 
@@ -157,6 +160,8 @@ const page = () => {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+
+      setIsExporting(false);
     } else {
       toast.error("Failed to download, please try again later.");
     }
@@ -217,7 +222,9 @@ const page = () => {
               </span>
             )}
             <span
-              className={`cursor-pointer ${
+              className={`${
+                isExporting ? "cursor-default" : "cursor-pointer"
+              } ${
                 getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
                 filteredData === null
                   ? "opacity-50 pointer-events-none"
@@ -230,7 +237,7 @@ const page = () => {
                   : handleExport
               }
             >
-              <ExportIcon />
+              {isExporting ? <Loading /> : <ExportIcon />}
             </span>
 
             {activeTab === 7 && (

@@ -7,16 +7,15 @@ export async function POST(req: Request, res: NextApiResponse)  {
   if (req.method === "POST") {
     try {
       const { fileName } = await req.json();
-console.log("object: ",fileName)
       // Azure Blob Storage Configuration
       const storageAccount = "pmsdevstorage";
       const containerName = "dev/attachment";
-      const accessKey =
-        "DGOxxmdRHZjwRx7b9B9RAAepyapHAt5qfaXola10qna06K/HExgT1K0FAt2neC8eObJdubeA+QO/+ASteuBecw==";
-      const connectionString = `DefaultEndpointsProtocol=https;AccountName=${storageAccount};AccountKey=${accessKey};EndpointSuffix=core.windows.net`;
+      const sasToken =
+        "sp=racwdl&st=2023-11-09T10:49:18Z&se=2023-12-30T18:49:18Z&sv=2022-11-02&sr=c&sig=%2FZvhReFGg0jpW6oX5BLY%2FzmiL86ocutLIbYmZkDsjH0%3D";
 
-      const blobServiceClient =
-        BlobServiceClient.fromConnectionString(connectionString);
+      const blobServiceClient = new BlobServiceClient(
+        `https://${storageAccount}.blob.core.windows.net?${sasToken}`
+      );
       const containerClient =
         blobServiceClient.getContainerClient(containerName);
       const blockBlobClient :BlockBlobClient = containerClient.getBlockBlobClient(fileName);

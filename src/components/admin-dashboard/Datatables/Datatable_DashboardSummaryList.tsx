@@ -244,7 +244,7 @@ const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
           <span className="font-bold">Start Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -269,7 +269,7 @@ const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
           <span className="font-bold">Due Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 

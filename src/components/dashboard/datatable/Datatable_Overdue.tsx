@@ -211,7 +211,9 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
           <span className="font-extrabold uppercase">Month Close</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return <div className="ml-2">{value === null ? "-" : value}</div>;
+          return (
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
+          );
         },
       },
     },
@@ -224,7 +226,7 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
           <span className="font-extrabold">Start Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -249,7 +251,7 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
           <span className="font-extrabold">Due Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -276,7 +278,8 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
           return (
             <div className="ml-2">
-              {value}&nbsp;{value > 1 ? "days" : "day"}
+              {value === null || "" ? "-" : value}&nbsp;
+              {value > 1 ? "days" : "day"}
             </div>
           );
         },

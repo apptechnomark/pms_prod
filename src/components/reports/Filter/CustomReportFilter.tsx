@@ -1,5 +1,5 @@
 import axios from "axios";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
@@ -58,7 +58,6 @@ const getYears = () => {
 
 const getFormattedDate = (newValue: any) => {
   if (newValue !== "") {
-    console.log("", newValue);
     return `${newValue.$y}-${
       (newValue.$M + 1).toString().length > 1
         ? newValue.$M + 1
@@ -534,9 +533,6 @@ const CustomReportFilter = ({
       console.error(error);
     }
   };
-
-  console.log(receivedDate, dueDate, allInfoDate);
-  console.log("date", getFormattedDate(receivedDate));
 
   return (
     <>

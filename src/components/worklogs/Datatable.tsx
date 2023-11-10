@@ -142,6 +142,7 @@ const Datatable = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
+  const [id, setId] = useState(0);
 
   // functions for handling pagination
   const handleChangePage = (
@@ -289,6 +290,13 @@ const Datatable = ({
         : [];
 
     setSelectedRowStatusId(selectedWorkItemStatusIds);
+
+    // adding selected workItem Id
+    const Id =
+      selectedData.length > 0
+        ? selectedData[selectedData.length - 1].SubmissionId
+        : null;
+    setId(Id);
 
     // adding all selected row's Client Ids in an array
     const selectedWorkItemClientIds =
@@ -1351,7 +1359,7 @@ const Datatable = ({
                   }
                 ></div>
               )}
-              {value}
+              {value === null || "" ? "-" : value}
             </div>
           );
         },
@@ -1370,7 +1378,7 @@ const Datatable = ({
           const IsRecurring = tableMeta.rowData[20];
           return (
             <div className="flex items-center gap-2">
-              {value === null ? "-" : value}
+              {value === null || "" ? "-" : value}
               {IsRecurring && (
                 <span className="text-secondary font-semibold">
                   <svg
@@ -1419,7 +1427,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Project</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -1433,12 +1441,16 @@ const Datatable = ({
           <span className="font-bold text-sm">Process</span>
         ),
         customBodyRender: (value: any) => {
-          const shortProcessName = value.split(" ");
+          const shortProcessName = value && value.split(" ");
           return (
             <div className="font-semibold">
-              <ColorToolTip title={value} placement="top">
-                {shortProcessName[0]}
-              </ColorToolTip>
+              {value === null || "" ? (
+                "-"
+              ) : (
+                <ColorToolTip title={value} placement="top">
+                  {shortProcessName[0]}
+                </ColorToolTip>
+              )}
             </div>
           );
         },
@@ -1454,7 +1466,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Sub Process</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -1476,7 +1488,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Timer</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const estimatedTime = tableMeta.rowData[15].split(":");
+          const estimatedTime = tableMeta.rowData[12].split(":");
           const estimatedTimeInSeconds =
             parseInt(estimatedTime[0]) * 60 * 60 +
             parseInt(estimatedTime[1]) * 60 +
@@ -1641,7 +1653,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Assigned To</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -1680,7 +1692,7 @@ const Datatable = ({
                   }`}
                 ></div>
               </div>
-              {value}
+              {value === null || "" ? "-" : value}
             </div>
           );
         },
@@ -1714,7 +1726,7 @@ const Datatable = ({
                   style={{ backgroundColor: statusColorCode }}
                 ></div>
               </div>
-              {value}
+              {value === null || "" ? "-" : value}
             </div>
           );
         },
@@ -1731,7 +1743,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Est. Time</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -1745,7 +1757,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Qty.</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -1759,7 +1771,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Actual Time</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -1773,7 +1785,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Total Est. Time</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -1787,7 +1799,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Start Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -1813,7 +1825,7 @@ const Datatable = ({
           <span className="font-bold text-sm">End Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -1843,7 +1855,7 @@ const Datatable = ({
             <div
             // className="ml-5 lg:ml-0"
             >
-              {value === null ? "-" : value}
+              {value === null || "" ? "-" : value}
             </div>
           );
         },

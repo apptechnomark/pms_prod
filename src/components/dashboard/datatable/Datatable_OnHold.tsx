@@ -173,7 +173,9 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
           <span className="font-extrabold uppercase">Project Name</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return <div className="ml-2">{value}</div>;
+          return (
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
+          );
         },
       },
     },
@@ -203,7 +205,7 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
           <span className="font-extrabold">Start Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -228,7 +230,7 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
           <span className="font-extrabold">Due Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -255,7 +257,8 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
           return (
             <div className="ml-2">
-              {value}&nbsp;{value > 1 ? "days" : "day"}
+              {value === null || "" ? "-" : value}&nbsp;
+              {value > 1 ? "days" : "day"}
             </div>
           );
         },

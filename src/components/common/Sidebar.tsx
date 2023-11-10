@@ -149,7 +149,7 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
           //   icon: <WorkloadIcon />,
           // },
           hasPermissionWorklog("", "View", "WorkLogs") &&
-            (hasPermissionWorklog("", "ClientManager", "WorkLogs") ||
+            (hasPermissionWorklog("", "TaskManager", "WorkLogs") ||
               hasPermissionWorklog("", "ManageAssignee", "WorkLogs")) &&
             !isClient && {
               name: "Work Logs",

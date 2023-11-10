@@ -35,6 +35,8 @@ import PauseButton from "@/assets/icons/worklogs/PauseButton";
 import StopButton from "@/assets/icons/worklogs/StopButton";
 import RestartButton from "@/assets/icons/worklogs/RestartButton";
 import ClockIcon from "@/assets/icons/ClockIcon";
+import Recurring from "@/assets/icons/worklogs/Recurring";
+import Comments from "@/assets/icons/worklogs/Comments";
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -93,6 +95,8 @@ const Datatable = ({
   currentFilterData,
   onFilterOpen,
   onCloseDrawer,
+  onRecurring,
+  onComment,
 }: any) => {
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -114,6 +118,9 @@ const Datatable = ({
   const [stopReviewTimer, setStopReviewTimer] = useState<boolean>(false);
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
   const [reviewList, setReviewList] = useState<any>([]);
+  const [selectedRowStatusId, setSelectedRowStatusId] = useState<
+    any | number[]
+  >([]);
 
   useEffect(() => {
     if (
@@ -559,9 +566,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Employees</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div>{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -574,9 +579,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Designation</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div>{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -590,11 +593,7 @@ const Datatable = ({
         ),
         // converting time (Seconnds) into HH:MM:SS
         customBodyRender: (value: any) => {
-          return (
-            <div>
-              {value ? formatTime(value) : "00:00:00"}
-            </div>
-          );
+          return <div>{value ? formatTime(value) : "00:00:00"}</div>;
         },
       },
     },
@@ -608,11 +607,7 @@ const Datatable = ({
         ),
         // converting time (Seconnds) into HH:MM:SS
         customBodyRender: (value: any) => {
-          return (
-            <div>
-              {value ? formatTime(value) : "00:00:00"}
-            </div>
-          );
+          return <div>{value ? formatTime(value) : "00:00:00"}</div>;
         },
       },
     },
@@ -747,9 +742,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Client</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div>{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -762,9 +755,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Project</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div>{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -777,12 +768,16 @@ const Datatable = ({
           <span className="font-bold text-sm">Process</span>
         ),
         customBodyRender: (value: any) => {
-          const shortProcessName = value.split(" ");
+          const shortProcessName = value && value.split(" ");
           return (
             <div className="font-semibold">
-              <ColorToolTip title={value} placement="top">
-                {shortProcessName[0]}
-              </ColorToolTip>
+              {value === null || "" ? (
+                "-"
+              ) : (
+                <ColorToolTip title={value} placement="top">
+                  {shortProcessName[0]}
+                </ColorToolTip>
+              )}
             </div>
           );
         },
@@ -797,9 +792,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Sub Process</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div>{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -812,7 +805,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Start Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -837,7 +830,7 @@ const Datatable = ({
           <span className="font-bold text-sm">End Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -862,9 +855,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Qty.</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div>{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -877,11 +868,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Edited Time</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return (
-            <div>
-              {value ? formatTime(value) : "00:00:00"}
-            </div>
-          );
+          return <div>{value ? formatTime(value) : "00:00:00"}</div>;
         },
       },
     },
@@ -894,9 +881,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Is Manual</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return (
-            <div>{value === true ? "Yes" : "No"}</div>
-          );
+          return <div>{value === true ? "Yes" : "No"}</div>;
         },
       },
     },
@@ -910,11 +895,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Manager</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null || value === undefined || value === "") {
-            return <div>-</div>;
-          } else {
-            return <div>{value}</div>;
-          }
+          return <div>{value === null || "" || undefined ? "-" : value}</div>;
         },
       },
     },
@@ -1010,19 +991,40 @@ const Datatable = ({
 
       {/* filter popup box*/}
       {selectedRowsCount > 0 && (
-        <div className="flex items-center justify-center">
-          <Card className="rounded-full flex border p-2 border-[#1976d2] absolute shadow-lg w-[65%] bottom-0 -translate-y-1/2">
+        <div className="flex items-center justify-start ml-12">
+          <Card className="rounded-full flex border p-2 border-[#1976d2] absolute shadow-lg w-[65%] h-[8%] bottom-12 -translate-y-1/2">
             <div className="flex flex-row w-full">
-              <div className="pt-1 pl-2 flex w-[40%]">
+              <div className="pt-1 pl-2 flex w-[30%]">
                 <span className="cursor-pointer" onClick={handleClearSelection}>
                   <Minus />
                 </span>
-                <span className="pl-2 pt-[1px] pr-2 text-[14px]">
+                <span className="pl-2 pt-[1px] pr-6 text-[14px]">
                   {selectedRowsCount || selectedRows} task selected
                 </span>
               </div>
 
-              <div className="flex flex-row z-10 h-8 justify-center w-[50%]">
+              <div
+                className={`flex flex-row z-10 h-8 justify-center ${
+                  selectedRowsCount === 1 ? "w-[80%]" : "w-[50%]"
+                }`}
+              >
+                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                  selectedRowsCount === 1 &&
+                  !selectedRowStatusId.some((statusId: number) =>
+                    [4, 7, 8, 9, 13].includes(statusId)
+                  ) && (
+                    <ColorToolTip title="Edit" arrow>
+                      <span
+                        className="pl-2 pr-2 pt-1 text-slatyGrey cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                        onClick={() => {
+                          onEdit(selectedRowId);
+                        }}
+                      >
+                        <EditIcon />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
                 {hasPermissionWorklog("", "Approve", "Approvals") && (
                   <ColorToolTip title="Accept" arrow>
                     <span
@@ -1060,6 +1062,30 @@ const Datatable = ({
                     </ColorToolTip>
                   )}
 
+                {hasPermissionWorklog("Reccuring", "View", "WorkLogs") &&
+                  selectedRowsCount === 1 && (
+                    <ColorToolTip title="Recurring" arrow>
+                      <span
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                        onClick={() => onRecurring(true, selectedRowId)}
+                      >
+                        <Recurring />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
+                {hasPermissionWorklog("Comment", "View", "WorkLogs") &&
+                  selectedRowsCount === 1 && (
+                    <ColorToolTip title="Comments" arrow>
+                      <span
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                        onClick={() => onComment(true, selectedRowId)}
+                      >
+                        <Comments />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
                 {hasPermissionWorklog("", "ErrorLog", "Approvals") &&
                   // hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
                   selectedRowsCount === 1 && (
@@ -1092,7 +1118,7 @@ const Datatable = ({
                 }
 
                 {selectedRowsCount === 1 && (
-                  <ColorToolTip title="Edit" arrow>
+                  <ColorToolTip title="Edit Time" arrow>
                     <span
                       className="pl-2 pr-2 pt-1 text-slatyGrey cursor-pointer border-l-[1.5px] border-gray-300"
                       onClick={() => setisEditOpen(true)}

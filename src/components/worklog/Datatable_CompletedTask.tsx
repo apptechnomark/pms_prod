@@ -416,9 +416,10 @@ const Datatable_CompletedTask = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Project</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Project</span>,
+        customBodyRender: (value: any) => {
+          return <div>{value === null || "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -426,9 +427,10 @@ const Datatable_CompletedTask = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Task</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Task</span>,
+        customBodyRender: (value: any) => {
+          return <div>{value === null || "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -439,6 +441,9 @@ const Datatable_CompletedTask = ({
         customHeadLabelRender: () => (
           <span className="font-bold">Assigned To</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -475,7 +480,7 @@ const Datatable_CompletedTask = ({
                   }`}
                 ></div>
               </div>
-              {value}
+              {value === null || "" ? "-" : value}
             </div>
           );
         },
@@ -486,9 +491,7 @@ const Datatable_CompletedTask = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Status</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Status</span>,
         customBodyRender: (value: any, tableMeta: any) => {
           const statusColorCode = tableMeta.rowData[8];
           return (
@@ -499,7 +502,7 @@ const Datatable_CompletedTask = ({
                   style={{ backgroundColor: statusColorCode }}
                 ></div>
               </div>
-              {value}
+              {value === null || "" ? "-" : value}
             </div>
           );
         },
@@ -514,7 +517,7 @@ const Datatable_CompletedTask = ({
           <span className="font-bold">Start Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -539,7 +542,7 @@ const Datatable_CompletedTask = ({
           <span className="font-bold">Due Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || "") {
             return "-";
           }
 
@@ -560,9 +563,10 @@ const Datatable_CompletedTask = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Qty.</span>
-        ),
+        customHeadLabelRender: () => <span className="font-bold">Qty.</span>,
+      },
+      customBodyRender: (value: any) => {
+        return <div>{value === null || "" ? "-" : value}</div>;
       },
     },
     {

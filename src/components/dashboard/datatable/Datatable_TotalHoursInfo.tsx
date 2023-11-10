@@ -114,14 +114,14 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
     tableData.push({
       ProjectName: <span className="font-extrabold">Project List</span>,
       TaskName: <span className="font-extrabold">Task List</span>,
-      ContractedTotalHours: clientDetails.ContractedTotalHours || "--",
-      ContractedAccountingHrs: clientDetails.ContractedAccountingHrs || "--",
-      ContractedAuditHrs: clientDetails.ContractedAuditHrs || "--",
-      ContractedTaxHrs: clientDetails.ContractedTaxHrs || "--",
+      ContractedTotalHours: clientDetails.ContractedTotalHours || "-",
+      ContractedAccountingHrs: clientDetails.ContractedAccountingHrs || "-",
+      ContractedAuditHrs: clientDetails.ContractedAuditHrs || "-",
+      ContractedTaxHrs: clientDetails.ContractedTaxHrs || "-",
       ActualAccountingHrs: clientDetails.ActualAccountingHrs || null,
       ActualAuditHrs: clientDetails.ActualAuditHrs || null,
       ActualTaxHrs: clientDetails.ActualTaxHrs || null,
-      ActualTotalHours: clientDetails.ActualTotalHours || "--",
+      ActualTotalHours: clientDetails.ActualTotalHours || "-",
     });
   }
 
@@ -153,7 +153,9 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
           <span className="font-extrabold uppercase">Project Name</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return <div className="ml-2">{value}</div>;
+          return (
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
+          );
         },
       },
     },
@@ -166,7 +168,9 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
           <span className="font-extrabold uppercase">Task Name</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return <div className="ml-2">{value}</div>;
+          return (
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
+          );
         },
       },
     },
@@ -179,7 +183,9 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
           <span className="font-extrabold uppercase">Total Cont. Hours</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return <div className="ml-2">{value === null ? "" : value}</div>;
+          return (
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
+          );
         },
       },
     },
@@ -194,7 +200,9 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
           <span className="font-extrabold uppercase">Cont. Acc. Hours</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return <div className="ml-2">{value === null ? "" : value}</div>;
+          return (
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
+          );
         },
       },
     },
@@ -209,7 +217,9 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
           <span className="font-extrabold uppercase">Cont. Tax Hours</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return <div className="ml-2">{value === null ? "" : value}</div>;
+          return (
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
+          );
         },
       },
     },
@@ -224,7 +234,9 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
           <span className="font-extrabold uppercase">Cont. Audit Hours</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return <div className="ml-2">{value === null ? "" : value}</div>;
+          return (
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
+          );
         },
       },
     },
@@ -239,7 +251,9 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
           <span className="font-extrabold uppercase">Account Hours</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return <div className="ml-2">{value === null ? "--" : value}</div>;
+          return (
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
+          );
         },
       },
     },
@@ -254,7 +268,9 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
           <span className="font-extrabold uppercase">Tax Hours</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return <div className="ml-2">{value === null ? "--" : value}</div>;
+          return (
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
+          );
         },
       },
     },
@@ -269,7 +285,9 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
           <span className="font-extrabold uppercase">Audit Hours</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return <div className="ml-2">{value === null ? "--" : value}</div>;
+          return (
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
+          );
         },
       },
     },
@@ -282,7 +300,9 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
           <span className="font-extrabold uppercase">Total Hours</span>
         ),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return <div className="ml-2">{value === null ? "" : value}</div>;
+          return (
+            <div className="ml-2">{value === null || "" ? "-" : value}</div>
+          );
         },
       },
     },

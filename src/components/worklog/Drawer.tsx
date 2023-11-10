@@ -59,6 +59,7 @@ const Drawer = ({
   const [activeTab, setActiveTab] = useState(0);
   const [isCreatedByClient, setIsCreatedByClient] = useState(true);
   const [fieldsData, setFieldsData] = useState([]);
+  const [editData, setEditData] = useState<any>([]);
   let Task;
   {
     onEdit > 0
@@ -1137,6 +1138,7 @@ const Drawer = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           const data = await response.data.ResponseData;
+          setEditData(data);
           setIsCreatedByClient(data.IsCreatedByClient);
           setTypeOfWork(data.WorkTypeId === null ? 0 : data.WorkTypeId);
           setProcessName(data.ProcessId === null ? 0 : data.ProcessId);
@@ -1256,6 +1258,7 @@ const Drawer = ({
   }, [typeOfWork]);
 
   const handleClose = () => {
+    setEditData([]);
     setIsCreatedByClient(true);
     setUserId(0);
     setActiveTab(0);
@@ -1375,12 +1378,19 @@ const Drawer = ({
                   <TaskIcon />
                   <span className="ml-[21px]">Task</span>
                 </span>
-                <span
-                  className={`cursor-pointer ${taskDrawer ? "rotate-180" : ""}`}
-                  onClick={() => setTaskDrawer(!taskDrawer)}
-                >
-                  <ChevronDownIcon />
-                </span>
+                <div className="flex gap-4">
+                  {onEdit > 0 && (
+                    <span>Created By : {editData.CreatedByName}</span>
+                  )}
+                  <span
+                    className={`cursor-pointer ${
+                      taskDrawer ? "rotate-180" : ""
+                    }`}
+                    onClick={() => setTaskDrawer(!taskDrawer)}
+                  >
+                    <ChevronDownIcon />
+                  </span>
+                </div>
               </div>
               {taskDrawer && (
                 <Grid container className="px-8">
