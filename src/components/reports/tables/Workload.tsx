@@ -208,19 +208,6 @@ const Workload = ({ filteredData }: any) => {
         },
       },
     },
-    {
-      name: "TotalQuantity",
-      options: {
-        sort: true,
-        filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">quantity</span>
-        ),
-        customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
-        },
-      },
-    },
   ];
 
   const expandableColumns: any[] = [

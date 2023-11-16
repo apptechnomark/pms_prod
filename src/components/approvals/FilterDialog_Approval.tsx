@@ -33,8 +33,6 @@ const initialFilter = {
   ClientId: null,
   userId: null,
   ProjectId: null,
-  ProcessId: null,
-  // StatusId: null,
 };
 
 const FilterDialog_Approval: React.FC<FilterModalProps> = ({
@@ -46,16 +44,12 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   const [clientName, setClientName] = useState<number | string>(0);
   const [userName, setUser] = useState<number | string>(0);
   const [projectName, setProjectName] = useState<number | string>(0);
-  const [status, setStatus] = useState<number | string>(0);
-  const [processName, setProcessName] = useState<number | string>(0);
   const [appliedFilterData, setAppliedFilterData] = useState<any | any[]>([]);
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [userDropdownData, setUserData] = useState([]);
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState<any>(false);
   const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
-  const [statusDropdownData, setStatusDropdownData] = useState([]);
-  const [processDropdownData, setProcessDropdownData] = useState([]);
 
   const sendFilterToPage = () => {
     currentFilterData(currSelectedFields);
@@ -66,8 +60,6 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     setClientName(0);
     setUser(0);
     setProjectName(0);
-    setStatus(0);
-    setProcessName(0);
     currentFilterData(initialFilter);
   };
 
@@ -193,98 +185,10 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     }
   };
 
-  const getAllStatus = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/status/GetDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setStatusDropdownData(
-            response.data.ResponseData.filter(
-              (i: any) =>
-                i.Type !== "Accept" &&
-                i.Type !== "AcceptWithNotes" &&
-                i.Type !== "Errorlogs" &&
-                i.Type !== "Reject" &&
-                i.Type !== "NotStarted" &&
-                i.Type !== "SignedOff"
-            )
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Error duplicating task.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Error duplicating task.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getAllProcess = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/Process/GetDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setProcessDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Error duplicating task.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Error duplicating task.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   useEffect(() => {
     if (onOpen === true) {
       getClientData();
       getEmployeeData();
-      getAllStatus();
-      getAllProcess();
     }
   }, [onOpen]);
 
@@ -295,14 +199,10 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   // Check if any field is selected
   useEffect(() => {
     const isAnyFieldSelected: any =
-      clientName !== 0 ||
-      userName !== 0 ||
-      projectName !== 0 ||
-      // status !== 0 ||
-      processName !== 0;
+      clientName !== 0 || userName !== 0 || projectName !== 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
-  }, [clientName, userName, projectName, processName]);
+  }, [clientName, userName, projectName]);
 
   // Set state values based on applied filter data
   useEffect(() => {
@@ -310,14 +210,11 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       const appliedFilter = appliedFilterData[0].AppliedFilter;
 
       if (appliedFilter) {
-        const { ClientId, userId, ProjectId, ProcessId, StatusId } =
-          appliedFilter;
+        const { ClientId, userId, ProjectId } = appliedFilter;
 
         setClientName(ClientId > 0 ? ClientId : "");
         setUser(userId > 0 ? userId : "");
         setProjectName(ProjectId > 0 ? ProjectId : "");
-        // setStatus(StatusId > 0 ? StatusId : "");
-        setProcessName(ProcessId > 0 ? ProcessId : "");
       }
     }
   }, [appliedFilterData]);
@@ -327,11 +224,9 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       ClientId: clientName || null,
       userId: userName || null,
       ProjectId: projectName || null,
-      // StatusId: status || null,
-      ProcessId: processName || null,
     };
     setCurrSelectedFileds(selectedFields);
-  }, [clientName, userName, projectName, processName]);
+  }, [clientName, userName, projectName]);
 
   return (
     <div>
@@ -392,39 +287,6 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   onChange={(e) => setProjectName(e.target.value)}
                 >
                   {projectDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-            <div className="flex gap-[20px]">
-              {/* <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="status">Status</InputLabel>
-                <Select
-                  labelId="status"
-                  id="status"
-                  value={status === 0 ? "" : status}
-                  onChange={(e) => setStatus(e.target.value)}
-                >
-                  {statusDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl> */}
-
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="processName">Process</InputLabel>
-                <Select
-                  labelId="processName"
-                  id="processName"
-                  value={processName === 0 ? "" : processName}
-                  onChange={(e) => setProcessName(e.target.value)}
-                >
-                  {processDropdownData.map((i: any, index: number) => (
                     <MenuItem value={i.value} key={index}>
                       {i.label}
                     </MenuItem>

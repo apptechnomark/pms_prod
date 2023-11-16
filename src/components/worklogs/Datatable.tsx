@@ -1156,9 +1156,8 @@ const Datatable = ({
           const response = await axios.post(
             `${process.env.api_url}/user/GetAssigneeUserDropdown`,
             {
-              ClientIds: selectedRowClientId,
+              ClientId: selectedRowClientId[0],
               WorktypeId: selectedRowWorkTypeId[0],
-              IsAll: selectedRowClientId.length > 1 ? true : false,
             },
             {
               headers: {
@@ -1321,9 +1320,6 @@ const Datatable = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">Task ID</span>
         ),
-        customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
-        },
       },
     },
     {
@@ -1332,6 +1328,23 @@ const Datatable = ({
         filter: true,
         viewColumns: false,
         sort: true,
+        // setCellProps: () => ({
+        //   style: {
+        //     whiteSpace: "nowrap",
+        //     position: "sticky",
+        //     left: 46,
+        //     background: "white",
+        //     zIndex: 100,
+        //   },
+        // }),
+        // setCellHeaderProps: () => ({
+        //   style: {
+        //     whiteSpace: "nowrap",
+        //     position: "sticky",
+        //     left: 46,
+        //     zIndex: 101,
+        //   },
+        // }),
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">Client</span>
         ),
@@ -1346,7 +1359,7 @@ const Datatable = ({
                   }
                 ></div>
               )}
-              {value === null || value === "" ? "-" : value}
+              {value === null || "" ? "-" : value}
             </div>
           );
         },
@@ -1365,27 +1378,22 @@ const Datatable = ({
           const IsRecurring = tableMeta.rowData[20];
           return (
             <div className="flex items-center gap-2">
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <>
-                  {IsRecurring && (
-                    <span className="text-secondary font-semibold">
-                      <svg
-                        stroke="currentColor"
-                        fill="currentColor"
-                        strokeWidth="0"
-                        viewBox="0 0 24 24"
-                        height="20px"
-                        width="20px"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path d="M12.14 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path>
-                        <path d="M16.14 10a3 3 0 0 0-3-3h-5v10h2v-4h1.46l2.67 4h2.4l-2.75-4.12A3 3 0 0 0 16.14 10zm-3 1h-3V9h3a1 1 0 0 1 0 2z"></path>
-                      </svg>
-                    </span>
-                  )}
-                </>
+              {value === null || "" ? "-" : value}
+              {IsRecurring && (
+                <span className="text-secondary font-semibold">
+                  <svg
+                    stroke="currentColor"
+                    fill="currentColor"
+                    strokeWidth="0"
+                    viewBox="0 0 24 24"
+                    height="20px"
+                    width="20px"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M12.14 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path>
+                    <path d="M16.14 10a3 3 0 0 0-3-3h-5v10h2v-4h1.46l2.67 4h2.4l-2.75-4.12A3 3 0 0 0 16.14 10zm-3 1h-3V9h3a1 1 0 0 1 0 2z"></path>
+                  </svg>
+                </span>
               )}
             </div>
           );
@@ -1398,11 +1406,28 @@ const Datatable = ({
         filter: true,
         sort: true,
         display: false,
+        // setCellProps: () => ({
+        //   style: {
+        //     whiteSpace: "nowrap",
+        //     position: "sticky",
+        //     left: 198,
+        //     background: "white",
+        //     zIndex: 100,
+        //   },
+        // }),
+        // setCellHeaderProps: () => ({
+        //   style: {
+        //     whiteSpace: "nowrap",
+        //     position: "sticky",
+        //     left: 198,
+        //     zIndex: 101,
+        //   },
+        // }),
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">Project</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -1419,7 +1444,7 @@ const Datatable = ({
           const shortProcessName = value && value.split(" ");
           return (
             <div className="font-semibold">
-              {value === null || value === "" ? (
+              {value === null || "" ? (
                 "-"
               ) : (
                 <ColorToolTip title={value} placement="top">
@@ -1441,7 +1466,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Sub Process</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -1563,6 +1588,21 @@ const Datatable = ({
                     <span
                       className="cursor-pointer mt-[2px]"
                       onClick={
+                        // workItemData[tableMeta.rowIndex].AssignedToName !==
+                        // workItemData[tableMeta.rowIndex].AssignedByName
+                        //   ? () => {
+                        //       handleSync(
+                        //         tableMeta.rowData[tableMeta.rowData.length - 1]
+                        //       );
+                        //       handleTimer(
+                        //         3,
+                        //         tableMeta.rowData[tableMeta.rowData.length - 1],
+                        //         workitemTimeId
+                        //       );
+                        //       // setRowId(tableMeta.rowIndex);
+                        //       handleClearSelection();
+                        //     }
+                        //   :
                         () => {
                           handleSync(
                             tableMeta.rowData[tableMeta.rowData.length - 1]
@@ -1613,7 +1653,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Assigned To</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -1639,24 +1679,20 @@ const Datatable = ({
 
           return (
             <div>
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <div className="inline-block mr-1">
-                  <div
-                    className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
-                      isHighPriority
-                        ? "bg-defaultRed"
-                        : isMediumPriority
-                        ? "bg-yellowColor"
-                        : isLowPriority
-                        ? "bg-primary"
-                        : "bg-lightSilver"
-                    }`}
-                  ></div>
-                  {value}
-                </div>
-              )}
+              <div className="inline-block mr-1">
+                <div
+                  className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
+                    isHighPriority
+                      ? "bg-defaultRed"
+                      : isMediumPriority
+                      ? "bg-yellowColor"
+                      : isLowPriority
+                      ? "bg-primary"
+                      : "bg-lightSilver"
+                  }`}
+                ></div>
+              </div>
+              {value === null || "" ? "-" : value}
             </div>
           );
         },
@@ -1684,22 +1720,19 @@ const Datatable = ({
           const statusColorCode = tableMeta.rowData[10];
           return (
             <div>
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <div className="inline-block mr-1">
-                  <div
-                    className="w-[10px] h-[10px] rounded-full inline-block mr-2"
-                    style={{ backgroundColor: statusColorCode }}
-                  ></div>
-                  {value}
-                </div>
-              )}
+              <div className="inline-block mr-1">
+                <div
+                  className="w-[10px] h-[10px] rounded-full inline-block mr-2"
+                  style={{ backgroundColor: statusColorCode }}
+                ></div>
+              </div>
+              {value === null || "" ? "-" : value}
             </div>
           );
         },
       },
     },
+
     {
       name: "EstimateTime",
       options: {
@@ -1710,7 +1743,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Est. Time</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -1724,7 +1757,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Qty.</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -1738,7 +1771,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Actual Time</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -1752,7 +1785,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Total Est. Time</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -1766,7 +1799,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Start Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null || value === "") {
+          if (value === null || "") {
             return "-";
           }
 
@@ -1792,7 +1825,7 @@ const Datatable = ({
           <span className="font-bold text-sm">End Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null || value === "") {
+          if (value === null || "") {
             return "-";
           }
 
@@ -1818,7 +1851,13 @@ const Datatable = ({
           <span className="font-bold text-sm">Assigned By</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return (
+            <div
+            // className="ml-5 lg:ml-0"
+            >
+              {value === null || "" ? "-" : value}
+            </div>
+          );
         },
       },
     },

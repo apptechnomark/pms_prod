@@ -401,7 +401,6 @@ const Datatable_CompletedTask = ({
   useEffect(() => {
     // refreshing data from Drawer side
     const fetchData = async () => {
-      const fetchedData = await getWorkItemList();
       onDataFetch(() => fetchData());
     };
     fetchData();
@@ -419,7 +418,7 @@ const Datatable_CompletedTask = ({
         sort: true,
         customHeadLabelRender: () => <span className="font-bold">Project</span>,
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -430,7 +429,7 @@ const Datatable_CompletedTask = ({
         sort: true,
         customHeadLabelRender: () => <span className="font-bold">Task</span>,
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -443,7 +442,7 @@ const Datatable_CompletedTask = ({
           <span className="font-bold">Assigned To</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return <div>{value === null || "" ? "-" : value}</div>;
         },
       },
     },
@@ -468,23 +467,20 @@ const Datatable_CompletedTask = ({
 
           return (
             <div>
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <div className="inline-block mr-1">
-                  <div
-                    className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
-                      isHighPriority
-                        ? "bg-defaultRed"
-                        : isMediumPriority
-                        ? "bg-yellowColor"
-                        : isLowPriority
-                        ? "bg-primary"
-                        : "bg-lightSilver"
-                    }`}
-                  ></div>
-                </div>
-              )}
+              <div className="inline-block mr-1">
+                <div
+                  className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
+                    isHighPriority
+                      ? "bg-defaultRed"
+                      : isMediumPriority
+                      ? "bg-yellowColor"
+                      : isLowPriority
+                      ? "bg-primary"
+                      : "bg-lightSilver"
+                  }`}
+                ></div>
+              </div>
+              {value === null || "" ? "-" : value}
             </div>
           );
         },
@@ -500,16 +496,13 @@ const Datatable_CompletedTask = ({
           const statusColorCode = tableMeta.rowData[8];
           return (
             <div>
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <div className="inline-block mr-1">
-                  <div
-                    className="w-[10px] h-[10px] rounded-full inline-block mr-2"
-                    style={{ backgroundColor: statusColorCode }}
-                  ></div>
-                </div>
-              )}
+              <div className="inline-block mr-1">
+                <div
+                  className="w-[10px] h-[10px] rounded-full inline-block mr-2"
+                  style={{ backgroundColor: statusColorCode }}
+                ></div>
+              </div>
+              {value === null || "" ? "-" : value}
             </div>
           );
         },
@@ -524,7 +517,7 @@ const Datatable_CompletedTask = ({
           <span className="font-bold">Start Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null || value === "") {
+          if (value === null || "") {
             return "-";
           }
 
@@ -549,7 +542,7 @@ const Datatable_CompletedTask = ({
           <span className="font-bold">Due Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null || value === "") {
+          if (value === null || "") {
             return "-";
           }
 
@@ -573,7 +566,7 @@ const Datatable_CompletedTask = ({
         customHeadLabelRender: () => <span className="font-bold">Qty.</span>,
       },
       customBodyRender: (value: any) => {
-        return <div>{value === null || value === "" ? "-" : value}</div>;
+        return <div>{value === null || "" ? "-" : value}</div>;
       },
     },
     {

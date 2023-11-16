@@ -31,6 +31,7 @@ const page = () => {
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
   const [currentFilterData, setCurrentFilterData] = useState([]);
+  const [hasRecurring, setHasRecurring] = useState(false);
   const [hasComment, setHasComment] = useState(false);
 
   const handleCloseFilter = () => {
@@ -74,6 +75,7 @@ const page = () => {
   const handleDrawerClose = () => {
     setOpenDrawer(false);
     setHasEditId(0);
+    setHasRecurring(false);
     setHasComment(false);
     setHasId("");
   };
@@ -89,6 +91,13 @@ const page = () => {
   // For refreshing data in Datatable from drawer
   const handleDataFetch = (getData: () => void) => {
     setDataFunction(() => getData);
+  };
+
+  // To Toggle Drawer for Recurring
+  const handleSetRecurring = (rowData: any, selectedId: number) => {
+    setHasRecurring(true);
+    setOpenDrawer(rowData);
+    setHasEditId(selectedId);
   };
 
   // To Toggle Drawer for Comments
@@ -136,6 +145,7 @@ const page = () => {
           currentFilterData={currentFilterData}
           onFilterOpen={isFilterOpen}
           onCloseDrawer={openDrawer}
+          onRecurring={handleSetRecurring}
           onComment={handleSetComments}
         />
 
@@ -146,6 +156,7 @@ const page = () => {
           onEdit={hasEditId}
           hasIconIndex={iconIndex > 0 ? iconIndex : 0}
           onHasId={hasId}
+          onRecurring={hasRecurring}
           onComment={hasComment}
         />
 

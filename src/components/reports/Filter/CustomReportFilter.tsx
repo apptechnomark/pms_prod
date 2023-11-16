@@ -686,8 +686,8 @@ const CustomReportFilter = ({
                     onChange={(e) => setProcessName(e.target.value)}
                   >
                     {processDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.Id} key={index}>
-                        {i.Name}
+                      <MenuItem value={i.value} key={index}>
+                        {i.label}
                       </MenuItem>
                     ))}
                   </Select>
