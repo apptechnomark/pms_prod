@@ -129,6 +129,24 @@ export const customreport_InitialFilter = {
   isDownload: false,
 };
 
+const Data = new Date();
+export const rating_InitialFilter: any = {
+  PageNo: 1,
+  PageSize: 10,
+  GlobalSearch: "",
+  SortColumn: "",
+  IsDesc: false,
+  Projects: [],
+  ReturnTypeId: null,
+  TypeofReturnId: null,
+  Ratings: null,
+  Users: [],
+  DepartmentId: null,
+  DateSubmitted: null,
+  StartDate: new Date(Data.getFullYear(), Data.getMonth(), 1),
+  EndDate: Data,
+};
+
 export const getCurrentTabDetails = (
   activeTab: number,
   getBody?: boolean,
@@ -157,5 +175,8 @@ export const getCurrentTabDetails = (
   }
   if (activeTab === 8) {
     return getBody ? customreport_InitialFilter : "custom";
+  }
+  if (activeTab === 9) {
+    return getBody ? customreport_InitialFilter : "rating";
   }
 };

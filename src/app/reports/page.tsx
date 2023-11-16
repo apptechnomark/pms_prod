@@ -42,6 +42,7 @@ import UserLogsFilter from "@/components/reports/Filter/UserLogsFilter";
 import TimesheetFilter from "@/components/reports/Filter/TimesheetFilter";
 import BillingReportFilter from "@/components/reports/Filter/BillingReportFilter";
 import CustomReportFilter from "@/components/reports/Filter/CustomReportFilter";
+import RatingReport from "@/components/reports/tables/RatingReport";
 
 const visibleTabs = [
   { label: "project", value: 1 },
@@ -52,6 +53,7 @@ const visibleTabs = [
   { label: "audit", value: 6 },
   { label: "billing", value: 7 },
   { label: "custom", value: 8 },
+  // { label: "rating", value: 9 },
 ];
 
 const page = () => {
@@ -241,16 +243,28 @@ const page = () => {
             </span>
 
             {activeTab === 7 && (
-              <Button
-                type="submit"
-                variant="contained"
-                color="info"
-                disabled={!hasBTC}
-                className={`${hasBTC ? "!bg-secondary" : ""}`}
-                onClick={() => setSaveBTCData(true)}
-              >
-                Save
-              </Button>
+              <>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="info"
+                  disabled={!hasBTC}
+                  className={`${hasBTC ? "!bg-secondary" : ""}`}
+                  onClick={() => setSaveBTCData(true)}
+                >
+                  Raise Invoice
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="info"
+                  disabled={!hasBTC}
+                  className={`${hasBTC ? "!bg-secondary" : ""}`}
+                  onClick={() => setSaveBTCData(true)}
+                >
+                  Save
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -272,6 +286,7 @@ const page = () => {
           />
         )}
         {activeTab === 8 && <CustomReport filteredData={filteredData} />}
+        {activeTab === 9 && <RatingReport filteredData={filteredData} />}
       </div>
 
       {/* tabs filter */}

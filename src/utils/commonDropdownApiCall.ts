@@ -278,8 +278,9 @@ export const getAssigneeDropdownData = async (
     const response = await axios.post(
       `${process.env.api_url}/user/GetAssigneeUserDropdown`,
       {
-        ClientId: clientId,
+        ClientIds: [clientId],
         WorktypeId: workTypeId,
+        IsAll: false,
       },
       {
         headers: {
@@ -315,8 +316,9 @@ export const getReviewerDropdownData = async (
     const response = await axios.post(
       `${process.env.api_url}/user/GetReviewerDropdown`,
       {
-        ClientId: clientId,
+        ClientIds: [clientId],
         WorktypeId: workTypeId,
+        IsAll: false,
       },
       {
         headers: {

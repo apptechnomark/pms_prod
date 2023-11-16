@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   TablePagination,
   TextField,
@@ -50,7 +50,10 @@ const BillingReport = ({
 }: any) => {
   const [page, setPage] = useState<number>(0);
   const [btcData, setBTCData] = useState<any>([]);
-
+  const [raisedInvoice, setRaisedInvoice] = useState<any>([]);
+  const [selectedRowsWorkItemId, setSelectedRowsWorkItemId] = useState<any[]>(
+    []
+  );
   const [btcTime, setBTCTime] = useState<string>("0000-00-00T00:00:00");
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
@@ -97,14 +100,14 @@ const BillingReport = ({
     }
   };
 
-  const saveBTCData = async () => {
+  const saveBTCData = async (arg1: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 
     try {
       const response = await axios.post(
         `${process.env.report_api_url}/report/billing/savebtc`,
-        { selectedArray: btcData },
+        { selectedArray: arg1 },
         {
           headers: {
             Authorization: `bearer ${token}`,
@@ -179,7 +182,14 @@ const BillingReport = ({
                   btcValue: toSeconds(
                     `${newValue.$H}:${newValue.$m}:${newValue.$s}`
                   ),
-                  IsBTC: true,
+                  IsBTC:
+                    raisedInvoice.length > 0
+                      ? raisedInvoice.filter(
+                          (data: any, index: number) =>
+                            data.workItemId ===
+                            billingReportData[index].WorkItemId
+                        )[0].IsBTC
+                      : null,
                 }
               : obj
           );
@@ -192,11 +202,18 @@ const BillingReport = ({
               btcValue: toSeconds(
                 `${newValue.$H}:${newValue.$m}:${newValue.$s}`
               ),
-              IsBTC: true,
+              IsBTC:
+                raisedInvoice.length > 0
+                  ? raisedInvoice.filter(
+                      (data: any, index: number) =>
+                        data.workItemId === billingReportData[index].WorkItemId
+                    )[0].IsBTC
+                  : null,
             },
           ];
         }
       });
+      setRaisedInvoice([]);
     } else {
       setBTCTime("0000-00-00T00:00:00");
     }
@@ -208,9 +225,16 @@ const BillingReport = ({
 
   useEffect(() => hasBTCData(btcData.length > 0), [btcData]);
 
+  // useEffect(() => isRaisingInvoice(raisedInvoice.length > 0), [raisedInvoice]);
+
   useEffect(() => {
     if (isSavingBTCData) {
-      saveBTCData();
+      if (btcData.length > 0) {
+        saveBTCData(btcData);
+      }
+      if (raisedInvoice.length > 0) {
+        saveBTCData(raisedInvoice);
+      }
     }
   }, [isSavingBTCData]);
 
@@ -320,12 +344,12 @@ const BillingReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">Preparation Date</span>
+          <span className="font-bold text-sm capitalize">Preparation Time</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
           return (
             <div className="flex items-center gap-2">
-              {value === null || "" ? "-" : value.split("T")[0]}
+              {value === null || "" ? "-" : value.split("T")[1]}
             </div>
           );
         },
@@ -337,12 +361,12 @@ const BillingReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">Reviewer Date</span>
+          <span className="font-bold text-sm capitalize">Reviewer Time</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
           return (
             <div className="flex items-center gap-2">
-              {value === null || "" ? "-" : value.split("T")[0]}
+              {value === null || "" ? "-" : value.split("T")[1]}
             </div>
           );
         },
@@ -526,13 +550,41 @@ const BillingReport = ({
     },
   ];
 
+  console.log("btc data", btcData);
+  console.log("raised invoice", raisedInvoice);
+
   return (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={columns}
         data={billingReportData}
         title={undefined}
-        options={options}
+        options={{
+          ...options,
+          selectableRows: "multiple",
+          onRowSelectionChange: (i: any, j: any, selectedRowsIndex: any) => {
+            if (selectedRowsIndex.length > 0) {
+              const data = selectedRowsIndex.map(
+                (d: any) =>
+                  new Object({
+                    workItemId: billingReportData[d].WorkItemId,
+                    btcValue:
+                      btcData.length > 0
+                        ? btcData.filter(
+                            (data: any) =>
+                              data.workItemId ===
+                              billingReportData[d].WorkItemId
+                          )[0].btcValue
+                        : billingReportData[d].BTC,
+                    IsBTC: true,
+                  })
+              );
+              setRaisedInvoice(data);
+            } else {
+              setRaisedInvoice([]);
+            }
+          },
+        }}
       />
       <TablePagination
         component="div"

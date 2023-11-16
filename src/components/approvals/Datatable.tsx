@@ -10,7 +10,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  List,
+  InputBase,
+  Avatar,
 } from "@mui/material";
+import Popover from "@mui/material/Popover";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -25,6 +29,9 @@ import AcceptIcon from "@/assets/icons/worklogs/AcceptIcon";
 import AcceptNote from "@/assets/icons/worklogs/AcceptNote";
 import ErrorLogs from "@/assets/icons/worklogs/ErrorLogs";
 import RejectIcon from "@/assets/icons/worklogs/RejectIcon";
+import Priority from "@/assets/icons/worklogs/Priority";
+import SearchIcon from "@/assets/icons/SearchIcon";
+
 // Internal component Imports
 import EditDialog from "./EditDialog";
 import AcceptDiloag from "./AcceptDiloag";
@@ -37,6 +44,7 @@ import RestartButton from "@/assets/icons/worklogs/RestartButton";
 import ClockIcon from "@/assets/icons/ClockIcon";
 import Recurring from "@/assets/icons/worklogs/Recurring";
 import Comments from "@/assets/icons/worklogs/Comments";
+import Assignee from "@/assets/icons/worklogs/Assignee";
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -72,6 +80,12 @@ const getMuiTheme = () =>
     },
   });
 
+const priorityOptions = [
+  { id: 3, text: "Low" },
+  { id: 2, text: "Medium" },
+  { id: 1, text: "High" },
+];
+
 const pageNo = 1;
 const pageSize = 10;
 
@@ -86,7 +100,8 @@ const initialFilter = {
   projectId: null,
   startDate: null,
   endDate: null,
-  Status: 6,
+  StatusId: 6,
+  ProcessId: null,
 };
 
 const Datatable = ({
@@ -95,7 +110,6 @@ const Datatable = ({
   currentFilterData,
   onFilterOpen,
   onCloseDrawer,
-  onRecurring,
   onComment,
 }: any) => {
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
@@ -121,6 +135,267 @@ const Datatable = ({
   const [selectedRowStatusId, setSelectedRowStatusId] = useState<
     any | number[]
   >([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [assignee, setAssignee] = useState<any | any[]>([]);
+  const [selectedRowClientId, setSelectedRowClientId] = useState<
+    any | number[]
+  >([]);
+  const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
+    any | number[]
+  >([]);
+
+  // States for popup/shortcut filter management using table
+  const [anchorElPriority, setAnchorElPriority] =
+    React.useState<HTMLButtonElement | null>(null);
+  const [anchorElAssignee, setAnchorElAssignee] =
+    React.useState<HTMLButtonElement | null>(null);
+  const [anchorElStatus, setAnchorElStatus] =
+    React.useState<HTMLButtonElement | null>(null);
+
+  const handleClickPriority = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElPriority(event.currentTarget);
+  };
+
+  const handleClosePriority = () => {
+    setAnchorElPriority(null);
+  };
+
+  const handleClickAssignee = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElAssignee(event.currentTarget);
+  };
+
+  const handleCloseAssignee = () => {
+    setAnchorElAssignee(null);
+  };
+
+  const handleClickStatus = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElStatus(event.currentTarget);
+  };
+
+  const handleCloseStatus = () => {
+    setAnchorElStatus(null);
+  };
+
+  const openPriority = Boolean(anchorElPriority);
+  const idPriority = openPriority ? "simple-popover" : undefined;
+
+  const openAssignee = Boolean(anchorElAssignee);
+  const idAssignee = openAssignee ? "simple-popover" : undefined;
+
+  const openStatus = Boolean(anchorElStatus);
+  const idStatus = openStatus ? "simple-popover" : undefined;
+
+  const handleSearchChange = (event: any) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Function for checking that All vlaues in the arrar are same or not
+  function areAllValuesSame(arr: any[]) {
+    return arr.every((value, index, array) => value === array[0]);
+  }
+
+  const filteredAssignees = assignee.filter((assignee: any) =>
+    assignee.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Update Priority API
+  const updatePriority = async (id: number[], priorityId: number) => {
+    if (
+      selectedRowsCount === 1 &&
+      (selectedRowStatusId.includes(7) ||
+        selectedRowStatusId.includes(8) ||
+        selectedRowStatusId.includes(9))
+    ) {
+      toast.warning(
+        "Cannot change priority for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+      );
+    } else {
+      if (
+        selectedRowsCount > 1 &&
+        (selectedRowStatusId.includes(7) ||
+          selectedRowStatusId.includes(8) ||
+          selectedRowStatusId.includes(9))
+      ) {
+        toast.warning(
+          "Cannot change priority for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+        );
+      }
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/workitem/UpdatePriority`,
+          {
+            workitemIds: id,
+            priority: priorityId,
+          },
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            toast.success("Priority has been updated successfully.");
+            handleClearSelection();
+            getReviewList();
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Please try again later.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  // API for get Assignee with all conditions
+  useEffect(() => {
+    if (
+      selectedRowClientId.length > 0 &&
+      selectedRowWorkTypeId.length > 0 &&
+      areAllValuesSame(selectedRowClientId) &&
+      areAllValuesSame(selectedRowWorkTypeId)
+    ) {
+      const getAssignee = async () => {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.api_url}/user/GetAssigneeUserDropdown`,
+            {
+              ClientIds: selectedRowClientId,
+              WorktypeId: selectedRowWorkTypeId[0],
+              IsAll: selectedRowClientId.length > 0 ? true : false,
+            },
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              setAssignee(response.data.ResponseData);
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                toast.error("Error duplicating task.");
+              } else {
+                toast.error(data);
+              }
+            }
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Error duplicating task.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      // calling function
+      getAssignee();
+    }
+  }, [selectedRowClientId, selectedRowWorkTypeId]);
+
+  // API for update Assignee
+  const updateAssignee = async (id: number[], assigneeId: number) => {
+    if (
+      selectedRowsCount === 1 &&
+      (selectedRowStatusId.includes(7) ||
+        selectedRowStatusId.includes(8) ||
+        selectedRowStatusId.includes(9))
+    ) {
+      toast.warning(
+        "Cannot change assignee for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+      );
+    } else {
+      if (
+        selectedRowsCount > 1 &&
+        (selectedRowStatusId.includes(7) ||
+          selectedRowStatusId.includes(8) ||
+          selectedRowStatusId.includes(9))
+      ) {
+        toast.warning(
+          "Cannot change assignee for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+        );
+      }
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/workitem/UpdateAssignee`,
+          {
+            workitemIds: id,
+            assigneeId: assigneeId,
+          },
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            toast.success("Assignee has been updated successfully.");
+            handleClearSelection();
+            getReviewList();
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Error duplicating task.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Error duplicating task.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  // actions for priority popup
+  const handleOptionPriority = (id: any) => {
+    updatePriority(selectedRowIds, id);
+    handleClosePriority();
+  };
+
+  const handleOptionAssignee = (id: any) => {
+    updateAssignee(selectedRowIds, id);
+    handleCloseAssignee();
+  };
 
   useEffect(() => {
     if (
@@ -193,6 +468,22 @@ const Datatable = ({
         : [];
 
     setSelectedRowIds(selectedWorkItemIds);
+
+    // adding all selected row's Client Ids in an array
+    const selectedWorkItemClientIds =
+      selectedData.length > 0
+        ? selectedData.map((selectedRow: any) => selectedRow.ClientId)
+        : [];
+
+    setSelectedRowClientId(selectedWorkItemClientIds);
+
+    // adding all selected row's WorkType Ids in an array
+    const selectedWorkItemWorkTypeIds =
+      selectedData.length > 0
+        ? selectedData.map((selectedRow: any) => selectedRow.WorkTypeId)
+        : [];
+
+    setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
 
     if (allRowsSelected) {
       setIsPopupOpen(true);
@@ -734,6 +1025,95 @@ const Datatable = ({
       },
     },
     {
+      name: "AssignedName",
+      options: {
+        filter: true,
+        sort: true,
+        viewColumns: false,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm">Assigned To</span>
+        ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || "" ? "-" : value}</div>;
+        },
+      },
+    },
+    {
+      name: "PriorityName",
+      options: {
+        filter: true,
+        sort: true,
+        viewColumns: false,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm">Priority</span>
+        ),
+        customBodyRender: (value: any) => {
+          let isHighPriority;
+          let isMediumPriority;
+          let isLowPriority;
+
+          if (value) {
+            isHighPriority = value.toLowerCase() === "high";
+            isMediumPriority = value.toLowerCase() === "medium";
+            isLowPriority = value.toLowerCase() === "low";
+          }
+
+          return (
+            <div>
+              <div className="inline-block mr-1">
+                <div
+                  className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
+                    isHighPriority
+                      ? "bg-defaultRed"
+                      : isMediumPriority
+                      ? "bg-yellowColor"
+                      : isLowPriority
+                      ? "bg-primary"
+                      : "bg-lightSilver"
+                  }`}
+                ></div>
+              </div>
+              {value === null || "" ? "-" : value}
+            </div>
+          );
+        },
+      },
+    },
+    {
+      name: "ColorCode",
+      options: {
+        filter: false,
+        sort: false,
+        display: false,
+        viewColumns: false,
+      },
+    },
+    {
+      name: "StatusName",
+      options: {
+        filter: true,
+        sort: true,
+        viewColumns: false,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm">Status</span>
+        ),
+        customBodyRender: (value: any, tableMeta: any) => {
+          const statusColorCode = tableMeta.rowData[8];
+          return (
+            <div>
+              <div className="inline-block mr-1">
+                <div
+                  className="w-[10px] h-[10px] rounded-full inline-block mr-2"
+                  style={{ backgroundColor: statusColorCode }}
+                ></div>
+              </div>
+              {value === null || "" ? "-" : value}
+            </div>
+          );
+        },
+      },
+    },
+    {
       name: "ClientName",
       options: {
         filter: true,
@@ -1062,17 +1442,135 @@ const Datatable = ({
                     </ColorToolTip>
                   )}
 
-                {hasPermissionWorklog("Reccuring", "View", "WorkLogs") &&
-                  selectedRowsCount === 1 && (
-                    <ColorToolTip title="Recurring" arrow>
+                <ColorToolTip title="Priority" arrow>
+                  <span
+                    aria-describedby={idPriority}
+                    onClick={handleClickPriority}
+                    className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                  >
+                    <Priority />
+                  </span>
+                </ColorToolTip>
+
+                {/* Priority Popover */}
+                <Popover
+                  id={idPriority}
+                  open={openPriority}
+                  anchorEl={anchorElPriority}
+                  onClose={handleClosePriority}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                >
+                  <nav className="!w-52">
+                    <List>
+                      {priorityOptions.map((option, index) => (
+                        <span
+                          key={index}
+                          className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                        >
+                          <span
+                            className="p-1 cursor-pointer"
+                            onClick={() => handleOptionPriority(option.id)}
+                          >
+                            {option.text}
+                          </span>
+                        </span>
+                      ))}
+                    </List>
+                  </nav>
+                </Popover>
+
+                {/* if the selected client Ids and worktype ids are same then only the Assignee icon will show */}
+                {areAllValuesSame(selectedRowClientId) &&
+                  areAllValuesSame(selectedRowWorkTypeId) && (
+                    <ColorToolTip title="Assignee" arrow>
                       <span
+                        aria-describedby={idAssignee}
+                        onClick={handleClickAssignee}
                         className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
-                        onClick={() => onRecurring(true, selectedRowId)}
                       >
-                        <Recurring />
+                        <Assignee />
                       </span>
                     </ColorToolTip>
                   )}
+
+                {/* Assignee Popover */}
+                <Popover
+                  id={idAssignee}
+                  open={openAssignee}
+                  anchorEl={anchorElAssignee}
+                  onClose={handleCloseAssignee}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                >
+                  <nav className="!w-52">
+                    <List>
+                      {filteredAssignees.map((assignee: any, index: any) => {
+                        return (
+                          <span
+                            key={index}
+                            className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                          >
+                            <span
+                              className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
+                              onClick={() =>
+                                handleOptionAssignee(assignee.value)
+                              }
+                            >
+                              <Avatar
+                                sx={{ width: 32, height: 32, fontSize: 14 }}
+                              >
+                                {assignee.label
+                                  .split(" ")
+                                  .map((word: any) =>
+                                    word.charAt(0).toUpperCase()
+                                  )
+                                  .join("")}
+                              </Avatar>
+
+                              <span className="pt-[0.8px]">
+                                {assignee.label}
+                              </span>
+                            </span>
+                          </span>
+                        );
+                      })}
+                    </List>
+                    <div className="mr-4 ml-4 mb-4">
+                      <div
+                        className="flex items-center h-10 rounded-md pl-2 flex-row"
+                        style={{
+                          border: "1px solid lightgray",
+                        }}
+                      >
+                        <span className="mr-2">
+                          <SearchIcon />
+                        </span>
+                        <span>
+                          <InputBase
+                            placeholder="Search"
+                            inputProps={{ "aria-label": "search" }}
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                            style={{ fontSize: "13px" }}
+                          />
+                        </span>
+                      </div>
+                    </div>
+                  </nav>
+                </Popover>
 
                 {hasPermissionWorklog("Comment", "View", "WorkLogs") &&
                   selectedRowsCount === 1 && (
