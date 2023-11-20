@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-key */
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import axios from "axios";
@@ -302,8 +303,6 @@ const page = () => {
   useEffect(() => {
     if (projectSearchValue.length > 3) {
       getProjectSearchData(projectSearchValue);
-    } else {
-      getProjectSearchData("");
     }
   }, [projectSearchValue]);
 
@@ -350,8 +349,6 @@ const page = () => {
   useEffect(() => {
     if (userSeachValue.length > 3) {
       getUserSearchData(userSeachValue);
-    } else {
-      getUserSearchData("");
     }
   }, [userSeachValue]);
 
@@ -394,8 +391,6 @@ const page = () => {
   useEffect(() => {
     if (timesheetSearchValue.length > 3) {
       getTimesheetSearchData(timesheetSearchValue);
-    } else {
-      getTimesheetSearchData("");
     }
   }, [timesheetSearchValue]);
 
@@ -433,8 +428,6 @@ const page = () => {
   useEffect(() => {
     if (workloadSearchValue.length > 3) {
       getWorkloadSearchData(workloadSearchValue);
-    } else {
-      getWorkloadSearchData("");
     }
   }, [workloadSearchValue]);
 
@@ -477,8 +470,6 @@ const page = () => {
   useEffect(() => {
     if (userLogSearchValue.length > 3) {
       getUserLogSearchData(userLogSearchValue);
-    } else {
-      getUserLogSearchData("");
     }
   }, [userLogSearchValue]);
 
@@ -516,8 +507,6 @@ const page = () => {
   useEffect(() => {
     if (auditSearchValue.length > 3) {
       getAuditReportData(auditSearchValue);
-    } else {
-      getAuditReportData("");
     }
   }, [auditSearchValue]);
 
@@ -564,8 +553,6 @@ const page = () => {
   useEffect(() => {
     if (billingReportSearchValue.length > 3) {
       getBillingReportData(billingReportSearchValue);
-    } else {
-      getBillingReportData("");
     }
   }, [billingReportSearchValue]);
 
@@ -612,8 +599,6 @@ const page = () => {
   useEffect(() => {
     if (customReportSearchValue.length > 3) {
       getCustomReportData(customReportSearchValue);
-    } else {
-      getCustomReportData("");
     }
   }, [customReportSearchValue]);
 
@@ -651,8 +636,6 @@ const page = () => {
   useEffect(() => {
     if (ratingSearchValue.length > 3) {
       getRatingSearchData(ratingSearchValue);
-    } else {
-      getRatingSearchData("");
     }
   }, [ratingSearchValue]);
 
@@ -694,7 +677,7 @@ const page = () => {
       <div>
         <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
         <div className="w-full pr-5 flex items-center justify-between">
-          <div className="my-[15px] flex justify-between items-center">
+          <div className="flex justify-between items-center">
             <div className="flex justify-center items-center">
               {activeTabs
                 .filter((tab: any) => tab !== false)

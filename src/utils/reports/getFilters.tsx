@@ -68,7 +68,7 @@ export const userLogs_InitialFilter: any = {
   isActive: true,
   users: [],
   dateFilter: null,
-  isLoggedInFilter: 0,
+  isLoggedInFilter: null,
   isDownload: false,
 };
 
@@ -82,6 +82,7 @@ export const audit_InitialFilter: any = {
   StartDate: null,
   EndDate: null,
   Clients: [],
+  Users: [],
 };
 
 export const billingreport_InitialFilter = {

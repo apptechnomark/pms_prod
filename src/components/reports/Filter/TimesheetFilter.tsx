@@ -2,6 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
+  Autocomplete,
   Button,
   Dialog,
   DialogActions,
@@ -45,6 +46,7 @@ const TimesheetFilter = ({
   onDialogClose,
 }: FilterType) => {
   const [userNames, setUserNames] = useState<number[]>([]);
+  const [users, setUsers] = useState<number[]>([]);
   const [dept, setDept] = useState<string | number>(0);
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
@@ -442,22 +444,26 @@ const TimesheetFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
+                  sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
                 >
-                  <InputLabel id="billingType">User Name</InputLabel>
-                  <Select
+                  <Autocomplete
                     multiple
-                    labelId="billingType"
-                    id="billingType"
-                    value={userNames}
-                    onChange={(e: any) => setUserNames(e.target.value)}
-                  >
-                    {userDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                    id="tags-standard"
+                    options={userDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setUserNames(data.map((d: any) => d.value));
+                      setUsers(data);
+                    }}
+                    value={users}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="User Name"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"

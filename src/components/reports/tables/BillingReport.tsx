@@ -1,12 +1,10 @@
 import axios from "axios";
+import dayjs from "dayjs";
 import { toast } from "react-toastify";
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  TablePagination,
-  TextField,
-  ThemeProvider,
-  createTheme,
-} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider, TimeField } from "@mui/x-date-pickers";
+import { TablePagination, ThemeProvider, createTheme } from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
@@ -15,9 +13,6 @@ import { options } from "./Options/Options";
 //filter for billing report
 import { billingreport_InitialFilter } from "@/utils/reports/getFilters";
 import { toSeconds } from "@/utils/timerFunctions";
-import { LocalizationProvider, TimeField } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs, { Dayjs } from "dayjs";
 
 const getMuiTheme = () =>
   createTheme({
@@ -55,13 +50,10 @@ const BillingReport = ({
   const [raisedInvoice, setRaisedInvoice] = useState<any>([]);
   const [finalBTCData, setFinalBTCData] = useState<any>([]);
   const [isBTCSaved, setBTCSaved] = useState<boolean>(false);
-  // const [selectedRowsWorkItemId, setSelectedRowsWorkItemId] = useState<any[]>(
-  //   []
-  // );
-  const [btcTime, setBTCTime] = useState<string>("0000-00-00T00:00:00");
+
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
-  const [editingRowIndex, setEditingRowIndex] = useState<number[]>([]);
+
   const [billingReportData, setBiliingReportData] = useState<any>([]);
 
   // getting Billing Report Data by Search
@@ -132,7 +124,6 @@ const BillingReport = ({
         if (response.data.ResponseStatus === "Success") {
           setBTCSaved(true);
           onSaveBTCDataComplete(false);
-          setBTCTime("0000-00-00T00:00:00");
           setBTCData([]);
           setRaisedInvoice([]);
           setFinalBTCData([]);
@@ -215,9 +206,6 @@ const BillingReport = ({
           ];
         }
       });
-      // setRaisedInvoice([]);
-    } else {
-      setBTCTime("0000-00-00T00:00:00");
     }
   };
 
@@ -587,46 +575,33 @@ const BillingReport = ({
           return (
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               {!billingReportData[tableMeta.rowIndex].IsBTC ? (
-                editingRowIndex.includes(tableMeta.rowIndex) ? (
-                  <TimeField
-                    label="BTC Time"
-                    value={btcTime}
-                    // inputProps={<TextField placeholder="00:00:00" />}
-                    onChange={(newValue: any) => {
-                      setBTCTime(newValue);
-                      handleBTCData(
-                        newValue,
-                        billingReportData[tableMeta.rowIndex].WorkItemId
-                      );
-                    }}
-                    onBlur={() => setEditingRowIndex([])}
-                    format="HH:mm:ss"
-                    variant="standard"
-                  />
-                ) : (
-                  <TimeField
-                    readOnly={editingRowIndex.includes(tableMeta.rowIndex)}
-                    label="BTC Time"
-                    format="HH:mm:ss"
-                    variant="standard"
-                    value={
-                      // btcTime
-                      value === null || value === 0
-                        ? dayjs("0000-00-00T00:00:00")
-                        : dayjs(`0000-00-00T${value}`)
-                    }
-                    onChange={(newValue: any) => {
-                      setBTCTime(newValue);
-                    }}
-                    onClick={() =>
-                      setEditingRowIndex([
-                        ...editingRowIndex,
-                        tableMeta.rowIndex,
-                      ])
-                    }
-                    onBlur={() => setEditingRowIndex([])}
-                  />
-                )
+                <TimeField
+                  label="BTC Time"
+                  value={
+                    billingReportData[tableMeta.rowIndex].BTC === null ||
+                    billingReportData[tableMeta.rowIndex].BTC === 0
+                      ? dayjs("0000-00-00T00:00:00")
+                      : dayjs(`0000-00-00T${value}`)
+                  }
+                  onChange={(newValue: any) => {
+                    setBiliingReportData((prevData: any) =>
+                      prevData.map((data: any, index: number) =>
+                        index === tableMeta.rowIndex
+                          ? {
+                              ...data,
+                              BTC: `${newValue.$H}:${newValue.$m}:${newValue.$s}`,
+                            }
+                          : { ...data }
+                      )
+                    );
+                    handleBTCData(
+                      newValue,
+                      billingReportData[tableMeta.rowIndex].WorkItemId
+                    );
+                  }}
+                  format="HH:mm:ss"
+                  variant="standard"
+                />
               ) : (
                 <TimeField
                   readOnly

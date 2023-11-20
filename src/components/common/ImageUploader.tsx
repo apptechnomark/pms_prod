@@ -7,12 +7,25 @@ import CloseIcon from "@/assets/icons/reports/CloseIcon";
 import { Button, Popover } from "@mui/material";
 import { Transition } from "../reports/Filter/Transition/Transition";
 
-export default function ImageUploader({ getData, onClose, sendData }: any) {
+export default function ImageUploader({
+  getData,
+  onClose,
+  systemFile,
+  originalFile,
+  isOpen,
+  onHandlePopoverClose,
+  isDisable,
+}: any) {
   const [fileData, setFileData] = useState<any>(null);
   const [selectedFileDisplay, setSelectedFileDisplay] = useState<any>("");
   const [originalFileDisplay, setOriginalFileDisplay] = useState<any>("");
   const [isExpanded, setIsExpanded] = useState(false);
-  // console.log(sendData)
+
+  useEffect(() => {
+    systemFile.length > 0 && getFileFromBlob(systemFile);
+    originalFile.length > 0 && setOriginalFileDisplay(originalFile);
+    systemFile.length > 0 && setIsExpanded(isOpen);
+  }, [systemFile]);
 
   useEffect(() => {
     setFileData(null);
@@ -35,6 +48,7 @@ export default function ImageUploader({ getData, onClose, sendData }: any) {
     };
     const fileName = uuidv4().slice(0, 32);
     setOriginalFileDisplay(fileData.name);
+    getData(fileData.name, fileName);
     if (fileData) {
       await uploadFileToBlob(fileData, fileName);
     }
@@ -43,7 +57,7 @@ export default function ImageUploader({ getData, onClose, sendData }: any) {
   const uploadFileToBlob = useCallback(
     async (file: any | null, newFileName: string) => {
       const storageAccount = "pmsdevstorage";
-      const containerName = "dev/attachment";
+      const containerName: any = process.env.attachment;
       const sasToken =
         "sp=racwdl&st=2023-11-09T10:49:18Z&se=2023-12-30T18:49:18Z&sv=2022-11-02&sr=c&sig=%2FZvhReFGg0jpW6oX5BLY%2FzmiL86ocutLIbYmZkDsjH0%3D";
 
@@ -63,16 +77,15 @@ export default function ImageUploader({ getData, onClose, sendData }: any) {
         })
         .then(async (res) => {
           getFileFromBlob(newFileName);
-          getData(file.name, newFileName);
         })
         .catch((err) => console.log("err", err));
     },
     []
   );
 
-  const getFileFromBlob = useCallback(async (fileName: string) => {
+  const getFileFromBlob = async (fileName: string) => {
     const storageAccount = "pmsdevstorage";
-    const containerName = "dev/attachment";
+    const containerName: any = process.env.attachment;
     const sasToken =
       "sp=racwdl&st=2023-11-09T10:49:18Z&se=2023-12-30T18:49:18Z&sv=2022-11-02&sr=c&sig=%2FZvhReFGg0jpW6oX5BLY%2FzmiL86ocutLIbYmZkDsjH0%3D";
 
@@ -96,7 +109,7 @@ export default function ImageUploader({ getData, onClose, sendData }: any) {
     } else {
       console.error("Blob body is undefined");
     }
-  }, []);
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -141,6 +154,7 @@ export default function ImageUploader({ getData, onClose, sendData }: any) {
       >
         <FileIcon />
         <input
+          disabled={isDisable}
           type="file"
           accept="image/*,.pdf"
           ref={fileInputRef}
@@ -149,15 +163,18 @@ export default function ImageUploader({ getData, onClose, sendData }: any) {
           onChange={handleImageChange}
         />
       </span>
-      <div onClick={() => setIsExpanded(true)} className="mt-6">
+      {/* <div onClick={() => setIsExpanded(true)} className="mt-6">
         {originalFileDisplay.length > 0 && originalFileDisplay}
-      </div>
+      </div> */}
 
       <Popover
         id="id"
         open={isExpanded}
         TransitionComponent={Transition}
-        onClose={() => setIsExpanded(false)}
+        onClose={() => {
+          setIsExpanded(false);
+          onHandlePopoverClose();
+        }}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "center",
@@ -168,16 +185,19 @@ export default function ImageUploader({ getData, onClose, sendData }: any) {
         }}
       >
         <div className="px-5 w-full flex flex-col items-center justify-center">
-          <div className="flex items-center justify-between gap-20">
+          <div className="flex items-center justify-between w-[100%] gap-20">
             <div className="my-5 flex items-center">{originalFileDisplay}</div>
             <div
               className="cursor-pointer"
-              onClick={() => setIsExpanded(false)}
+              onClick={() => {
+                setIsExpanded(false);
+                onHandlePopoverClose();
+              }}
             >
               <CloseIcon />
             </div>
           </div>
-          <div className="w-[80%] h-[150px] bg-gray-200 border rounded-lg flex items-center justify-center mt-6 mb-2">
+          <div className="w-[300px] h-[150px] bg-gray-200 border rounded-lg flex items-center justify-center mt-6 mb-2">
             <svg
               stroke="currentColor"
               fill="currentColor"

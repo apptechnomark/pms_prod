@@ -61,6 +61,7 @@ import {
   hours,
   months,
 } from "@/utils/commonDropdownApiCall";
+import ImageUploader from "../common/ImageUploader";
 
 const EditDrawer = ({
   onOpen,
@@ -572,15 +573,14 @@ const EditDrawer = ({
       NatureOfError: 0,
       CC: [],
       Remark: "",
-      Attachments: "",
-      // [
-      //   {
-      //     AttachmentId: 0,
-      //     UserFileName: "Attachment300.txt",
-      //     SystemFileName: "Attachment3_system.txt",
-      //     AttachmentPath: "/path/to/attachment300.txt",
-      //   },
-      // ],
+      Attachments: [
+        {
+          AttachmentId: 0,
+          UserFileName: "",
+          SystemFileName: "",
+          AttachmentPath: "",
+        },
+      ],
       isSolved: false,
     },
   ]);
@@ -592,6 +592,8 @@ const EditDrawer = ({
   const [remarkErr, setRemarkErr] = useState([false]);
   const [attachmentsErr, setAttachmentsErr] = useState([false]);
   const [deletedErrorLog, setDeletedErrorLog] = useState<any>([]);
+  const [systemFileNameUpload, setSystemFileNameUpload] = useState("");
+  const [originalFileNameUpload, setOriginalFileNameUpload] = useState("");
 
   const handleRootCauseChange = (e: any, index: number) => {
     const newFields = [...errorLogFields];
@@ -648,6 +650,11 @@ const EditDrawer = ({
     const newErrors = [...attachmentsErr];
     newErrors[index] = e.target.value.trim().length <= 0;
     setAttachmentsErr(newErrors);
+  };
+
+  const handlePopoverClose = () => {
+    setSystemFileNameUpload("");
+    setOriginalFileNameUpload("");
   };
 
   const handleCheckboxChange = async (
@@ -719,15 +726,7 @@ const EditDrawer = ({
                     NatureOfError: i.NatureOfError,
                     CC: i.CC.map((j: any) => j.value),
                     Remark: i.Remark,
-                    Attachments: null,
-                    // [
-                    //   {
-                    //     AttachmentId: 0,
-                    //     UserFileName: "Attachment300.txt",
-                    //     SystemFileName: "Attachment3_system.txt",
-                    //     AttachmentPath: "/path/to/attachment300.txt",
-                    //   },
-                    // ],
+                    Attachments: i.Attachments,
                   })
               ),
               IsClientWorklog: false,
@@ -1620,15 +1619,14 @@ const EditDrawer = ({
                   NatureOfError: 0,
                   CC: [],
                   Remark: "",
-                  Attachments: "",
-                  // [
-                  //   {
-                  //     AttachmentId: 0,
-                  //     UserFileName: "Attachment300.txt",
-                  //     SystemFileName: "Attachment3_system.txt",
-                  //     AttachmentPath: "/path/to/attachment300.txt",
-                  //   },
-                  // ],
+                  Attachments: [
+                    {
+                      AttachmentId: 0,
+                      UserFileName: "",
+                      SystemFileName: "",
+                      AttachmentPath: "",
+                    },
+                  ],
                   isSolved: false,
                 },
               ])
@@ -1650,15 +1648,7 @@ const EditDrawer = ({
                         )
                       ).filter(Boolean),
                       Remark: i.Remark,
-                      Attachments: "",
-                      // [
-                      //   {
-                      //     AttachmentId: 0,
-                      //     UserFileName: "Attachment300.txt",
-                      //     SystemFileName: "Attachment3_system.txt",
-                      //     AttachmentPath: "/path/to/attachment300.txt",
-                      //   },
-                      // ],
+                      Attachments: i.Attachment,
                       isSolved: i.IsSolved,
                     })
                 )
@@ -2974,15 +2964,14 @@ const EditDrawer = ({
         NatureOfError: 0,
         CC: [],
         Remark: "",
-        Attachments: "",
-        // [
-        //   {
-        //     AttachmentId: 0,
-        //     UserFileName: "Attachment300.txt",
-        //     SystemFileName: "Attachment3_system.txt",
-        //     AttachmentPath: "/path/to/attachment300.txt",
-        //   },
-        // ],
+        Attachments: [
+          {
+            AttachmentId: 0,
+            UserFileName: "",
+            SystemFileName: "",
+            AttachmentPath: "",
+          },
+        ],
         isSolved: false,
       },
     ]);
@@ -2994,6 +2983,8 @@ const EditDrawer = ({
     setRemarkErr([false]);
     setAttachmentsErr([false]);
     setDeletedErrorLog([]);
+    setSystemFileNameUpload("");
+    setOriginalFileNameUpload("");
 
     // Comments
     setCommentData([]);
@@ -5676,6 +5667,44 @@ const EditDrawer = ({
                                   InputProps={{ readOnly: true }}
                                   inputProps={{ readOnly: true }}
                                 />
+                                <div className="flex flex-col">
+                                  <div className="flex">
+                                    <ImageUploader
+                                      systemFile={
+                                        systemFileNameUpload.length > 0 &&
+                                        systemFileNameUpload
+                                      }
+                                      originalFile={
+                                        originalFileNameUpload.length > 0 &&
+                                        originalFileNameUpload
+                                      }
+                                      isOpen={
+                                        systemFileNameUpload ===
+                                        i.Attachments[0]?.SystemFileName
+                                          ? true
+                                          : false
+                                      }
+                                      onHandlePopoverClose={handlePopoverClose}
+                                      isDisable={true}
+                                    />
+                                    {i.Attachments[0]?.SystemFileName.length >
+                                      0 && (
+                                      <span
+                                        onClick={() => {
+                                          setSystemFileNameUpload(
+                                            i.Attachments[0]?.SystemFileName
+                                          );
+                                          setOriginalFileNameUpload(
+                                            i.Attachments[0]?.UserFileName
+                                          );
+                                        }}
+                                        className="mt-6 ml-2"
+                                      >
+                                        {i.Attachments[0]?.UserFileName}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
                                 {/* <TextField
                                   label={
                                     <span>
@@ -5699,8 +5728,12 @@ const EditDrawer = ({
                                 /> */}
                                 <FormGroup>
                                   <FormControlLabel
+                                    className="ml-2"
                                     control={
                                       <Checkbox
+                                        checked={
+                                          i.isSolved === true ? true : false
+                                        }
                                         onChange={(e) =>
                                           handleCheckboxChange(
                                             onEdit,
@@ -5715,7 +5748,6 @@ const EditDrawer = ({
                                           status === 9 ||
                                           status === 8
                                         }
-                                        checked={i.IsSolved}
                                       />
                                     }
                                     label="Is Resolved"
@@ -5729,6 +5761,7 @@ const EditDrawer = ({
                   )}
                 </div>
               )}
+              {console.log(errorLogFields)}
 
             {onEdit > 0 && (
               <div className="mt-14" id={`${onEdit > 0 && "tabpanel-8"}`}>

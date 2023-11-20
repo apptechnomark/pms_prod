@@ -508,7 +508,7 @@ const Datatable_CompletedTask = ({
         sort: true,
         customHeadLabelRender: () => <span className="font-bold">Status</span>,
         customBodyRender: (value: any, tableMeta: any) => {
-          const statusColorCode = tableMeta.rowData[8];
+          const statusColorCode = tableMeta.rowData[9];
           return (
             <div>
               {value === null || value === "" ? (

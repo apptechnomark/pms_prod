@@ -40,6 +40,7 @@ import {
   getProjectDropdownData,
   getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
+import ImageUploader from "../common/ImageUploader";
 
 const Drawer = ({
   onOpen,
@@ -593,21 +594,22 @@ const Drawer = ({
       ErrorCount: 0,
       NatureOfError: 0,
       Remark: "",
-      Attachments: "",
-      // [
-      //   {
-      //     AttachmentId: 0,
-      //     UserFileName: "Attachment300.txt",
-      //     SystemFileName: "Attachment3_system.txt",
-      //     AttachmentPath: "/path/to/attachment300.txt",
-      //   },
-      // ],
+      Attachments: [
+        {
+          AttachmentId: 0,
+          UserFileName: "",
+          SystemFileName: "",
+          AttachmentPath: process.env.attachment,
+        },
+      ],
       isSolved: false,
     },
   ]);
   const [remarkErr, setRemarkErr] = useState([false]);
   const [attachmentsErr, setAttachmentsErr] = useState([false]);
   const [deletedErrorLog, setDeletedErrorLog] = useState<any>([]);
+  const [systemFileNameUpload, setSystemFileNameUpload] = useState("");
+  const [originalFileNameUpload, setOriginalFileNameUpload] = useState("");
 
   const addErrorLogField = () => {
     setErrorLogFields([
@@ -622,15 +624,14 @@ const Drawer = ({
         ErrorCount: 0,
         NatureOfError: 0,
         Remark: "",
-        Attachments: "",
-        // [
-        //   {
-        //     AttachmentId: 0,
-        //     UserFileName: "Attachment300.txt",
-        //     SystemFileName: "Attachment3_system.txt",
-        //     AttachmentPath: "/path/to/attachment300.txt",
-        //   },
-        // ],
+        Attachments: [
+          {
+            AttachmentId: 0,
+            UserFileName: "",
+            SystemFileName: "",
+            AttachmentPath: process.env.attachment,
+          },
+        ],
         isSolved: false,
       },
     ]);
@@ -660,13 +661,33 @@ const Drawer = ({
     setRemarkErr(newErrors);
   };
 
-  const handleAttachmentsChange = (e: any, index: number) => {
+  const handleAttachmentsChange = (
+    data1: any,
+    data2: any,
+    Attachments: any,
+    index: number
+  ) => {
     const newFields = [...errorLogFields];
-    newFields[index].Attachments = e.target.value;
+    newFields[index].Attachments = [
+      {
+        AttachmentId: Attachments[0].AttachmentId,
+        UserFileName: data1,
+        SystemFileName: data2,
+        AttachmentPath: process.env.attachment,
+      },
+    ];
     setErrorLogFields(newFields);
+
     const newErrors = [...attachmentsErr];
-    newErrors[index] = e.target.value.trim().length <= 0;
+    newErrors[index] =
+      newFields[index].Attachments[0].UserFileName.length <= 0 ||
+      newFields[index].Attachments[0].SystemFileName.length <= 0;
     setAttachmentsErr(newErrors);
+  };
+
+  const handlePopoverClose = () => {
+    setSystemFileNameUpload("");
+    setOriginalFileNameUpload("");
   };
 
   const handleSubmitErrorLog = async (e: { preventDefault: () => void }) => {
@@ -677,13 +698,15 @@ const Drawer = ({
         field.Remark.trim().length < 5 || field.Remark.trim().length > 500
     );
     setRemarkErr(newRemarkErrors);
-    // const newAttachmentsErrors = errorLogFields.map(
-    //   (field) => field.Attachments.length === 0
-    // );
-    // setAttachmentsErr(newAttachmentsErrors);
-    hasErrorLogErrors = newRemarkErrors.some((error) => error);
-    // ||
-    // newAttachmentsErrors.some((error) => error);
+    const newAttachmentsErrors = errorLogFields.map(
+      (field) =>
+        field.Attachments[0].UserFileName.length <= 0 ||
+        field.Attachments[0].SystemFileName.length <= 0
+    );
+    setAttachmentsErr(newAttachmentsErrors);
+    hasErrorLogErrors =
+      newRemarkErrors.some((error) => error) ||
+      newAttachmentsErrors.some((error) => error);
     if (!hasErrorLogErrors) {
       if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
         const token = await localStorage.getItem("token");
@@ -704,15 +727,7 @@ const Drawer = ({
                     NatureOfError: 0,
                     CC: [],
                     Remark: i.Remark,
-                    Attachments: null,
-                    // [
-                    //   {
-                    //     AttachmentId: 0,
-                    //     UserFileName: "Attachment300.txt",
-                    //     SystemFileName: "Attachment3_system.txt",
-                    //     AttachmentPath: "/path/to/attachment300.txt",
-                    //   },
-                    // ],
+                    Attachments: i.Attachments,
                   })
               ),
               IsClientWorklog: true,
@@ -1049,15 +1064,14 @@ const Drawer = ({
                   ErrorCount: 0,
                   NatureOfError: 0,
                   Remark: "",
-                  Attachments: "",
-                  // [
-                  //   {
-                  //     AttachmentId: 0,
-                  //     UserFileName: "Attachment300.txt",
-                  //     SystemFileName: "Attachment3_system.txt",
-                  //     AttachmentPath: "/path/to/attachment300.txt",
-                  //   },
-                  // ],
+                  Attachments: [
+                    {
+                      AttachmentId: 0,
+                      UserFileName: "",
+                      SystemFileName: "",
+                      AttachmentPath: process.env.attachment,
+                    },
+                  ],
                   isSolved: false,
                 },
               ])
@@ -1079,15 +1093,7 @@ const Drawer = ({
                         )
                       ).filter(Boolean),
                       Remark: i.Remark,
-                      Attachments: "",
-                      // [
-                      //   {
-                      //     AttachmentId: 0,
-                      //     UserFileName: "Attachment300.txt",
-                      //     SystemFileName: "Attachment3_system.txt",
-                      //     AttachmentPath: "/path/to/attachment300.txt",
-                      //   },
-                      // ],
+                      Attachments: i.Attachment,
                       isSolved: i.IsSolved,
                     })
                 )
@@ -1305,15 +1311,14 @@ const Drawer = ({
         ErrorCount: 0,
         NatureOfError: 0,
         Remark: "",
-        Attachments: "",
-        // [
-        //   {
-        //     AttachmentId: 0,
-        //     UserFileName: "Attachment300.txt",
-        //     SystemFileName: "Attachment3_system.txt",
-        //     AttachmentPath: "/path/to/attachment300.txt",
-        //   },
-        // ],
+        Attachments: [
+          {
+            AttachmentId: 0,
+            UserFileName: "",
+            SystemFileName: "",
+            AttachmentPath: process.env.attachment,
+          },
+        ],
         isSolved: false,
       },
     ]);
@@ -1324,14 +1329,11 @@ const Drawer = ({
     setRemarkErr([false]);
     setAttachmentsErr([false]);
     setDeletedErrorLog([]);
+    setSystemFileNameUpload("");
+    setOriginalFileNameUpload("");
 
     onDataFetch();
     onClose();
-  };
-
-  const isWeekend = (date: any) => {
-    const day = date.day();
-    return day === 6 || day === 0;
   };
 
   return (
@@ -1958,7 +1960,7 @@ const Drawer = ({
                   hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && (
                     <>
                       <div className="mt-3 pl-6">
-                        {errorLogFields.map((field, index) => (
+                        {errorLogFields.map((field: any, index: any) => (
                           <div className="w-[100%] mt-4" key={index}>
                             {field.SubmitedBy.length > 0 && (
                               <div className="ml-1 mt-8 mb-3">
@@ -2012,6 +2014,57 @@ const Drawer = ({
                                 variant="standard"
                                 sx={{ mx: 0.75, maxWidth: 492, mt: 1, mr: 2 }}
                               />
+                              <div className="flex flex-col">
+                                <div className="flex">
+                                  <ImageUploader
+                                    getData={(data1: any, data2: any) =>
+                                      handleAttachmentsChange(
+                                        data1,
+                                        data2,
+                                        field.Attachments,
+                                        index
+                                      )
+                                    }
+                                    systemFile={
+                                      systemFileNameUpload.length > 0 &&
+                                      systemFileNameUpload
+                                    }
+                                    originalFile={
+                                      originalFileNameUpload.length > 0 &&
+                                      originalFileNameUpload
+                                    }
+                                    isOpen={
+                                      systemFileNameUpload ===
+                                      field.Attachments[0]?.SystemFileName
+                                        ? true
+                                        : false
+                                    }
+                                    onHandlePopoverClose={handlePopoverClose}
+                                    isDisable={false}
+                                  />
+                                  {field.Attachments[0]?.SystemFileName.length >
+                                    0 && (
+                                    <span
+                                      onClick={() => {
+                                        setSystemFileNameUpload(
+                                          field.Attachments[0]?.SystemFileName
+                                        );
+                                        setOriginalFileNameUpload(
+                                          field.Attachments[0]?.UserFileName
+                                        );
+                                      }}
+                                      className="mt-6 ml-2"
+                                    >
+                                      {field.Attachments[0]?.UserFileName}
+                                    </span>
+                                  )}
+                                </div>
+                                {attachmentsErr[index] && (
+                                  <span className="text-defaultRed">
+                                    Attachment is required.
+                                  </span>
+                                )}
+                              </div>
                               {/* <TextField
                               label={
                                 <span>

@@ -297,7 +297,7 @@ const User = ({ filteredData, onUserSearchData }: any) => {
         title={undefined}
         options={{
           ...options,
-          tableBodyHeight: "66vh",
+          tableBodyHeight: "67vh",
         }}
       />
       <div className="w-full gap-5 flex items-center justify-center">

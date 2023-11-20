@@ -292,15 +292,17 @@ const Workload = ({ filteredData, onWorkloadSearchData }: any) => {
       },
     },
     {
-      name: "Quantity",
+      name: "EstimateTime",
       options: {
         sort: true,
         filter: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">quantity</span>
+          <span className="font-bold text-sm capitalize">Estimate Time</span>
         ),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return (
+            <div>{value === null || value === "" ? "00:00:00" : value}</div>
+          );
         },
       },
     },
@@ -363,7 +365,7 @@ const Workload = ({ filteredData, onWorkloadSearchData }: any) => {
                 Standard Time:
               </label>
               <label className="text-sm font-normal font-proxima text-slatyGrey capitalize">
-                {workloadData[clickedRowId]?.TotalTime}
+                {workloadData[clickedRowId]?.TotalStandardTime}
               </label>
             </div>
             <LineIcon />
@@ -372,7 +374,7 @@ const Workload = ({ filteredData, onWorkloadSearchData }: any) => {
                 total time:
               </label>
               <label className="text-sm font-normal font-proxima text-slatyGrey capitalize">
-                {workloadData[clickedRowId]?.TotalStandardTime}
+                {workloadData[clickedRowId]?.TotalTime}
               </label>
             </div>
           </div>

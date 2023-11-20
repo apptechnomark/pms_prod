@@ -2,6 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
+  Autocomplete,
   Button,
   Dialog,
   DialogActions,
@@ -29,7 +30,7 @@ import { workload } from "../Enum/Filtertype";
 import { workLoad_InitialFilter } from "@/utils/reports/getFilters";
 
 //dropdown api
-import { getDeptData } from "./api/getDropDownData";
+import { getDeptData, getUserData } from "./api/getDropDownData";
 
 //icons
 import SearchIcon from "@/assets/icons/SearchIcon";
@@ -43,11 +44,14 @@ const WorkLoadFilter = ({
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
+  const [userNames, setUserNames] = useState<number[]>([]);
+  const [users, setUsers] = useState<number[]>([]);
   const [dept, setDept] = useState<string | number>(0);
   const [dateFilter, setDateFilter] = useState<any>("");
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
   const [deptDropdown, setDeptDropdown] = useState<any[]>([]);
+  const [userDropdown, setUserDropdown] = useState<any[]>([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [savedFilters, setSavedFilters] = useState<any[]>([]);
@@ -66,9 +70,14 @@ const WorkLoadFilter = ({
   };
 
   const handleResetAll = () => {
+    setUserNames([]);
     setDept(0);
     setDateFilter("");
-    sendFilterToPage({ ...workLoad_InitialFilter, departmentId: null });
+    sendFilterToPage({
+      ...workLoad_InitialFilter,
+      departmentId: null,
+      users: [],
+    });
   };
 
   const handleClose = () => {
@@ -77,11 +86,13 @@ const WorkLoadFilter = ({
     setDefaultFilter(false);
     setDept(0);
     setDateFilter("");
+    setUserNames([]);
   };
 
   const handleFilterApply = () => {
     sendFilterToPage({
       ...workLoad_InitialFilter,
+      users: userNames,
       departmentId: dept === 0 || dept === "" ? null : dept,
       dateFilter: dateFilter === null || dateFilter === "" ? null : dateFilter,
     });
@@ -94,6 +105,7 @@ const WorkLoadFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...workLoad_InitialFilter,
+          users: savedFilters[index].AppliedFilter.users,
           department: savedFilters[index].AppliedFilter.Department,
         });
       }
@@ -112,6 +124,7 @@ const WorkLoadFilter = ({
           filterId: currentFilterId !== "" ? currentFilterId : null,
           name: filterName,
           AppliedFilter: {
+            users: userNames.length > 0 ? userNames : [],
             Department: dept === 0 ? null : dept,
             dateFilter:
               dateFilter === null || dateFilter === "" ? null : dateFilter,
@@ -155,17 +168,21 @@ const WorkLoadFilter = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      dept !== 0 || dateFilter !== null || dateFilter !== "";
+      dept !== 0 ||
+      dateFilter !== null ||
+      dateFilter !== "" ||
+      userNames.length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-  }, [dept, dateFilter]);
+  }, [dept, dateFilter, userNames]);
 
   useEffect(() => {
     // handleFilterApply();
 
     const workLoadDropdowns = async () => {
       setDeptDropdown(await getDeptData());
+      setUserDropdown(await getUserData());
     };
 
     workLoadDropdowns();
@@ -213,6 +230,11 @@ const WorkLoadFilter = ({
   };
 
   const handleSavedFilterEdit = (index: number) => {
+    setUserNames(
+      savedFilters[index].AppliedFilter.users === null
+        ? []
+        : savedFilters[index].AppliedFilter.users
+    );
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
     setDept(
@@ -381,6 +403,30 @@ const WorkLoadFilter = ({
           <DialogContent>
             <div className="flex flex-col gap-[20px] pt-[15px]">
               <div className="flex gap-[20px]">
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
+                >
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={userDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setUserNames(data.map((d: any) => d.value));
+                      setUsers(data);
+                    }}
+                    value={users}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="User Name"
+                      />
+                    )}
+                  />
+                </FormControl>
+
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}

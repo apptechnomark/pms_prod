@@ -1,6 +1,6 @@
 export const options: any = {
   responsive: "standard",
-  tableBodyHeight: "74vh",
+  tableBodyHeight: "75vh",
   viewColumns: false,
   filter: false,
   print: false,

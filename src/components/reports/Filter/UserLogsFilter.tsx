@@ -38,6 +38,10 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
+const defaultLoggedValue = 1;
+const isLoggedIn = 2;
+const isLoggedOut = 3;
+
 const UserLogsFilter = ({
   isFiltering,
   sendFilterToPage,
@@ -47,6 +51,7 @@ const UserLogsFilter = ({
   const [dept, setDept] = useState<string | number>(0);
   const [dateFilter, setDateFilter] = useState<any>("");
   const [filterName, setFilterName] = useState<string>("");
+  const [isloggedIn, setIsloggedIn] = useState<number | string>(0);
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
   const [deptDropdown, setDeptDropdown] = useState<any[]>([]);
   const [userDropdown, setUserDropdown] = useState<any[]>([]);
@@ -70,12 +75,14 @@ const UserLogsFilter = ({
   const handleResetAll = () => {
     setUserNames([]);
     setDept(0);
+    setIsloggedIn(0);
     setDateFilter("");
 
     sendFilterToPage({
       ...userLogs_InitialFilter,
       users: [],
       department: null,
+      isLoggedInFilter: null,
     });
   };
 
@@ -85,6 +92,7 @@ const UserLogsFilter = ({
     setDefaultFilter(false);
     setUserNames([]);
     setDept(0);
+    setIsloggedIn(0);
     setDateFilter("");
   };
 
@@ -94,6 +102,12 @@ const UserLogsFilter = ({
       users: userNames,
       department: dept === 0 || dept === "" ? null : dept,
       dateFilter: dateFilter === null || dateFilter === "" ? null : dateFilter,
+      isLoggedInFilter:
+        isloggedIn === defaultLoggedValue
+          ? null
+          : isloggedIn === isLoggedIn
+          ? 1
+          : 0,
     });
 
     onDialogClose(false);
@@ -106,6 +120,7 @@ const UserLogsFilter = ({
           ...userLogs_InitialFilter,
           users: savedFilters[index].AppliedFilter.users,
           department: savedFilters[index].AppliedFilter.Department,
+          isLoggedInFilter: savedFilters[index].AppliedFilter.isLoggedInFilter,
         });
       }
     }
@@ -127,6 +142,12 @@ const UserLogsFilter = ({
             Department: dept === 0 ? null : dept,
             dateFilter:
               dateFilter === null || dateFilter === "" ? null : dateFilter,
+            isLoggedInFilter:
+              isloggedIn === defaultLoggedValue
+                ? null
+                : isloggedIn === isLoggedIn
+                ? 1
+                : 0,
           },
           type: user,
         },
@@ -174,11 +195,12 @@ const UserLogsFilter = ({
       userNames.length > 0 ||
       dept !== 0 ||
       dateFilter !== null ||
-      dateFilter !== "";
+      dateFilter !== "" ||
+      isloggedIn !== 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-  }, [dept, userNames, dateFilter]);
+  }, [dept, userNames, dateFilter, isloggedIn]);
 
   useEffect(() => {
     // handleFilterApply();
@@ -235,6 +257,7 @@ const UserLogsFilter = ({
     setFilterName(savedFilters[index].Name);
     setUserNames(savedFilters[index].AppliedFilter.users);
     setDept(savedFilters[index].AppliedFilter.Department);
+    setIsloggedIn(savedFilters[index].AppliedFilter.isLoggedInFilter);
     setDefaultFilter(true);
     setSaveFilter(true);
     setDateFilter(
@@ -455,6 +478,24 @@ const UserLogsFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
+              </div>
+              <div className="flex gap-[20px]">
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, minWidth: 210 }}
+                >
+                  <InputLabel id="isLoggedInFilter">Is LoggedIn</InputLabel>
+                  <Select
+                    labelId="isLoggedInFilter"
+                    id="isLoggedInFilter"
+                    value={isloggedIn === 0 ? "" : isloggedIn}
+                    onChange={(e) => setIsloggedIn(e.target.value)}
+                  >
+                    <MenuItem value={1}>All</MenuItem>
+                    <MenuItem value={2}>Yes</MenuItem>
+                    <MenuItem value={3}>No</MenuItem>
+                  </Select>
+                </FormControl>
               </div>
             </div>
           </DialogContent>

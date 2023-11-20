@@ -2062,15 +2062,14 @@ const EditDrawer = ({
                   NatureOfError: 0,
                   CC: [],
                   Remark: "",
-                  Attachments: "",
-                  // [
-                  //   {
-                  //     AttachmentId: 0,
-                  //     UserFileName: "",
-                  //     SystemFileName: "",
-                  //     AttachmentPath: "dev/attachment",
-                  //   },
-                  // ],
+                  Attachments: [
+                    {
+                      AttachmentId: 0,
+                      UserFileName: "",
+                      SystemFileName: "",
+                      AttachmentPath: process.env.attachment,
+                    },
+                  ],
                   isSolved: false,
                 },
               ])
@@ -2092,7 +2091,7 @@ const EditDrawer = ({
                         )
                       ).filter(Boolean),
                       Remark: i.Remark,
-                      Attachments: "",
+                      Attachments: i.Attachment,
                       isSolved: i.IsSolved,
                     })
                 )
@@ -2358,18 +2357,19 @@ const EditDrawer = ({
       NatureOfError: 0,
       CC: [],
       Remark: "",
-      Attachments: "",
-      // [
-      //   {
-      //     AttachmentId: 0,
-      //     UserFileName: "",
-      //     SystemFileName: "",
-      //     AttachmentPath: "dev/attachment",
-      //   },
-      // ],
+      Attachments: [
+        {
+          AttachmentId: 0,
+          UserFileName: "",
+          SystemFileName: "",
+          AttachmentPath: process.env.attachment,
+        },
+      ],
       isSolved: false,
     },
   ]);
+  const [systemFileNameUpload, setSystemFileNameUpload] = useState("");
+  const [originalFileNameUpload, setOriginalFileNameUpload] = useState("");
   const [errorTypeErr, setErrorTypeErr] = useState([false]);
   const [rootCauseErr, setRootCauseErr] = useState([false]);
   const [errorLogPriorityErr, setErrorLogPriorityErr] = useState([false]);
@@ -2393,15 +2393,14 @@ const EditDrawer = ({
         NatureOfError: 0,
         CC: [],
         Remark: "",
-        Attachments: "",
-        // [
-        //   {
-        //     AttachmentId: 0,
-        //     UserFileName: "",
-        //     SystemFileName: "",
-        //     AttachmentPath: "dev/attachment",
-        //   },
-        // ],
+        Attachments: [
+          {
+            AttachmentId: 0,
+            UserFileName: "",
+            SystemFileName: "",
+            AttachmentPath: process.env.attachment,
+          },
+        ],
         isSolved: false,
       },
     ]);
@@ -2445,9 +2444,9 @@ const EditDrawer = ({
     newRemarkErrors.splice(index, 1);
     setRemarkErr(newRemarkErrors);
 
-    // const newAttachmentErrors = [...attachmentsErr];
-    // newAttachmentErrors.splice(index, 1);
-    // setAttachmentsErr(newAttachmentErrors);
+    const newAttachmentErrors = [...attachmentsErr];
+    newAttachmentErrors.splice(index, 1);
+    setAttachmentsErr(newAttachmentErrors);
   };
 
   const handleErrorTypeChange = (e: any, index: number) => {
@@ -2517,22 +2516,33 @@ const EditDrawer = ({
     setRemarkErr(newErrors);
   };
 
-  const handleAttachmentsChange = (data1: any, data2: any, index: number) => {
+  const handleAttachmentsChange = (
+    data1: any,
+    data2: any,
+    Attachments: any,
+    index: number
+  ) => {
     const newFields = [...errorLogFields];
-    newFields[index].Attachments = "",
-    // [
-    //   {
-    //     AttachmentId: 0,
-    //     UserFileName: data1,
-    //     SystemFileName: data2,
-    //     AttachmentPath: "dev/attachment",
-    //   },
-    // ];
+    newFields[index].Attachments = [
+      {
+        AttachmentId: Attachments[0].AttachmentId,
+        UserFileName: data1,
+        SystemFileName: data2,
+        AttachmentPath: process.env.attachment,
+      },
+    ];
     setErrorLogFields(newFields);
 
     const newErrors = [...attachmentsErr];
-    newErrors[index] = data1.trim().length <= 0 || data2.trim().length <= 0;
+    newErrors[index] =
+      newFields[index].Attachments[0].UserFileName.length <= 0 ||
+      newFields[index].Attachments[0].SystemFileName.length <= 0;
     setAttachmentsErr(newErrors);
+  };
+
+  const handlePopoverClose = () => {
+    setSystemFileNameUpload("");
+    setOriginalFileNameUpload("");
   };
 
   const handleSubmitErrorLog = async (e: { preventDefault: () => void }) => {
@@ -2564,10 +2574,12 @@ const EditDrawer = ({
         field.Remark.trim().length < 5 || field.Remark.trim().length > 500
     );
     setRemarkErr(newRemarkErrors);
-    // const newAttachmentsErrors = errorLogFields.map(
-    //   (field) => field.Attachments.length === 0
-    // );
-    // setAttachmentsErr(newAttachmentsErrors);
+    const newAttachmentsErrors = errorLogFields.map(
+      (field) =>
+        field.Attachments[0].UserFileName.length <= 0 ||
+        field.Attachments[0].SystemFileName.length <= 0
+    );
+    setAttachmentsErr(newAttachmentsErrors);
 
     hasErrorLogErrors =
       newErrorTypeErrors.some((error) => error) ||
@@ -2575,9 +2587,8 @@ const EditDrawer = ({
       newNatureOfErrors.some((error) => error) ||
       newPriorityErrors.some((error) => error) ||
       newErrorCountErrors.some((error) => error) ||
-      newRemarkErrors.some((error) => error);
-      //  ||
-      // newAttachmentsErrors.some((error) => error);
+      newRemarkErrors.some((error) => error) ||
+      newAttachmentsErrors.some((error) => error);
 
     if (!hasErrorLogErrors) {
       if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
@@ -2599,7 +2610,7 @@ const EditDrawer = ({
                     NatureOfError: i.NatureOfError,
                     CC: i.CC.map((j: any) => j.value),
                     Remark: i.Remark,
-                    Attachments: "",
+                    Attachments: i.Attachments,
                   })
               ),
               IsClientWorklog: false,
@@ -2896,15 +2907,14 @@ const EditDrawer = ({
         NatureOfError: 0,
         CC: [],
         Remark: "",
-        Attachments: "",
-        // [
-        //   {
-        //     AttachmentId: 0,
-        //     UserFileName: "",
-        //     SystemFileName: "",
-        //     AttachmentPath: "dev/attachment",
-        //   },
-        // ],
+        Attachments: [
+          {
+            AttachmentId: 0,
+            UserFileName: "",
+            SystemFileName: "",
+            AttachmentPath: process.env.attachment,
+          },
+        ],
         isSolved: false,
       },
     ]);
@@ -2916,6 +2926,8 @@ const EditDrawer = ({
     setRemarkErr([false]);
     setAttachmentsErr([false]);
     setDeletedErrorLog([]);
+    setSystemFileNameUpload("");
+    setOriginalFileNameUpload("");
 
     // Dropdown
     setClientDropdownData([]);
@@ -5763,12 +5775,57 @@ const EditDrawer = ({
                               variant="standard"
                               sx={{ mx: 0.75, maxWidth: 492, mt: 1, mr: 2 }}
                             />
-                            {/* <ImageUploader
-                              getData={(data1: any, data2: any) =>
-                                handleAttachmentsChange(data1, data2, index)
-                              }
-                              sendData={field.Attachments}
-                            /> */}
+                            <div className="flex flex-col">
+                              <div className="flex">
+                                <ImageUploader
+                                  getData={(data1: any, data2: any) =>
+                                    handleAttachmentsChange(
+                                      data1,
+                                      data2,
+                                      field.Attachments,
+                                      index
+                                    )
+                                  }
+                                  systemFile={
+                                    systemFileNameUpload.length > 0 &&
+                                    systemFileNameUpload
+                                  }
+                                  originalFile={
+                                    originalFileNameUpload.length > 0 &&
+                                    originalFileNameUpload
+                                  }
+                                  isOpen={
+                                    systemFileNameUpload ===
+                                    field.Attachments[0]?.SystemFileName
+                                      ? true
+                                      : false
+                                  }
+                                  onHandlePopoverClose={handlePopoverClose}
+                                  isDisable={false}
+                                />
+                                {field.Attachments[0]?.SystemFileName.length >
+                                  0 && (
+                                  <span
+                                    onClick={() => {
+                                      setSystemFileNameUpload(
+                                        field.Attachments[0]?.SystemFileName
+                                      );
+                                      setOriginalFileNameUpload(
+                                        field.Attachments[0]?.UserFileName
+                                      );
+                                    }}
+                                    className="mt-6 ml-2"
+                                  >
+                                    {field.Attachments[0]?.UserFileName}
+                                  </span>
+                                )}
+                              </div>
+                              {attachmentsErr[index] && (
+                                <span className="text-defaultRed">
+                                  Attachment is required.
+                                </span>
+                              )}
+                            </div>
                             {/* <TextField
                               label={
                                 <span>
@@ -5821,7 +5878,7 @@ const EditDrawer = ({
                             {field.isSolved && (
                               <FormGroup>
                                 <FormControlLabel
-                                  className="mt-5"
+                                  className="mt-5 ml-2"
                                   control={
                                     <Checkbox checked={field.isSolved} />
                                   }

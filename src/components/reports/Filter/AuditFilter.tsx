@@ -38,6 +38,7 @@ import {
   getClientData,
   getDeptData,
   getProjectData,
+  getUserData,
   getWorkTypeData,
 } from "./api/getDropDownData";
 
@@ -52,11 +53,14 @@ const AuditFilter = ({
 }: FilterType) => {
   const [clients, setClients] = useState<any[]>([]);
   const [clientName, setClientName] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [userName, setUserName] = useState<any[]>([]);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
 
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
+  const [userDropdown, setUserDropdown] = useState<any[]>([]);
   const [clientDropdown, setClientDropdown] = useState<any[]>([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currentFilterId, setCurrentFilterId] = useState<any>("");
@@ -89,12 +93,15 @@ const AuditFilter = ({
   const handleResetAll = () => {
     setClientName([]);
     setClients([]);
+    setUserName([]);
+    setUsers([]);
     setStartDate("");
     setEndDate("");
 
     sendFilterToPage({
       ...audit_InitialFilter,
       Clients: [],
+      Users: [],
       StartDate: null,
       EndDate: null,
     });
@@ -108,6 +115,8 @@ const AuditFilter = ({
 
     setClientName([]);
     setClients([]);
+    setUserName([]);
+    setUsers([]);
     setStartDate("");
     setEndDate("");
   };
@@ -116,6 +125,7 @@ const AuditFilter = ({
     sendFilterToPage({
       ...audit_InitialFilter,
       Clients: clientName.length > 0 ? clientName : [],
+      Users: userName.length > 0 ? userName : [],
       StartDate:
         startDate.toString().trim().length <= 0
           ? null
@@ -135,6 +145,7 @@ const AuditFilter = ({
         sendFilterToPage({
           ...audit_InitialFilter,
           Clients: savedFilters[index].AppliedFilter.clients,
+          Users: savedFilters[index].AppliedFilter.users,
           StartDate: savedFilters[index].AppliedFilter.startDate,
           EndDate: savedFilters[index].AppliedFilter.endDate,
         });
@@ -155,6 +166,7 @@ const AuditFilter = ({
           name: filterName,
           AppliedFilter: {
             clients: clientName.length > 0 ? clientName : [],
+            users: userName.length > 0 ? userName : [],
             startDate:
               startDate.toString().trim().length <= 0
                 ? null
@@ -209,18 +221,20 @@ const AuditFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       clientName.length > 0 ||
+      userName.length > 0 ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
     setResetting(false);
-  }, [clientName, startDate, endDate]);
+  }, [clientName, userName, startDate, endDate]);
 
   useEffect(() => {
     // handleFilterApply();
     const filterDropdowns = async () => {
       setClientDropdown(await getClientData());
+      setUserDropdown(await getUserData());
     };
     filterDropdowns();
 
@@ -280,6 +294,11 @@ const AuditFilter = ({
       savedFilters[index].AppliedFilter.clients === null
         ? []
         : savedFilters[index].AppliedFilter.clients
+    );
+    setUserName(
+      savedFilters[index].AppliedFilter.users === null
+        ? []
+        : savedFilters[index].AppliedFilter.users
     );
     setStartDate(
       savedFilters[index].AppliedFilter.startDate === null
@@ -468,6 +487,29 @@ const AuditFilter = ({
                     )}
                   />
                 </FormControl>
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
+                >
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={userDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setUsers(data);
+                      setUserName(data.map((d: any) => d.value));
+                    }}
+                    value={users}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="User Name"
+                      />
+                    )}
+                  />
+                </FormControl>
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
@@ -486,6 +528,8 @@ const AuditFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
+              </div>
+              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
