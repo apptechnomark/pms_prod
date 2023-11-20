@@ -5,11 +5,11 @@ export const getColor = (color: any) => {
     switch (typeof color === "string" ? parseInt(color) : color) {
       case 1: //present
         return "#198754"; //green color
-      case 2: //overtime
+      case 2: //incomplete hours
         return "#FF9F43"; //orange color
       case 3: //half day
         return "#FFC107"; //yellow color
-      case 4: //
+      case 4: //overtime
         return "#800080"; //purple color
       case 5: //absent
         return "#dc3545"; //red color

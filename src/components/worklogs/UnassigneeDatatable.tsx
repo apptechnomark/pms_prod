@@ -636,8 +636,9 @@ const UnassigneeDatatable = ({
           const response = await axios.post(
             `${process.env.api_url}/user/GetAssigneeUserDropdown`,
             {
-              ClientId: selectedRowClientId[0],
+              ClientIds: selectedRowClientId,
               WorktypeId: selectedRowWorkTypeId[0],
+              IsAll: selectedRowClientId.length > 1 ? true : false,
             },
             {
               headers: {
@@ -762,6 +763,9 @@ const UnassigneeDatatable = ({
         customHeadLabelRender: () => (
           <span className="font-bold text-sm">Task ID</span>
         ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
       },
     },
     {
@@ -783,7 +787,7 @@ const UnassigneeDatatable = ({
                   }
                 ></div>
               )}
-              {value}
+              {value === null || value === "" ? "-" : value}
             </div>
           );
         },
@@ -801,7 +805,7 @@ const UnassigneeDatatable = ({
           const IsRecurring = tableMeta.rowData[18];
           return (
             <div className="flex items-center gap-2">
-              {value}
+              {value === null || value === "" ? "-" : value}
               {IsRecurring && (
                 <span className="text-secondary font-semibold">
                   <svg
@@ -852,9 +856,7 @@ const UnassigneeDatatable = ({
           <span className="font-bold text-sm">Sub Process</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div>{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null || value === "" ? "-" : value}</div>;
         },
       },
     },
@@ -904,25 +906,23 @@ const UnassigneeDatatable = ({
 
           return (
             <div>
-              {value === null ? (
+              {value === null || value === "" ? (
                 "-"
               ) : (
-                <>
-                  <div className="inline-block mr-1">
-                    <div
-                      className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
-                        isHighPriority
-                          ? "bg-defaultRed"
-                          : isMediumPriority
-                          ? "bg-yellowColor"
-                          : isLowPriority
-                          ? "bg-primary"
-                          : "bg-lightSilver"
-                      }`}
-                    ></div>
-                  </div>
+                <div className="inline-block mr-1">
+                  <div
+                    className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
+                      isHighPriority
+                        ? "bg-defaultRed"
+                        : isMediumPriority
+                        ? "bg-yellowColor"
+                        : isLowPriority
+                        ? "bg-primary"
+                        : "bg-lightSilver"
+                    }`}
+                  ></div>
                   {value}
-                </>
+                </div>
               )}
             </div>
           );
@@ -949,18 +949,16 @@ const UnassigneeDatatable = ({
           const statusColorCode = tableMeta.rowData[8];
           return (
             <div>
-              {value === null ? (
+              {value === null || value === "" ? (
                 "-"
               ) : (
-                <>
-                  <div className="inline-block mr-1">
-                    <div
-                      className="w-[10px] h-[10px] rounded-full inline-block mr-2"
-                      style={{ backgroundColor: statusColorCode }}
-                    ></div>
-                  </div>
+                <div className="inline-block mr-1">
+                  <div
+                    className="w-[10px] h-[10px] rounded-full inline-block mr-2"
+                    style={{ backgroundColor: statusColorCode }}
+                  ></div>
                   {value}
-                </>
+                </div>
               )}
             </div>
           );
@@ -977,9 +975,7 @@ const UnassigneeDatatable = ({
           <span className="font-bold text-sm">Est. Time</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div>{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null || value === "" ? "-" : value}</div>;
         },
       },
     },
@@ -992,9 +988,7 @@ const UnassigneeDatatable = ({
           <span className="font-bold text-sm">Qty.</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div>{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null || value === "" ? "-" : value}</div>;
         },
       },
     },
@@ -1007,9 +1001,7 @@ const UnassigneeDatatable = ({
           <span className="font-bold text-sm">Actual Time</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div>{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null || value === "" ? "-" : value}</div>;
         },
       },
     },
@@ -1022,9 +1014,7 @@ const UnassigneeDatatable = ({
           <span className="font-bold text-sm">Total Est. Time</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div>{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null || value === "" ? "-" : value}</div>;
         },
       },
     },
@@ -1037,7 +1027,7 @@ const UnassigneeDatatable = ({
           <span className="font-bold text-sm">Start Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || value === "") {
             return "-";
           }
 
@@ -1062,7 +1052,7 @@ const UnassigneeDatatable = ({
           <span className="font-bold text-sm">End Date</span>
         ),
         customBodyRender: (value: any) => {
-          if (value === null) {
+          if (value === null || value === "") {
             return "-";
           }
 
@@ -1087,9 +1077,7 @@ const UnassigneeDatatable = ({
           <span className="font-bold text-sm">Assigned By</span>
         ),
         customBodyRender: (value: any) => {
-          return (
-            <div>{value === null ? "-" : value}</div>
-          );
+          return <div>{value === null || value === "" ? "-" : value}</div>;
         },
       },
     },

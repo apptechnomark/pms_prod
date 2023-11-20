@@ -33,11 +33,20 @@ const getMuiTheme = () =>
     },
   });
 
-const UserLogs = ({ filteredData }: any) => {
+const UserLogs = ({ filteredData, onUserLogSearchData }: any) => {
   const [page, setPage] = useState<number>(0);
   const [userlogsData, setUserlogsData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
+
+  // getting User Log data by Search
+  useEffect(() => {
+    if (onUserLogSearchData) {
+      setUserlogsData(onUserLogSearchData);
+    } else {
+      getData(userLogs_InitialFilter);
+    }
+  }, [onUserLogSearchData]);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");
@@ -157,9 +166,14 @@ const UserLogs = ({ filteredData }: any) => {
         customBodyRender: (value: any) => {
           return (
             <div>
-              {value === 0 || value === "0" || value === null
-                ? "-"
-                : value.split("T")[0]}
+              {value === 0 || value === "0" || value === null ? (
+                "-"
+              ) : (
+                <>
+                  {value.split("T")[0]}&nbsp;
+                  {value.split("T")[1]}
+                </>
+              )}
             </div>
           );
         },
@@ -176,9 +190,14 @@ const UserLogs = ({ filteredData }: any) => {
         customBodyRender: (value: any) => {
           return (
             <div>
-              {value === 0 || value === "0" || value === null
-                ? "-"
-                : value.split("T")[0]}
+              {value === 0 || value === "0" || value === null ? (
+                "-"
+              ) : (
+                <>
+                  {value.split("T")[0]}&nbsp;
+                  {value.split("T")[1]}
+                </>
+              )}
             </div>
           );
         },

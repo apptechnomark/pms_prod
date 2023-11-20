@@ -50,6 +50,23 @@ const ProcessContent = forwardRef<
   const [subProcessName, setSubProcessName] = useState("");
   const [subProcessNameError, setSubProcessNameError] = useState(false);
   const [subProcessNameHasError, setSubProcessNameHasError] = useState(false);
+  const [returnType, setReturnType] = useState(-1);
+  const [returnTypeError, setReturnTypeError] = useState(false);
+  const [returnTypeHasError, setReturnTypeHasError] = useState(false);
+  const [returnTypeDrpdown, setReturnTypeDrpdown] = useState([
+    {
+      label: "None",
+      value: 0,
+    },
+    {
+      label: "Individual Return",
+      value: 1,
+    },
+    {
+      label: "Business Return",
+      value: 2,
+    },
+  ]);
   const [estTime, setEstTime] = useState<any>("");
   const [estTimeError, setEstTimeError] = useState(false);
   const [estTimeHasError, setEstTimeHasError] = useState(false);
@@ -205,6 +222,11 @@ const ProcessContent = forwardRef<
           if (response.data.ResponseStatus === "Success") {
             setSelectValue(response.data.ResponseData.ParentId);
             setSubProcessName(response.data.ResponseData.Name);
+            setReturnType(
+              response.data.ResponseData.ReturnType === null
+                ? -1
+                : response.data.ResponseData.ReturnType
+            );
             const estTimeConverted = secondsToHHMMSS(
               response.data.ResponseData.EstimatedHour
             );
@@ -348,11 +370,13 @@ const ProcessContent = forwardRef<
   const setHasTrue = () => {
     setSelectValueErr(true);
     setSubProcessNameError(true);
+    setReturnTypeError(true);
     setEstTimeError(true);
     setActivityError(true);
   };
   const clearData = () => {
     setSubProcessName("");
+    setReturnType(-1);
     setEstTime("");
     setSelectValue(0);
     setInputList([]);
@@ -360,6 +384,8 @@ const ProcessContent = forwardRef<
     setSelectValueHasErr(false);
     setSubProcessNameError(false);
     setSubProcessNameHasError(false);
+    setReturnTypeError(false);
+    setReturnTypeHasError(false);
     setEstTimeError(false);
     setEstTimeHasError(false);
     setActivityError(false);
@@ -382,10 +408,12 @@ const ProcessContent = forwardRef<
     const estTimeTotalSeconds =
       parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
     subProcessName.trim().length <= 0 && setSubProcessNameError(true);
+    returnType <= -1 && setReturnTypeError(true);
     estTime.length < 8 && setEstTimeError(true);
     if (
       !(selectValue <= 0) &&
       !(subProcessName.length <= 0) &&
+      !(returnType <= -1) &&
       !(estTime === "00:00:00") &&
       !(estTime === "") &&
       !(estTime.length < 8) &&
@@ -396,6 +424,7 @@ const ProcessContent = forwardRef<
         const prams = {
           ProcessId: onEdit || 0,
           Name: subProcessName,
+          ReturnTypeId: returnType,
           ActivityList: activity,
           EstimatedHour: estTimeTotalSeconds,
           IsProductive: productive,
@@ -455,11 +484,13 @@ const ProcessContent = forwardRef<
     const estTimeTotalSeconds =
       parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
     subProcessName.trim().length <= 0 && setSubProcessNameError(true);
+    returnType <= -1 && setReturnTypeError(true);
     estTimeTotalSeconds === 0 && setEstTimeError(true);
 
     if (
       !(selectValue <= 0) &&
       !(subProcessName.length <= 0) &&
+      !(returnType <= -1) &&
       !(estTime === "00:00:00") &&
       !(estTime === "") &&
       !(estTime.length < 8) &&
@@ -470,6 +501,7 @@ const ProcessContent = forwardRef<
         const prams = {
           ProcessId: onEdit || 0,
           Name: subProcessName,
+          ReturnTypeId: returnType,
           ActivityList: activity,
           EstimatedHour: estTimeTotalSeconds,
           IsProductive: productive,
@@ -648,6 +680,22 @@ const ProcessContent = forwardRef<
             hasError={subProcessNameError}
             getValue={(value: any) => handleSubProcesChange(value)}
             getError={(e: any) => setSubProcessNameHasError(e)}
+          />
+        </div>
+        <div className="flex flex-col px-[20px] mt-4">
+          <Select
+            label="Return Type"
+            id="return_type"
+            validate
+            placeholder="Select Return Type"
+            defaultValue={returnType === -1 ? "" : returnType}
+            onSelect={() => {}}
+            options={returnTypeDrpdown}
+            hasError={returnTypeError}
+            getValue={(e) => {
+              setReturnType(e);
+            }}
+            getError={(e) => setReturnTypeHasError(e)}
           />
         </div>
         <div className="flex flex-col px-[20px] py-[20px]">

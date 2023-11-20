@@ -43,11 +43,20 @@ const haveSameData = function (obj1: any, obj2: any) {
   return false;
 };
 
-const CustomReport = ({ filteredData }: any) => {
+const CustomReport = ({ filteredData, onCustomReportSearchData }: any) => {
   const [page, setPage] = useState<number>(0);
   const [customReportData, setCustomReportData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
+
+  // getting Custom Report Data by search
+  useEffect(() => {
+    if (onCustomReportSearchData) {
+      setCustomReportData(onCustomReportSearchData);
+    } else {
+      getData(customreport_InitialFilter);
+    }
+  }, [onCustomReportSearchData]);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");
@@ -95,7 +104,15 @@ const CustomReport = ({ filteredData }: any) => {
     newPage: number
   ) => {
     setPage(newPage);
-    getData({ ...filteredData, pageNo: newPage + 1, pageSize: rowsPerPage });
+    if (filteredData !== null) {
+      if (!haveSameData(customreport_InitialFilter, filteredData)) {
+        getData({
+          ...filteredData,
+          pageNo: newPage + 1,
+          pageSize: rowsPerPage,
+        });
+      }
+    }
   };
 
   const handleChangeRowsPerPage = (
@@ -103,16 +120,16 @@ const CustomReport = ({ filteredData }: any) => {
   ) => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
-    getData({
-      ...filteredData,
-      pageNo: 1,
-      pageSize: event.target.value,
-    });
+    if (filteredData !== null) {
+      if (!haveSameData(customreport_InitialFilter, filteredData)) {
+        getData({
+          ...filteredData,
+          pageNo: 1,
+          pageSize: event.target.value,
+        });
+      }
+    }
   };
-
-  // useEffect(() => {
-  //   getData(client_project_InitialFilter);
-  // }, []);
 
   useEffect(() => {
     if (filteredData !== null) {

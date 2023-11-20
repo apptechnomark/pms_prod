@@ -16,6 +16,9 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 import { Transition } from "./Transition/Transition";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 
@@ -27,6 +30,7 @@ import { timesheet } from "../Enum/Filtertype";
 
 //filter body for timesheet
 import { timeSheet_InitialFilter } from "@/utils/reports/getFilters";
+import { getDates } from "@/utils/timerFunctions";
 
 //dropdown api
 import { getDeptData, getUserData } from "./api/getDropDownData";
@@ -47,11 +51,13 @@ const TimesheetFilter = ({
   const [deptDropdown, setDeptDropdown] = useState<any[]>([]);
   const [userDropdown, setUserDropdown] = useState<any[]>([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>();
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [savedFilters, setSavedFilters] = useState<any[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [startDate, setStartDate] = useState<string | number>("");
+  const [endDate, setEndDate] = useState<string | number>("");
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -63,14 +69,28 @@ const TimesheetFilter = ({
     setSearchValue(e.target.value);
   };
 
+  const getFormattedDate = (newValue: any) => {
+    if (newValue !== "") {
+      return `${newValue.$y}-${
+        (newValue.$M + 1).toString().length > 1
+          ? newValue.$M + 1
+          : `0${newValue.$M + 1}`
+      }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+    }
+  };
+
   const handleResetAll = () => {
     setUserNames([]);
     setDept(0);
+    setStartDate("");
+    setEndDate("");
 
     sendFilterToPage({
       ...timeSheet_InitialFilter,
       users: [],
       departmentId: null,
+      startDate: getDates()[0],
+      endDate: getDates()[getDates().length - 1],
     });
   };
 
@@ -80,6 +100,8 @@ const TimesheetFilter = ({
     setDefaultFilter(false);
     setUserNames([]);
     setDept(0);
+    setStartDate("");
+    setEndDate("");
   };
 
   const handleFilterApply = () => {
@@ -87,6 +109,14 @@ const TimesheetFilter = ({
       ...timeSheet_InitialFilter,
       users: userNames,
       departmentId: dept === 0 || dept === "" ? null : dept,
+      startDate:
+        startDate.toString().trim().length <= 0
+          ? getDates()[0]
+          : getFormattedDate(startDate),
+      endDate:
+        endDate.toString().trim().length <= 0
+          ? getDates()[getDates().length - 1]
+          : getFormattedDate(endDate),
     });
 
     onDialogClose(false);
@@ -99,6 +129,8 @@ const TimesheetFilter = ({
           ...timeSheet_InitialFilter,
           users: savedFilters[index].AppliedFilter.users,
           departmentId: savedFilters[index].AppliedFilter.Department,
+          startDate: savedFilters[index].AppliedFilter.startDate,
+          endDate: savedFilters[index].AppliedFilter.endDate,
         });
       }
     }
@@ -113,11 +145,19 @@ const TimesheetFilter = ({
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/savefilter`,
         {
-          filterId: currentFilterId ? currentFilterId : null,
+          filterId: currentFilterId !== "" ? currentFilterId : null,
           name: filterName,
           AppliedFilter: {
             users: userNames.length > 0 ? userNames : [],
             departmentId: dept === 0 ? null : dept,
+            startDate:
+              startDate.toString().trim().length <= 0
+                ? getDates()[0]
+                : getFormattedDate(startDate),
+            endDate:
+              endDate.toString().trim().length <= 0
+                ? getDates()[getDates().length - 1]
+                : getFormattedDate(endDate),
           },
           type: timesheet,
         },
@@ -161,11 +201,15 @@ const TimesheetFilter = ({
   }, []);
 
   useEffect(() => {
-    const isAnyFieldSelected = userNames.length > 0 || dept !== 0;
+    const isAnyFieldSelected =
+      userNames.length > 0 ||
+      dept !== 0 ||
+      startDate.toString().trim().length > 0 ||
+      endDate.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-  }, [dept, userNames]);
+  }, [dept, userNames, startDate, endDate]);
 
   useEffect(() => {
     // handleFilterApply();
@@ -220,8 +264,26 @@ const TimesheetFilter = ({
   const handleSavedFilterEdit = (index: number) => {
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
-    setUserNames(savedFilters[index].AppliedFilter.users);
-    setDept(savedFilters[index].AppliedFilter.Department);
+    setUserNames(
+      savedFilters[index].AppliedFilter.users === null
+        ? []
+        : savedFilters[index].AppliedFilter.users
+    );
+    setDept(
+      savedFilters[index].AppliedFilter.Department === null
+        ? 0
+        : savedFilters[index].AppliedFilter.users
+    );
+    setStartDate(
+      savedFilters[index].AppliedFilter.startDate === null
+        ? ""
+        : savedFilters[index].AppliedFilter.users
+    );
+    setEndDate(
+      savedFilters[index].AppliedFilter.endDate === null
+        ? ""
+        : savedFilters[index].AppliedFilter.users
+    );
     setDefaultFilter(true);
     setSaveFilter(true);
   };
@@ -246,6 +308,7 @@ const TimesheetFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
+          setCurrentFilterId("");
           getFilterList();
         } else {
           const data = response.data.Message;
@@ -266,6 +329,11 @@ const TimesheetFilter = ({
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const isWeekend = (date: any) => {
+    const day = date.day();
+    return day === 6 || day === 0;
   };
 
   return (
@@ -374,9 +442,9 @@ const TimesheetFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 300 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="billingType">User</InputLabel>
+                  <InputLabel id="billingType">User Name</InputLabel>
                   <Select
                     multiple
                     labelId="billingType"
@@ -393,7 +461,7 @@ const TimesheetFilter = ({
                 </FormControl>
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 300 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <InputLabel id="department">Department</InputLabel>
                   <Select
@@ -409,6 +477,45 @@ const TimesheetFilter = ({
                     ))}
                   </Select>
                 </FormControl>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Start Date"
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now()) || dayjs(endDate)}
+                      value={startDate === "" ? null : dayjs(startDate)}
+                      onChange={(newValue: any) => setStartDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+              </div>
+              <div className="flex gap-[20px]">
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="End Date"
+                      shouldDisableDate={isWeekend}
+                      minDate={dayjs(startDate)}
+                      maxDate={dayjs(Date.now())}
+                      value={endDate === "" ? null : dayjs(endDate)}
+                      onChange={(newValue: any) => setEndDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
               </div>
             </div>
           </DialogContent>

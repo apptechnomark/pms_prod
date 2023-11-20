@@ -25,6 +25,7 @@ function Process({
   const headers = [
     { header: "Process", accessor: "process", sortable: true },
     { header: "Sub-Process", accessor: "sub_process", sortable: true },
+    { header: "Return Type", accessor: "ReturnTypeName", sortable: true },
     { header: "Activity", accessor: "activity", sortable: true },
     { header: "Est. Time", accessor: "est_time", sortable: true },
     {
@@ -208,6 +209,15 @@ function Process({
       ...i,
       process: <div className="text-sm">{i.ParentProcessName}</div>,
       sub_process: <div className="text-sm">{i.ChildProcessName}</div>,
+      ReturnTypeName: (
+        <div className="text-sm">
+          {i.ReturnTypeName === null ? (
+            <span className="flex items-center justify-center">-</span>
+          ) : (
+            i.ReturnTypeName
+          )}
+        </div>
+      ),
       activity: (
         <div className="text-sm">
           {firstActivity} {remainingCount > 0 ? `, +${remainingCount}` : ""}

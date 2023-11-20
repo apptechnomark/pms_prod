@@ -38,11 +38,20 @@ const getMuiTheme = () =>
     },
   });
 
-const RatingReport = ({ filteredData }: any) => {
+const RatingReport = ({ filteredData, onRatingSearchData }: any) => {
   const [page, setPage] = useState<number>(0);
   const [ratingData, setRatingData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
+
+  // getting Rating Data by Search
+  useEffect(() => {
+    if (onRatingSearchData) {
+      setRatingData(onRatingSearchData);
+    } else {
+      getData(rating_InitialFilter);
+    }
+  }, []);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");
@@ -50,7 +59,7 @@ const RatingReport = ({ filteredData }: any) => {
 
     try {
       const response = await axios.post(
-        `${process.env.report_api_url}/report/client/rating`,
+        `${process.env.report_api_url}/report/admin/rating`,
         { ...arg1 },
         { headers: { Authorization: `bearer ${token}`, org_token: Org_Token } }
       );
@@ -128,6 +137,17 @@ const RatingReport = ({ filteredData }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => <span className="font-bold">Task ID</span>,
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
+      },
+    },
+    {
+      name: "ClientName",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => <span className="font-bold">Client</span>,
         customBodyRender: (value: any) => {
           return <div>{value === null || value === "" ? "-" : value}</div>;
         },

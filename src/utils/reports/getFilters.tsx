@@ -28,7 +28,7 @@ export const user_InitialFilter: any = {
   departmentId: null,
   isActive: true,
   users: [],
-  startDate: getDates()[getDates().length - 7],
+  startDate: getDates()[0],
   endDate: getDates()[getDates().length - 1],
   isDownload: false,
 };
@@ -42,7 +42,7 @@ export const timeSheet_InitialFilter: any = {
   departmentId: null,
   isActive: true,
   users: [],
-  startDate: getDates()[getDates().length - 5],
+  startDate: getDates()[0],
   endDate: getDates()[getDates().length - 1],
   isDownload: false,
 };
@@ -73,14 +73,15 @@ export const userLogs_InitialFilter: any = {
 };
 
 export const audit_InitialFilter: any = {
-  pageNo: 1,
-  pageSize: 10,
-  sortColumn: "",
-  isDesc: true,
-  globalSearch: "",
-  startDate: null,
-  endDate: null,
-  isDownload: false,
+  PageNo: 1,
+  PageSize: 10,
+  GlobalSearch: "",
+  SortColumn: "",
+  IsDesc: true,
+  IsDownload: false,
+  StartDate: null,
+  EndDate: null,
+  Clients: [],
 };
 
 export const billingreport_InitialFilter = {
@@ -129,6 +130,23 @@ export const customreport_InitialFilter = {
   isDownload: false,
 };
 
+export const rating_InitialFilter: any = {
+  PageNo: 1,
+  PageSize: 10,
+  GlobalSearch: "",
+  SortColumn: "",
+  IsDesc: false,
+  Projects: [],
+  ReturnTypeId: null,
+  TypeofReturnId: null,
+  Ratings: null,
+  Clients: [],
+  DepartmentId: null,
+  DateSubmitted: null,
+  StartDate: null,
+  EndDate: null,
+};
+
 export const getCurrentTabDetails = (
   activeTab: number,
   getBody?: boolean,
@@ -157,5 +175,8 @@ export const getCurrentTabDetails = (
   }
   if (activeTab === 8) {
     return getBody ? customreport_InitialFilter : "custom";
+  }
+  if (activeTab === 9) {
+    return getBody ? rating_InitialFilter : "admin/rating";
   }
 };

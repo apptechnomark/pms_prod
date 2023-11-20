@@ -115,9 +115,7 @@ const EditDrawer = ({
   const [receiverDate, setReceiverDate] = useState<any>("");
   const [receiverDateErr, setReceiverDateErr] = useState(false);
   const [dueDate, setDueDate] = useState<any>("");
-  const [dueDateErr, setDueDateErr] = useState(false);
   const [allInfoDate, setAllInfoDate] = useState<any>("");
-  // const [allInfoDateErr, setAllInfoDateErr] = useState(false);
   const [assignee, setAssignee] = useState<any>([]);
   const [assigneeErr, setAssigneeErr] = useState(false);
   const [reviewer, setReviewer] = useState<any>([]);
@@ -655,32 +653,35 @@ const EditDrawer = ({
   const handleCheckboxChange = async (
     onEdit: any,
     errorLogId: any,
-    checked: any
+    checked: any,
+    index: any
   ) => {
     let hasErrorLogErrors = false;
     const newErrorTypeErrors = errorLogFields.map(
-      (field) => field.ErrorType === 0
+      (field, i) => field.ErrorType === 0 && i === index
     );
     setErrorTypeErr(newErrorTypeErrors);
     const newRootCauseErrors = errorLogFields.map(
-      (field) => field.RootCause === 0
+      (field, i) => field.RootCause === 0 && i === index
     );
     setRootCauseErr(newRootCauseErrors);
     const newNatureOfErrors = errorLogFields.map(
-      (field) => field.NatureOfError === 0
+      (field, i) => field.NatureOfError === 0 && i === index
     );
     setNatureOfErr(newNatureOfErrors);
     const newPriorityErrors = errorLogFields.map(
-      (field) => field.Priority === 0
+      (field, i) => field.Priority === 0 && i === index
     );
     setErrorLogPriorityErr(newPriorityErrors);
     const newErrorCountErrors = errorLogFields.map(
-      (field) => field.ErrorCount <= 0 || field.ErrorCount > 9999
+      (field, i) =>
+        (field.ErrorCount <= 0 || field.ErrorCount > 9999) && i === index
     );
     setErrorCountErr(newErrorCountErrors);
     const newRemarkErrors = errorLogFields.map(
-      (field) =>
-        field.Remark.trim().length < 5 || field.Remark.trim().length > 500
+      (field, i) =>
+        (field.Remark.trim().length < 5 || field.Remark.trim().length > 500) &&
+        i === index
     );
     setRemarkErr(newRemarkErrors);
     // const newAttachmentsErrors = errorLogFields.map(
@@ -840,7 +841,6 @@ const EditDrawer = ({
       clientTaskName: validateField(clientTaskName),
       quantity: validateField(quantity),
       receiverDate: validateField(receiverDate),
-      dueDate: validateField(dueDate),
       assignee: assigneeDisable && validateField(assignee),
       reviewer: validateField(reviewer),
       manager: validateField(manager),
@@ -869,7 +869,6 @@ const EditDrawer = ({
     setClientTaskNameErr(fieldValidations.clientTaskName);
     setQuantityErr(fieldValidations.quantity);
     setReceiverDateErr(fieldValidations.receiverDate);
-    setDueDateErr(fieldValidations.dueDate);
     assigneeDisable && setAssigneeErr(fieldValidations.assignee);
     setReviewerErr(fieldValidations.reviewer);
     setManagerErr(fieldValidations.manager);
@@ -901,10 +900,6 @@ const EditDrawer = ({
       reminderCheckboxValue === 2 &&
       setReminderDateErr(fieldValidations.reminderDate);
 
-    onEdit === 0 &&
-      receiverDate.length > 0 &&
-      dueDate.length > 0 &&
-      setDueDateErr(dayjs(receiverDate) > dayjs(dueDate));
     setClientTaskNameErr(
       clientTaskName.trim().length < 4 || clientTaskName.trim().length > 50
     );
@@ -1163,7 +1158,6 @@ const EditDrawer = ({
       !hasErrors &&
       !hasSubErrors &&
       !hasManualErrors &&
-      !dueDateErr &&
       clientTaskName.trim().length > 3 &&
       clientTaskName.trim().length < 50 &&
       !quantityErr &&
@@ -1184,7 +1178,6 @@ const EditDrawer = ({
       !hasErrors &&
       !hasSubErrors &&
       !hasManualErrors &&
-      !dueDateErr &&
       clientTaskName.trim().length > 3 &&
       clientTaskName.trim().length < 50 &&
       !quantityErr &&
@@ -1223,7 +1216,6 @@ const EditDrawer = ({
       !hasEditErrors &&
       clientTaskName.trim().length > 3 &&
       clientTaskName.trim().length < 50 &&
-      !dueDateErr &&
       quantity > 0 &&
       quantity < 10000 &&
       !quantityErr &&
@@ -1247,7 +1239,6 @@ const EditDrawer = ({
       !hasEditErrors &&
       clientTaskName.trim().length > 3 &&
       clientTaskName.trim().length < 50 &&
-      !dueDateErr &&
       quantity > 0 &&
       quantity < 10000 &&
       !quantityErr &&
@@ -2891,7 +2882,6 @@ const EditDrawer = ({
     setReceiverDate("");
     setReceiverDateErr(false);
     setDueDate("");
-    setDueDateErr(false);
     setAllInfoDate("");
     setAssignee(0);
     setAssigneeErr(false);
@@ -3134,7 +3124,6 @@ const EditDrawer = ({
                           setReceiverDate("");
                           setReceiverDateErr(false);
                           setDueDate("");
-                          setDueDateErr(false);
                           assigneeDisable && setAssignee(0);
                           assigneeDisable && setAssigneeErr(false);
                           setReviewer(0);
@@ -3196,7 +3185,6 @@ const EditDrawer = ({
                             setReceiverDate("");
                             setReceiverDateErr(false);
                             setDueDate("");
-                            setDueDateErr(false);
                             assigneeDisable && setAssignee(0);
                             assigneeDisable && setAssigneeErr(false);
                             setReviewer(0);
@@ -3662,9 +3650,7 @@ const EditDrawer = ({
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <div
-                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                          dueDateErr ? "datepickerError" : ""
-                        }`}
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
@@ -3676,21 +3662,13 @@ const EditDrawer = ({
                                 </span>
                               </span>
                             }
-                            onError={() => setDueDateErr(false)}
                             value={dueDate === "" ? null : dayjs(dueDate)}
                             disabled
                             onChange={(newDate: any) => {
                               setDueDate(newDate.$d);
-                              setDueDateErr(false);
                             }}
                             slotProps={{
                               textField: {
-                                helperText:
-                                  dueDateErr && dueDate < receiverDate
-                                    ? "Due Date must be grater than Received Date"
-                                    : dueDateErr
-                                    ? "This is a required field."
-                                    : "",
                                 readOnly: true,
                               } as Record<string, any>,
                             }}
@@ -3700,9 +3678,7 @@ const EditDrawer = ({
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <div
-                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                          receiverDateErr ? "datepickerError" : ""
-                        }`}
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
@@ -5729,7 +5705,8 @@ const EditDrawer = ({
                                           handleCheckboxChange(
                                             onEdit,
                                             i.ErrorLogId,
-                                            e.target.checked
+                                            e.target.checked,
+                                            index
                                           )
                                         }
                                         disabled={

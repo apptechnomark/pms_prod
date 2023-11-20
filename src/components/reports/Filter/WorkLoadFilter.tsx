@@ -34,6 +34,9 @@ import { getDeptData } from "./api/getDropDownData";
 //icons
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 const WorkLoadFilter = ({
   isFiltering,
@@ -41,11 +44,12 @@ const WorkLoadFilter = ({
   onDialogClose,
 }: FilterType) => {
   const [dept, setDept] = useState<string | number>(0);
+  const [dateFilter, setDateFilter] = useState<any>("");
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
   const [deptDropdown, setDeptDropdown] = useState<any[]>([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>();
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [savedFilters, setSavedFilters] = useState<any[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
@@ -63,7 +67,7 @@ const WorkLoadFilter = ({
 
   const handleResetAll = () => {
     setDept(0);
-
+    setDateFilter("");
     sendFilterToPage({ ...workLoad_InitialFilter, departmentId: null });
   };
 
@@ -72,12 +76,14 @@ const WorkLoadFilter = ({
     onDialogClose(false);
     setDefaultFilter(false);
     setDept(0);
+    setDateFilter("");
   };
 
   const handleFilterApply = () => {
     sendFilterToPage({
       ...workLoad_InitialFilter,
       departmentId: dept === 0 || dept === "" ? null : dept,
+      dateFilter: dateFilter === null || dateFilter === "" ? null : dateFilter,
     });
 
     onDialogClose(false);
@@ -103,10 +109,12 @@ const WorkLoadFilter = ({
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/savefilter`,
         {
-          filterId: currentFilterId ? currentFilterId : null,
+          filterId: currentFilterId !== "" ? currentFilterId : null,
           name: filterName,
           AppliedFilter: {
             Department: dept === 0 ? null : dept,
+            dateFilter:
+              dateFilter === null || dateFilter === "" ? null : dateFilter,
           },
           type: workload,
         },
@@ -146,11 +154,12 @@ const WorkLoadFilter = ({
   };
 
   useEffect(() => {
-    const isAnyFieldSelected = dept !== 0;
+    const isAnyFieldSelected =
+      dept !== 0 || dateFilter !== null || dateFilter !== "";
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-  }, [dept]);
+  }, [dept, dateFilter]);
 
   useEffect(() => {
     // handleFilterApply();
@@ -206,7 +215,16 @@ const WorkLoadFilter = ({
   const handleSavedFilterEdit = (index: number) => {
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
-    setDept(savedFilters[index].AppliedFilter.Department);
+    setDept(
+      savedFilters[index].AppliedFilter.Department === null
+        ? ""
+        : savedFilters[index].AppliedFilter.Department
+    );
+    setDateFilter(
+      savedFilters[index].AppliedFilter.dateFilter === null
+        ? ""
+        : savedFilters[index].AppliedFilter.dateFilter
+    );
     setDefaultFilter(true);
     setSaveFilter(true);
   };
@@ -231,6 +249,7 @@ const WorkLoadFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
+          setCurrentFilterId("");
           getFilterList();
         } else {
           const data = response.data.Message;
@@ -251,6 +270,11 @@ const WorkLoadFilter = ({
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const isWeekend = (date: any) => {
+    const day = date.day();
+    return day === 6 || day === 0;
   };
 
   return (
@@ -359,7 +383,7 @@ const WorkLoadFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 500 }}
+                  sx={{ mx: 0.75, minWidth: 210 }}
                 >
                   <InputLabel id="department">Department</InputLabel>
                   <Select
@@ -375,6 +399,24 @@ const WorkLoadFilter = ({
                     ))}
                   </Select>
                 </FormControl>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Date"
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now())}
+                      value={dateFilter === "" ? null : dayjs(dateFilter)}
+                      onChange={(newValue: any) => setDateFilter(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
               </div>
             </div>
           </DialogContent>

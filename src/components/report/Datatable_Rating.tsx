@@ -4,6 +4,7 @@ import axios from "axios";
 import MUIDataTable from "mui-datatables";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import TablePagination from "@mui/material/TablePagination";
 
 const getMuiTheme = () =>
   createTheme({
@@ -29,9 +30,12 @@ const getMuiTheme = () =>
   });
 const Data = new Date();
 
+const pageNo = 1;
+const pageSize = 10;
+
 const initialFilter = {
-  PageNo: 1,
-  PageSize: 10,
+  PageNo: pageNo,
+  PageSize: pageSize,
   GlobalSearch: "",
   SortColumn: "",
   IsDesc: false,
@@ -49,6 +53,30 @@ const initialFilter = {
 const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
   const [ratingData, setRatingData] = useState<any>([]);
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(pageSize);
+  const [tableDataCount, setTableDataCount] = useState(0);
+
+  // functions for handling pagination
+  const handleChangePage = (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
+    setPage(newPage);
+    setFilteredOject({ ...filteredObject, PageNo: newPage + 1 });
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value));
+    setPage(0);
+    setFilteredOject({
+      ...filteredObject,
+      PageNo: 1,
+      PageSize: event.target.value,
+    });
+  };
 
   // for showing value according to search
   useEffect(() => {
@@ -79,6 +107,7 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           setRatingData(response.data.ResponseData.List);
+          setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -270,6 +299,7 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
     selectToolbarPlacement: "none",
     selectableRows: "none",
     elevation: 0,
+    pagination: false,
   };
 
   return (
@@ -282,6 +312,15 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
           ...options,
         }}
         data-tableid="rating_Datatable"
+      />
+      <TablePagination
+        component="div"
+        // rowsPerPageOptions={[5, 10, 15]}
+        count={tableDataCount}
+        page={page}
+        onPageChange={handleChangePage}
+        rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
   );

@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
+  Autocomplete,
   Button,
   Dialog,
   DialogActions,
@@ -62,7 +63,7 @@ const getFormattedDate = (newValue: any) => {
       (newValue.$M + 1).toString().length > 1
         ? newValue.$M + 1
         : `0${newValue.$M + 1}`
-    }- ${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+    }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
   }
 };
 
@@ -71,7 +72,8 @@ const CustomReportFilter = ({
   onDialogClose,
   sendFilterToPage,
 }: FilterType) => {
-  const [clientName, setClientName] = useState<number | string>(0);
+  const [clients, setClients] = useState<any[]>([]);
+  const [clientName, setClientName] = useState<any[]>([]);
   const [projectName, setProjectName] = useState<number | string>(0);
   const [processName, setProcessName] = useState<number | string>(0);
   const [assignByName, setAssignByName] = useState<number | string>(0);
@@ -137,7 +139,7 @@ const CustomReportFilter = ({
   ]);
 
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>();
+  const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [savedFilters, setSavedFilters] = useState<any[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
@@ -163,7 +165,8 @@ const CustomReportFilter = ({
   };
 
   const handleResetAll = () => {
-    setClientName(0);
+    setClientName([]);
+    setClients([]);
     setProjectName(0);
     setProcessName(0);
     setAssignByName(0);
@@ -190,7 +193,8 @@ const CustomReportFilter = ({
     onDialogClose(false);
     setDefaultFilter(false);
     // resetting filter fields
-    setClientName(0);
+    setClientName([]);
+    setClients([]);
     setProjectName(0);
     setProcessName(0);
     setAssignByName(0);
@@ -211,7 +215,7 @@ const CustomReportFilter = ({
   const handleFilterApply = () => {
     sendFilterToPage({
       ...customreport_InitialFilter,
-      clientIdsJSON: clientName === 0 || clientName === "" ? [] : [clientName],
+      clientIdsJSON: clientName.length > 0 ? clientName : [],
       projectIdsJSON:
         projectName === 0 || projectName === "" ? [] : [projectName],
       processIdsJSON:
@@ -285,11 +289,10 @@ const CustomReportFilter = ({
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/savefilter`,
         {
-          filterId: currentFilterId ? currentFilterId : null,
+          filterId: currentFilterId !== "" ? currentFilterId : null,
           name: filterName,
           AppliedFilter: {
-            clientIdsJSON:
-              clientName === 0 || clientName === "" ? [] : [clientName],
+            clientIdsJSON: clientName.length > 0 ? clientName : [],
             projectIdsJSON:
               projectName === 0 || projectName === "" ? [] : [projectName],
             processIdsJSON:
@@ -373,7 +376,7 @@ const CustomReportFilter = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      clientName !== 0 ||
+      clientName.length > 0 ||
       projectName !== 0 ||
       processName !== 0 ||
       assignByName !== 0 ||
@@ -415,14 +418,18 @@ const CustomReportFilter = ({
     // handleFilterApply();
     const customDropdowns = async () => {
       setClientDropdown(await getClientDropdownData());
-      setProjectDropdown(await getProjectDropdownData(clientName));
-      setProcessDropdown(await getProcessDropdownData(clientName));
+      setProjectDropdown(
+        await getProjectDropdownData(clientName.length > 0 ? clientName[0] : 0)
+      );
+      setProcessDropdown(
+        await getProcessDropdownData(clientName.length > 0 ? clientName[0] : 0)
+      );
       setUserDropdown(await getUserData());
       setTypeOfReturnDropdown(await getTypeOfReturnDropdownData());
     };
     customDropdowns();
 
-    if (parseInt(clientName.toString()) > 0 || resetting) {
+    if (clientName.length > 0 || resetting) {
       onDialogClose(true);
     }
   }, [clientName]);
@@ -512,6 +519,7 @@ const CustomReportFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
+          setCurrentFilterId("");
           getFilterList();
         } else {
           const data = response.data.Message;
@@ -532,6 +540,11 @@ const CustomReportFilter = ({
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const isWeekend = (date: any) => {
+    const day = date.day();
+    return day === 6 || day === 0;
   };
 
   return (
@@ -640,9 +653,9 @@ const CustomReportFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
+                  sx={{ mx: 0.75, my: 0.5, minWidth: 200 }}
                 >
-                  <InputLabel id="clientName">Client Name</InputLabel>
+                  {/* <InputLabel id="clientName">Client Name</InputLabel>
                   <Select
                     labelId="clientName"
                     id="clientName"
@@ -654,7 +667,27 @@ const CustomReportFilter = ({
                         {i.label}
                       </MenuItem>
                     ))}
-                  </Select>
+                  </Select> */}
+                  <Autocomplete
+                    multiple
+                    id="tags-standard"
+                    options={clientDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setClients(data);
+                      setClientName(data.map((d: any) => d.value));
+                      setProjectName(0);
+                      setProcessName(0);
+                    }}
+                    value={clients}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Client Name"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"
@@ -666,6 +699,7 @@ const CustomReportFilter = ({
                     id="projectName"
                     value={projectName === 0 ? "" : projectName}
                     onChange={(e) => setProjectName(e.target.value)}
+                    disabled={clients.length > 1}
                   >
                     {projectDropdown.map((i: any, index: number) => (
                       <MenuItem value={i.value} key={index}>
@@ -684,10 +718,11 @@ const CustomReportFilter = ({
                     id="processName"
                     value={processName === 0 ? "" : processName}
                     onChange={(e) => setProcessName(e.target.value)}
+                    disabled={clients.length > 1}
                   >
                     {processDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
-                        {i.label}
+                      <MenuItem value={i.Id} key={index}>
+                        {i.Name}
                       </MenuItem>
                     ))}
                   </Select>
@@ -881,7 +916,14 @@ const CustomReportFilter = ({
                     <DatePicker
                       label="Received Date"
                       value={receivedDate === "" ? null : dayjs(receivedDate)}
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now()) || dayjs(dueDate)}
                       onChange={(newValue: any) => setReceivedDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
                     />
                   </LocalizationProvider>
                 </div>
@@ -892,7 +934,15 @@ const CustomReportFilter = ({
                     <DatePicker
                       label="Due Date"
                       value={dueDate === "" ? null : dayjs(dueDate)}
+                      shouldDisableDate={isWeekend}
+                      minDate={dayjs(receivedDate)}
+                      maxDate={dayjs(Date.now())}
                       onChange={(newValue: any) => setDueDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
                     />
                   </LocalizationProvider>
                 </div>
@@ -906,6 +956,11 @@ const CustomReportFilter = ({
                       label="All Info Date"
                       value={allInfoDate === "" ? null : dayjs(allInfoDate)}
                       onChange={(newValue: any) => setAllInfoDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
                     />
                   </LocalizationProvider>
                 </div>

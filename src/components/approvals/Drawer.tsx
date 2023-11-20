@@ -70,7 +70,6 @@ const EditDrawer = ({
   onDataFetch,
   onHasId,
   hasIconIndex,
-  onRecurring,
   onComment,
 }: any) => {
   const router = useRouter();
@@ -629,9 +628,8 @@ const EditDrawer = ({
       setIsPartiallySubmitted(true);
       scrollToPanel(isManual === null || isManual === true ? 6 : 5);
     }
-    onRecurring && scrollToPanel(4);
     onComment && scrollToPanel(3);
-  }, [onEdit, onRecurring, onComment]);
+  }, [onEdit, onComment]);
 
   const handleTabClick = (index: number) => {
     setActiveTab(index);
@@ -717,12 +715,6 @@ const EditDrawer = ({
       manager: validateField(manager),
       returnYear: typeOfWork === 3 && validateField(returnYear),
       checklistWorkpaper: typeOfWork === 3 && validateField(checklistWorkpaper),
-      recurringStartDate: recurringSwitch && validateField(recurringStartDate),
-      recurringEndDate: recurringSwitch && validateField(recurringEndDate),
-      recurringMonth:
-        recurringSwitch && recurringTime === 3 && validateField(recurringMonth),
-      selectedDays:
-        recurringSwitch && recurringTime === 2 && validateField(selectedDays),
       reminderTime: reminderSwitch && validateField(reminderTime),
       reminderNotification:
         reminderSwitch && validateField(reminderNotification),
@@ -747,20 +739,6 @@ const EditDrawer = ({
     typeOfWork === 3 && setReturnYearErr(fieldValidations.returnYear);
     typeOfWork === 3 &&
       setChecklistWorkpaperErr(fieldValidations.checklistWorkpaper);
-    onEdit === 0 &&
-      recurringSwitch &&
-      setRecurringStartDateErr(fieldValidations.recurringStartDate);
-    onEdit === 0 &&
-      recurringSwitch &&
-      setRecurringEndDateErr(fieldValidations.recurringEndDate);
-    onEdit === 0 &&
-      recurringSwitch &&
-      recurringTime === 3 &&
-      setRecurringMonthErr(fieldValidations.recurringMonth);
-    onEdit === 0 &&
-      recurringSwitch &&
-      recurringTime === 2 &&
-      setRecurringWeekErr(fieldValidations.selectedDays);
     onEdit === 0 &&
       reminderSwitch &&
       setReminderTimeErr(fieldValidations.reminderTime);
@@ -948,23 +926,7 @@ const EditDrawer = ({
                 })
             )
           : null,
-      RecurringObj:
-        onEdit > 0
-          ? null
-          : recurringSwitch
-          ? {
-              Type: recurringTime,
-              IsActive: true,
-              StartDate: dayjs(recurringStartDate).format("YYYY/MM/DD"),
-              EndDate: dayjs(recurringEndDate).format("YYYY/MM/DD"),
-              triggerIdList:
-                recurringTime === 1
-                  ? []
-                  : recurringTime === 2
-                  ? selectedDays
-                  : recurringMonth.map((i: any) => i.value),
-            }
-          : null,
+      RecurringObj: null,
       ReminderObj:
         onEdit > 0
           ? null
@@ -1636,105 +1598,10 @@ const EditDrawer = ({
   };
 
   // Recurring
-  const [recurringSwitch, setRecurringSwitch] = useState(false);
   const [recurringStartDate, setRecurringStartDate] = useState("");
-  const [recurringStartDateErr, setRecurringStartDateErr] = useState(false);
   const [recurringEndDate, setRecurringEndDate] = useState("");
-  const [recurringEndDateErr, setRecurringEndDateErr] = useState(false);
   const [recurringTime, setRecurringTime] = useState<any>(1);
   const [recurringMonth, setRecurringMonth] = useState<any>(0);
-  const [recurringMonthErr, setRecurringMonthErr] = useState(false);
-  const [recurringWeekErr, setRecurringWeekErr] = useState(false);
-  const handleSubmitRecurring = async () => {
-    const validateField = (value: any) => {
-      if (
-        value === 0 ||
-        value === "" ||
-        value === null ||
-        (Array.isArray(value) && value.length === 0)
-      ) {
-        return true;
-      }
-      return false;
-    };
-
-    const fieldValidations = {
-      recurringStartDate: recurringSwitch && validateField(recurringStartDate),
-      recurringEndDate: recurringSwitch && validateField(recurringEndDate),
-      recurringMonth:
-        recurringSwitch && recurringTime === 3 && validateField(recurringMonth),
-      selectedDays:
-        recurringSwitch && recurringTime === 2 && validateField(selectedDays),
-    };
-
-    recurringSwitch &&
-      setRecurringStartDateErr(fieldValidations.recurringStartDate);
-    recurringSwitch &&
-      setRecurringEndDateErr(fieldValidations.recurringEndDate);
-    recurringSwitch &&
-      recurringTime === 3 &&
-      setRecurringMonthErr(fieldValidations.recurringMonth);
-    recurringSwitch &&
-      recurringTime === 2 &&
-      setRecurringWeekErr(fieldValidations.selectedDays);
-
-    const hasErrors = Object.values(fieldValidations).some((error) => error);
-
-    if (!hasErrors) {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/recurring/savebyworkitem`,
-          {
-            WorkitemId: onEdit,
-            Type: recurringTime,
-            StartDate: dayjs(recurringStartDate).format("YYYY/MM/DD"),
-            EndDate: dayjs(recurringEndDate).format("YYYY/MM/DD"),
-            Triggers:
-              recurringTime === 1
-                ? []
-                : recurringTime === 2
-                ? selectedDays
-                : recurringMonth.map((i: any) => i.value),
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            toast.success(`Recurring Updated successfully.`);
-            setDeletedSubTask([]);
-            getRecurringData();
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Failed Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
-      }
-    }
-  };
 
   // Reminder
   const [reminderSwitch, setReminderSwitch] = useState(false);
@@ -1944,11 +1811,6 @@ const EditDrawer = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           const data = await response.data.ResponseData;
-          setRecurringSwitch(
-            data.length <= 0
-              ? !hasPermissionWorklog("Reccuring", "save", "WorkLogs") && false
-              : hasPermissionWorklog("Reccuring", "save", "WorkLogs") && true
-          );
           setRecurringStartDate(data.length <= 0 ? "" : data.StartDate);
           setRecurringEndDate(data.length <= 0 ? "" : data.EndDate);
           setRecurringTime(data.length <= 0 ? 0 : data.Type);
@@ -1978,7 +1840,7 @@ const EditDrawer = ({
         }
       }
     } catch (error: any) {
-      if (error.response && error.response?.status === 401) {
+      if (error.response && error.response.status === 401) {
         router.push("/login");
         localStorage.clear();
       }
@@ -2204,9 +2066,9 @@ const EditDrawer = ({
                   // [
                   //   {
                   //     AttachmentId: 0,
-                  //     UserFileName: "Attachment300.txt",
-                  //     SystemFileName: "Attachment3_system.txt",
-                  //     AttachmentPath: "/path/to/attachment300.txt",
+                  //     UserFileName: "",
+                  //     SystemFileName: "",
+                  //     AttachmentPath: "dev/attachment",
                   //   },
                   // ],
                   isSolved: false,
@@ -2231,14 +2093,6 @@ const EditDrawer = ({
                       ).filter(Boolean),
                       Remark: i.Remark,
                       Attachments: "",
-                      // [
-                      //   {
-                      //     AttachmentId: 0,
-                      //     UserFileName: "Attachment300.txt",
-                      //     SystemFileName: "Attachment3_system.txt",
-                      //     AttachmentPath: "/path/to/attachment300.txt",
-                      //   },
-                      // ],
                       isSolved: i.IsSolved,
                     })
                 )
@@ -2508,9 +2362,9 @@ const EditDrawer = ({
       // [
       //   {
       //     AttachmentId: 0,
-      //     UserFileName: "Attachment300.txt",
-      //     SystemFileName: "Attachment3_system.txt",
-      //     AttachmentPath: "/path/to/attachment300.txt",
+      //     UserFileName: "",
+      //     SystemFileName: "",
+      //     AttachmentPath: "dev/attachment",
       //   },
       // ],
       isSolved: false,
@@ -2543,9 +2397,9 @@ const EditDrawer = ({
         // [
         //   {
         //     AttachmentId: 0,
-        //     UserFileName: "Attachment300.txt",
-        //     SystemFileName: "Attachment3_system.txt",
-        //     AttachmentPath: "/path/to/attachment300.txt",
+        //     UserFileName: "",
+        //     SystemFileName: "",
+        //     AttachmentPath: "dev/attachment",
         //   },
         // ],
         isSolved: false,
@@ -2591,9 +2445,9 @@ const EditDrawer = ({
     newRemarkErrors.splice(index, 1);
     setRemarkErr(newRemarkErrors);
 
-    const newAttachmentErrors = [...attachmentsErr];
-    newAttachmentErrors.splice(index, 1);
-    setAttachmentsErr(newAttachmentErrors);
+    // const newAttachmentErrors = [...attachmentsErr];
+    // newAttachmentErrors.splice(index, 1);
+    // setAttachmentsErr(newAttachmentErrors);
   };
 
   const handleErrorTypeChange = (e: any, index: number) => {
@@ -2663,13 +2517,21 @@ const EditDrawer = ({
     setRemarkErr(newErrors);
   };
 
-  const handleAttachmentsChange = (e: any, index: number) => {
+  const handleAttachmentsChange = (data1: any, data2: any, index: number) => {
     const newFields = [...errorLogFields];
-    newFields[index].Attachments = e.target.value;
+    newFields[index].Attachments = "",
+    // [
+    //   {
+    //     AttachmentId: 0,
+    //     UserFileName: data1,
+    //     SystemFileName: data2,
+    //     AttachmentPath: "dev/attachment",
+    //   },
+    // ];
     setErrorLogFields(newFields);
 
     const newErrors = [...attachmentsErr];
-    newErrors[index] = e.target.value.trim().length <= 0;
+    newErrors[index] = data1.trim().length <= 0 || data2.trim().length <= 0;
     setAttachmentsErr(newErrors);
   };
 
@@ -2714,8 +2576,8 @@ const EditDrawer = ({
       newPriorityErrors.some((error) => error) ||
       newErrorCountErrors.some((error) => error) ||
       newRemarkErrors.some((error) => error);
-    // ||
-    // newAttachmentsErrors.some((error) => error);
+      //  ||
+      // newAttachmentsErrors.some((error) => error);
 
     if (!hasErrorLogErrors) {
       if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
@@ -2737,15 +2599,7 @@ const EditDrawer = ({
                     NatureOfError: i.NatureOfError,
                     CC: i.CC.map((j: any) => j.value),
                     Remark: i.Remark,
-                    Attachments: null,
-                    // [
-                    //   {
-                    //     AttachmentId: 0,
-                    //     UserFileName: "Attachment300.txt",
-                    //     SystemFileName: "Attachment3_system.txt",
-                    //     AttachmentPath: "/path/to/attachment300.txt",
-                    //   },
-                    // ],
+                    Attachments: "",
                   })
               ),
               IsClientWorklog: false,
@@ -2966,14 +2820,10 @@ const EditDrawer = ({
     setItemStates({});
 
     // Recurring
-    setRecurringSwitch(false);
     setRecurringStartDate("");
-    setRecurringStartDateErr(false);
     setRecurringEndDate("");
-    setRecurringEndDateErr(false);
     setRecurringTime(1);
     setRecurringMonth(0);
-    setRecurringMonthErr(false);
 
     // Manual
     setManualFields([
@@ -3050,9 +2900,9 @@ const EditDrawer = ({
         // [
         //   {
         //     AttachmentId: 0,
-        //     UserFileName: "Attachment300.txt",
-        //     SystemFileName: "Attachment3_system.txt",
-        //     AttachmentPath: "/path/to/attachment300.txt",
+        //     UserFileName: "",
+        //     SystemFileName: "",
+        //     AttachmentPath: "dev/attachment",
         //   },
         // ],
         isSolved: false,
@@ -3091,10 +2941,6 @@ const EditDrawer = ({
       }
     }
     onClose();
-  };
-
-  const getAttachmentData = (data1: any, data2: any) => {
-    // console.log(data1, data2);
   };
 
   const isWeekend = (date: any) => {
@@ -4572,57 +4418,27 @@ const EditDrawer = ({
             )}
 
             {hasPermissionWorklog("Reccuring", "View", "WorkLogs") && (
-              <div
-                className="mt-14"
-                id={`${onEdit > 0 ? "tabpanel-4" : "tabpanel-2"}`}
-              >
+              <div className="mt-14" id="tabpanel-4">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
                     <HistoryIcon />
                     <span className="ml-[21px]">Recurring</span>
                   </span>
-                  <span className="flex items-center">
-                    {onEdit > 0 && recurringSwitch && (
-                      <Button
-                        variant="contained"
-                        className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
-                        onClick={handleSubmitRecurring}
-                      >
-                        Update
-                      </Button>
-                    )}
-                    {hasPermissionWorklog("Reccuring", "Save", "WorkLogs") ? (
-                      <Switch
-                        checked={recurringSwitch}
-                        onChange={(e) => {
-                          setRecurringSwitch(e.target.checked);
-                          setRecurringStartDate("");
-                          setRecurringStartDateErr(false);
-                          setRecurringEndDate("");
-                          setRecurringEndDateErr(false);
-                          setRecurringTime(1);
-                        }}
-                      />
-                    ) : (
-                      <></>
-                    )}
-                    <span
-                      className={`cursor-pointer ${
-                        recurringDrawer ? "rotate-180" : ""
-                      }`}
-                      onClick={() => setRecurringDrawer(!recurringDrawer)}
-                    >
-                      <ChevronDownIcon />
-                    </span>
+
+                  <span
+                    className={`cursor-pointer ${
+                      recurringDrawer ? "rotate-180" : ""
+                    }`}
+                    onClick={() => setRecurringDrawer(!recurringDrawer)}
+                  >
+                    <ChevronDownIcon />
                   </span>
                 </div>
                 {recurringDrawer && (
                   <>
                     <div className="mt-0 pl-6">
                       <div
-                        className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                          recurringStartDateErr ? "datepickerError" : ""
-                        }`}
+                        className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
@@ -4634,33 +4450,18 @@ const EditDrawer = ({
                                 </span>
                               </span>
                             }
-                            disabled={!recurringSwitch}
-                            onError={() => setRecurringStartDateErr(false)}
                             maxDate={dayjs(recurringEndDate)}
                             value={
                               recurringStartDate === ""
                                 ? null
                                 : dayjs(recurringStartDate)
                             }
-                            onChange={(newDate: any) => {
-                              setRecurringStartDate(newDate.$d);
-                              setRecurringStartDateErr(false);
-                            }}
-                            slotProps={{
-                              textField: {
-                                helperText: recurringStartDateErr
-                                  ? "This is a required field."
-                                  : "",
-                                readOnly: true,
-                              } as Record<string, any>,
-                            }}
+                            readOnly
                           />
                         </LocalizationProvider>
                       </div>
                       <div
-                        className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                          recurringEndDateErr ? "datepickerError" : ""
-                        }`}
+                        className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
@@ -4673,25 +4474,12 @@ const EditDrawer = ({
                               </span>
                             }
                             minDate={dayjs(recurringStartDate)}
-                            disabled={!recurringSwitch}
-                            onError={() => setRecurringEndDateErr(false)}
                             value={
                               recurringEndDate === ""
                                 ? null
                                 : dayjs(recurringEndDate)
                             }
-                            onChange={(newDate: any) => {
-                              setRecurringEndDate(newDate.$d);
-                              setRecurringEndDateErr(false);
-                            }}
-                            slotProps={{
-                              textField: {
-                                helperText: recurringEndDateErr
-                                  ? "This is a required field."
-                                  : "",
-                                readOnly: true,
-                              } as Record<string, any>,
-                            }}
+                            readOnly
                           />
                         </LocalizationProvider>
                       </div>
@@ -4700,7 +4488,6 @@ const EditDrawer = ({
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, minWidth: 145 }}
-                        disabled={!recurringSwitch}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           {recurringTime === 1 ? (
@@ -4724,12 +4511,7 @@ const EditDrawer = ({
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
                           value={recurringTime === 0 ? "" : recurringTime}
-                          onChange={(e) => {
-                            setRecurringTime(e.target.value);
-                            setRecurringMonth(0);
-                            setSelectedDays([]);
-                            setRecurringWeekErr(false);
-                          }}
+                          readOnly
                         >
                           <MenuItem value={1}>Day</MenuItem>
                           <MenuItem value={2}>Week</MenuItem>
@@ -4768,6 +4550,7 @@ const EditDrawer = ({
                           disableCloseOnSelect
                           onChange={handleMultiSelectMonth}
                           style={{ width: 500 }}
+                          readOnly
                           renderInput={(params) => (
                             <TextField
                               {...params}
@@ -4781,17 +4564,6 @@ const EditDrawer = ({
                               }
                               placeholder="Please Select..."
                               variant="standard"
-                              error={recurringMonthErr}
-                              onBlur={(e) => {
-                                if (recurringMonth.length > 0) {
-                                  setRecurringMonthErr(false);
-                                }
-                              }}
-                              helperText={
-                                recurringMonthErr
-                                  ? "This is a required field."
-                                  : ""
-                              }
                             />
                           )}
                           sx={{ mx: 0.75, maxWidth: 350, mt: 2 }}
@@ -4803,11 +4575,6 @@ const EditDrawer = ({
                         recurringTime === 3 && "mt-2"
                       }`}
                     >
-                      {recurringWeekErr && (
-                        <span className="text-defaultRed ml-8 text-sm p-0">
-                          Please Select day.
-                        </span>
-                      )}
                       <span className="text-darkCharcoal ml-8 text-[14px]">
                         {recurringTime === 1
                           ? "Occurs every day"
@@ -5996,7 +5763,12 @@ const EditDrawer = ({
                               variant="standard"
                               sx={{ mx: 0.75, maxWidth: 492, mt: 1, mr: 2 }}
                             />
-                            {/* <ImageUploader getData={getAttachmentData} /> */}
+                            {/* <ImageUploader
+                              getData={(data1: any, data2: any) =>
+                                handleAttachmentsChange(data1, data2, index)
+                              }
+                              sendData={field.Attachments}
+                            /> */}
                             {/* <TextField
                               label={
                                 <span>

@@ -182,14 +182,18 @@ const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
           const statusColorCode = tableMeta.rowData[11];
 
           return (
-            <div className="">
-              <div className="inline-block mr-1">
-                <div
-                  className="w-[10px] h-[10px] rounded-full inline-block mr-2"
-                  style={{ backgroundColor: statusColorCode }}
-                ></div>
-              </div>
-              {value === null || "" ? "-" : value}
+            <div>
+              {value === null || value === "" ? (
+                "-"
+              ) : (
+                <div className="inline-block mr-1">
+                  <div
+                    className="w-[10px] h-[10px] rounded-full inline-block mr-2"
+                    style={{ backgroundColor: statusColorCode }}
+                  ></div>
+                  {value}
+                </div>
+              )}
             </div>
           );
         },
@@ -295,21 +299,25 @@ const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
           }
 
           return (
-            <div className="">
-              <div className="inline-block mr-1">
-                <div
-                  className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
-                    isHighPriority
-                      ? "bg-defaultRed"
-                      : isMediumPriority
-                      ? "bg-[#EA6A47]"
-                      : isLowPriority
-                      ? "bg-[#6AB187]"
-                      : "bg-lightSilver"
-                  }`}
-                ></div>
-              </div>
-              {value === null || "" ? "-" : value}
+            <div>
+              {value === null || value === "" ? (
+                "-"
+              ) : (
+                <div className="inline-block mr-1">
+                  <div
+                    className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
+                      isHighPriority
+                        ? "bg-defaultRed"
+                        : isMediumPriority
+                        ? "bg-yellowColor"
+                        : isLowPriority
+                        ? "bg-primary"
+                        : "bg-lightSilver"
+                    }`}
+                  ></div>
+                  {value}
+                </div>
+              )}
             </div>
           );
         },

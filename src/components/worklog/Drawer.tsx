@@ -38,8 +38,6 @@ import {
   getCCDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
-  getSubProcessDropdownData,
-  getTypeOfReturnDropdownData,
   getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
 

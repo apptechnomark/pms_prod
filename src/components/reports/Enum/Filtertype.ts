@@ -9,3 +9,4 @@ export const userlog = 9;
 export const audit = 10;
 export const billingReport = 11;
 export const customReport = 12;
+export const AdminRatingsReports = 13;

@@ -27,49 +27,50 @@ import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { FilterType } from "./types/ReportsFilterType";
 
 // filter type enum
-import { user } from "../Enum/Filtertype";
+import { audit } from "../Enum/Filtertype";
 
-//filter body for user
-import { user_InitialFilter } from "@/utils/reports/getFilters";
-import { getDates } from "@/utils/timerFunctions";
+//filter body for audit
+import { audit_InitialFilter } from "@/utils/reports/getFilters";
 
-//dropdown api
-import { getDeptData, getUserData } from "./api/getDropDownData";
+// dropdown api
+import {
+  getBillingTypeData,
+  getClientData,
+  getDeptData,
+  getProjectData,
+  getWorkTypeData,
+} from "./api/getDropDownData";
 
 //icons
 import SearchIcon from "@/assets/icons/SearchIcon";
-import { Delete, Edit } from "@mui/icons-material";
+import { Edit, Delete } from "@mui/icons-material";
 
-const UserFilter = ({
+const AuditFilter = ({
   isFiltering,
-  sendFilterToPage,
   onDialogClose,
+  sendFilterToPage,
 }: FilterType) => {
-  const [userNames, setUserNames] = useState<number[]>([]);
-  const [users, setUsers] = useState<number[]>([]);
-  const [dept, setDept] = useState<string | number>(0);
+  const [clients, setClients] = useState<any[]>([]);
+  const [clientName, setClientName] = useState<any[]>([]);
+  const [startDate, setStartDate] = useState<string | number>("");
+  const [endDate, setEndDate] = useState<string | number>("");
+
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
-  const [deptDropdown, setDeptDropdown] = useState<any[]>([]);
-  const [userDropdown, setUserDropdown] = useState<any[]>([]);
+  const [clientDropdown, setClientDropdown] = useState<any[]>([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [savedFilters, setSavedFilters] = useState<any[]>([]);
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [startDate, setStartDate] = useState<string | number>("");
-  const [endDate, setEndDate] = useState<string | number>("");
+  const [resetting, setResetting] = useState<boolean>(false);
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
 
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
-
-  const handleSearchChange = (e: any) => {
-    setSearchValue(e.target.value);
-  };
 
   const getFormattedDate = (newValue: any) => {
     if (newValue !== "") {
@@ -81,43 +82,47 @@ const UserFilter = ({
     }
   };
 
+  const handleSearchChange = (e: any) => {
+    setSearchValue(e.target.value);
+  };
+
   const handleResetAll = () => {
-    setUserNames([]);
-    setDept(0);
+    setClientName([]);
+    setClients([]);
     setStartDate("");
     setEndDate("");
 
     sendFilterToPage({
-      ...user_InitialFilter,
-      users: [],
-      departmentId: null,
-      startDate: getDates()[0],
-      endDate: getDates()[getDates().length - 1],
+      ...audit_InitialFilter,
+      Clients: [],
+      StartDate: null,
+      EndDate: null,
     });
   };
 
   const handleClose = () => {
+    setResetting(false);
     setFilterName("");
     onDialogClose(false);
     setDefaultFilter(false);
+
+    setClientName([]);
+    setClients([]);
     setStartDate("");
     setEndDate("");
-    setUserNames([]);
-    setDept(0);
   };
 
   const handleFilterApply = () => {
     sendFilterToPage({
-      ...user_InitialFilter,
-      users: userNames,
-      departmentId: dept === 0 || dept === "" ? null : dept,
-      startDate:
+      ...audit_InitialFilter,
+      Clients: clientName.length > 0 ? clientName : [],
+      StartDate:
         startDate.toString().trim().length <= 0
-          ? getDates()[0]
+          ? null
           : getFormattedDate(startDate),
-      endDate:
+      EndDate:
         endDate.toString().trim().length <= 0
-          ? getDates()[getDates().length - 1]
+          ? null
           : getFormattedDate(endDate),
     });
 
@@ -128,11 +133,10 @@ const UserFilter = ({
     if (Number.isInteger(index)) {
       if (index !== undefined) {
         sendFilterToPage({
-          ...user_InitialFilter,
-          users: savedFilters[index].AppliedFilter.users,
-          departmentId: savedFilters[index].AppliedFilter.Department,
-          startDate: savedFilters[index].AppliedFilter.startDate,
-          endDate: savedFilters[index].AppliedFilter.endDate,
+          ...audit_InitialFilter,
+          Clients: savedFilters[index].AppliedFilter.clients,
+          StartDate: savedFilters[index].AppliedFilter.startDate,
+          EndDate: savedFilters[index].AppliedFilter.endDate,
         });
       }
     }
@@ -150,18 +154,17 @@ const UserFilter = ({
           filterId: currentFilterId !== "" ? currentFilterId : null,
           name: filterName,
           AppliedFilter: {
-            users: userNames.length > 0 ? userNames : [],
-            departmentId: dept === 0 ? null : dept,
+            clients: clientName.length > 0 ? clientName : [],
             startDate:
               startDate.toString().trim().length <= 0
-                ? getDates()[0]
+                ? null
                 : getFormattedDate(startDate),
             endDate:
               endDate.toString().trim().length <= 0
-                ? getDates()[getDates().length - 1]
+                ? null
                 : getFormattedDate(endDate),
           },
-          type: user,
+          type: audit,
         },
         {
           headers: {
@@ -173,6 +176,7 @@ const UserFilter = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
+          // handleFilterApply();
           toast.success("Filter has been successully saved.");
           getFilterList();
           setSaveFilter(false);
@@ -204,23 +208,26 @@ const UserFilter = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      userNames.length > 0 ||
-      dept !== 0 ||
+      clientName.length > 0 ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
-  }, [dept, userNames, startDate, endDate]);
+    setResetting(false);
+  }, [clientName, startDate, endDate]);
 
   useEffect(() => {
     // handleFilterApply();
-    const userDropdowns = async () => {
-      setDeptDropdown(await getDeptData());
-      setUserDropdown(await getUserData());
+    const filterDropdowns = async () => {
+      setClientDropdown(await getClientData());
     };
-    userDropdowns();
-  }, []);
+    filterDropdowns();
+
+    if (clientName.length > 0 || resetting) {
+      onDialogClose(true);
+    }
+  }, [clientName]);
 
   const getFilterList = async () => {
     const token = await localStorage.getItem("token");
@@ -229,7 +236,7 @@ const UserFilter = ({
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/getfilterlist`,
         {
-          type: user,
+          type: audit,
         },
         {
           headers: {
@@ -264,30 +271,26 @@ const UserFilter = ({
   };
 
   const handleSavedFilterEdit = (index: number) => {
-    setCurrentFilterId(savedFilters[index].FilterId);
+    setSaveFilter(true);
+    setDefaultFilter(true);
     setFilterName(savedFilters[index].Name);
-    setUserNames(
-      savedFilters[index].AppliedFilter.users === null
+    setCurrentFilterId(savedFilters[index].FilterId);
+
+    setClientName(
+      savedFilters[index].AppliedFilter.clients === null
         ? []
-        : savedFilters[index].AppliedFilter.users
-    );
-    setDept(
-      savedFilters[index].AppliedFilter.Department === null
-        ? 0
-        : savedFilters[index].AppliedFilter.Department
+        : savedFilters[index].AppliedFilter.clients
     );
     setStartDate(
       savedFilters[index].AppliedFilter.startDate === null
-        ? 0
+        ? ""
         : savedFilters[index].AppliedFilter.startDate
     );
     setEndDate(
       savedFilters[index].AppliedFilter.endDate === null
-        ? 0
+        ? ""
         : savedFilters[index].AppliedFilter.endDate
     );
-    setDefaultFilter(true);
-    setSaveFilter(true);
   };
 
   const handleSavedFilterDelete = async () => {
@@ -444,47 +447,29 @@ const UserFilter = ({
               <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
-                  sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
+                  sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={userDropdown}
+                    options={clientDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setUserNames(data.map((d: any) => d.value));
-                      setUsers(data);
+                      setClients(data);
+                      setClientName(data.map((d: any) => d.value));
                     }}
-                    value={users}
+                    value={clients}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
                         variant="standard"
-                        label="User Name"
+                        label="Client Name"
                       />
                     )}
                   />
                 </FormControl>
-                <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
-                >
-                  <InputLabel id="department">Department</InputLabel>
-                  <Select
-                    labelId="department"
-                    id="department"
-                    value={dept === 0 ? "" : dept}
-                    onChange={(e) => setDept(e.target.value)}
-                  >
-                    {deptDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
                 <div
-                  className={`inline-flex mx-[6px] -mt-[1px] muiDatepickerCustomizer w-full max-w-[210px]`}
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
@@ -501,8 +486,6 @@ const UserFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-              </div>
-              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
@@ -552,7 +535,7 @@ const UserFilter = ({
               <>
                 <FormControl
                   variant="standard"
-                  sx={{ marginRight: 3, minWidth: 370 }}
+                  sx={{ marginRight: 3, minWidth: 235 }}
                 >
                   <TextField
                     placeholder="Enter Filter Name"
@@ -598,4 +581,4 @@ const UserFilter = ({
   );
 };
 
-export default UserFilter;
+export default AuditFilter;

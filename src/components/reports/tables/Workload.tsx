@@ -45,7 +45,7 @@ const getMuiTheme = () =>
     },
   });
 
-const Workload = ({ filteredData }: any) => {
+const Workload = ({ filteredData, onWorkloadSearchData }: any) => {
   const [page, setPage] = useState<number>(0);
   const [workloadData, setWorkloadData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -57,6 +57,15 @@ const Workload = ({ filteredData }: any) => {
   const [clickedRowId, setClickedRowId] = useState<number>(-1);
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
+
+  // getting Workload data by search
+  useEffect(() => {
+    if (onWorkloadSearchData) {
+      setWorkloadData(onWorkloadSearchData);
+    } else {
+      getData(workLoad_InitialFilter);
+    }
+  }, [onWorkloadSearchData]);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");
@@ -205,6 +214,19 @@ const Workload = ({ filteredData }: any) => {
                 : value}
             </div>
           );
+        },
+      },
+    },
+    {
+      name: "TotalCount",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm capitalize">quantity</span>
+        ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
         },
       },
     },

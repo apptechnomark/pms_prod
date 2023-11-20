@@ -259,15 +259,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          setStatusDropdownData(
-            response.data.ResponseData.filter(
-              (i: any) =>
-                i.Type !== "Accept" &&
-                i.Type !== "AcceptWithNotes" &&
-                i.Type !== "Errorlogs" &&
-                i.Type !== "Reject"
-            )
-          );
+          setStatusDropdownData(response.data.ResponseData);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -310,7 +302,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
               i.Type === "Accept" ||
               i.Type === "AcceptWithNotes" ||
               i.Type === "Errorlogs" ||
-              i.Type === "Reject" ||
               i.Type === "SignedOff"
                 ? i
                 : ""
@@ -402,7 +393,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/savefilter`,
         {
-          filterId: onCurrentFilterId ? onCurrentFilterId : null,
+          filterId: onCurrentFilterId !== 0 ? onCurrentFilterId : null,
           name: filterName,
           AppliedFilter: {
             ClientId: clientName || 0,

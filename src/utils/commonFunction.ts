@@ -1,6 +1,9 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 // import { useRouter } from "next/navigation";
 
+import axios from "axios";
+import { toast } from "react-toastify";
+
 const hasToken = (router: any) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -12,6 +15,31 @@ const hasNoToken = (router: any) => {
   const token = localStorage.getItem("token");
   if (!token) {
     router.push("/login");
+  }
+};
+
+const handleLogoutUtil = async () => {
+  const token = await localStorage.getItem("token");
+  const Org_Token = await localStorage.getItem("Org_Token");
+  try {
+    const response = await axios.get(`${process.env.api_url}/auth/logout`, {
+      headers: {
+        Authorization: `bearer ${token}`,
+        org_token: `${Org_Token}`,
+      },
+    });
+
+    if (response.status === 200) {
+      if (response.data.ResponseStatus === "Success") {
+        localStorage.clear();
+      } else {
+        toast.error("Something went wrong.");
+      }
+    } else {
+      toast.error("Something went wrong.");
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 
@@ -66,4 +94,4 @@ const hasPermissionWorklog = (
   }
 };
 
-export { hasToken, hasNoToken, hasPermissionWorklog };
+export { hasToken, hasNoToken, handleLogoutUtil, hasPermissionWorklog };

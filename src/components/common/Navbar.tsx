@@ -9,6 +9,7 @@ import axios from "axios";
 import Dropdown from "./Dropdown";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { handleLogoutUtil } from "@/utils/commonFunction";
 
 const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
   const router = useRouter();
@@ -164,7 +165,7 @@ const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
   const handleLogout = () => {
     setOpenLogout(false);
     if (typeof window !== "undefined") {
-      localStorage.clear();
+      handleLogoutUtil();
     }
     router.push("/login");
   };

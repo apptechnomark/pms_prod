@@ -37,7 +37,7 @@ const getMuiTheme = () =>
     },
   });
 
-const User = ({ filteredData }: any) => {
+const User = ({ filteredData, onUserSearchData }: any) => {
   const [dates, setDates] = useState<any>([]);
   const [page, setPage] = useState<number>(0);
   const [userData, setUserData] = useState<any>([]);
@@ -83,6 +83,15 @@ const User = ({ filteredData }: any) => {
       console.error(error);
     }
   };
+
+  // setting data from search
+  useEffect(() => {
+    if (onUserSearchData) {
+      setUserData(onUserSearchData);
+    } else {
+      getData(user_InitialFilter);
+    }
+  }, [onUserSearchData]);
 
   // functions for handling pagination
   const handleChangePage = (
@@ -154,7 +163,7 @@ const User = ({ filteredData }: any) => {
         },
       },
     },
-    ...dates.slice(-7).map(
+    ...dates.map(
       (date: any) =>
         new Object({
           name: "DateTimeLogs",
@@ -286,8 +295,31 @@ const User = ({ filteredData }: any) => {
         columns={columns}
         data={userData}
         title={undefined}
-        options={options}
+        options={{
+          ...options,
+          tableBodyHeight: "66vh",
+        }}
       />
+      <div className="w-full gap-5 flex items-center justify-center">
+        <div className="my-4 flex gap-2 items-center">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#1DA543]"></span>
+          <span className="text-sm font-normal capitalize">present</span>
+        </div>
+        <div className="my-4 flex gap-2 items-center">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#FB2424]"></span>
+          <span className="text-sm font-normal capitalize">absent</span>
+        </div>
+        <div className="my-4 flex gap-2 items-center">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#FFC107]"></span>
+          <span className="text-sm font-normal capitalize">half day</span>
+        </div>
+        <div className="my-4 flex gap-2 items-center">
+          <span className="h-2.5 w-2.5 rounded-full bg-[#FF9F43]"></span>
+          <span className="text-sm font-normal capitalize">
+            Incomplete hours
+          </span>
+        </div>
+      </div>
       <TablePagination
         component="div"
         count={tableDataCount}

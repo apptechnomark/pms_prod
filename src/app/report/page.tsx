@@ -22,6 +22,7 @@ import SearchIcon from "@/assets/icons/SearchIcon";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
 import ExportIcon from "@/assets/icons/ExportIcon";
+import Loading from "@/assets/icons/reports/Loading";
 
 const task_InitialFilter = {
   pageNo: 1,
@@ -61,6 +62,7 @@ const Report = () => {
   const [isTaskClicked, setIsTaskClicked] = useState(true);
   const [isRatingClicked, setIsRatingClicked] = useState(false);
   const [currentFilterData, setCurrentFilterData] = useState<any>([]);
+  const [isExporting, setIsExporting] = useState<boolean>(false);
 
   // Search
   const [isTaskSearch, setIsTaskSearch] = useState("");
@@ -243,6 +245,7 @@ const Report = () => {
   };
 
   const exportClientReport = async () => {
+    setIsExporting(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 
@@ -297,6 +300,7 @@ const Report = () => {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
+        setIsExporting(false);
       } else {
         const data = response.data.Message;
         if (data === null) {
@@ -400,8 +404,11 @@ const Report = () => {
             </span>
           </ColorToolTip>
           <ColorToolTip title="export" placement="top" arrow>
-            <span className="cursor-pointer" onClick={exportClientReport}>
-              <ExportIcon />
+            <span
+              className={`${isExporting ? "cursor-default" : "cursor-pointer"}`}
+              onClick={exportClientReport}
+            >
+              {isExporting ? <Loading /> : <ExportIcon />}
             </span>
           </ColorToolTip>
         </div>
