@@ -412,7 +412,7 @@ const Datatable_CompletedTask = ({
   // Table Columns
   const columns = [
     {
-      name: "ProjectId",
+      name: "WorkitemId",
       options: {
         filter: true,
         sort: true,

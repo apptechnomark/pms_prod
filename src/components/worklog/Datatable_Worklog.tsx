@@ -708,7 +708,7 @@ const Datatable_Worklog = ({
   // Table Columns
   const columns = [
     {
-      name: "ProjectId",
+      name: "WorkitemId",
       options: {
         filter: true,
         sort: true,

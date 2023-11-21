@@ -1147,6 +1147,11 @@ const Drawer = ({
           setTypeOfWork(data.WorkTypeId === null ? 0 : data.WorkTypeId);
           setProcessName(data.ProcessId === null ? 0 : data.ProcessId);
           setClientTaskName(data.TaskName === null ? "" : data.TaskName);
+          setReturnYear(
+            data.TaxCustomFields.ReturnYear === null
+              ? 0
+              : data.TaxCustomFields.ReturnYear
+          );
           setEditStatus(
             data.StatusId === null || data.StatusId === 0 ? 0 : data.StatusId
           );
@@ -1271,6 +1276,7 @@ const Drawer = ({
     setProcessName(0);
     setClientTaskName("");
     setClientTaskNameErr(false);
+    setReturnYear(0);
     setEditStatus(0);
 
     // Sub-Task
@@ -1464,7 +1470,7 @@ const Drawer = ({
                         </Grid>
                       )}
                       {type.Type === "TaskName" && type.IsChecked && (
-                        <Grid item xs={3} className="pt-0.5">
+                        <Grid item xs={3}>
                           <TextField
                             label={
                               <span>
@@ -1526,11 +1532,16 @@ const Drawer = ({
                           <Grid item xs={3} className="pt-4">
                             <FormControl
                               variant="standard"
-                              sx={{ width: 300, mt: -0.1, mx: 0.75 }}
+                              sx={{ width: 300, mt: -0.3, mx: 0.75 }}
+                              disabled={
+                                !isCreatedByClient ||
+                                (isCompletedTaskClicked &&
+                                  onEdit > 0 &&
+                                  !isCreatedByClient)
+                              }
                             >
                               <InputLabel id="demo-simple-select-standard-label">
                                 Return Year
-                                <span className="text-defaultRed">&nbsp;*</span>
                               </InputLabel>
                               <Select
                                 labelId="demo-simple-select-standard-label"
