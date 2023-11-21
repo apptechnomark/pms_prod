@@ -77,36 +77,21 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
   const startingPostion = 90;
   const dateWiseLogsTable = useRef<HTMLDivElement>(null);
 
-  console.log(data);
-
   const [clickedColumnIndex, setClickedColumnIndex] = useState<number>(-1);
   const [showDateWiseLogs, setShowDateWiseLogs] = useState<boolean>(false);
   const [dateWiseLogsData, setDateWiseLogsData] = useState<any[]>([]);
 
   const datewiselogsColumn: any = [
     {
-      name: "StartTime",
+      name: "TaskName",
       options: {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">start date</div>
+          <div className="font-bold text-sm capitalize">Task</div>
         ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return <span>{value && value.split("T")[0]}</span>;
-        },
-      },
-    },
-    {
-      name: "EndTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">end date</div>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return <span>{value && value.split("T")[0]}</span>;
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
         },
       },
     },
@@ -217,10 +202,36 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">quantity</div>
+          <div className="font-bold text-sm capitalize">qty.</div>
         ),
         customBodyRender: (value: any) => {
           return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
+      },
+    },
+    {
+      name: "StartTime",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => (
+          <div className="font-bold text-sm capitalize">start date</div>
+        ),
+        customBodyRender: (value: any, tableMeta: any) => {
+          return <span>{value && value.split("T")[0]}</span>;
+        },
+      },
+    },
+    {
+      name: "EndTime",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => (
+          <div className="font-bold text-sm capitalize">end date</div>
+        ),
+        customBodyRender: (value: any, tableMeta: any) => {
+          return <span>{value && value.split("T")[0]}</span>;
         },
       },
     },
