@@ -23,20 +23,34 @@ const getDates = (startDate?: any, endDate?: any) => {
   let array = [];
   let date = new Date();
 
-  let firstDay = startDate
-    ? startDate
-    : new Date(date.getFullYear(), date.getMonth(), 1).toString().split(" ")[2];
-  let lastDay = endDate ? endDate : new Date().toString().split(" ")[2];
+  let startParts = startDate ? startDate.split("-") : null;
+  let endParts = endDate ? endDate.split("-") : null;
 
-  for (let i = firstDay; i <= parseInt(lastDay); i++) {
+  let startDay = startParts
+    ? parseInt(startParts[2])
+    : new Date(date.getFullYear(), date.getMonth(), 1).getDate();
+  let startMonth = startParts ? parseInt(startParts[1]) - 1 : date.getMonth();
+  let startYear = startParts ? parseInt(startParts[0]) : date.getFullYear();
+
+  let endDay = endParts ? parseInt(endParts[2]) : date.getDate();
+  let endMonth = endParts ? parseInt(endParts[1]) - 1 : date.getMonth();
+  let endYear = endParts ? parseInt(endParts[0]) : date.getFullYear();
+
+  let current = new Date(startYear, startMonth, startDay);
+
+  while (current <= new Date(endYear, endMonth, endDay)) {
     let d =
-      date.getFullYear() +
+      current.getFullYear() +
       "-" +
-      (date.getMonth() + 1) +
+      (current.getMonth() + 1) +
       "-" +
-      (i.toString().length > 1 ? i : "0" + i);
+      (current.getDate().toString().length > 1
+        ? current.getDate()
+        : "0" + current.getDate());
     array.push(d);
+    current.setDate(current.getDate() + 1);
   }
+
   return array;
 };
 

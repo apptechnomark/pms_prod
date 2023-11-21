@@ -1298,7 +1298,7 @@ const Datatable = ({
   }, [isOnBreak]);
 
   const handleComment = (e: any) => {
-    setComment(e.target.value);
+    setComment(e.target.value.trim());
     if (e.target.value.length === 0) {
       setCommentErrText("This is required field!");
     } else if (e.target.value.length < 5) {
@@ -1973,7 +1973,7 @@ const Datatable = ({
                 multiline
                 rows={2}
                 value={comment}
-                error={commentErrText.length > 0 ? true : false}
+                error={commentErrText.trim().length > 0 ? true : false}
                 helperText={commentErrText}
                 autoFocus
                 margin="dense"
@@ -1999,6 +1999,8 @@ const Datatable = ({
             onClick={() => {
               setStopTimerDialog(false);
               setComment("");
+
+              setCommentErrText("");
             }}
           >
             Cancel
@@ -2009,7 +2011,7 @@ const Datatable = ({
             autoFocus
             onClick={() => {
               if (isTimeExceed) {
-                if (comment.length > 0 && commentErrText === "") {
+                if (comment.trim().length > 0 && commentErrText === "") {
                   setCommentErrText("");
                   setStopTimerDialog(false);
                   handleTimer(3, isRunning, workitemTimeId);

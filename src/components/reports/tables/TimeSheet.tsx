@@ -497,6 +497,12 @@ const TimeSheet = ({ filteredData, onTimesheetSearchData }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       getData(filteredData);
+      setDates(
+        getDates(
+          filteredData.startDate === null ? "" : filteredData.startDate,
+          filteredData.endDate === null ? "" : filteredData.endDate
+        )
+      );
     }
   }, [filteredData]);
 
