@@ -223,7 +223,7 @@ const Workload = ({ filteredData, onWorkloadSearchData }: any) => {
         sort: true,
         filter: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">quantity</span>
+          <span className="font-bold text-sm capitalize">Qty.</span>
         ),
         customBodyRender: (value: any) => {
           return <div>{value === null || value === "" ? "-" : value}</div>;

@@ -111,6 +111,7 @@ const Datatable = ({
   onFilterOpen,
   onCloseDrawer,
   onComment,
+  onErrorLog,
 }: any) => {
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -836,6 +837,7 @@ const Datatable = ({
 
   const settingSelectedId = () => {
     onEdit(workitemId, id);
+    onErrorLog(true, workitemId);
     handleClearSelection();
   };
 

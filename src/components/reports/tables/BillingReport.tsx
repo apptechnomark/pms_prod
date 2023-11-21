@@ -440,7 +440,7 @@ const BillingReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">total est. time</span>
+          <span className="font-bold text-sm capitalize">est. time</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
           return (
@@ -454,12 +454,25 @@ const BillingReport = ({
       },
     },
     {
+      name: "Quantity",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => (
+          <span className="font-bold text-sm capitalize">Qty.</span>
+        ),
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
+      },
+    },
+    {
       name: "StandardTime",
       options: {
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">total std. time</span>
+          <span className="font-bold text-sm capitalize">std. time</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
           return (

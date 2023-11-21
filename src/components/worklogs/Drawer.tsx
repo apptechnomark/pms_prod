@@ -2626,8 +2626,22 @@ const EditDrawer = ({
   const [valueEdit, setValueEdit] = useState("");
   const [valueEditError, setValueEditError] = useState(false);
   const [mention, setMention] = useState<any>([]);
-  let commentAttachment: any = [];
   const [editingCommentIndex, setEditingCommentIndex] = useState(-1);
+  const [commentAttachment, setCommentAttachment] = useState([
+    {
+      AttachmentId: 0,
+      UserFileName: "",
+      SystemFileName: "",
+      AttachmentPath: process.env.attachment,
+    },
+  ]);
+  const [commentAttachmentsErr, setCommentAttachmentsErr] = useState(false);
+  const [commentEditAttachmentsErr, setEditCommentAttachmentsErr] =
+    useState(false);
+  const [commentSystemFileNameUpload, setCommentSystemFileNameUpload] =
+    useState("");
+  const [commentOriginalFileNameUpload, setCommentOriginalFileNameUpload] =
+    useState("");
 
   const users =
     assigneeDropdownData?.length > 0 &&
@@ -2649,11 +2663,17 @@ const EditDrawer = ({
     setValueEditError(
       valueEdit.trim().length < 5 || valueEdit.trim().length > 500
     );
+    setEditCommentAttachmentsErr(
+      commentAttachment[0].UserFileName.trim().length <= 0 ||
+        commentAttachment[0].SystemFileName.trim().length <= 0
+    );
 
     if (
       valueEdit.trim().length > 5 &&
       valueEdit.trim().length < 501 &&
-      !valueEditError
+      !valueEditError &&
+      commentAttachment[0].UserFileName.trim().length > 0 &&
+      commentAttachment[0].SystemFileName.trim().length > 0
     ) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
         const token = await localStorage.getItem("token");
@@ -2666,7 +2686,7 @@ const EditDrawer = ({
               CommentId: i.CommentId,
               Message: valueEdit,
               TaggedUsers: mention,
-              Attachment: i.Attachment,
+              Attachment: commentAttachment,
               type: type,
             },
             {
@@ -2681,6 +2701,16 @@ const EditDrawer = ({
             if (response.data.ResponseStatus === "Success") {
               toast.success(`Comment updated successfully.`);
               setMention([]);
+              setCommentAttachment([
+                {
+                  AttachmentId: 0,
+                  UserFileName: "",
+                  SystemFileName: "",
+                  AttachmentPath: process.env.attachment,
+                },
+              ]);
+              setEditCommentAttachmentsErr(false);
+              setValueEditError(false);
               setValueEdit("");
               getCommentData(1);
               setEditingCommentIndex(-1);
@@ -2727,44 +2757,35 @@ const EditDrawer = ({
     setValueError(false);
   };
 
-  const handleFileChange = (e: any) => {
-    const selectedFiles = e.target.files;
+  const handleCommentAttachmentsChange = (
+    data1: any,
+    data2: any,
+    commentAttachment: any
+  ) => {
+    const Attachment = [
+      {
+        AttachmentId: commentAttachment[0].AttachmentId,
+        UserFileName: data1,
+        SystemFileName: data2,
+        AttachmentPath: process.env.attachment,
+      },
+    ];
+    setCommentAttachment(Attachment);
+    commentAttachment[0].AttachmentId === 0 &&
+      setCommentAttachmentsErr(
+        commentAttachment.UserFileName?.trim().length <= 0 ||
+          commentAttachment.SystemFileName?.trim().length <= 0
+      );
+    commentAttachment[0].AttachmentId > 0 &&
+      setEditCommentAttachmentsErr(
+        commentAttachment.UserFileName?.trim().length <= 0 ||
+          commentAttachment.SystemFileName?.trim().length <= 0
+      );
+  };
 
-    if (selectedFiles) {
-      for (let i = 0; i < selectedFiles.length; i++) {
-        const selectedFile = selectedFiles[i];
-        const fileName = selectedFile.name;
-        const fileExtension = fileName.split(".").pop();
-        let newFileName;
-
-        const uuidv4 = () => {
-          return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-            /[xy]/g,
-            function (c) {
-              const r = (Math.random() * 16) | 0,
-                v = c == "x" ? r : (r & 0x3) | 0x8;
-
-              return v.toString(16);
-            }
-          );
-        };
-
-        if (!fileName.toLowerCase().includes(".")) {
-          newFileName = `${uuidv4().slice(0, 32)}.txt`;
-        } else {
-          newFileName = `${uuidv4().slice(0, 32)}.${fileExtension}`;
-        }
-
-        const filePath = URL.createObjectURL(selectedFile).slice(5);
-        const fileObject = {
-          AttachmentId: 0,
-          SystemFileName: newFileName,
-          UserFileName: fileName,
-          AttachmentPath: filePath,
-        };
-        commentAttachment.push(fileObject);
-      }
-    }
+  const handleCommentPopoverClose = () => {
+    setCommentSystemFileNameUpload("");
+    setCommentOriginalFileNameUpload("");
   };
 
   const handleSubmitComment = async (
@@ -2772,9 +2793,24 @@ const EditDrawer = ({
     type: any
   ) => {
     e.preventDefault();
-    setValueError(value.trim().length < 5 || value.trim().length > 500);
+    setValueError(
+      value.trim().length < 5 ||
+        (value.trim().length > 500 &&
+          commentAttachment[0].UserFileName.trim().length > 0 &&
+          commentAttachment[0].SystemFileName.trim().length > 0)
+    );
+    setCommentAttachmentsErr(
+      commentAttachment[0].UserFileName.trim().length <= 0 ||
+        commentAttachment[0].SystemFileName.trim().length <= 0
+    );
 
-    if (value.trim().length > 5 && value.trim().length < 501 && !valueError) {
+    if (
+      value.trim().length > 5 &&
+      value.trim().length < 501 &&
+      !valueError &&
+      commentAttachment[0].UserFileName.trim().length > 0 &&
+      commentAttachment[0].SystemFileName.trim().length > 0
+    ) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
@@ -2801,7 +2837,16 @@ const EditDrawer = ({
             if (response.data.ResponseStatus === "Success") {
               toast.success(`Comment sent successfully.`);
               setMention([]);
-              commentAttachment = [];
+              setCommentAttachment([
+                {
+                  AttachmentId: 0,
+                  UserFileName: "",
+                  SystemFileName: "",
+                  AttachmentPath: process.env.attachment,
+                },
+              ]);
+              setEditCommentAttachmentsErr(false);
+              setValueEditError(false);
               setValueEdit("");
               setValue("");
               getCommentData(commentSelect);
@@ -2993,9 +3038,21 @@ const EditDrawer = ({
     setValueEdit("");
     setValueEditError(false);
     setMention([]);
-    commentAttachment = [];
     setEditingCommentIndex(-1);
     setCommentSelect(1);
+    setCommentAttachment([
+      {
+        AttachmentId: 0,
+        UserFileName: "",
+        SystemFileName: "",
+        AttachmentPath: process.env.attachment,
+      },
+    ]);
+    setEditingCommentIndex(-1);
+    setCommentAttachmentsErr(false);
+    setEditCommentAttachmentsErr(false);
+    setCommentSystemFileNameUpload("");
+    setCommentOriginalFileNameUpload("");
 
     // Reviewer note
     setReviewerNoteData([]);
@@ -4335,41 +4392,108 @@ const EditDrawer = ({
                                 {editingCommentIndex === index ? (
                                   <div className="flex items-center gap-2">
                                     <div className="flex flex-col">
-                                      <MentionsInput
-                                        style={mentionsInputStyle}
-                                        className="!w-[100%] textareaOutlineNoneEdit"
-                                        value={valueEdit}
-                                        onChange={(e) => {
-                                          setValueEdit(e.target.value);
-                                          setValueEditError(false);
-                                          handleCommentChange(e.target.value);
-                                        }}
-                                        placeholder="Type a next message OR type @ if you want to mention anyone in the message."
-                                      >
-                                        <Mention
-                                          data={users}
-                                          style={{ backgroundColor: "#cee4e5" }}
-                                          trigger="@"
-                                        />
-                                      </MentionsInput>
-                                      {valueEditError &&
-                                      valueEdit.trim().length > 1 &&
-                                      valueEdit.trim().length < 5 ? (
-                                        <span className="text-defaultRed text-[14px]">
-                                          Minimum 5 characters required.
-                                        </span>
-                                      ) : valueEditError &&
-                                        valueEdit.trim().length > 500 ? (
-                                        <span className="text-defaultRed text-[14px]">
-                                          Maximum 500 characters allowed.
-                                        </span>
-                                      ) : (
-                                        valueEditError && (
-                                          <span className="text-defaultRed text-[14px]">
-                                            This is a required field.
+                                      <div className="flex items-start justify-center">
+                                        <MentionsInput
+                                          style={mentionsInputStyle}
+                                          className="!w-[100%] textareaOutlineNoneEdit"
+                                          value={valueEdit}
+                                          onChange={(e) => {
+                                            setValueEdit(e.target.value);
+                                            setValueEditError(false);
+                                            handleCommentChange(e.target.value);
+                                          }}
+                                          placeholder="Type a next message OR type @ if you want to mention anyone in the message."
+                                        >
+                                          <Mention
+                                            data={users}
+                                            style={{
+                                              backgroundColor: "#cee4e5",
+                                            }}
+                                            trigger="@"
+                                          />
+                                        </MentionsInput>
+                                        <div className="flex flex-col">
+                                          <div className="flex">
+                                            <ImageUploader
+                                              className="!mt-0"
+                                              getData={(
+                                                data1: any,
+                                                data2: any
+                                              ) =>
+                                                handleCommentAttachmentsChange(
+                                                  data1,
+                                                  data2,
+                                                  commentAttachment
+                                                )
+                                              }
+                                              systemFile={
+                                                commentSystemFileNameUpload.length >
+                                                  0 &&
+                                                commentSystemFileNameUpload
+                                              }
+                                              originalFile={
+                                                commentOriginalFileNameUpload.length >
+                                                  0 &&
+                                                commentOriginalFileNameUpload
+                                              }
+                                              isOpen={
+                                                commentSystemFileNameUpload ===
+                                                commentAttachment[0]
+                                                  ?.SystemFileName
+                                                  ? true
+                                                  : false
+                                              }
+                                              onHandlePopoverClose={
+                                                handleCommentPopoverClose
+                                              }
+                                              isDisable={false}
+                                            />
+                                          </div>
+                                        </div>
+                                        {commentAttachment[0]?.SystemFileName
+                                          .length > 0 && (
+                                          <span
+                                            onClick={() => {
+                                              setCommentSystemFileNameUpload(
+                                                commentAttachment[0]
+                                                  ?.SystemFileName
+                                              );
+                                              setCommentOriginalFileNameUpload(
+                                                commentAttachment[0]
+                                                  ?.UserFileName
+                                              );
+                                            }}
+                                            className="text-[14px] ml-2"
+                                          >
+                                            {commentAttachment[0]?.UserFileName}
                                           </span>
-                                        )
-                                      )}
+                                        )}
+                                      </div>
+                                      <div className="flex flex-col">
+                                        {valueEditError &&
+                                        valueEdit.trim().length > 1 &&
+                                        valueEdit.trim().length < 5 ? (
+                                          <span className="text-defaultRed text-[14px]">
+                                            Minimum 5 characters required.
+                                          </span>
+                                        ) : valueEditError &&
+                                          valueEdit.trim().length > 500 ? (
+                                          <span className="text-defaultRed text-[14px]">
+                                            Maximum 500 characters allowed.
+                                          </span>
+                                        ) : (
+                                          valueEditError && (
+                                            <span className="text-defaultRed text-[14px]">
+                                              This is a required field.
+                                            </span>
+                                          )
+                                        )}
+                                        {commentEditAttachmentsErr && (
+                                          <span className="text-defaultRed text-[14px]">
+                                            Attachment is required.
+                                          </span>
+                                        )}
+                                      </div>
                                     </div>
                                     <button
                                       type="button"
@@ -4402,6 +4526,22 @@ const EditDrawer = ({
                                         );
                                       })}
                                     </div>
+                                    {i.Attachment[0]?.SystemFileName.length >
+                                      0 && (
+                                      <span
+                                        onClick={() => {
+                                          setCommentSystemFileNameUpload(
+                                            i.Attachment[0]?.SystemFileName
+                                          );
+                                          setCommentOriginalFileNameUpload(
+                                            i.Attachment[0]?.UserFileName
+                                          );
+                                        }}
+                                        className="text-[14px] ml-2"
+                                      >
+                                        {i.Attachment[0]?.UserFileName}
+                                      </span>
+                                    )}
                                     {userId === i.UserId &&
                                       hasPermissionWorklog(
                                         "Comment",
@@ -4411,9 +4551,22 @@ const EditDrawer = ({
                                         <button
                                           type="button"
                                           className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
-                                          onClick={() =>
-                                            handleEditClick(index, i.Message)
-                                          }
+                                          onClick={() => {
+                                            handleEditClick(index, i.Message);
+                                            setCommentAttachment([
+                                              {
+                                                AttachmentId:
+                                                  i.Attachment[0].AttachmentId,
+                                                UserFileName:
+                                                  i.Attachment[0].UserFileName,
+                                                SystemFileName:
+                                                  i.Attachment[0]
+                                                    .SystemFileName,
+                                                AttachmentPath:
+                                                  process.env.attachment,
+                                              },
+                                            ]);
+                                          }}
                                         >
                                           <EditIcon className="h-4 w-4" />
                                         </button>
@@ -4447,19 +4600,36 @@ const EditDrawer = ({
                               trigger="@"
                             />
                           </MentionsInput>
-                          <span
-                            className="text-white cursor-pointer"
-                            onClick={() => fileInputRef.current?.click()}
-                          >
-                            <FileIcon />
-                            <input
-                              type="file"
-                              ref={fileInputRef}
-                              multiple
-                              className="input-field hidden"
-                              onChange={(e) => handleFileChange(e)}
-                            />
-                          </span>
+                          <div className="flex flex-col">
+                            <div className="flex">
+                              <ImageUploader
+                                className="!mt-0"
+                                getData={(data1: any, data2: any) =>
+                                  handleCommentAttachmentsChange(
+                                    data1,
+                                    data2,
+                                    commentAttachment
+                                  )
+                                }
+                                systemFile={
+                                  commentSystemFileNameUpload.length > 0 &&
+                                  commentSystemFileNameUpload
+                                }
+                                originalFile={
+                                  commentOriginalFileNameUpload.length > 0 &&
+                                  commentOriginalFileNameUpload
+                                }
+                                isOpen={
+                                  commentSystemFileNameUpload ===
+                                  commentAttachment[0]?.SystemFileName
+                                    ? true
+                                    : false
+                                }
+                                onHandlePopoverClose={handleCommentPopoverClose}
+                                isDisable={false}
+                              />
+                            </div>
+                          </div>
                           <button
                             type="button"
                             className="!bg-secondary text-white p-[6px] rounded-md cursor-pointer mr-2"
@@ -4470,23 +4640,48 @@ const EditDrawer = ({
                             <SendIcon />
                           </button>
                         </div>
-                        {valueError &&
-                        value.trim().length > 1 &&
-                        value.trim().length < 5 ? (
-                          <span className="text-defaultRed text-[14px] ml-20">
-                            Minimum 5 characters required.
-                          </span>
-                        ) : valueError && value.trim().length > 500 ? (
-                          <span className="text-defaultRed text-[14px] ml-20">
-                            Maximum 500 characters allowed.
-                          </span>
-                        ) : (
-                          valueError && (
-                            <span className="text-defaultRed text-[14px] ml-20">
-                              This is a required field.
-                            </span>
-                          )
-                        )}
+                        <div className="flex items-center justify-between">
+                          <div className="flex flex-col">
+                            {valueError &&
+                            value.trim().length > 1 &&
+                            value.trim().length < 5 ? (
+                              <span className="text-defaultRed text-[14px] ml-20">
+                                Minimum 5 characters required.
+                              </span>
+                            ) : valueError && value.trim().length > 500 ? (
+                              <span className="text-defaultRed text-[14px] ml-20">
+                                Maximum 500 characters allowed.
+                              </span>
+                            ) : (
+                              valueError && (
+                                <span className="text-defaultRed text-[14px] ml-20">
+                                  This is a required field.
+                                </span>
+                              )
+                            )}
+                            {commentAttachmentsErr && (
+                              <span className="text-defaultRed text-[14px] ml-20">
+                                Attachment is required.
+                              </span>
+                            )}
+                          </div>
+                          {commentAttachment[0].AttachmentId === 0 &&
+                            commentAttachment[0]?.SystemFileName.length > 0 && (
+                              <span
+                                onClick={() => {
+                                  setCommentSystemFileNameUpload(
+                                    commentAttachment[0]?.SystemFileName
+                                  );
+                                  setCommentOriginalFileNameUpload(
+                                    commentAttachment[0]?.UserFileName
+                                  );
+                                }}
+                                className="mt-3 mb-6 mr-8"
+                              >
+                                {commentAttachment[0]?.UserFileName}
+                              </span>
+                            )}
+                        </div>
                       </>
                     )}
                 </div>
@@ -5761,7 +5956,6 @@ const EditDrawer = ({
                   )}
                 </div>
               )}
-              {console.log(errorLogFields)}
 
             {onEdit > 0 && (
               <div className="mt-14" id={`${onEdit > 0 && "tabpanel-8"}`}>

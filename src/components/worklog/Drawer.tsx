@@ -24,10 +24,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import axios from "axios";
-import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { Mention, MentionsInput } from "react-mentions";
@@ -141,13 +138,14 @@ const Drawer = ({
   // Task
   const [taskDrawer, setTaskDrawer] = useState(true);
   const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState([]);
-  const [typeOfWork, setTypeOfWork] = useState<string | number>(0);
+  const [typeOfWork, setTypeOfWork] = useState<any>(0);
   const [processDropdownData, setProcessDropdownData] = useState([]);
   const [processName, setProcessName] = useState<any>(0);
   const [clientTaskName, setClientTaskName] = useState<string>("");
   const [clientTaskNameErr, setClientTaskNameErr] = useState(false);
   const [editStatus, setEditStatus] = useState<any>(0);
-  const [returnYear, setReturnYear] = useState<string | number>(0);
+  const [returnYear, setReturnYear] = useState<any>(0);
+  const [status, setStatus] = useState<any>(0);
 
   // Sub-Task
   const [subTaskSwitch, setSubTaskSwitch] = useState(false);
@@ -372,11 +370,23 @@ const Drawer = ({
   const [valueEdit, setValueEdit] = useState("");
   const [valueEditError, setValueEditError] = useState(false);
   const [mention, setMention] = useState<any>([]);
-  let commentAttachment: any = [];
+  const [commentAttachment, setCommentAttachment] = useState([
+    {
+      AttachmentId: 0,
+      UserFileName: "",
+      SystemFileName: "",
+      AttachmentPath: process.env.attachment,
+    },
+  ]);
+  const [commentAttachmentsErr, setCommentAttachmentsErr] = useState(false);
+  const [commentEditAttachmentsErr, setEditCommentAttachmentsErr] =
+    useState(false);
   const [editingCommentIndex, setEditingCommentIndex] = useState(-1);
   const [commentDropdownData, setCommentDropdownData] = useState([]);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [commentSystemFileNameUpload, setCommentSystemFileNameUpload] =
+    useState("");
+  const [commentOriginalFileNameUpload, setCommentOriginalFileNameUpload] =
+    useState("");
 
   const users: any = commentDropdownData.map(
     (i: any) =>
@@ -420,10 +430,16 @@ const Drawer = ({
     setValueEditError(
       valueEdit.trim().length < 5 || valueEdit.trim().length > 500
     );
+    setEditCommentAttachmentsErr(
+      commentAttachment[0].UserFileName.trim().length <= 0 ||
+        commentAttachment[0].SystemFileName.trim().length <= 0
+    );
     if (
       valueEdit.trim().length > 5 &&
       valueEdit.trim().length < 501 &&
-      !valueEditError
+      !valueEditError &&
+      commentAttachment[0].UserFileName.trim().length > 0 &&
+      commentAttachment[0].SystemFileName.trim().length > 0
     ) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
         const token = await localStorage.getItem("token");
@@ -436,7 +452,7 @@ const Drawer = ({
               CommentId: i.CommentId,
               Message: valueEdit,
               TaggedUsers: mention,
-              Attachment: i.Attachment,
+              Attachment: commentAttachment,
               type: 2,
             },
             {
@@ -450,6 +466,16 @@ const Drawer = ({
             if (response.data.ResponseStatus === "Success") {
               toast.success(`Comment updated successfully.`);
               setMention([]);
+              setCommentAttachment([
+                {
+                  AttachmentId: 0,
+                  UserFileName: "",
+                  SystemFileName: "",
+                  AttachmentPath: process.env.attachment,
+                },
+              ]);
+              setEditCommentAttachmentsErr(false);
+              setValueEditError(false);
               setValueEdit("");
               getCommentData();
               setEditingCommentIndex(-1);
@@ -482,46 +508,52 @@ const Drawer = ({
     }
   };
 
-  const handleFileChange = (e: any) => {
-    const selectedFiles = e.target.files;
-    // if (selectedFiles) {
-    //   for (let i = 0; i < selectedFiles.length; i++) {
-    //     const selectedFile = selectedFiles[i];
-    //     const fileName = selectedFile.name;
-    //     const fileExtension = fileName.split(".").pop();
-    //     let newFileName;
-    //     const uuidv4 = () => {
-    //       return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-    //         /[xy]/g,
-    //         function (c) {
-    //           const r = (Math.random() * 16) | 0,
-    //             v = c == "x" ? r : (r & 0x3) | 0x8;
-    //           return v.toString(16);
-    //         }
-    //       );
-    //     };
-    //     if (!fileName.toLowerCase().includes(".")) {
-    //       newFileName = `${uuidv4().slice(0, 32)}.txt`;
-    //     } else {
-    //       newFileName = `${uuidv4().slice(0, 32)}.${fileExtension}`;
-    //     }
-    //     const filePath = URL.createObjectURL(selectedFile).slice(5);
-    //     const fileObject = {
-    //       AttachmentId: 0,
-    //       SystemFileName: newFileName,
-    //       UserFileName: fileName,
-    //       AttachmentPath: filePath,
-    //     };
-    //     commentAttachment.push(fileObject);
-    //   }
-    // }
+  const handleCommentAttachmentsChange = (
+    data1: any,
+    data2: any,
+    commentAttachment: any
+  ) => {
+    const Attachment = [
+      {
+        AttachmentId: commentAttachment[0].AttachmentId,
+        UserFileName: data1,
+        SystemFileName: data2,
+        AttachmentPath: process.env.attachment,
+      },
+    ];
+    setCommentAttachment(Attachment);
+    commentAttachment[0].AttachmentId === 0 &&
+      setCommentAttachmentsErr(
+        commentAttachment.UserFileName?.trim().length <= 0 ||
+          commentAttachment.SystemFileName?.trim().length <= 0
+      );
+    commentAttachment[0].AttachmentId > 0 &&
+      setEditCommentAttachmentsErr(
+        commentAttachment.UserFileName?.trim().length <= 0 ||
+          commentAttachment.SystemFileName?.trim().length <= 0
+      );
+  };
+
+  const handleCommentPopoverClose = () => {
+    setCommentSystemFileNameUpload("");
+    setCommentOriginalFileNameUpload("");
   };
 
   // Save Comment
   const handleSubmitComment = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setValueError(value.trim().length < 5 || value.trim().length > 500);
-    if (value.trim().length > 5 && value.trim().length < 501 && !valueError) {
+    setCommentAttachmentsErr(
+      commentAttachment[0].UserFileName.trim().length <= 0 ||
+        commentAttachment[0].SystemFileName.trim().length <= 0
+    );
+    if (
+      value.trim().length > 5 &&
+      value.trim().length < 501 &&
+      !valueError &&
+      commentAttachment[0].UserFileName.trim().length > 0 &&
+      commentAttachment[0].SystemFileName.trim().length > 0
+    ) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
@@ -547,7 +579,16 @@ const Drawer = ({
             if (response.data.ResponseStatus === "Success") {
               toast.success(`Comment sent successfully.`);
               setMention([]);
-              commentAttachment = [];
+              setCommentAttachment([
+                {
+                  AttachmentId: 0,
+                  UserFileName: "",
+                  SystemFileName: "",
+                  AttachmentPath: process.env.attachment,
+                },
+              ]);
+              setEditCommentAttachmentsErr(false);
+              setValueEditError(false);
               setValueEdit("");
               setValue("");
               getCommentData();
@@ -1147,6 +1188,7 @@ const Drawer = ({
           setTypeOfWork(data.WorkTypeId === null ? 0 : data.WorkTypeId);
           setProcessName(data.ProcessId === null ? 0 : data.ProcessId);
           setClientTaskName(data.TaskName === null ? "" : data.TaskName);
+          setStatus(data.StatusId === null ? 0 : data.StatusId);
           setReturnYear(
             data.TaxCustomFields.ReturnYear === null
               ? 0
@@ -1278,6 +1320,7 @@ const Drawer = ({
     setClientTaskNameErr(false);
     setReturnYear(0);
     setEditStatus(0);
+    setStatus(0);
 
     // Sub-Task
     setSubTaskDrawer(true);
@@ -1300,9 +1343,20 @@ const Drawer = ({
     setValueEdit("");
     setValueEditError(false);
     setMention([]);
-    commentAttachment = [];
+    setCommentAttachment([
+      {
+        AttachmentId: 0,
+        UserFileName: "",
+        SystemFileName: "",
+        AttachmentPath: process.env.attachment,
+      },
+    ]);
     setEditingCommentIndex(-1);
     setCommentDropdownData([]);
+    setCommentAttachmentsErr(false);
+    setEditCommentAttachmentsErr(false);
+    setCommentSystemFileNameUpload("");
+    setCommentOriginalFileNameUpload("");
 
     // ErrorLogs
     setErrorLogDrawer(true);
@@ -1413,7 +1467,9 @@ const Drawer = ({
                                 !isCreatedByClient ||
                                 (isCompletedTaskClicked &&
                                   onEdit > 0 &&
-                                  !isCreatedByClient)
+                                  !isCreatedByClient) ||
+                                status !== 1 ||
+                                status !== 0
                               }
                             >
                               <InputLabel id="demo-simple-select-standard-label">
@@ -1447,7 +1503,9 @@ const Drawer = ({
                               !isCreatedByClient ||
                               (isCompletedTaskClicked &&
                                 onEdit > 0 &&
-                                !isCreatedByClient)
+                                !isCreatedByClient) ||
+                              status !== 1 ||
+                              status !== 0
                             }
                             options={processDropdownData}
                             value={
@@ -1484,7 +1542,9 @@ const Drawer = ({
                               !isCreatedByClient ||
                               (isCompletedTaskClicked &&
                                 onEdit > 0 &&
-                                !isCreatedByClient)
+                                !isCreatedByClient) ||
+                              status !== 1 ||
+                              status !== 0
                             }
                             fullWidth
                             value={
@@ -1537,7 +1597,9 @@ const Drawer = ({
                                 !isCreatedByClient ||
                                 (isCompletedTaskClicked &&
                                   onEdit > 0 &&
-                                  !isCreatedByClient)
+                                  !isCreatedByClient) ||
+                                status !== 1 ||
+                                status !== 0
                               }
                             >
                               <InputLabel id="demo-simple-select-standard-label">
@@ -1584,7 +1646,11 @@ const Drawer = ({
                       checked={subTaskSwitch}
                       disabled={
                         !isCreatedByClient ||
-                        (onEdit > 0 && isCompletedTaskClicked)
+                        (isCompletedTaskClicked &&
+                          onEdit > 0 &&
+                          !isCreatedByClient) ||
+                        status !== 1 ||
+                        status !== 0
                       }
                       onChange={(e) => {
                         setSubTaskSwitch(e.target.checked);
@@ -1627,7 +1693,11 @@ const Drawer = ({
                             }
                             disabled={
                               !isCreatedByClient ||
-                              (onEdit > 0 && isCompletedTaskClicked)
+                              (isCompletedTaskClicked &&
+                                onEdit > 0 &&
+                                !isCreatedByClient) ||
+                              status !== 1 ||
+                              status !== 0
                             }
                             fullWidth
                             value={field.Title}
@@ -1666,7 +1736,11 @@ const Drawer = ({
                             }
                             disabled={
                               !isCreatedByClient ||
-                              (onEdit > 0 && isCompletedTaskClicked)
+                              (isCompletedTaskClicked &&
+                                onEdit > 0 &&
+                                !isCreatedByClient) ||
+                              status !== 1 ||
+                              status !== 0
                             }
                             fullWidth
                             value={field.Description}
@@ -1789,41 +1863,101 @@ const Drawer = ({
                               {editingCommentIndex === index ? (
                                 <div className="flex items-center gap-2">
                                   <div className="flex flex-col items-start">
-                                    <MentionsInput
-                                      style={mentionsInputStyle}
-                                      className="!w-[100%] textareaOutlineNoneEdit"
-                                      value={valueEdit}
-                                      onChange={(e) => {
-                                        setValueEdit(e.target.value);
-                                        setValueEditError(false);
-                                        handleCommentChange(e.target.value);
-                                      }}
-                                      placeholder="Type a next message OR type @ if you want to mention anyone in the message."
-                                    >
-                                      <Mention
-                                        data={users}
-                                        style={{ backgroundColor: "#cee4e5" }}
-                                        trigger="@"
-                                      />
-                                    </MentionsInput>
-                                    {valueEditError &&
-                                    valueEdit.trim().length > 1 &&
-                                    valueEdit.trim().length < 5 ? (
-                                      <span className="text-defaultRed text-[14px]">
-                                        Minimum 5 characters required.
-                                      </span>
-                                    ) : valueEditError &&
-                                      valueEdit.trim().length > 500 ? (
-                                      <span className="text-defaultRed text-[14px]">
-                                        Maximum 500 characters allowed.
-                                      </span>
-                                    ) : (
-                                      valueEditError && (
-                                        <span className="text-defaultRed text-[14px]">
-                                          This is a required field.
+                                    <div className="flex items-start justify-center">
+                                      <MentionsInput
+                                        style={mentionsInputStyle}
+                                        className="!w-[100%] textareaOutlineNoneEdit"
+                                        value={valueEdit}
+                                        onChange={(e) => {
+                                          setValueEdit(e.target.value);
+                                          setValueEditError(false);
+                                          handleCommentChange(e.target.value);
+                                        }}
+                                        placeholder="Type a next message OR type @ if you want to mention anyone in the message."
+                                      >
+                                        <Mention
+                                          data={users}
+                                          style={{ backgroundColor: "#cee4e5" }}
+                                          trigger="@"
+                                        />
+                                      </MentionsInput>
+                                      <div className="flex flex-col">
+                                        <div className="flex">
+                                          <ImageUploader
+                                            className="!mt-0"
+                                            getData={(data1: any, data2: any) =>
+                                              handleCommentAttachmentsChange(
+                                                data1,
+                                                data2,
+                                                commentAttachment
+                                              )
+                                            }
+                                            systemFile={
+                                              commentSystemFileNameUpload.length >
+                                                0 && commentSystemFileNameUpload
+                                            }
+                                            originalFile={
+                                              commentOriginalFileNameUpload.length >
+                                                0 &&
+                                              commentOriginalFileNameUpload
+                                            }
+                                            isOpen={
+                                              commentSystemFileNameUpload ===
+                                              commentAttachment[0]
+                                                ?.SystemFileName
+                                                ? true
+                                                : false
+                                            }
+                                            onHandlePopoverClose={
+                                              handleCommentPopoverClose
+                                            }
+                                            isDisable={false}
+                                          />
+                                        </div>
+                                      </div>
+                                      {commentAttachment[0]?.SystemFileName
+                                        .length > 0 && (
+                                        <span
+                                          onClick={() => {
+                                            setCommentSystemFileNameUpload(
+                                              commentAttachment[0]
+                                                ?.SystemFileName
+                                            );
+                                            setCommentOriginalFileNameUpload(
+                                              commentAttachment[0]?.UserFileName
+                                            );
+                                          }}
+                                          className="text-[14px] ml-2"
+                                        >
+                                          {commentAttachment[0]?.UserFileName}
                                         </span>
-                                      )
-                                    )}
+                                      )}
+                                    </div>
+                                    <div className="flex flex-col">
+                                      {valueEditError &&
+                                      valueEdit.trim().length > 1 &&
+                                      valueEdit.trim().length < 5 ? (
+                                        <span className="text-defaultRed text-[14px]">
+                                          Minimum 5 characters required.
+                                        </span>
+                                      ) : valueEditError &&
+                                        valueEdit.trim().length > 500 ? (
+                                        <span className="text-defaultRed text-[14px]">
+                                          Maximum 500 characters allowed.
+                                        </span>
+                                      ) : (
+                                        valueEditError && (
+                                          <span className="text-defaultRed text-[14px]">
+                                            This is a required field.
+                                          </span>
+                                        )
+                                      )}
+                                      {commentEditAttachmentsErr && (
+                                        <span className="text-defaultRed text-[14px]">
+                                          Attachment is required.
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                   <button
                                     type="button"
@@ -1853,6 +1987,22 @@ const Drawer = ({
                                       );
                                     })}
                                   </div>
+                                  {i.Attachment[0]?.SystemFileName.length >
+                                    0 && (
+                                    <span
+                                      onClick={() => {
+                                        setCommentSystemFileNameUpload(
+                                          i.Attachment[0]?.SystemFileName
+                                        );
+                                        setCommentOriginalFileNameUpload(
+                                          i.Attachment[0]?.UserFileName
+                                        );
+                                      }}
+                                      className="text-[14px] ml-2"
+                                    >
+                                      {i.Attachment[0]?.UserFileName}
+                                    </span>
+                                  )}
                                   {userId === i.UserId &&
                                     hasPermissionWorklog(
                                       "Comment",
@@ -1862,9 +2012,21 @@ const Drawer = ({
                                       <button
                                         type="button"
                                         className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
-                                        onClick={() =>
-                                          handleEditClick(index, i.Message)
-                                        }
+                                        onClick={() => {
+                                          handleEditClick(index, i.Message);
+                                          setCommentAttachment([
+                                            {
+                                              AttachmentId:
+                                                i.Attachment[0].AttachmentId,
+                                              UserFileName:
+                                                i.Attachment[0].UserFileName,
+                                              SystemFileName:
+                                                i.Attachment[0].SystemFileName,
+                                              AttachmentPath:
+                                                process.env.attachment,
+                                            },
+                                          ]);
+                                        }}
                                       >
                                         <EditIcon className="h-4 w-4" />
                                       </button>
@@ -1898,19 +2060,36 @@ const Drawer = ({
                             trigger="@"
                           />
                         </MentionsInput>
-                        <span
-                          className="text-white cursor-pointer"
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          <FileIcon />
-                          <input
-                            type="file"
-                            ref={fileInputRef}
-                            multiple
-                            className="input-field hidden"
-                            onChange={(e) => handleFileChange(e)}
-                          />
-                        </span>
+                        <div className="flex flex-col">
+                          <div className="flex">
+                            <ImageUploader
+                              className="!mt-0"
+                              getData={(data1: any, data2: any) =>
+                                handleCommentAttachmentsChange(
+                                  data1,
+                                  data2,
+                                  commentAttachment
+                                )
+                              }
+                              systemFile={
+                                commentSystemFileNameUpload.length > 0 &&
+                                commentSystemFileNameUpload
+                              }
+                              originalFile={
+                                commentOriginalFileNameUpload.length > 0 &&
+                                commentOriginalFileNameUpload
+                              }
+                              isOpen={
+                                commentSystemFileNameUpload ===
+                                commentAttachment[0]?.SystemFileName
+                                  ? true
+                                  : false
+                              }
+                              onHandlePopoverClose={handleCommentPopoverClose}
+                              isDisable={false}
+                            />
+                          </div>
+                        </div>
                         <button
                           type="button"
                           className="!bg-secondary text-white p-[6px] rounded-md cursor-pointer mr-2"
@@ -1919,23 +2098,48 @@ const Drawer = ({
                           <SendIcon />
                         </button>
                       </div>
-                      {valueError &&
-                      value.trim().length > 1 &&
-                      value.trim().length < 5 ? (
-                        <span className="text-defaultRed text-[14px] ml-20">
-                          Minimum 5 characters required.
-                        </span>
-                      ) : valueError && value.trim().length > 500 ? (
-                        <span className="text-defaultRed text-[14px] ml-20">
-                          Maximum 500 characters allowed.
-                        </span>
-                      ) : (
-                        valueError && (
-                          <span className="text-defaultRed text-[14px] ml-20">
-                            This is a required field.
-                          </span>
-                        )
-                      )}
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                          {valueError &&
+                          value.trim().length > 1 &&
+                          value.trim().length < 5 ? (
+                            <span className="text-defaultRed text-[14px] ml-20">
+                              Minimum 5 characters required.
+                            </span>
+                          ) : valueError && value.trim().length > 500 ? (
+                            <span className="text-defaultRed text-[14px] ml-20">
+                              Maximum 500 characters allowed.
+                            </span>
+                          ) : (
+                            valueError && (
+                              <span className="text-defaultRed text-[14px] ml-20">
+                                This is a required field.
+                              </span>
+                            )
+                          )}
+                          {commentAttachmentsErr && (
+                            <span className="text-defaultRed text-[14px] ml-20">
+                              Attachment is required.
+                            </span>
+                          )}
+                        </div>
+                        {commentAttachment[0].AttachmentId === 0 &&
+                          commentAttachment[0]?.SystemFileName.length > 0 && (
+                            <span
+                              onClick={() => {
+                                setCommentSystemFileNameUpload(
+                                  commentAttachment[0]?.SystemFileName
+                                );
+                                setCommentOriginalFileNameUpload(
+                                  commentAttachment[0]?.UserFileName
+                                );
+                              }}
+                              className="mt-3 mb-6 mr-8"
+                            >
+                              {commentAttachment[0]?.UserFileName}
+                            </span>
+                          )}
+                      </div>
                     </>
                   )}
               </div>

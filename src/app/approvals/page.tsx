@@ -32,6 +32,7 @@ const page = () => {
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
   const [currentFilterData, setCurrentFilterData] = useState([]);
   const [hasComment, setHasComment] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   const handleCloseFilter = () => {
     setisFilterOpen(false);
@@ -75,6 +76,7 @@ const page = () => {
     setOpenDrawer(false);
     setHasEditId(0);
     setHasComment(false);
+    setHasError(false);
     setHasId("");
   };
 
@@ -94,6 +96,13 @@ const page = () => {
   // To Toggle Drawer for Comments
   const handleSetComments = (rowData: any, selectedId: number) => {
     setHasComment(true);
+    setOpenDrawer(rowData);
+    setHasEditId(selectedId);
+  };
+
+  // To Toggle Drawer for Error
+  const handleSetError = (rowData: any, selectedId: number) => {
+    setHasError(true);
     setOpenDrawer(rowData);
     setHasEditId(selectedId);
   };
@@ -137,6 +146,7 @@ const page = () => {
           onFilterOpen={isFilterOpen}
           onCloseDrawer={openDrawer}
           onComment={handleSetComments}
+          onErrorLog={handleSetError}
         />
 
         <Drawer
@@ -147,6 +157,7 @@ const page = () => {
           hasIconIndex={iconIndex > 0 ? iconIndex : 0}
           onHasId={hasId}
           onComment={hasComment}
+          onErrorLog={hasError}
         />
 
         <FilterDialog_Approval

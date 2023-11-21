@@ -15,6 +15,7 @@ export default function ImageUploader({
   isOpen,
   onHandlePopoverClose,
   isDisable,
+  className,
 }: any) {
   const [fileData, setFileData] = useState<any>(null);
   const [selectedFileDisplay, setSelectedFileDisplay] = useState<any>("");
@@ -22,9 +23,9 @@ export default function ImageUploader({
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
-    systemFile.length > 0 && getFileFromBlob(systemFile);
-    originalFile.length > 0 && setOriginalFileDisplay(originalFile);
-    systemFile.length > 0 && setIsExpanded(isOpen);
+    systemFile?.length > 0 && getFileFromBlob(systemFile);
+    originalFile?.length > 0 && setOriginalFileDisplay(originalFile);
+    systemFile?.length > 0 && setIsExpanded(isOpen);
   }, [systemFile]);
 
   useEffect(() => {
@@ -149,7 +150,7 @@ export default function ImageUploader({
     <div className="flex gap-2">
       {/* <input type="file" accept="image/*,.pdf" onChange={handleImageChange} /> */}
       <span
-        className="text-white cursor-pointer max-w-1 mt-6"
+        className={`text-white cursor-pointer max-w-1 mt-6 ${className}`}
         onClick={() => fileInputRef.current?.click()}
       >
         <FileIcon />
