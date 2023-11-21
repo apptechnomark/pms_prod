@@ -544,7 +544,10 @@ const RatingReportFilter = ({
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={clientDropdown}
+                    options={clientDropdown.filter(
+                      (option) =>
+                        !clients.find((client) => client.value === option.value)
+                    )}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
                       setClients(data);

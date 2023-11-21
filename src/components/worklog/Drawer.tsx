@@ -1468,8 +1468,7 @@ const Drawer = ({
                                 (isCompletedTaskClicked &&
                                   onEdit > 0 &&
                                   !isCreatedByClient) ||
-                                status !== 1 ||
-                                status !== 0
+                                status > 1
                               }
                             >
                               <InputLabel id="demo-simple-select-standard-label">
@@ -1504,8 +1503,7 @@ const Drawer = ({
                               (isCompletedTaskClicked &&
                                 onEdit > 0 &&
                                 !isCreatedByClient) ||
-                              status !== 1 ||
-                              status !== 0
+                              status > 1
                             }
                             options={processDropdownData}
                             value={
@@ -1543,8 +1541,7 @@ const Drawer = ({
                               (isCompletedTaskClicked &&
                                 onEdit > 0 &&
                                 !isCreatedByClient) ||
-                              status !== 1 ||
-                              status !== 0
+                              status > 1
                             }
                             fullWidth
                             value={
@@ -1598,8 +1595,7 @@ const Drawer = ({
                                 (isCompletedTaskClicked &&
                                   onEdit > 0 &&
                                   !isCreatedByClient) ||
-                                status !== 1 ||
-                                status !== 0
+                                status > 1
                               }
                             >
                               <InputLabel id="demo-simple-select-standard-label">
@@ -1649,8 +1645,7 @@ const Drawer = ({
                         (isCompletedTaskClicked &&
                           onEdit > 0 &&
                           !isCreatedByClient) ||
-                        status !== 1 ||
-                        status !== 0
+                        status > 1
                       }
                       onChange={(e) => {
                         setSubTaskSwitch(e.target.checked);
@@ -1696,8 +1691,7 @@ const Drawer = ({
                               (isCompletedTaskClicked &&
                                 onEdit > 0 &&
                                 !isCreatedByClient) ||
-                              status !== 1 ||
-                              status !== 0
+                              status > 1
                             }
                             fullWidth
                             value={field.Title}
@@ -1739,8 +1733,7 @@ const Drawer = ({
                               (isCompletedTaskClicked &&
                                 onEdit > 0 &&
                                 !isCreatedByClient) ||
-                              status !== 1 ||
-                              status !== 0
+                              status > 1
                             }
                             fullWidth
                             value={field.Description}

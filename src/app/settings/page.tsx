@@ -542,9 +542,9 @@ const page = () => {
   }, []);
 
   // fetching client data according to search values
-  const handleClientSearch = async (searchValue: any, orgToken: any) => {
+  const handleClientSearch = async (searchValue: any) => {
     const token = await localStorage.getItem("token");
-    // const Org_Token = await localStorage.getItem("Org_Token");
+    const Org_Token = await localStorage.getItem("Org_Token");
     try {
       const response = await axios.post(
         `${process.env.pms_api_url}/client/GetAll`,
@@ -558,7 +558,7 @@ const page = () => {
         {
           headers: {
             Authorization: `bearer ${token}`,
-            org_token: orgToken,
+            org_token: Org_Token,
           },
         }
       );
@@ -587,25 +587,10 @@ const page = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchOrgToken = async () => {
-      const orgToken = await localStorage.getItem("Org_Token");
-      if (orgToken) {
-        if (clientSearchValue.length >= 3) {
-          handleClientSearch(clientSearchValue, orgToken);
-        } else {
-          handleClientSearch("", orgToken);
-        }
-      }
-    };
-
-    fetchOrgToken();
-  }, [clientSearchValue]);
-
   // fetching Project data according to search values
-  const handleProjectSearch = async (searchValue: any, orgToken: any) => {
+  const handleProjectSearch = async (searchValue: any) => {
     const token = await localStorage.getItem("token");
-    // const org_Token = await localStorage.getItem("Org_Token");
+    const org_Token = await localStorage.getItem("Org_Token");
 
     try {
       const response = await axios.post(
@@ -623,7 +608,7 @@ const page = () => {
         {
           headers: {
             Authorization: `bearer ${token}`,
-            org_token: orgToken,
+            org_token: org_Token,
           },
         }
       );
@@ -652,25 +637,10 @@ const page = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchOrgToken = async () => {
-      const orgToken = await localStorage.getItem("Org_Token");
-      if (orgToken) {
-        if (projectSearchValue.length >= 3) {
-          handleProjectSearch(projectSearchValue, orgToken);
-        } else {
-          handleProjectSearch("", orgToken);
-        }
-      }
-    };
-
-    fetchOrgToken();
-  }, [projectSearchValue]);
-
   // fetching User data according to search values
-  const handleUserSearch = async (searchValue: any, orgToken: any) => {
+  const handleUserSearch = async (searchValue: any) => {
     const token = await localStorage.getItem("token");
-    // const Org_Token = await localStorage.getItem("Org_Token");
+    const Org_Token = await localStorage.getItem("Org_Token");
     try {
       const response = await axios.post(
         `${process.env.api_url}/user/getall`,
@@ -688,7 +658,7 @@ const page = () => {
         {
           headers: {
             Authorization: `bearer ${token}`,
-            org_token: orgToken,
+            org_token: Org_Token,
           },
         }
       );
@@ -717,25 +687,10 @@ const page = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchOrgToken = async () => {
-      const orgToken = await localStorage.getItem("Org_Token");
-      if (orgToken) {
-        if (userSearchValue.length >= 3) {
-          handleUserSearch(userSearchValue, orgToken);
-        } else {
-          handleUserSearch("", orgToken);
-        }
-      }
-    };
-
-    fetchOrgToken();
-  }, [userSearchValue]);
-
   // fetching Process data according to search values
-  const handleProcessSearch = async (searchValue: any, orgToken: any) => {
+  const handleProcessSearch = async (searchValue: any) => {
     const token = await localStorage.getItem("token");
-    // const Org_Token = await localStorage.getItem("Org_Token");
+    const Org_Token = await localStorage.getItem("Org_Token");
     try {
       const prams = {
         GlobalFilter: searchValue,
@@ -752,7 +707,7 @@ const page = () => {
         {
           headers: {
             Authorization: `bearer ${token}`,
-            org_token: orgToken,
+            org_token: Org_Token,
           },
         }
       );
@@ -774,25 +729,10 @@ const page = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchOrgToken = async () => {
-      const orgToken = await localStorage.getItem("Org_Token");
-      if (orgToken) {
-        if (processSearchValue.length >= 3) {
-          handleProcessSearch(processSearchValue, orgToken);
-        } else {
-          handleProcessSearch("", orgToken);
-        }
-      }
-    };
-
-    fetchOrgToken();
-  }, [processSearchValue]);
-
   // fetching Group data according to search values
-  const handleGroupSearch = async (searchValue: any, orgToken: any) => {
+  const handleGroupSearch = async (searchValue: any) => {
     const token = await localStorage.getItem("token");
-    // const Org_Token = await localStorage.getItem("Org_Token");
+    const Org_Token = await localStorage.getItem("Org_Token");
     try {
       const prams = {
         UserId: 0,
@@ -809,7 +749,7 @@ const page = () => {
         {
           headers: {
             Authorization: `bearer ${token}`,
-            org_token: orgToken,
+            org_token: Org_Token,
           },
         }
       );
@@ -831,29 +771,14 @@ const page = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchOrgToken = async () => {
-      const orgToken = await localStorage.getItem("Org_Token");
-      if (orgToken) {
-        if (groupSearchValue.length >= 3) {
-          handleGroupSearch(groupSearchValue, orgToken);
-        } else {
-          handleGroupSearch("", orgToken);
-        }
-      }
-    };
-
-    fetchOrgToken();
-  }, [groupSearchValue]);
-
   // fetching Status data according to search values
-  const handleStatusSearch = async (searchValue: any, orgToken: any) => {
+  const handleStatusSearch = async (searchValue: any) => {
     const token = await localStorage.getItem("token");
-    // const Org_Token = await localStorage.getItem("Org_Token");
+    const Org_Token = await localStorage.getItem("Org_Token");
     try {
       const headers = {
         Authorization: `${token}`,
-        org_token: orgToken,
+        org_token: Org_Token,
       };
       const param = {
         pageNo: 1,
@@ -885,29 +810,15 @@ const page = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchOrgToken = async () => {
-      const orgToken = await localStorage.getItem("Org_Token");
-      if (orgToken) {
-        if (statusSearchValue.length >= 3) {
-          handleStatusSearch(statusSearchValue, orgToken);
-        } else {
-          handleStatusSearch("", orgToken);
-        }
-      }
-    };
-
-    fetchOrgToken();
-  }, [statusSearchValue]);
-
   // fetching Organization data according to search values
-  const handleOrganizationSearch = async (searchValue: any, orgToken: any) => {
+  const handleOrganizationSearch = async (searchValue: any) => {
     const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
     try {
       const headers = {
         "Content-Type": "application/json",
         Authorization: `bearer ${token}`,
-        org_token: orgToken,
+        org_token: Org_Token,
       };
       const param = {
         GlobalSearch: searchValue,
@@ -936,20 +847,64 @@ const page = () => {
     }
   };
 
+  // Search function for all tabs
   useEffect(() => {
-    const fetchOrgToken = async () => {
-      const orgToken = await localStorage.getItem("Org_Token");
-      if (orgToken) {
-        if (orgSearchValue.length >= 3) {
-          handleOrganizationSearch(orgSearchValue, orgToken);
-        } else {
-          handleOrganizationSearch("", orgToken);
-        }
+    const handleSearch = (
+      value: string,
+      searchFunction: {
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (arg0: string): void;
+      }
+    ) => {
+      if (value.length >= 3) {
+        searchFunction(value);
+      } else {
+        searchFunction("");
       }
     };
 
-    fetchOrgToken();
-  }, [orgSearchValue]);
+    switch (tab) {
+      case "Client":
+        handleSearch(clientSearchValue, handleClientSearch);
+        break;
+      case "Project":
+        handleSearch(projectSearchValue, handleProjectSearch);
+        break;
+      case "User":
+        handleSearch(userSearchValue, handleUserSearch);
+        break;
+      case "Process":
+        handleSearch(processSearchValue, handleProcessSearch);
+        break;
+      case "Group":
+        handleSearch(groupSearchValue, handleGroupSearch);
+        break;
+      case "Status":
+        handleSearch(statusSearchValue, handleStatusSearch);
+        break;
+      case "Organization":
+        handleSearch(orgSearchValue, handleOrganizationSearch);
+        break;
+      default:
+        break;
+    }
+  }, [
+    clientSearchValue,
+    projectSearchValue,
+    userSearchValue,
+    processSearchValue,
+    groupSearchValue,
+    statusSearchValue,
+    orgSearchValue,
+  ]);
 
   // Common function for exporting data
   const exportData = async (

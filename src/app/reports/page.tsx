@@ -115,7 +115,6 @@ const page = () => {
   const [ratingSearchValue, setRatingSearchValue] = useState("");
   const [ratingSearchData, setRatingSearchData] = useState([]);
 
-  console.log(billingReportSearchValue);
   //handling outside click for moreTabs
   useEffect(() => {
     const handleOutsideClick = (event: any) => {
@@ -300,12 +299,6 @@ const page = () => {
     }
   };
 
-  useEffect(() => {
-    if (projectSearchValue.length > 3) {
-      getProjectSearchData(projectSearchValue);
-    }
-  }, [projectSearchValue]);
-
   // getting User data by search
   const getUserSearchData = async (seachValue: string) => {
     const token = await localStorage.getItem("token");
@@ -346,12 +339,6 @@ const page = () => {
     }
   };
 
-  useEffect(() => {
-    if (userSeachValue.length > 3) {
-      getUserSearchData(userSeachValue);
-    }
-  }, [userSeachValue]);
-
   // getting timesheet data by search
   const getTimesheetSearchData = async (seachValue: string) => {
     const token = await localStorage.getItem("token");
@@ -388,12 +375,6 @@ const page = () => {
     }
   };
 
-  useEffect(() => {
-    if (timesheetSearchValue.length > 3) {
-      getTimesheetSearchData(timesheetSearchValue);
-    }
-  }, [timesheetSearchValue]);
-
   // getting Workload data by search
   const getWorkloadSearchData = async (seachValue: string) => {
     const token = await localStorage.getItem("token");
@@ -424,12 +405,6 @@ const page = () => {
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    if (workloadSearchValue.length > 3) {
-      getWorkloadSearchData(workloadSearchValue);
-    }
-  }, [workloadSearchValue]);
 
   // getting User Log data by search
   const getUserLogSearchData = async (seachValue: string) => {
@@ -467,12 +442,6 @@ const page = () => {
     }
   };
 
-  useEffect(() => {
-    if (userLogSearchValue.length > 3) {
-      getUserLogSearchData(userLogSearchValue);
-    }
-  }, [userLogSearchValue]);
-
   // getting Audit Data by search
   const getAuditReportData = async (seachValue: string) => {
     const token = await localStorage.getItem("token");
@@ -503,12 +472,6 @@ const page = () => {
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    if (auditSearchValue.length > 3) {
-      getAuditReportData(auditSearchValue);
-    }
-  }, [auditSearchValue]);
 
   // getting Billing Report Data by search
   const getBillingReportData = async (seachValue: string) => {
@@ -550,12 +513,6 @@ const page = () => {
     }
   };
 
-  useEffect(() => {
-    if (billingReportSearchValue.length > 3) {
-      getBillingReportData(billingReportSearchValue);
-    }
-  }, [billingReportSearchValue]);
-
   // getting Custom Rport Data by search
   const getCustomReportData = async (seachValue: string) => {
     const token = await localStorage.getItem("token");
@@ -596,12 +553,6 @@ const page = () => {
     }
   };
 
-  useEffect(() => {
-    if (customReportSearchValue.length > 3) {
-      getCustomReportData(customReportSearchValue);
-    }
-  }, [customReportSearchValue]);
-
   // getting Rating Data by search
   const getRatingSearchData = async (seachValue: string) => {
     const token = await localStorage.getItem("token");
@@ -633,11 +584,73 @@ const page = () => {
     }
   };
 
+  // Search function for all tabs
   useEffect(() => {
-    if (ratingSearchValue.length > 3) {
-      getRatingSearchData(ratingSearchValue);
+    const handleSearch = (
+      value: string,
+      searchFunction: {
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (seachValue: string): Promise<void>;
+        (arg0: string): void;
+      }
+    ) => {
+      if (value.length >= 3) {
+        searchFunction(value);
+      } else {
+        searchFunction("");
+      }
+    };
+
+    switch (activeTab) {
+      case 1:
+        handleSearch(projectSearchValue, getProjectSearchData);
+        break;
+      case 2:
+        handleSearch(userSeachValue, getUserSearchData);
+        break;
+      case 3:
+        handleSearch(timesheetSearchValue, getTimesheetSearchData);
+        break;
+      case 4:
+        handleSearch(workloadSearchValue, getWorkloadSearchData);
+        break;
+      case 5:
+        handleSearch(userLogSearchValue, getUserLogSearchData);
+        break;
+      case 6:
+        handleSearch(auditSearchValue, getAuditReportData);
+        break;
+      case 7:
+        handleSearch(billingReportSearchValue, getBillingReportData);
+        break;
+      case 8:
+        handleSearch(customReportSearchValue, getCustomReportData);
+        break;
+      case 9:
+        handleSearch(ratingSearchValue, getRatingSearchData);
+        break;
+      default:
+        break;
     }
-  }, [ratingSearchValue]);
+  }, [
+    activeTab,
+    projectSearchValue,
+    timesheetSearchValue,
+    userSeachValue,
+    workloadSearchValue,
+    userLogSearchValue,
+    auditSearchValue,
+    billingReportSearchValue,
+    customReportSearchValue,
+    ratingSearchValue,
+  ]);
 
   const MoreTabs = () => {
     return (
