@@ -20,23 +20,64 @@ import { getColor } from "@/utils/reports/getColor";
 
 //icons
 import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
+import dayjs from "dayjs";
+import { makeStyles } from "@mui/styles";
 
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
-  height: 12,
-  borderRadius: 13,
-  [`&.${linearProgressClasses.colorPrimary}`]: {
-    backgroundColor: 200,
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    flexDirection: "row",
+    width: "100%",
+    height: "12px",
+    borderRadius: "13px",
+    backgroundColor: "#2323434D",
   },
-  [`& .${linearProgressClasses.bar}`]: {
-    borderRadius: 13,
-    backgroundColor: "#ffd643",
+  bar1: {
+    backgroundColor: "#0CC6AA",
+    borderStartStartRadius: "inherit",
+    borderEndStartRadius: "inherit",
+  },
+  bar2: {
+    backgroundColor: "#FDB663",
   },
 }));
+
+const CustomProgressBar = ({ threshold1, threshold2 }: any) => {
+  const classes = useStyles();
+
+  return (
+    <div className={classes.root}>
+      <div
+        style={{
+          width: `${threshold1}%`,
+          borderStartEndRadius:
+            !(threshold2 > 0) && threshold1 >= 100 ? "inherit" : "",
+          borderEndEndRadius:
+            !(threshold2 > 0) && threshold1 >= 100 ? "inherit" : "",
+        }}
+        className={classes.bar1}
+      ></div>
+      <div
+        style={{
+          width: `${threshold2}%`,
+          borderStartStartRadius: threshold1 <= 0 ? "inherit" : "",
+          borderEndStartRadius: threshold1 <= 0 ? "inherit" : "",
+          borderStartEndRadius:
+            threshold1 + threshold2 >= 97.0 ? "inherit" : "",
+          borderEndEndRadius: threshold1 + threshold2 >= 97.0 ? "inherit" : "",
+        }}
+        className={classes.bar2}
+      ></div>
+    </div>
+  );
+};
 
 const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
   const startingCol = 11;
   const startingPostion = 90;
   const dateWiseLogsTable = useRef<HTMLDivElement>(null);
+
+  console.log(data);
 
   const [clickedColumnIndex, setClickedColumnIndex] = useState<number>(-1);
   const [showDateWiseLogs, setShowDateWiseLogs] = useState<boolean>(false);
@@ -281,27 +322,37 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
               .AttendanceStatus
           }
         </span>
-        {data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+        {(data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
           .AttendanceColor === 1 ||
           data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
             .AttendanceColor === 2 ||
           data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
             .AttendanceColor === 3 ||
-          (data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
-            .AttendanceColor === 4 && (
-            <>
-              <BorderLinearProgress variant="determinate" />
-              <div className="flex items-center justify-between">
-                <span>
-                  {
-                    data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
-                      .TotalTimeSpentForDay
-                  }
-                </span>
-                <ChevronDownIcon />
-              </div>
-            </>
-          ))}
+          data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+            .AttendanceColor === 4) && (
+          <>
+            {/* TotalTrackedTimeLogHrsForDayPercent */}
+            <CustomProgressBar
+              threshold1={parseFloat(
+                data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+                  .TotalTrackedTimeLogHrsForDayPercent
+              )}
+              threshold2={parseFloat(
+                data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+                  .TotalManualTimeLogHrsForDayPercent
+              )}
+            />
+            <div className="flex items-center justify-between">
+              <span>
+                {
+                  data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+                    .TotalTimeSpentForDay
+                }
+              </span>
+              <ChevronDownIcon />
+            </div>
+          </>
+        )}
       </div>
       {showDateWiseLogs && tableMeta.columnIndex === clickedColumnIndex && (
         <div
@@ -437,6 +488,11 @@ const TimeSheet = ({ filteredData, onTimesheetSearchData }: any) => {
       getData(filteredData);
     }
   }, [filteredData]);
+
+  const isWeekend = (date: any) => {
+    const day = dayjs(date).day();
+    return day === 6 || day === 0;
+  };
 
   const columns: any[] = [
     {
@@ -640,24 +696,26 @@ const TimeSheet = ({ filteredData, onTimesheetSearchData }: any) => {
             customHeadLabelRender: () => {
               const formattedDate = date.split("-");
               return (
-                <span className="font-bold text-sm">
+                <span className={`font-bold text-sm ${isWeekend(date)}}`}>
                   {`${formattedDate[1]}/${formattedDate[2]}/${formattedDate[0]}`}
                 </span>
               );
             },
             customBodyRender: (value: any, tableMeta: any) => {
-              return (
+              return isWeekend(date) ? (
+                <span className="text-[#2323434D] text-xl">-</span>
+              ) : (
                 value !== undefined &&
-                (value.filter((v: any) => v.LogDate.split("T")[0] === date)
-                  .length > 0 ? (
-                  <DateWiseLogsContent
-                    data={value}
-                    date={date}
-                    tableMeta={tableMeta}
-                  />
-                ) : (
-                  <span className="text-defaultRed">A</span>
-                ))
+                  (value.filter((v: any) => v.LogDate.split("T")[0] === date)
+                    .length > 0 ? (
+                    <DateWiseLogsContent
+                      data={value}
+                      date={date}
+                      tableMeta={tableMeta}
+                    />
+                  ) : (
+                    <span className="text-defaultRed">A</span>
+                  ))
               );
             },
           },

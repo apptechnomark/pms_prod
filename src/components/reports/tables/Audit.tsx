@@ -168,7 +168,7 @@ const Audit = ({ filteredData, onAuditSearchData }: any) => {
           return (
             <div>
               {value === null || value === 0 || value === "0" ? (
-                "00:00:00"
+                "-"
               ) : (
                 <>
                   {value.split("T")[0]}&nbsp;

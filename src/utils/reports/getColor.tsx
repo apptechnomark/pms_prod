@@ -6,7 +6,7 @@ export const getColor = (color: any) => {
       case 1: //present
         return "#198754"; //green color
       case 2: //incomplete hours
-        return "#FF9F43"; //orange color
+        return "#FDB663"; //orange color
       case 3: //half day
         return "#FFC107"; //yellow color
       case 4: //overtime

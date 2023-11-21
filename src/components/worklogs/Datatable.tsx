@@ -1283,15 +1283,15 @@ const Datatable = ({
     getWorkItemList();
   }, [onCurrentFilterId, filteredObject]);
 
-  useEffect(() => {
-    if (isOnBreak !== 0 && isRunning > -1) {
-      handleTimer(
-        2,
-        isRunning,
-        workitemTimeId !== -1 ? workitemTimeId : undefined
-      );
-    }
-  }, [isOnBreak]);
+  // useEffect(() => {
+  //   if (isOnBreak !== 0 && isRunning > -1) {
+  //     handleTimer(
+  //       2,
+  //       isRunning,
+  //       workitemTimeId !== -1 ? workitemTimeId : undefined
+  //     );
+  //   }
+  // }, [isOnBreak]);
 
   useEffect(() => {
     getWorkItemList();
