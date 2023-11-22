@@ -86,7 +86,7 @@ export default function ImageUploader({
         .then(async (res) => {
           getFileFromBlob(newFileName);
         })
-        .catch((err) => console.log("err", err));
+        .catch((err) => console.error("err", err));
     },
     []
   );

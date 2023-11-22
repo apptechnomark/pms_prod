@@ -33,6 +33,7 @@ import SearchIcon from "@/assets/icons/SearchIcon";
 import { useRouter } from "next/navigation";
 import UnassigneeDatatable from "@/components/worklogs/UnassigneeDatatable";
 import UnassigneeFilterDialog from "@/components/worklogs/UnassigneeFilterDialog";
+import ImportDialog from "@/components/worklog/Import/ImportDialog";
 
 const page = () => {
   const router = useRouter();
@@ -58,6 +59,7 @@ const page = () => {
   const [isTaskClicked, setIsTaskClicked] = useState(true);
   const [isUnassigneeClicked, setIsUnassigneeClicked] = useState(false);
   const [hasId, setHasId] = useState("");
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -515,7 +517,12 @@ const page = () => {
             {isTaskClicked ? (
               <>
                 <ColorToolTip title="Import" placement="top" arrow>
-                  <span className="cursor-pointer">
+                  <span
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setIsImportOpen(true);
+                    }}
+                  >
                     <ImportIcon />
                   </span>
                 </ColorToolTip>
@@ -627,6 +634,11 @@ const page = () => {
           />
         )}
       </div>
+
+      <ImportDialog
+        onOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+      />
 
       {/* Delete Dialog Box */}
       <DeleteDialog

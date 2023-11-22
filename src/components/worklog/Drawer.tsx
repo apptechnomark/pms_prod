@@ -772,7 +772,7 @@ const Drawer = ({
                   })
               ),
               IsClientWorklog: true,
-              SubmissionId: onHasId,
+              SubmissionId: null,
               DeletedErrorlogIds: deletedErrorLog,
             },
             {

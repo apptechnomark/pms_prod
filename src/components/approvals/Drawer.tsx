@@ -293,7 +293,6 @@ const EditDrawer = ({
             const [s, e, s_sec] = startTime.split(":").map(Number);
             const [t, r, e_sec] = endTime.split(":").map(Number);
             const d = t * 60 + r - s * 60 - e;
-
             return `${String(Math.floor(d / 60)).padStart(2, "0")}:${String(
               d % 60
             ).padStart(2, "0")}:${(e_sec - s_sec).toString().padStart(2, "0")}`;
@@ -1908,12 +1907,12 @@ const EditDrawer = ({
         if (response.data.ResponseStatus === "Success") {
           const data = await response.data.ResponseData;
           const getTimeDifference = (startTime: any, endTime: any) => {
-            const [s, e] = startTime.split(":").map(Number);
-            const [t, r] = endTime.split(":").map(Number);
+            const [s, e, s_sec] = startTime.split(":").map(Number);
+            const [t, r, e_sec] = endTime.split(":").map(Number);
             const d = t * 60 + r - s * 60 - e;
             return `${String(Math.floor(d / 60)).padStart(2, "0")}:${String(
               d % 60
-            ).padStart(2, "0")}`;
+            ).padStart(2, "0")}:${(e_sec - s_sec).toString().padStart(2, "0")}`;
           };
           setManualFields(
             data.length <= 0
@@ -4872,26 +4871,20 @@ const EditDrawer = ({
                             sx={{ mx: 0.75, maxWidth: 230 }}
                           />
                           <TextField
-                            label={
-                              <span>
-                                Total Time
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
+                            label="Total Time"
+                            disabled
+                            fullWidth
                             type={
                               field.startTime && field.endTime !== ""
                                 ? "time"
                                 : "text"
                             }
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
-                            fullWidth
                             value={field.totalTime}
                             margin="normal"
                             variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 230 }}
+                            sx={{ mx: 0.75, maxWidth: 225 }}
+                            InputProps={{ readOnly: true }}
+                            inputProps={{ readOnly: true }}
                           />
                           <TextField
                             label={

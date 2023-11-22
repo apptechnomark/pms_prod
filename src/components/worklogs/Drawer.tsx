@@ -582,9 +582,9 @@ const EditDrawer = ({
         },
       ],
       isSolved: false,
+      DisableErrorLog: false,
     },
-  ]
-  );
+  ]);
   const [errorTypeErr, setErrorTypeErr] = useState([false]);
   const [rootCauseErr, setRootCauseErr] = useState([false]);
   const [errorLogPriorityErr, setErrorLogPriorityErr] = useState([false]);
@@ -731,7 +731,7 @@ const EditDrawer = ({
                   })
               ),
               IsClientWorklog: false,
-              SubmissionId: onHasId,
+              SubmissionId: null,
               DeletedErrorlogIds: [],
             },
             {
@@ -1629,6 +1629,7 @@ const EditDrawer = ({
                     },
                   ],
                   isSolved: false,
+                  DisableErrorLog: false,
                 },
               ])
             : setErrorLogFields(
@@ -1651,6 +1652,7 @@ const EditDrawer = ({
                       Remark: i.Remark,
                       Attachments: i.Attachment,
                       isSolved: i.IsSolved,
+                      DisableErrorLog: i.DisableErrorLog,
                     })
                 )
               );
@@ -3019,6 +3021,7 @@ const EditDrawer = ({
           },
         ],
         isSolved: false,
+        DisableErrorLog: false,
       },
     ]);
     setErrorTypeErr([false]);
@@ -5591,7 +5594,8 @@ const EditDrawer = ({
                   </div>
                   {reviewerErrDrawer && (
                     <div className="mt-3 pl-6">
-                      {errorLogFields.length > 0 && errorLogFields[0].SubmitedBy.length > 0 &&
+                      {errorLogFields.length > 0 &&
+                        errorLogFields[0].SubmitedBy.length > 0 &&
                         errorLogFields.map((i: any, index: number) => (
                           <>
                             <div className="ml-1 mt-8">
@@ -5623,7 +5627,8 @@ const EditDrawer = ({
                                   value={i.ErrorType === 0 ? "" : i.ErrorType}
                                   readOnly={
                                     i.ErrorType > 0 ||
-                                    i.Remark.trim().length <= 0
+                                    i.Remark.trim().length <= 0 ||
+                                    i.DisableErrorLog
                                   }
                                 >
                                   <MenuItem value={1}>Internal</MenuItem>
@@ -5664,7 +5669,8 @@ const EditDrawer = ({
                                   }}
                                   readOnly={
                                     i.RootCause > 0 ||
-                                    i.Remark.trim().length <= 0
+                                    i.Remark.trim().length <= 0 ||
+                                    i.DisableErrorLog
                                   }
                                 >
                                   <MenuItem value={1}>Procedural</MenuItem>
@@ -5707,7 +5713,8 @@ const EditDrawer = ({
                                   }}
                                   readOnly={
                                     i.NatureOfError > 0 ||
-                                    i.Remark.trim().length <= 0
+                                    i.Remark.trim().length <= 0 ||
+                                    i.DisableErrorLog
                                   }
                                 >
                                   <MenuItem value={1}>
@@ -5771,7 +5778,8 @@ const EditDrawer = ({
                                   }}
                                   readOnly={
                                     i.Priority > 0 ||
-                                    i.Remark.trim().length <= 0
+                                    i.Remark.trim().length <= 0 ||
+                                    i.DisableErrorLog
                                   }
                                 >
                                   <MenuItem value={1}>High</MenuItem>
@@ -5822,6 +5830,8 @@ const EditDrawer = ({
                                 margin="normal"
                                 variant="standard"
                                 sx={{ mx: 0.75, maxWidth: 180, mt: 0.4 }}
+                                InputProps={{ readOnly: i.DisableErrorLog }}
+                                inputProps={{ readOnly: i.DisableErrorLog }}
                               />
                               <div className="flex items-center justify-start ml-2">
                                 <Autocomplete
@@ -5831,7 +5841,9 @@ const EditDrawer = ({
                                   readOnly={
                                     cCDropdownData.filter((obj: any) =>
                                       i.CC.includes(obj.value)
-                                    ).length > 0 || i.Remark.trim().length <= 0
+                                    ).length > 0 ||
+                                    i.Remark.trim().length <= 0 ||
+                                    i.DisableErrorLog
                                   }
                                   options={
                                     Array.isArray(cCDropdownData)
@@ -5939,6 +5951,13 @@ const EditDrawer = ({
                                 <FormGroup>
                                   <FormControlLabel
                                     className="ml-2"
+                                    disabled={
+                                      // editStatus === 4 ||
+                                      // status === 7 ||
+                                      // status === 9 ||
+                                      // status === 8 ||
+                                      i.DisableErrorLog
+                                    }
                                     control={
                                       <Checkbox
                                         checked={
@@ -5952,12 +5971,6 @@ const EditDrawer = ({
                                             e.target.checked,
                                             index
                                           )
-                                        }
-                                        disabled={
-                                          editStatus === 4 ||
-                                          status === 7 ||
-                                          status === 9 ||
-                                          status === 8
                                         }
                                       />
                                     }

@@ -173,6 +173,17 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       },
     },
     {
+      name: "ProcessName",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => <span className="font-bold">Process</span>,
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
+      },
+    },
+    {
       name: "ReturnTypes",
       options: {
         filter: true,

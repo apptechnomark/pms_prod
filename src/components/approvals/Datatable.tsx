@@ -1743,7 +1743,7 @@ const Datatable = ({
                       <span
                         className="pl-2 pr-2 pt-1 text-slatyGrey cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
                         onClick={() => {
-                          onEdit(workitemId);
+                          onEdit(workitemId, id);
                         }}
                       >
                         <EditIcon />
@@ -2074,7 +2074,7 @@ const Datatable = ({
 
                   reviewList.filter(
                     (list: any) => list.WorkitemId === workitemId
-                  )[0].ReviewerIsManual !== false &&
+                  )[0]?.ReviewerIsManual !== false &&
                     selectedRowsCount === 1 && (
                       <ColorToolTip title="Reviewer Manual Time" arrow>
                         <span

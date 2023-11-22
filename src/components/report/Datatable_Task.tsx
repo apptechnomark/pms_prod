@@ -150,11 +150,33 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       },
     },
     {
+      name: "ProjectName",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => <span className="font-bold">Project</span>,
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
+      },
+    },
+    {
       name: "TaskName",
       options: {
         filter: true,
         sort: true,
         customHeadLabelRender: () => <span className="font-bold">Task</span>,
+        customBodyRender: (value: any) => {
+          return <div>{value === null || value === "" ? "-" : value}</div>;
+        },
+      },
+    },
+    {
+      name: "ProcessName",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => <span className="font-bold">Process</span>,
         customBodyRender: (value: any) => {
           return <div>{value === null || value === "" ? "-" : value}</div>;
         },
@@ -224,7 +246,7 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
         sort: true,
         customHeadLabelRender: () => <span className="font-bold">Status</span>,
         customBodyRender: (value: any, tableMeta: any) => {
-          const statusColorCode = tableMeta.rowData[9];
+          const statusColorCode = tableMeta.rowData[11];
           return (
             <div>
               {value === null || value === "" ? (

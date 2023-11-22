@@ -824,6 +824,17 @@ const Datatable_Worklog = ({
       },
     },
     {
+      name: "Quantity",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => <span className="font-bold">Qty.</span>,
+      },
+      customBodyRender: (value: any) => {
+        return <div>{value === null || value === "" ? "-" : value}</div>;
+      },
+    },
+    {
       name: "StartDate",
       options: {
         filter: true,
@@ -871,17 +882,6 @@ const Datatable_Worklog = ({
 
           return <div>{formattedDate}</div>;
         },
-      },
-    },
-    {
-      name: "Quantity",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Qty.</span>,
-      },
-      customBodyRender: (value: any) => {
-        return <div>{value === null || value === "" ? "-" : value}</div>;
       },
     },
     {

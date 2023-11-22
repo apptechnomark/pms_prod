@@ -25,9 +25,11 @@ import { toast, ToastContainer } from "react-toastify";
 import styled from "@emotion/styled";
 import FilterDialog from "@/components/worklog/filterDialog";
 import SearchIcon from "@/assets/icons/SearchIcon";
+import ImportIcon from "@/assets/icons/ImportIcon";
 import axios from "axios";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
+import ImportDialog from "@/components/worklog/Import/ImportDialog";
 
 const Worklog = () => {
   const router = useRouter();
@@ -50,6 +52,7 @@ const Worklog = () => {
   const [workTypeData, setWorkTypeData] = useState([]);
   const [isWorklogCompleteSearch, setIsWorklogCompleteSearch] = useState("");
   const [workTypeCompleteData, setWorkTypeCompleteData] = useState([]);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   useEffect(() => {
     if (localStorage.getItem("isClient") === "true") {
@@ -370,6 +373,17 @@ const Worklog = () => {
             </span>
           </ColorToolTip>
 
+          <ColorToolTip title="Import" placement="top" arrow>
+            <span
+              className="cursor-pointer"
+              onClick={() => {
+                setIsImportOpen(true);
+              }}
+            >
+              <ImportIcon />
+            </span>
+          </ColorToolTip>
+
           <Button
             type="submit"
             variant="contained"
@@ -433,6 +447,11 @@ const Worklog = () => {
         onClose={closeFilterModal}
         currentFilterData={getIdFromFilterDialog}
         isCompletedTaskClicked={isCompletedTaskClicked}
+      />
+
+      <ImportDialog
+        onOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
       />
 
       <ToastContainer

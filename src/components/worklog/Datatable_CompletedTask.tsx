@@ -528,6 +528,17 @@ const Datatable_CompletedTask = ({
       },
     },
     {
+      name: "Quantity",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => <span className="font-bold">Qty.</span>,
+      },
+      customBodyRender: (value: any) => {
+        return <div>{value === null || value === "" ? "-" : value}</div>;
+      },
+    },
+    {
       name: "StartDate",
       options: {
         filter: true,
@@ -575,17 +586,6 @@ const Datatable_CompletedTask = ({
 
           return <div>{formattedDate}</div>;
         },
-      },
-    },
-    {
-      name: "Quantity",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Qty.</span>,
-      },
-      customBodyRender: (value: any) => {
-        return <div>{value === null || value === "" ? "-" : value}</div>;
       },
     },
     {

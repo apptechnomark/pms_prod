@@ -1336,7 +1336,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Client</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsHasErrorlog = tableMeta.rowData[19];
+          const IsHasErrorlog = tableMeta.rowData[18];
           return (
             <div>
               {IsHasErrorlog && (
@@ -1376,7 +1376,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Task</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsRecurring = tableMeta.rowData[20];
+          const IsRecurring = tableMeta.rowData[19];
           return (
             <div className="flex items-center gap-2">
               {value === null || value === "" ? (
@@ -1464,7 +1464,7 @@ const Datatable = ({
           <span className="font-bold text-sm">Timer</span>
         ),
         customBodyRender: (value: any, tableMeta: any) => {
-          const estimatedTime = tableMeta.rowData[15].split(":");
+          const estimatedTime = tableMeta.rowData[14].split(":");
           const estimatedTimeInSeconds =
             parseInt(estimatedTime[0]) * 60 * 60 +
             parseInt(estimatedTime[1]) * 60 +
@@ -1727,20 +1727,20 @@ const Datatable = ({
         },
       },
     },
-    {
-      name: "ActualTime",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Actual Time</span>
-        ),
-        customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
-        },
-      },
-    },
+    // {
+    //   name: "ActualTime",
+    //   options: {
+    //     filter: true,
+    //     sort: true,
+    //     viewColumns: false,
+    //     customHeadLabelRender: () => (
+    //       <span className="font-bold text-sm">Actual Time</span>
+    //     ),
+    //     customBodyRender: (value: any) => {
+    //       return <div>{value === null || value === "" ? "-" : value}</div>;
+    //     },
+    //   },
+    // },
     {
       name: "STDTime",
       options: {
