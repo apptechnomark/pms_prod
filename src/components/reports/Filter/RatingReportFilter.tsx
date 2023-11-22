@@ -213,8 +213,10 @@ const RatingReportFilter = ({
         if (response.data.ResponseStatus.toLowerCase() === "success") {
           toast.success("Filter has been successully saved.");
           getFilterList();
+          handleFilterApply();
           setSaveFilter(false);
           onDialogClose(false);
+          setDefaultFilter(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -283,8 +285,23 @@ const RatingReportFilter = ({
     setFilterName(savedFilters[index].Name);
     setCurrentFilterId(savedFilters[index].FilterId);
 
-    setClientName(savedFilters[index].AppliedFilter.clients[0]);
-    setProjectName(savedFilters[index].AppliedFilter.projects[0]);
+    setClients(
+      savedFilters[index].AppliedFilter.clients === null
+        ? []
+        : clientDropdown.filter((client: any) =>
+            savedFilters[index].AppliedFilter.clients.includes(client.value)
+          )
+    );
+    setClientName(
+      savedFilters[index].AppliedFilter.clients === null
+        ? []
+        : savedFilters[index].AppliedFilter.clients
+    );
+    setProjectName(
+      savedFilters[index].AppliedFilter.projects.length > 0
+        ? savedFilters[index].AppliedFilter.projects[0]
+        : 0
+    );
     setReturnType(
       savedFilters[index].AppliedFilter.ReturnTypes === null
         ? 0

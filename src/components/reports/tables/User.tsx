@@ -13,6 +13,7 @@ import { user_InitialFilter } from "@/utils/reports/getFilters";
 //common functions
 import { getDates } from "@/utils/timerFunctions";
 import { getColor } from "@/utils/reports/getColor";
+import dayjs from "dayjs";
 
 const getMuiTheme = () =>
   createTheme({
@@ -131,6 +132,11 @@ const User = ({ filteredData, onUserSearchData }: any) => {
     }
   }, [filteredData]);
 
+  const isWeekend = (date: any) => {
+    const day = dayjs(date).day();
+    return day === 6 || day === 0;
+  };
+
   const columns: any[] = [
     {
       name: "UserName",
@@ -185,28 +191,30 @@ const User = ({ filteredData, onUserSearchData }: any) => {
               );
             },
             customBodyRender: (value: any) => {
-              return (
+              return isWeekend(date) ? (
+                <span className="text-[#2323434D] text-xl">-</span>
+              ) : (
                 value !== undefined &&
-                (value.filter((v: any) => v.LogDate.split("T")[0] === date)
-                  .length > 0 ? (
-                  <span
-                    style={{
-                      color: getColor(
+                  (value.filter((v: any) => v.LogDate.split("T")[0] === date)
+                    .length > 0 ? (
+                    <span
+                      style={{
+                        color: getColor(
+                          value.filter(
+                            (v: any) => v.LogDate.split("T")[0] === date
+                          )[0].AttendanceColor
+                        ),
+                      }}
+                    >
+                      {
                         value.filter(
                           (v: any) => v.LogDate.split("T")[0] === date
-                        )[0].AttendanceColor
-                      ),
-                    }}
-                  >
-                    {
-                      value.filter(
-                        (v: any) => v.LogDate.split("T")[0] === date
-                      )[0].AttendanceStatus
-                    }
-                  </span>
-                ) : (
-                  <span className="text-defaultRed">A</span>
-                ))
+                        )[0].AttendanceStatus
+                      }
+                    </span>
+                  ) : (
+                    <span className="text-defaultRed">A</span>
+                  ))
               );
             },
           },

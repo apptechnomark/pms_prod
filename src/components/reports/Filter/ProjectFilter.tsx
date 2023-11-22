@@ -214,11 +214,12 @@ const ProjectFilter = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
-          // handleFilterApply();
+          handleFilterApply();
           toast.success("Filter has been successully saved.");
           getFilterList();
           setSaveFilter(false);
           onDialogClose(false);
+          setDefaultFilter(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -324,15 +325,22 @@ const ProjectFilter = ({
     setFilterName(savedFilters[index].Name);
     setCurrentFilterId(savedFilters[index].FilterId);
 
+    setClients(
+      savedFilters[index].AppliedFilter.clients === null
+        ? []
+        : clientDropdown.filter((client: any) =>
+            savedFilters[index].AppliedFilter.clients.includes(client.value)
+          )
+    );
     setClientName(
       savedFilters[index].AppliedFilter.clients === null
         ? []
         : savedFilters[index].AppliedFilter.clients
     );
     setProjectName(
-      savedFilters[index].AppliedFilter.projects[0] === null
-        ? 0
-        : savedFilters[index].AppliedFilter.projects[0]
+      savedFilters[index].AppliedFilter.projects.length > 0
+        ? savedFilters[index].AppliedFilter.projects[0]
+        : 0
     );
     setTypeOfWork(
       savedFilters[index].AppliedFilter.TypeOfWork === null
@@ -681,9 +689,9 @@ const ProjectFilter = ({
                   color="info"
                   onClick={handleSaveFilter}
                   className={`${
-                    filterName.length === 0 ? "" : "!bg-secondary"
+                    filterName.trim().length === 0 ? "" : "!bg-secondary"
                   }`}
-                  disabled={filterName.length === 0}
+                  disabled={filterName.trim().length === 0}
                 >
                   Save & Apply
                 </Button>

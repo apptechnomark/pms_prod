@@ -2,7 +2,12 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { styled } from "@mui/material/styles";
 import React, { useEffect, useRef, useState } from "react";
-import { TablePagination, ThemeProvider, createTheme } from "@mui/material";
+import {
+  Popover,
+  TablePagination,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 import LinearProgress, {
   linearProgressClasses,
 } from "@mui/material/LinearProgress";
@@ -15,13 +20,15 @@ import { options } from "./Options/Options";
 import { timeSheet_InitialFilter } from "@/utils/reports/getFilters";
 
 //common function
-import { getDates } from "@/utils/timerFunctions";
+import { getDates, toSeconds } from "@/utils/timerFunctions";
 import { getColor } from "@/utils/reports/getColor";
 
 //icons
 import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
 import dayjs from "dayjs";
 import { makeStyles } from "@mui/styles";
+import CloseIcon from "@/assets/icons/reports/CloseIcon";
+import { Transition } from "../Filter/Transition/Transition";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,57 +36,76 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "row",
     width: "100%",
     height: "12px",
-    borderRadius: "13px",
-    backgroundColor: "#2323434D",
   },
   bar1: {
     backgroundColor: "#0CC6AA",
-    borderStartStartRadius: "inherit",
-    borderEndStartRadius: "inherit",
   },
   bar2: {
     backgroundColor: "#FDB663",
   },
+  bar3: {
+    backgroundColor: "#2323434D",
+  },
 }));
 
-const CustomProgressBar = ({ threshold1, threshold2 }: any) => {
+const CustomProgressBar = ({
+  totalTimeSpentForDay,
+  trackedTime,
+  manualTime,
+  breakTime,
+}: any) => {
   const classes = useStyles();
+
+  const trackedTimePercent = Math.round(
+    ((toSeconds(trackedTime)?.valueOf() ?? 0) /
+      (toSeconds(totalTimeSpentForDay)?.valueOf() ?? 1)) *
+      100
+  );
+  const manualTimePercent = Math.round(
+    ((toSeconds(manualTime)?.valueOf() ?? 0) /
+      (toSeconds(totalTimeSpentForDay)?.valueOf() ?? 1)) *
+      100
+  );
+  const breakTimePercent = Math.round(
+    ((toSeconds(breakTime)?.valueOf() ?? 0) /
+      (toSeconds(totalTimeSpentForDay)?.valueOf() ?? 1)) *
+      100
+  );
 
   return (
     <div className={classes.root}>
       <div
         style={{
-          width: `${threshold1}%`,
-          borderStartEndRadius:
-            !(threshold2 > 0) && threshold1 >= 100 ? "inherit" : "",
-          borderEndEndRadius:
-            !(threshold2 > 0) && threshold1 >= 100 ? "inherit" : "",
+          width: `${trackedTimePercent}%`,
         }}
         className={classes.bar1}
       ></div>
       <div
         style={{
-          width: `${threshold2}%`,
-          borderStartStartRadius: threshold1 <= 0 ? "inherit" : "",
-          borderEndStartRadius: threshold1 <= 0 ? "inherit" : "",
-          borderStartEndRadius:
-            threshold1 + threshold2 >= 97.0 ? "inherit" : "",
-          borderEndEndRadius: threshold1 + threshold2 >= 97.0 ? "inherit" : "",
+          width: `${manualTimePercent}%`,
         }}
         className={classes.bar2}
+      ></div>
+      <div
+        style={{
+          width: `${breakTimePercent}%`,
+        }}
+        className={classes.bar3}
       ></div>
     </div>
   );
 };
 
 const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
-  const startingCol = 11;
-  const startingPostion = 90;
   const dateWiseLogsTable = useRef<HTMLDivElement>(null);
-
   const [clickedColumnIndex, setClickedColumnIndex] = useState<number>(-1);
   const [showDateWiseLogs, setShowDateWiseLogs] = useState<boolean>(false);
   const [dateWiseLogsData, setDateWiseLogsData] = useState<any[]>([]);
+
+  const [anchorElFilter, setAnchorElFilter] =
+    useState<HTMLButtonElement | null>(null);
+  const openFilter = Boolean(anchorElFilter);
+  const idFilter = openFilter ? "simple-popover" : undefined;
 
   const datewiselogsColumn: any = [
     {
@@ -315,7 +341,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         }}
         className={`relative flex flex-col gap-[5px] ${
           data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
-            .AttendanceColor === 3
+            .AttendanceColor !== 5
             ? "cursor-pointer"
             : "cursor-default"
         }`}
@@ -342,16 +368,23 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
           data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
             .AttendanceColor === 4) && (
           <>
-            {/* TotalTrackedTimeLogHrsForDayPercent */}
             <CustomProgressBar
-              threshold1={parseFloat(
+              totalTimeSpentForDay={
                 data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
-                  .TotalTrackedTimeLogHrsForDayPercent
-              )}
-              threshold2={parseFloat(
+                  .TotalTimeSpentForDay
+              }
+              trackedTime={
                 data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
-                  .TotalManualTimeLogHrsForDayPercent
-              )}
+                  .TotalTrackedTimeLogHrsForDay
+              }
+              manualTime={
+                data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+                  .TotalManualTimeLogHrsForDay
+              }
+              breakTime={
+                data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
+                  .TotalBreakTime
+              }
             />
             <div className="flex items-center justify-between">
               <span>
@@ -365,25 +398,39 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
           </>
         )}
       </div>
-      {showDateWiseLogs && tableMeta.columnIndex === clickedColumnIndex && (
-        <div
-          style={{
-            left: `${
-              startingPostion + (clickedColumnIndex - startingCol) * 8
-            }rem`,
-          }}
-          className={`absolute w-[990px] shadow-lg z-10`}
-        >
-          <MUIDataTable
-            title={undefined}
-            columns={datewiselogsColumn}
-            data={
-              dateWiseLogsData.length > 0 ? dateWiseLogsData[0].LogsDetails : []
-            }
-            options={{ ...options, tableBodyHeight: "200px" }}
-          />
+      <Popover
+        sx={{ width: "60%" }}
+        id={idFilter}
+        open={showDateWiseLogs && tableMeta.columnIndex === clickedColumnIndex}
+        anchorEl={anchorElFilter}
+        TransitionComponent={Transition}
+        onClose={() => setShowDateWiseLogs(false)}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+      >
+        <div className="my-4 px-4 w-full flex items-center justify-end">
+          <div
+            className="cursor-pointer"
+            onClick={() => setShowDateWiseLogs(false)}
+          >
+            <CloseIcon />
+          </div>
         </div>
-      )}
+        <MUIDataTable
+          title={undefined}
+          columns={datewiselogsColumn}
+          data={
+            dateWiseLogsData.length > 0 ? dateWiseLogsData[0].LogsDetails : []
+          }
+          options={{ ...options, tableBodyHeight: "350px" }}
+        />
+      </Popover>
     </>
   );
 };
@@ -713,7 +760,7 @@ const TimeSheet = ({ filteredData, onTimesheetSearchData }: any) => {
             customHeadLabelRender: () => {
               const formattedDate = date.split("-");
               return (
-                <span className={`font-bold text-sm ${isWeekend(date)}}`}>
+                <span className={`font-bold text-sm`}>
                   {`${formattedDate[1]}/${formattedDate[2]}/${formattedDate[0]}`}
                 </span>
               );

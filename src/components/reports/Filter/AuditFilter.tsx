@@ -196,11 +196,12 @@ const AuditFilter = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
-          // handleFilterApply();
+          handleFilterApply();
           toast.success("Filter has been successully saved.");
           getFilterList();
           setSaveFilter(false);
           onDialogClose(false);
+          setDefaultFilter(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -298,10 +299,25 @@ const AuditFilter = ({
     setFilterName(savedFilters[index].Name);
     setCurrentFilterId(savedFilters[index].FilterId);
 
+    setClients(
+      savedFilters[index].AppliedFilter.clients === null
+        ? []
+        : clientDropdown.filter((client: any) =>
+            savedFilters[index].AppliedFilter.clients.includes(client.value)
+          )
+    );
     setClientName(
       savedFilters[index].AppliedFilter.clients === null
         ? []
         : savedFilters[index].AppliedFilter.clients
+    );
+
+    setUsers(
+      savedFilters[index].AppliedFilter.clients === null
+        ? []
+        : userDropdown.filter((user: any) =>
+            savedFilters[index].AppliedFilter.users.includes(user.value)
+          )
     );
     setUserName(
       savedFilters[index].AppliedFilter.users === null

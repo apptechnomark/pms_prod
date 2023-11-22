@@ -267,10 +267,12 @@ const BillingReportFilter = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
+          handleFilterApply();
           toast.success("Filter has been successully saved.");
           getFilterList();
           setSaveFilter(false);
           onDialogClose(false);
+          setDefaultFilter(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -382,8 +384,19 @@ const BillingReportFilter = ({
   };
 
   const handleSavedFilterEdit = (index: number) => {
+    setClients(
+      savedFilters[index].AppliedFilter.clients === null
+        ? []
+        : clientDropdown.filter((client: any) =>
+            savedFilters[index].AppliedFilter.clients.includes(client.value)
+          )
+    );
     setClientName(savedFilters[index].AppliedFilter.clients);
-    setProjectName(savedFilters[index].AppliedFilter.projects[0]);
+    setProjectName(
+      savedFilters[index].AppliedFilter.projects.length > 0
+        ? savedFilters[index].AppliedFilter.projects[0]
+        : 0
+    );
     setAssignee(savedFilters[index].AppliedFilter.assigneeId);
     setReviewer(savedFilters[index].AppliedFilter.reviewerId);
     setTypeOfReturn(savedFilters[index].AppliedFilter.typeofReturnId);

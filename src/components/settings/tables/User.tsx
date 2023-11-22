@@ -196,6 +196,7 @@ const User = ({
   ) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
+    const Org_Name = await localStorage.getItem("Org_Name");
     try {
       const response = await axios.post(
         `${process.env.api_url}/user/ResendLink`,
@@ -204,6 +205,7 @@ const User = ({
           Email: email,
           FirstName: firstName,
           LastName: lastName,
+          OrganizationName: Org_Name,
         },
         {
           headers: {

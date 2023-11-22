@@ -154,8 +154,10 @@ const WorkLoadFilter = ({
         if (response.data.ResponseStatus.toLowerCase() === "success") {
           toast.success("Filter has been successully saved.");
           getFilterList();
+          handleFilterApply();
           setSaveFilter(false);
           onDialogClose(false);
+          setDefaultFilter(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -179,10 +181,7 @@ const WorkLoadFilter = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      dept !== 0 ||
-      dateFilter !== null ||
-      dateFilter !== "" ||
-      userNames.length > 0;
+      dept !== 0 || dateFilter !== "" || userNames.length > 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
@@ -241,6 +240,13 @@ const WorkLoadFilter = ({
   };
 
   const handleSavedFilterEdit = (index: number) => {
+    setUsers(
+      savedFilters[index].AppliedFilter.users === null
+        ? []
+        : userDropdown.filter((user: any) =>
+            savedFilters[index].AppliedFilter.users.includes(user.value)
+          )
+    );
     setUserNames(
       savedFilters[index].AppliedFilter.users === null
         ? []

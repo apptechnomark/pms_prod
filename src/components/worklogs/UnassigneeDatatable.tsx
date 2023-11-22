@@ -1011,7 +1011,7 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Total Est. Time</span>
+          <span className="font-bold text-sm">Total Time</span>
         ),
         customBodyRender: (value: any) => {
           return <div>{value === null || value === "" ? "-" : value}</div>;

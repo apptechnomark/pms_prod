@@ -353,9 +353,11 @@ const CustomReportFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
           toast.success("Filter has been successully saved.");
+          handleFilterApply();
           getFilterList();
           setSaveFilter(false);
           onDialogClose(false);
+          setDefaultFilter(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -488,9 +490,24 @@ const CustomReportFilter = ({
     setFilterName(savedFilters[index].Name);
     setCurrentFilterId(savedFilters[index].FilterId);
 
+    setClients(
+      savedFilters[index].AppliedFilter.clients === null
+        ? []
+        : clientDropdown.filter((client: any) =>
+            savedFilters[index].AppliedFilter.clients.includes(client.value)
+          )
+    );
     setClientName(savedFilters[index].AppliedFilter.clientIdsJSON);
-    setProjectName(savedFilters[index].AppliedFilter.projectIdsJSON);
-    setProcessName(savedFilters[index].AppliedFilter.processIdsJSON);
+    setProjectName(
+      savedFilters[index].AppliedFilter.projectIdsJSON.length > 0
+        ? savedFilters[index].AppliedFilter.projectIdsJSON[0]
+        : 0
+    );
+    setProcessName(
+      savedFilters[index].AppliedFilter.processIdsJSON.length > 0
+        ? savedFilters[index].AppliedFilter.processIdsJSON[0]
+        : 0
+    );
     setAssignByName(savedFilters[index].AppliedFilter.assignedById);
     setAssigneeName(savedFilters[index].AppliedFilter.assigneeId);
     setReviewerName(savedFilters[index].AppliedFilter.reviewerId);
@@ -662,19 +679,6 @@ const CustomReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, my: 0.5, minWidth: 200 }}
                 >
-                  {/* <InputLabel id="clientName">Client Name</InputLabel>
-                  <Select
-                    labelId="clientName"
-                    id="clientName"
-                    value={clientName === 0 ? "" : clientName}
-                    onChange={(e) => setClientName(e.target.value)}
-                  >
-                    {clientDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select> */}
                   <Autocomplete
                     multiple
                     id="tags-standard"

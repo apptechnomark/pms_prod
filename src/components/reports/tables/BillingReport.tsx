@@ -4,7 +4,12 @@ import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider, TimeField } from "@mui/x-date-pickers";
-import { TablePagination, ThemeProvider, createTheme } from "@mui/material";
+import {
+  TablePagination,
+  TextField,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
@@ -588,6 +593,66 @@ const BillingReport = ({
           return (
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               {!billingReportData[tableMeta.rowIndex].IsBTC ? (
+                // <TextField
+                //   label="BTC Time"
+                //   placeholder="00:00:00"
+                //   variant="standard"
+                //   fullWidth
+                //   value={
+                //     billingReportData[tableMeta.rowIndex].BTC === null ||
+                //     billingReportData[tableMeta.rowIndex].BTC === 0
+                //       ? "00:00:00"
+                //       : value
+                //   }
+                //   onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                //     let newValue = event.target.value;
+                //     newValue = newValue.replace(/[^0-9]/g, "");
+                //     // if (newValue.length > 8) {
+                //     //   return;
+                //     // }
+
+                //     let formattedValue = "";
+                //     if (newValue.length >= 1) {
+                //       const hours = parseInt(newValue.slice(0, 2));
+                //       if (hours >= 0 && hours <= 23) {
+                //         formattedValue = newValue.slice(0, 2);
+                //       } else {
+                //         formattedValue = "23";
+                //       }
+                //     }
+
+                //     if (newValue.length >= 3) {
+                //       const minutes = parseInt(newValue.slice(2, 4));
+                //       if (minutes >= 0 && minutes <= 59) {
+                //         formattedValue += ":" + newValue.slice(2, 4);
+                //       } else {
+                //         formattedValue += ":59";
+                //       }
+                //     }
+
+                //     if (newValue.length >= 5) {
+                //       const seconds = parseInt(newValue.slice(4, 6));
+                //       if (seconds >= 0 && seconds <= 59) {
+                //         formattedValue += ":" + newValue.slice(4, 6);
+                //       } else {
+                //         formattedValue += ":59";
+                //       }
+                //     }
+
+                //     // Convert formattedValue to seconds
+                //     let totalSeconds = 0;
+
+                //     if (formattedValue) {
+                //       const timeComponents = formattedValue.split(":");
+                //       const hours = parseInt(timeComponents[0]);
+                //       const minutes = parseInt(timeComponents[1]);
+                //       const seconds = parseInt(timeComponents[2]);
+                //       totalSeconds = hours * 3600 + minutes * 60 + seconds;
+                //     }
+
+                //     console.log(formattedValue);
+                //   }}
+                // />
                 <TimeField
                   label="BTC Time"
                   value={
@@ -602,7 +667,17 @@ const BillingReport = ({
                         index === tableMeta.rowIndex
                           ? {
                               ...data,
-                              BTC: `${newValue.$H}:${newValue.$m}:${newValue.$s}`,
+                              BTC:
+                                newValue !== null
+                                  ? `${
+                                      isNaN(newValue.$H) ? "00" : newValue.$H
+                                    }:${
+                                      isNaN(newValue.$m) ? "00" : newValue.$m
+                                    }:${
+                                      isNaN(newValue.$s) ? "00" : newValue.$s
+                                    }`
+                                  : // `${newValue.$H}:${newValue.$m}:${newValue.$s}`
+                                    "00:00:00",
                             }
                           : { ...data }
                       )
@@ -616,16 +691,13 @@ const BillingReport = ({
                   variant="standard"
                 />
               ) : (
-                <TimeField
-                  readOnly
+                <TextField
+                  disabled
                   label="BTC Time"
-                  format="HH:mm:ss"
+                  placeholder="00:00:00"
                   variant="standard"
-                  value={
-                    value === null || value === 0
-                      ? dayjs("0000-00-00T00:00:00")
-                      : dayjs(`0000-00-00T${value}`)
-                  }
+                  fullWidth
+                  value={value === null || value === 0 ? "00:00:00" : value}
                 />
               )}
             </LocalizationProvider>

@@ -48,8 +48,8 @@ const UserLogsFilter = ({
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
+  const [users, setUsers] = useState<any[]>([]);
   const [userNames, setUserNames] = useState<number[]>([]);
-  const [users, setUsers] = useState<number[]>([]);
   const [dept, setDept] = useState<string | number>(0);
   const [dateFilter, setDateFilter] = useState<any>("");
   const [filterName, setFilterName] = useState<string>("");
@@ -175,6 +175,7 @@ const UserLogsFilter = ({
         if (response.data.ResponseStatus.toLowerCase() === "success") {
           toast.success("Filter has been successully saved.");
           getFilterList();
+          handleFilterApply();
           setSaveFilter(false);
           onDialogClose(false);
         } else {
@@ -267,7 +268,14 @@ const UserLogsFilter = ({
   const handleSavedFilterEdit = (index: number) => {
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
-    setUserNames(savedFilters[index].AppliedFilter.users);
+    setUsers(
+      savedFilters[index].AppliedFilter.users === null
+        ? []
+        : userDropdown.filter((user: any) =>
+            savedFilters[index].AppliedFilter.users.includes(user.value)
+          )
+    );
+    setUserNames(savedFilters[index].AppliedFilter.users ?? []);
     setDept(savedFilters[index].AppliedFilter.Department);
     setIsloggedIn(savedFilters[index].AppliedFilter.isLoggedInFilter);
     setDefaultFilter(true);
@@ -431,9 +439,27 @@ const UserLogsFilter = ({
           <DialogContent>
             <div className="flex flex-col gap-[20px] pt-[15px]">
               <div className="flex gap-[20px]">
-                <FormControl
+                {/* <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
+                >
+                  <Autocomplete
+                    multiple
+                    labelId="billingType"
+                    id="billingType"
+                    value={userNames}
+                    onChange={handleUserNames}
+                  >
+                    {userDropdown.map((i: any, index: number) => (
+                      <MenuItem value={i.value} key={index}>
+                        {i.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl> */}
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
                 >
                   <Autocomplete
                     multiple
@@ -441,8 +467,8 @@ const UserLogsFilter = ({
                     options={userDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setUserNames(data.map((d: any) => d.value));
                       setUsers(data);
+                      setUserNames(data.map((d: any) => d.value));
                     }}
                     value={users}
                     renderInput={(params: any) => (

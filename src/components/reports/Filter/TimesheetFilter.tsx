@@ -185,8 +185,10 @@ const TimesheetFilter = ({
         if (response.data.ResponseStatus.toLowerCase() === "success") {
           toast.success("Filter has been successully saved.");
           getFilterList();
+          handleFilterApply();
           setSaveFilter(false);
           onDialogClose(false);
+          setDefaultFilter(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -276,6 +278,13 @@ const TimesheetFilter = ({
   const handleSavedFilterEdit = (index: number) => {
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
+    setUsers(
+      savedFilters[index].AppliedFilter.users === null
+        ? []
+        : userDropdown.filter((user: any) =>
+            savedFilters[index].AppliedFilter.users.includes(user.value)
+          )
+    );
     setUserNames(
       savedFilters[index].AppliedFilter.users === null
         ? []
