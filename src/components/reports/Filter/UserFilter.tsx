@@ -60,6 +60,7 @@ const UserFilter = ({
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
+  const [error, setError] = useState("");
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -83,9 +84,11 @@ const UserFilter = ({
 
   const handleResetAll = () => {
     setUserNames([]);
+    setUsers([]);
     setDept(0);
     setStartDate("");
     setEndDate("");
+    setError("");
 
     sendFilterToPage({
       ...user_InitialFilter,
@@ -103,7 +106,9 @@ const UserFilter = ({
     setStartDate("");
     setEndDate("");
     setUserNames([]);
+    setUsers([]);
     setDept(0);
+    setError("");
   };
 
   const handleFilterApply = () => {
@@ -141,6 +146,11 @@ const UserFilter = ({
   };
 
   const handleSaveFilter = async () => {
+    if (filterName.trim() === "") {
+      setError("Filter name cannot be blank");
+      return;
+    }
+
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -552,7 +562,7 @@ const UserFilter = ({
               <>
                 <FormControl
                   variant="standard"
-                  sx={{ marginRight: 3, minWidth: 370 }}
+                  sx={{ marginRight: 3, minWidth: 420 }}
                 >
                   <TextField
                     placeholder="Enter Filter Name"
@@ -560,7 +570,11 @@ const UserFilter = ({
                     required
                     variant="standard"
                     value={filterName}
-                    onChange={(e) => setFilterName(e.target.value)}
+                    onChange={(e) => {
+                      setFilterName(e.target.value), setError("");
+                    }}
+                    error={Boolean(error)}
+                    helperText={error}
                   />
                 </FormControl>
                 <Button

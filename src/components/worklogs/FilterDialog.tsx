@@ -103,6 +103,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     setSaveFilter(false);
     setFilterName("");
     currentFilterData(initialFilter);
+    setError("");
   };
 
   const handleResetAllOnEdit = () => {
@@ -116,6 +117,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     setStartDate(null);
     setEndDate(null);
     setReviewStatus(0);
+    setError("");
   };
 
   const handleClose = () => {

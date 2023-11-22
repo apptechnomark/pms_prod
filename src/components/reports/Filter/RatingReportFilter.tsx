@@ -57,6 +57,7 @@ const RatingReportFilter = ({
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [resetting, setResetting] = useState<boolean>(false);
+  const [error, setError] = useState("");
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -78,6 +79,7 @@ const RatingReportFilter = ({
     setEndDate(null);
     setRatings(0);
     setResetting(true);
+    setError("");
 
     sendFilterToPage({
       ...rating_InitialFilter,
@@ -104,6 +106,7 @@ const RatingReportFilter = ({
     setStartDate(null);
     setEndDate(null);
     setRatings(0);
+    setError("");
   };
 
   const handleFilterApply = () => {
@@ -163,6 +166,11 @@ const RatingReportFilter = ({
   };
 
   const handleSaveFilter = async () => {
+    if (filterName.trim() === "") {
+      setError("Filter name cannot be blank");
+      return;
+    }
+
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -704,7 +712,7 @@ const RatingReportFilter = ({
               <>
                 <FormControl
                   variant="standard"
-                  sx={{ marginRight: 3, minWidth: 400 }}
+                  sx={{ marginRight: 3, minWidth: 420 }}
                 >
                   <TextField
                     placeholder="Enter Filter Name"
@@ -712,7 +720,11 @@ const RatingReportFilter = ({
                     required
                     variant="standard"
                     value={filterName}
-                    onChange={(e) => setFilterName(e.target.value)}
+                    onChange={(e) => {
+                      setFilterName(e.target.value), setError("");
+                    }}
+                    error={Boolean(error)}
+                    helperText={error}
                   />
                 </FormControl>
                 <Button

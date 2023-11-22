@@ -302,14 +302,11 @@ const Report = () => {
         window.URL.revokeObjectURL(url);
         setIsExporting(false);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Login failed. Please try again.");
-        } else {
-          toast.error(data);
-        }
+        setIsExporting(false);
+        toast.error("Login failed. Please try again.");
       }
     } catch (error) {
+      setIsExporting(false);
       console.error(error);
     }
   };

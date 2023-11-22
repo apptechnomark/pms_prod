@@ -69,6 +69,7 @@ const AuditFilter = ({
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [resetting, setResetting] = useState<boolean>(false);
+  const [error, setError] = useState("");
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -97,6 +98,7 @@ const AuditFilter = ({
     setUsers([]);
     setStartDate("");
     setEndDate("");
+    setError("");
 
     sendFilterToPage({
       ...audit_InitialFilter,
@@ -119,6 +121,7 @@ const AuditFilter = ({
     setUsers([]);
     setStartDate("");
     setEndDate("");
+    setError("");
   };
 
   const handleFilterApply = () => {
@@ -156,6 +159,11 @@ const AuditFilter = ({
   };
 
   const handleSaveFilter = async () => {
+    if (filterName.trim() === "") {
+      setError("Filter name cannot be blank");
+      return;
+    }
+
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -582,7 +590,7 @@ const AuditFilter = ({
               <>
                 <FormControl
                   variant="standard"
-                  sx={{ marginRight: 3, minWidth: 235 }}
+                  sx={{ marginRight: 3, minWidth: 420 }}
                 >
                   <TextField
                     placeholder="Enter Filter Name"
@@ -590,7 +598,11 @@ const AuditFilter = ({
                     required
                     variant="standard"
                     value={filterName}
-                    onChange={(e) => setFilterName(e.target.value)}
+                    onChange={(e) => {
+                      setFilterName(e.target.value), setError("");
+                    }}
+                    error={Boolean(error)}
+                    helperText={error}
                   />
                 </FormControl>
                 <Button

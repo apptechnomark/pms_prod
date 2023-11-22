@@ -5983,7 +5983,7 @@ const EditDrawer = ({
                                       : false
                                   }
                                   onHandlePopoverClose={handlePopoverClose}
-                                  isDisable={false}
+                                  isDisable={field.isSolved}
                                 />
                                 {field.Attachments[0]?.SystemFileName.length >
                                   0 && (

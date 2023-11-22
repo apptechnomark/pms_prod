@@ -4,8 +4,15 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import FileIcon from "@/assets/icons/worklogs/FileIcon";
 import { BlobServiceClient, BlockBlobClient } from "@azure/storage-blob";
 import CloseIcon from "@/assets/icons/reports/CloseIcon";
-import { Button, Popover } from "@mui/material";
+import {
+  Button,
+  Popover,
+  Tooltip,
+  TooltipProps,
+  tooltipClasses,
+} from "@mui/material";
 import { Transition } from "../reports/Filter/Transition/Transition";
+import styled from "@emotion/styled";
 
 export default function ImageUploader({
   getData,
@@ -146,24 +153,55 @@ export default function ImageUploader({
   //   }
   // };
 
+  const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
+    <Tooltip {...props} arrow classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.arrow}`]: {
+      color: "#0281B9",
+    },
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: "#0281B9",
+    },
+  }));
+
   return (
     <div className="flex gap-2">
       {/* <input type="file" accept="image/*,.pdf" onChange={handleImageChange} /> */}
-      <span
-        className={`text-white cursor-pointer max-w-1 mt-6 ${className}`}
-        onClick={() => fileInputRef.current?.click()}
-      >
-        <FileIcon />
-        <input
-          disabled={isDisable}
-          type="file"
-          accept="image/*,.pdf"
-          ref={fileInputRef}
-          // multiple
-          className="input-field hidden"
-          onChange={handleImageChange}
-        />
-      </span>
+      {isDisable ? (
+        <span
+          className={`text-white cursor-pointer max-w-1 mt-6 ${className}`}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <FileIcon />
+          <input
+            disabled={isDisable}
+            type="file"
+            accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+            ref={fileInputRef}
+            // multiple
+            className="input-field hidden"
+            onChange={handleImageChange}
+          />
+        </span>
+      ) : (
+        <ColorToolTip title="Attachment" placement="top" arrow>
+          <span
+            className={`text-white cursor-pointer max-w-1 mt-6 ${className}`}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <FileIcon />
+            <input
+              type="file"
+              accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+              ref={fileInputRef}
+              // multiple
+              className="input-field hidden"
+              onChange={handleImageChange}
+            />
+          </span>
+        </ColorToolTip>
+      )}
+
       {/* <div onClick={() => setIsExpanded(true)} className="mt-6">
         {originalFileDisplay.length > 0 && originalFileDisplay}
       </div> */}

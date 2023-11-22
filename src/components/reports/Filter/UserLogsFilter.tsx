@@ -2,6 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
+  Autocomplete,
   Button,
   Dialog,
   DialogActions,
@@ -48,6 +49,7 @@ const UserLogsFilter = ({
   onDialogClose,
 }: FilterType) => {
   const [userNames, setUserNames] = useState<number[]>([]);
+  const [users, setUsers] = useState<number[]>([]);
   const [dept, setDept] = useState<string | number>(0);
   const [dateFilter, setDateFilter] = useState<any>("");
   const [filterName, setFilterName] = useState<string>("");
@@ -61,6 +63,7 @@ const UserLogsFilter = ({
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [error, setError] = useState("");
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -74,14 +77,16 @@ const UserLogsFilter = ({
 
   const handleResetAll = () => {
     setUserNames([]);
+    setUsers([]);
     setDept(0);
     setIsloggedIn(0);
     setDateFilter("");
+    setError("");
 
     sendFilterToPage({
       ...userLogs_InitialFilter,
       users: [],
-      department: null,
+      departmentId: null,
       isLoggedInFilter: null,
     });
   };
@@ -91,16 +96,18 @@ const UserLogsFilter = ({
     onDialogClose(false);
     setDefaultFilter(false);
     setUserNames([]);
+    setUsers([]);
     setDept(0);
     setIsloggedIn(0);
     setDateFilter("");
+    setError("");
   };
 
   const handleFilterApply = () => {
     sendFilterToPage({
       ...userLogs_InitialFilter,
       users: userNames,
-      department: dept === 0 || dept === "" ? null : dept,
+      departmentId: dept === 0 || dept === "" ? null : dept,
       dateFilter: dateFilter === null || dateFilter === "" ? null : dateFilter,
       isLoggedInFilter:
         isloggedIn === defaultLoggedValue
@@ -129,6 +136,11 @@ const UserLogsFilter = ({
   };
 
   const handleSaveFilter = async () => {
+    if (filterName.trim() === "") {
+      setError("Filter name cannot be blank");
+      return;
+    }
+
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -310,10 +322,6 @@ const UserLogsFilter = ({
     }
   };
 
-  const handleUserNames = (e: any) => {
-    setUserNames(e.target.value);
-  };
-
   const isWeekend = (date: any) => {
     const day = date.day();
     return day === 6 || day === 0;
@@ -427,20 +435,24 @@ const UserLogsFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="billingType">User Name</InputLabel>
-                  <Select
+                  <Autocomplete
                     multiple
-                    labelId="billingType"
-                    id="billingType"
-                    value={userNames}
-                    onChange={handleUserNames}
-                  >
-                    {userDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                    id="tags-standard"
+                    options={userDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setUserNames(data.map((d: any) => d.value));
+                      setUsers(data);
+                    }}
+                    value={users}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="User Name"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"
@@ -526,7 +538,7 @@ const UserLogsFilter = ({
               <>
                 <FormControl
                   variant="standard"
-                  sx={{ marginRight: 3, minWidth: 370 }}
+                  sx={{ marginRight: 3, minWidth: 420 }}
                 >
                   <TextField
                     placeholder="Enter Filter Name"
@@ -534,7 +546,11 @@ const UserLogsFilter = ({
                     required
                     variant="standard"
                     value={filterName}
-                    onChange={(e) => setFilterName(e.target.value)}
+                    onChange={(e) => {
+                      setFilterName(e.target.value), setError("");
+                    }}
+                    error={Boolean(error)}
+                    helperText={error}
                   />
                 </FormControl>
                 <Button

@@ -58,6 +58,7 @@ const ClientFilter = ({
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [error, setError] = useState("");
 
   const [anchorElFilter, setAnchorElFilter] =
     useState<HTMLButtonElement | null>(null);
@@ -73,6 +74,7 @@ const ClientFilter = ({
     setTypeOfWork(0);
     setBillingType(0);
     setDept(0);
+    setError("");
 
     sendFilterToPage({
       ...client_project_InitialFilter,
@@ -90,6 +92,7 @@ const ClientFilter = ({
     setTypeOfWork(0);
     setBillingType(0);
     setDept(0);
+    setError("");
   };
 
   const handleFilterApply = () => {
@@ -119,6 +122,11 @@ const ClientFilter = ({
   };
 
   const handleSaveFilter = async () => {
+    if (filterName.trim() === "") {
+      setError("Filter name cannot be blank");
+      return;
+    }
+
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -473,7 +481,7 @@ const ClientFilter = ({
               <>
                 <FormControl
                   variant="standard"
-                  sx={{ marginRight: 3, minWidth: 400 }}
+                  sx={{ marginRight: 3, minWidth: 420 }}
                 >
                   <TextField
                     placeholder="Enter Filter Name"
@@ -481,7 +489,11 @@ const ClientFilter = ({
                     required
                     variant="standard"
                     value={filterName}
-                    onChange={(e) => setFilterName(e.target.value)}
+                    onChange={(e) => {
+                      setFilterName(e.target.value), setError("");
+                    }}
+                    error={Boolean(error)}
+                    helperText={error}
                   />
                 </FormControl>
                 <Button

@@ -27,6 +27,7 @@ import Organization from "@/components/settings/tables/Organization";
 import { hasNoToken, hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
 import SearchIcon from "@/assets/icons/SearchIcon";
+import Loading from "@/assets/icons/reports/Loading";
 
 type Tabs = { id: string; label: string; canView: boolean };
 
@@ -43,6 +44,7 @@ const initialTabs = [
 
 const page = () => {
   const router = useRouter();
+  const [isExporting, setIsExporting] = useState<boolean>(false);
   const [tabs, setTabs] = useState<Tabs[]>(initialTabs);
   const [tab, setTab] = useState<string>("Client");
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(-1);
@@ -912,6 +914,7 @@ const page = () => {
     filename: string,
     searchValue: any
   ) => {
+    setIsExporting(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 
@@ -945,17 +948,14 @@ const page = () => {
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
+        setIsExporting(false);
         Toast.success("Data exported successfully.");
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          Toast.error("Please try again later.");
-        } else {
-          Toast.error(data);
-        }
+        setIsExporting(false);
+        Toast.error("Please try again later.");
       }
     } catch (error) {
-      console.error(error);
+      setIsExporting(false);
       Toast.error("Error exporting data.");
     }
   };
@@ -1180,6 +1180,9 @@ const page = () => {
                   >
                     <Tooltip position={"top"} content="Export">
                       <span
+                        className={`${
+                          isExporting ? "cursor-default" : "cursor-pointer"
+                        }`}
                         onClick={() =>
                           tab === "Client"
                             ? exportData(
@@ -1216,7 +1219,7 @@ const page = () => {
                             : null
                         }
                       >
-                        <ExportIcon />
+                        {isExporting ? <Loading /> : <ExportIcon />}
                       </span>
                     </Tooltip>
                   </div>

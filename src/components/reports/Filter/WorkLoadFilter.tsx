@@ -58,6 +58,7 @@ const WorkLoadFilter = ({
   const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [error, setError] = useState("");
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -71,8 +72,11 @@ const WorkLoadFilter = ({
 
   const handleResetAll = () => {
     setUserNames([]);
+    setUsers([]);
     setDept(0);
     setDateFilter("");
+    setError("");
+
     sendFilterToPage({
       ...workLoad_InitialFilter,
       departmentId: null,
@@ -87,6 +91,8 @@ const WorkLoadFilter = ({
     setDept(0);
     setDateFilter("");
     setUserNames([]);
+    setUsers([]);
+    setError("");
   };
 
   const handleFilterApply = () => {
@@ -115,6 +121,11 @@ const WorkLoadFilter = ({
   };
 
   const handleSaveFilter = async () => {
+    if (filterName.trim() === "") {
+      setError("Filter name cannot be blank");
+      return;
+    }
+
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -493,7 +504,7 @@ const WorkLoadFilter = ({
               <>
                 <FormControl
                   variant="standard"
-                  sx={{ marginRight: 3, minWidth: 235 }}
+                  sx={{ marginRight: 3, minWidth: 420 }}
                 >
                   <TextField
                     placeholder="Enter Filter Name"
@@ -501,7 +512,11 @@ const WorkLoadFilter = ({
                     required
                     variant="standard"
                     value={filterName}
-                    onChange={(e) => setFilterName(e.target.value)}
+                    onChange={(e) => {
+                      setFilterName(e.target.value), setError("");
+                    }}
+                    error={Boolean(error)}
+                    helperText={error}
                   />
                 </FormControl>
                 <Button
