@@ -34,7 +34,7 @@
     "material-ui-popup-state": "^5.0.9",
     "mui-datatables": "^4.3.0",
     "next": "^13.5.4",
-    "next-ts-lib": "^1.0.100",
+    "next-ts-lib": "^1.0.102",
     "postcss": "^8.4.31",
     "react": "18.2.0",
     "react-csv": "^2.2.2",

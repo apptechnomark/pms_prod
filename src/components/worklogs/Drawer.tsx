@@ -583,7 +583,8 @@ const EditDrawer = ({
       ],
       isSolved: false,
     },
-  ]);
+  ]
+  );
   const [errorTypeErr, setErrorTypeErr] = useState([false]);
   const [rootCauseErr, setRootCauseErr] = useState([false]);
   const [errorLogPriorityErr, setErrorLogPriorityErr] = useState([false]);
@@ -5590,7 +5591,7 @@ const EditDrawer = ({
                   </div>
                   {reviewerErrDrawer && (
                     <div className="mt-3 pl-6">
-                      {errorLogFields.length > 0 &&
+                      {errorLogFields.length > 0 && errorLogFields[0].SubmitedBy.length > 0 &&
                         errorLogFields.map((i: any, index: number) => (
                           <>
                             <div className="ml-1 mt-8">
@@ -5619,8 +5620,11 @@ const EditDrawer = ({
                                 <Select
                                   labelId="demo-simple-select-standard-label"
                                   id="demo-simple-select-standard"
-                                  value={i.ErrorType}
-                                  readOnly
+                                  value={i.ErrorType === 0 ? "" : i.ErrorType}
+                                  readOnly={
+                                    i.ErrorType > 0 ||
+                                    i.Remark.trim().length <= 0
+                                  }
                                 >
                                   <MenuItem value={1}>Internal</MenuItem>
                                   <MenuItem value={2}>External</MenuItem>
@@ -5645,7 +5649,7 @@ const EditDrawer = ({
                                 <Select
                                   labelId="demo-simple-select-standard-label"
                                   id="demo-simple-select-standard"
-                                  value={i.RootCause}
+                                  value={i.RootCause === 0 ? "" : i.RootCause}
                                   onChange={(e) =>
                                     handleRootCauseChange(e, index)
                                   }
@@ -5658,7 +5662,10 @@ const EditDrawer = ({
                                       setRootCauseErr(newRootCauseErrors);
                                     }
                                   }}
-                                  readOnly={i.RootCause > 0}
+                                  readOnly={
+                                    i.RootCause > 0 ||
+                                    i.Remark.trim().length <= 0
+                                  }
                                 >
                                   <MenuItem value={1}>Procedural</MenuItem>
                                   <MenuItem value={2}>DataEntry</MenuItem>
@@ -5683,7 +5690,9 @@ const EditDrawer = ({
                                 <Select
                                   labelId="demo-simple-select-standard-label"
                                   id="demo-simple-select-standard"
-                                  value={i.NatureOfError}
+                                  value={
+                                    i.NatureOfError === 0 ? "" : i.NatureOfError
+                                  }
                                   onChange={(e) =>
                                     handleNatureOfErrorChange(e, index)
                                   }
@@ -5696,7 +5705,10 @@ const EditDrawer = ({
                                       setNatureOfErr(newNatureOfErrorErrors);
                                     }
                                   }}
-                                  readOnly={i.NatureOfError > 0}
+                                  readOnly={
+                                    i.NatureOfError > 0 ||
+                                    i.Remark.trim().length <= 0
+                                  }
                                 >
                                   <MenuItem value={1}>
                                     Memo/Decriprion Not Updated
@@ -5744,7 +5756,7 @@ const EditDrawer = ({
                                 <Select
                                   labelId="demo-simple-select-standard-label"
                                   id="demo-simple-select-standard"
-                                  value={i.Priority}
+                                  value={i.Priority === 0 ? "" : i.Priority}
                                   onChange={(e) =>
                                     handlePriorityChange(e, index)
                                   }
@@ -5757,7 +5769,10 @@ const EditDrawer = ({
                                       setErrorLogPriorityErr(newPriorityErrors);
                                     }
                                   }}
-                                  readOnly={i.Priority > 0}
+                                  readOnly={
+                                    i.Priority > 0 ||
+                                    i.Remark.trim().length <= 0
+                                  }
                                 >
                                   <MenuItem value={1}>High</MenuItem>
                                   <MenuItem value={2}>Medium</MenuItem>
@@ -5816,7 +5831,7 @@ const EditDrawer = ({
                                   readOnly={
                                     cCDropdownData.filter((obj: any) =>
                                       i.CC.includes(obj.value)
-                                    ).length > 0
+                                    ).length > 0 || i.Remark.trim().length <= 0
                                   }
                                   options={
                                     Array.isArray(cCDropdownData)
@@ -5930,6 +5945,7 @@ const EditDrawer = ({
                                           i.isSolved === true ? true : false
                                         }
                                         onChange={(e) =>
+                                          i.ErrorType > 0 &&
                                           handleCheckboxChange(
                                             onEdit,
                                             i.ErrorLogId,

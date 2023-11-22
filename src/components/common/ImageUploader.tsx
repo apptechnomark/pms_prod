@@ -159,7 +159,7 @@ export default function ImageUploader({
           type="file"
           accept="image/*,.pdf"
           ref={fileInputRef}
-          multiple
+          // multiple
           className="input-field hidden"
           onChange={handleImageChange}
         />
