@@ -55,8 +55,8 @@ const UserContent = forwardRef<
   const [departmentHasError, setDepartmentHasError] = useState(false);
   const [departmentError, setDepartmentError] = useState(false);
   const [report, setReport] = useState(0);
-  // const [reportHasError, setReportHasError] = useState(false);
-  // const [reportError, setReportError] = useState(false);
+  const [reportHasError, setReportHasError] = useState(false);
+  const [reportError, setReportError] = useState(false);
   const [group, setGroup] = useState([]);
   const [groupHasError, setGroupHasError] = useState(false);
   const [groupError, setGroupError] = useState(false);
@@ -131,8 +131,10 @@ const UserContent = forwardRef<
                 setRoleError(true);
                 setDepartment(data.DepartmentId);
                 setDepartmentError(true);
-                setReport(data.ReportingManagerId);
-                // setReportError(true);
+                setReport(
+                  data.ReportingManagerId === null ? 0 : data.ReportingManagerId
+                );
+                setReportError(true);
                 setGroup(data.GroupIds);
                 setGroupError(true);
               } else {
@@ -268,6 +270,7 @@ const UserContent = forwardRef<
     setEmailHasError(true);
     setRoleHasError(true);
     setDepartmentHasError(true);
+    setReportHasError(true);
     setGroupHasError(true);
   };
 
@@ -290,8 +293,8 @@ const UserContent = forwardRef<
     setDepartmentError(false);
     setDepartmentHasError(false);
     setReport(0);
-    // setReportHasError(false)
-    // setReportHasError(false);
+    setReportError(false);
+    setReportHasError(false);
     setGroup([]);
     setGroupError(false);
     setGroupHasError(false);
@@ -473,6 +476,7 @@ const UserContent = forwardRef<
       email.trim().length <= 0 && setEmailHasError(true);
       role <= 0 && setRoleHasError(true);
       department <= 0 && setDepartmentHasError(true);
+      report <= 0 && setReportHasError(true);
       group.length <= 0 && setGroupHasError(true);
       if (
         firstNameError &&
@@ -483,6 +487,7 @@ const UserContent = forwardRef<
         email.trim().length !== 0 &&
         role !== 0 &&
         department !== 0 &&
+        report !== 0 &&
         group.length !== 0
       ) {
         saveUser();
@@ -661,14 +666,14 @@ const UserContent = forwardRef<
               label="Report Manager"
               id="reporting_manager"
               placeholder="Add Reporting Manager"
-              // validate
+              validate
               defaultValue={report === 0 ? "" : report}
               errorClass="!-mt-[15px]"
-              // hasError={reportHasError}
+              hasError={reportHasError}
               getValue={(value) => {
                 setReport(value);
               }}
-              getError={(e) => {}}
+              getError={(e) => setReportError(e)}
               options={reportManagerDropdownData}
             />
             <MultiSelectChip

@@ -433,7 +433,7 @@ const Datatable = ({
             workitemTimeId && workitemTimeId > 0 ? workitemTimeId : 0,
           workitemId: selectedRowId,
           state: state,
-          comment: comment.trim().length <= 0 ? null : comment,
+          comment: comment.trim().length <= 0 ? null : comment.trim(),
         },
         {
           headers: {
@@ -1298,12 +1298,12 @@ const Datatable = ({
   }, [isOnBreak]);
 
   const handleComment = (e: any) => {
-    setComment(e.target.value.trim());
-    if (e.target.value.length === 0) {
+    setComment(e.target.value);
+    if (e.target.value.trim().length === 0) {
       setCommentErrText("This is required field!");
-    } else if (e.target.value.length < 5) {
+    } else if (e.target.value.trim().length < 5) {
       setCommentErrText("Minimum 5 characters are required!");
-    } else if (e.target.value.length > 250) {
+    } else if (e.target.value.trim().length > 250) {
       setCommentErrText("Maximum limit is 250 characters!");
     } else {
       setCommentErrText("");

@@ -629,8 +629,8 @@ const EditDrawer = ({
       setIsPartiallySubmitted(true);
       scrollToPanel(isManual === null || isManual === true ? 6 : 5);
     }
-    onComment && scrollToPanel(3);
-    onErrorLog && scrollToPanel(6);
+    onComment === true ? scrollToPanel(3) : scrollToPanel(0);
+    onErrorLog === true ? scrollToPanel(6) : scrollToPanel(0);
   }, [onEdit, onComment, onErrorLog]);
 
   const handleTabClick = (index: number) => {
