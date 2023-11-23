@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
 // material imports
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -10,9 +13,9 @@ import { TransitionProps } from "@mui/material/transitions";
 import { TextareaAutosize } from "@mui/base/TextareaAutosize";
 import { FormControl, FormHelperText } from "@mui/material";
 import MUIDataTable from "mui-datatables";
+
+// internal components
 import { Table_Options, Table_Columns } from "./options/Table_Options";
-import { toast } from "react-toastify";
-import axios from "axios";
 
 interface ImportDialogProp {
   onOpen: boolean;
@@ -49,28 +52,23 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
   };
 
   //   function to set selected Tasks from table
-  const handleRowSelect = (allRowsSelected: any) => {
+  const handleRowSelect = (
+    currentRowsSelected: any,
+    allRowsSelected: any,
+    rowsSelected: any
+  ) => {
     const selectedData = allRowsSelected.map(
       (row: any) => importFields[row.dataIndex]
     );
 
-    const updatedSelectedTasks = [...selectedTasks];
+    const tasks =
+      selectedData.length > 0
+        ? selectedData.map((selectedRow: any) => ({
+            TaskName: selectedRow.field,
+          }))
+        : [];
 
-    selectedData.forEach((selectedRow: any) => {
-      const existingIndex = updatedSelectedTasks.findIndex(
-        (item: any) => item.id === selectedRow.id
-      );
-
-      if (existingIndex !== -1) {
-        updatedSelectedTasks.splice(existingIndex, 1);
-      } else {
-        updatedSelectedTasks.push({
-          TaskName: selectedRow.field,
-        });
-      }
-    });
-
-    setselectedtasks(updatedSelectedTasks);
+    setselectedtasks(tasks);
   };
 
   //   converting importText to Array of Object
@@ -86,9 +84,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
         .filter((item) => item.trim() !== "")
         .map((item, index) => ({ id: index + 1, field: item.trim() }));
     } else {
-      dataArray = data
-        .split(" ")
-        .map((item, index) => ({ id: index + 1, field: item }));
+      dataArray = [{ id: 1, field: data.trim() }];
     }
     return dataArray;
   };
@@ -174,8 +170,16 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
               <MUIDataTable
                 options={{
                   ...Table_Options,
-                  onRowSelectionChange: (allRowsSelected: any) =>
-                    handleRowSelect(allRowsSelected),
+                  onRowSelectionChange: (
+                    currentRowsSelected: any,
+                    allRowsSelected: any,
+                    rowsSelected: any
+                  ) =>
+                    handleRowSelect(
+                      currentRowsSelected,
+                      allRowsSelected,
+                      rowsSelected
+                    ),
                 }}
                 columns={Table_Columns}
                 data={importFields}

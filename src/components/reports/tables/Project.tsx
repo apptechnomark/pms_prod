@@ -38,20 +38,11 @@ const project_InitialFilter = {
   isClientReport: false,
 };
 
-const Project = ({ filteredData, onProjectSearchData }: any) => {
+const Project = ({ filteredData, searchValue }: any) => {
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [projectData, setProjectData] = useState<any>([]);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
-
-  // getting data from search value
-  useEffect(() => {
-    if (onProjectSearchData) {
-      setProjectData(onProjectSearchData);
-    } else {
-      getData(project_InitialFilter);
-    }
-  }, [onProjectSearchData]);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");
@@ -132,11 +123,13 @@ const Project = ({ filteredData, onProjectSearchData }: any) => {
 
   useEffect(() => {
     if (filteredData !== null) {
-      getData(filteredData);
+      getData({ ...filteredData, globalSearch: searchValue });
       setPage(0);
       setRowsPerPage(10);
+    } else {
+      getData({ ...project_InitialFilter, globalSearch: searchValue });
     }
-  }, [filteredData]);
+  }, [filteredData, searchValue]);
 
   const columns: any[] = [
     {

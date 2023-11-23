@@ -17,6 +17,8 @@ import {
   Tooltip,
 } from "@mui/material";
 import { Transition } from "./Transition/Transition";
+
+//custom component
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 
 // filter type
@@ -122,40 +124,53 @@ const ClientFilter = ({
   };
 
   const handleSaveFilter = async () => {
-    if (filterName.trim() === "") {
-      setError("Filter name cannot be blank");
+    if (filterName.trim().length === 0) {
+      setError("This is required field!");
       return;
-    }
+    } else if (filterName.trim().length > 15) {
+      setError("Max 15 characters allowed!");
+      return;
+    } else {
+      setError("");
 
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/savefilter`,
-        {
-          filterId: currentFilterId !== "" ? currentFilterId : null,
-          name: filterName,
-          AppliedFilter: {
-            TypeOfWork: typeOfWork === 0 ? null : typeOfWork,
-            BillingType: billingType === 0 ? null : billingType,
-            Department: dept === 0 ? null : dept,
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/filter/savefilter`,
+          {
+            filterId: currentFilterId !== "" ? currentFilterId : null,
+            name: filterName,
+            AppliedFilter: {
+              TypeOfWork: typeOfWork === 0 ? null : typeOfWork,
+              BillingType: billingType === 0 ? null : billingType,
+              Department: dept === 0 ? null : dept,
+            },
+            type: client,
           },
-          type: client,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
 
-      if (response.status === 200) {
-        if (response.data.ResponseStatus.toLowerCase() === "success") {
-          toast.success("Filter has been successully saved.");
-          getFilterList();
-          setSaveFilter(false);
-          onDialogClose(false);
+        if (response.status === 200) {
+          if (response.data.ResponseStatus.toLowerCase() === "success") {
+            toast.success("Filter has been successully saved.");
+            handleClose();
+            getFilterList();
+            handleFilterApply();
+            setSaveFilter(false);
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Please try again later.");
+            } else {
+              toast.error(data);
+            }
+          }
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -164,16 +179,9 @@ const ClientFilter = ({
             toast.error(data);
           }
         }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
     }
   };
 
@@ -270,8 +278,9 @@ const ClientFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
-          setCurrentFilterId("");
+          handleClose();
           getFilterList();
+          setCurrentFilterId("");
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -310,7 +319,7 @@ const ClientFilter = ({
             horizontal: "right",
           }}
         >
-          <div className="flex flex-col py-2 w-[200px] ">
+          <div className="flex flex-col py-2 w-[250px] ">
             <span
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
@@ -324,7 +333,7 @@ const ClientFilter = ({
 
             <span className="py-3 px-2 relative">
               <InputBase
-                className="border-b border-b-slatyGrey"
+                className="pr-7 border-b border-b-slatyGrey w-full"
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}

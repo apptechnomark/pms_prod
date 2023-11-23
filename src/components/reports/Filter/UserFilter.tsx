@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
@@ -17,10 +18,11 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
 import { Transition } from "./Transition/Transition";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+
+//custom component
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 
 // filter type
@@ -146,49 +148,60 @@ const UserFilter = ({
   };
 
   const handleSaveFilter = async () => {
-    if (filterName.trim() === "") {
-      setError("Filter name cannot be blank");
+    if (filterName.trim().length === 0) {
+      setError("This is required field!");
       return;
-    }
+    } else if (filterName.trim().length > 15) {
+      setError("Max 15 characters allowed!");
+      return;
+    } else {
+      setError("");
 
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/savefilter`,
-        {
-          filterId: currentFilterId !== "" ? currentFilterId : null,
-          name: filterName,
-          AppliedFilter: {
-            users: userNames.length > 0 ? userNames : [],
-            departmentId: dept === 0 ? null : dept,
-            startDate:
-              startDate.toString().trim().length <= 0
-                ? getDates()[0]
-                : getFormattedDate(startDate),
-            endDate:
-              endDate.toString().trim().length <= 0
-                ? getDates()[getDates().length - 1]
-                : getFormattedDate(endDate),
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/filter/savefilter`,
+          {
+            filterId: currentFilterId !== "" ? currentFilterId : null,
+            name: filterName,
+            AppliedFilter: {
+              users: userNames.length > 0 ? userNames : [],
+              departmentId: dept === 0 ? null : dept,
+              startDate:
+                startDate.toString().trim().length <= 0
+                  ? getDates()[0]
+                  : getFormattedDate(startDate),
+              endDate:
+                endDate.toString().trim().length <= 0
+                  ? getDates()[getDates().length - 1]
+                  : getFormattedDate(endDate),
+            },
+            type: user,
           },
-          type: user,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
 
-      if (response.status === 200) {
-        if (response.data.ResponseStatus.toLowerCase() === "success") {
-          toast.success("Filter has been successully saved.");
-          getFilterList();
-          handleFilterApply();
-          setSaveFilter(false);
-          onDialogClose(false);
-          setDefaultFilter(false);
+        if (response.status === 200) {
+          if (response.data.ResponseStatus.toLowerCase() === "success") {
+            toast.success("Filter has been successully saved.");
+            handleClose();
+            getFilterList();
+            handleFilterApply();
+            setSaveFilter(false);
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Please try again later.");
+            } else {
+              toast.error(data);
+            }
+          }
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -197,16 +210,9 @@ const UserFilter = ({
             toast.error(data);
           }
         }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
     }
   };
 
@@ -329,8 +335,9 @@ const UserFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
-          setCurrentFilterId("");
+          handleClose();
           getFilterList();
+          setCurrentFilterId("");
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -374,7 +381,7 @@ const UserFilter = ({
             horizontal: "right",
           }}
         >
-          <div className="flex flex-col py-2 w-[200px] ">
+          <div className="flex flex-col py-2 w-[250px] ">
             <span
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
@@ -388,7 +395,7 @@ const UserFilter = ({
 
             <span className="py-3 px-2 relative">
               <InputBase
-                className="border-b border-b-slatyGrey"
+                className="pr-7 border-b border-b-slatyGrey w-full"
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}

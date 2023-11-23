@@ -4,7 +4,7 @@ import TaskIcon from "@/assets/icons/TaskIcon";
 import EditIcon from "@mui/icons-material/Edit";
 import FileIcon from "@/assets/icons/worklogs/FileIcon";
 import SendIcon from "@/assets/icons/worklogs/SendIcon";
-import { Close, Save } from "@mui/icons-material";
+import { Close, Download, Save } from "@mui/icons-material";
 import {
   Autocomplete,
   Avatar,
@@ -38,6 +38,7 @@ import {
   getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import ImageUploader from "../common/ImageUploader";
+import { getFileFromBlob } from "@/utils/downloadFile";
 
 const Drawer = ({
   onOpen,
@@ -383,10 +384,6 @@ const Drawer = ({
     useState(false);
   const [editingCommentIndex, setEditingCommentIndex] = useState(-1);
   const [commentDropdownData, setCommentDropdownData] = useState([]);
-  const [commentSystemFileNameUpload, setCommentSystemFileNameUpload] =
-    useState("");
-  const [commentOriginalFileNameUpload, setCommentOriginalFileNameUpload] =
-    useState("");
 
   const users: any = commentDropdownData.map(
     (i: any) =>
@@ -534,11 +531,6 @@ const Drawer = ({
       );
   };
 
-  const handleCommentPopoverClose = () => {
-    setCommentSystemFileNameUpload("");
-    setCommentOriginalFileNameUpload("");
-  };
-
   // Save Comment
   const handleSubmitComment = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -649,8 +641,6 @@ const Drawer = ({
   const [remarkErr, setRemarkErr] = useState([false]);
   const [attachmentsErr, setAttachmentsErr] = useState([false]);
   const [deletedErrorLog, setDeletedErrorLog] = useState<any>([]);
-  const [systemFileNameUpload, setSystemFileNameUpload] = useState("");
-  const [originalFileNameUpload, setOriginalFileNameUpload] = useState("");
 
   const addErrorLogField = () => {
     setErrorLogFields([
@@ -724,11 +714,6 @@ const Drawer = ({
       newFields[index].Attachments[0].UserFileName.length <= 0 ||
       newFields[index].Attachments[0].SystemFileName.length <= 0;
     setAttachmentsErr(newErrors);
-  };
-
-  const handlePopoverClose = () => {
-    setSystemFileNameUpload("");
-    setOriginalFileNameUpload("");
   };
 
   const handleSubmitErrorLog = async (e: { preventDefault: () => void }) => {
@@ -1355,8 +1340,6 @@ const Drawer = ({
     setCommentDropdownData([]);
     setCommentAttachmentsErr(false);
     setEditCommentAttachmentsErr(false);
-    setCommentSystemFileNameUpload("");
-    setCommentOriginalFileNameUpload("");
 
     // ErrorLogs
     setErrorLogDrawer(true);
@@ -1389,8 +1372,6 @@ const Drawer = ({
     setRemarkErr([false]);
     setAttachmentsErr([false]);
     setDeletedErrorLog([]);
-    setSystemFileNameUpload("");
-    setOriginalFileNameUpload("");
 
     onDataFetch();
     onClose();
@@ -1885,45 +1866,27 @@ const Drawer = ({
                                                 commentAttachment
                                               )
                                             }
-                                            systemFile={
-                                              commentSystemFileNameUpload.length >
-                                                0 && commentSystemFileNameUpload
-                                            }
-                                            originalFile={
-                                              commentOriginalFileNameUpload.length >
-                                                0 &&
-                                              commentOriginalFileNameUpload
-                                            }
-                                            isOpen={
-                                              commentSystemFileNameUpload ===
-                                              commentAttachment[0]
-                                                ?.SystemFileName
-                                                ? true
-                                                : false
-                                            }
-                                            onHandlePopoverClose={
-                                              handleCommentPopoverClose
-                                            }
                                             isDisable={false}
                                           />
                                         </div>
                                       </div>
                                       {commentAttachment[0]?.SystemFileName
                                         .length > 0 && (
-                                        <span
-                                          onClick={() => {
-                                            setCommentSystemFileNameUpload(
-                                              commentAttachment[0]
-                                                ?.SystemFileName
-                                            );
-                                            setCommentOriginalFileNameUpload(
-                                              commentAttachment[0]?.UserFileName
-                                            );
-                                          }}
-                                          className="text-[14px] ml-2"
-                                        >
-                                          {commentAttachment[0]?.UserFileName}
-                                        </span>
+                                        <div className="flex items-center justify-center gap-2">
+                                          <span className="ml-2 cursor-pointer">
+                                            {commentAttachment[0]?.UserFileName}
+                                          </span>
+                                          <span
+                                            onClick={() =>
+                                              getFileFromBlob(
+                                                commentAttachment[0]
+                                                  ?.SystemFileName
+                                              )
+                                            }
+                                          >
+                                            <Download />
+                                          </span>
+                                        </div>
                                       )}
                                     </div>
                                     <div className="flex flex-col">
@@ -1982,19 +1945,20 @@ const Drawer = ({
                                   </div>
                                   {i.Attachment[0]?.SystemFileName.length >
                                     0 && (
-                                    <span
-                                      onClick={() => {
-                                        setCommentSystemFileNameUpload(
-                                          i.Attachment[0]?.SystemFileName
-                                        );
-                                        setCommentOriginalFileNameUpload(
-                                          i.Attachment[0]?.UserFileName
-                                        );
-                                      }}
-                                      className="text-[14px] ml-2"
-                                    >
-                                      {i.Attachment[0]?.UserFileName}
-                                    </span>
+                                    <div className="flex items-center justify-center gap-2">
+                                      <span className="ml-2 cursor-pointer">
+                                        {i.Attachment[0]?.UserFileName}
+                                      </span>
+                                      <span
+                                        onClick={() =>
+                                          getFileFromBlob(
+                                            i.Attachment[0]?.SystemFileName
+                                          )
+                                        }
+                                      >
+                                        <Download />
+                                      </span>
+                                    </div>
                                   )}
                                   {userId === i.UserId &&
                                     hasPermissionWorklog(
@@ -2064,21 +2028,6 @@ const Drawer = ({
                                   commentAttachment
                                 )
                               }
-                              systemFile={
-                                commentSystemFileNameUpload.length > 0 &&
-                                commentSystemFileNameUpload
-                              }
-                              originalFile={
-                                commentOriginalFileNameUpload.length > 0 &&
-                                commentOriginalFileNameUpload
-                              }
-                              isOpen={
-                                commentSystemFileNameUpload ===
-                                commentAttachment[0]?.SystemFileName
-                                  ? true
-                                  : false
-                              }
-                              onHandlePopoverClose={handleCommentPopoverClose}
                               isDisable={false}
                             />
                           </div>
@@ -2118,19 +2067,20 @@ const Drawer = ({
                         </div>
                         {commentAttachment[0].AttachmentId === 0 &&
                           commentAttachment[0]?.SystemFileName.length > 0 && (
-                            <span
-                              onClick={() => {
-                                setCommentSystemFileNameUpload(
-                                  commentAttachment[0]?.SystemFileName
-                                );
-                                setCommentOriginalFileNameUpload(
-                                  commentAttachment[0]?.UserFileName
-                                );
-                              }}
-                              className="mt-3 mb-6 mr-8"
-                            >
-                              {commentAttachment[0]?.UserFileName}
-                            </span>
+                            <div className="flex items-center justify-center gap-2 mr-6">
+                              <span className="ml-2 cursor-pointer">
+                                {commentAttachment[0]?.UserFileName}
+                              </span>
+                              <span
+                                onClick={() =>
+                                  getFileFromBlob(
+                                    commentAttachment[0]?.SystemFileName
+                                  )
+                                }
+                              >
+                                <Download />
+                              </span>
+                            </div>
                           )}
                       </div>
                     </>
@@ -2233,38 +2183,25 @@ const Drawer = ({
                                         index
                                       )
                                     }
-                                    systemFile={
-                                      systemFileNameUpload.length > 0 &&
-                                      systemFileNameUpload
-                                    }
-                                    originalFile={
-                                      originalFileNameUpload.length > 0 &&
-                                      originalFileNameUpload
-                                    }
-                                    isOpen={
-                                      systemFileNameUpload ===
-                                      field.Attachments[0]?.SystemFileName
-                                        ? true
-                                        : false
-                                    }
-                                    onHandlePopoverClose={handlePopoverClose}
                                     isDisable={field.isSolved}
                                   />
                                   {field.Attachments[0]?.SystemFileName.length >
                                     0 && (
-                                    <span
-                                      onClick={() => {
-                                        setSystemFileNameUpload(
-                                          field.Attachments[0]?.SystemFileName
-                                        );
-                                        setOriginalFileNameUpload(
-                                          field.Attachments[0]?.UserFileName
-                                        );
-                                      }}
-                                      className="mt-6 ml-2"
-                                    >
-                                      {field.Attachments[0]?.UserFileName}
-                                    </span>
+                                    <div className="flex items-center justify-center gap-2">
+                                      <span className="mt-6 ml-2 cursor-pointer">
+                                        {field.Attachments[0]?.UserFileName}
+                                      </span>
+                                      <span
+                                        className="mt-6"
+                                        onClick={() =>
+                                          getFileFromBlob(
+                                            field.Attachments[0]?.SystemFileName
+                                          )
+                                        }
+                                      >
+                                        <Download />
+                                      </span>
+                                    </div>
                                   )}
                                 </div>
                                 {attachmentsErr[index] && (
@@ -2273,43 +2210,6 @@ const Drawer = ({
                                   </span>
                                 )}
                               </div>
-                              {/* <TextField
-                              label={
-                                <span>
-                                  Attachments
-                                  <span className="text-defaultRed">
-                                    &nbsp;*
-                                  </span>
-                                </span>
-                              }
-                              fullWidth
-                              value={
-                                field.Attachments.trim().length === 0
-                                  ? ""
-                                  : field.Attachments
-                              }
-                              onChange={(e) =>
-                                handleAttachmentsChange(e, index)
-                              }
-                              onBlur={(e: any) => {
-                                if (e.target.value.length > 0) {
-                                  const newAttachmentErrors = [
-                                    ...attachmentsErr,
-                                  ];
-                                  newAttachmentErrors[index] = false;
-                                  setAttachmentsErr(newAttachmentErrors);
-                                }
-                              }}
-                              error={attachmentsErr[index]}
-                              helperText={
-                                attachmentsErr[index]
-                                  ? "This is a required field."
-                                  : ""
-                              }
-                              margin="normal"
-                              variant="standard"
-                              sx={{ mx: 0.75, maxWidth: 475, mt: 1 }}
-                            /> */}
                               {field.isSolved && (
                                 <FormGroup>
                                   <FormControlLabel

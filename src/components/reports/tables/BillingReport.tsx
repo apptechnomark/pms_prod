@@ -48,7 +48,7 @@ const BillingReport = ({
   hasRaisedInvoiceData,
   isSavingBTCData,
   onSaveBTCDataComplete,
-  onBillingReportSearchData,
+  searchValue,
 }: any) => {
   const [page, setPage] = useState<number>(0);
   const [btcData, setBTCData] = useState<any>([]);
@@ -60,15 +60,6 @@ const BillingReport = ({
   const [tableDataCount, setTableDataCount] = useState<number>(0);
 
   const [billingReportData, setBiliingReportData] = useState<any>([]);
-
-  // getting Billing Report Data by Search
-  useEffect(() => {
-    if (onBillingReportSearchData) {
-      setBiliingReportData(onBillingReportSearchData);
-    } else {
-      getData(billingreport_InitialFilter);
-    }
-  }, [onBillingReportSearchData]);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");
@@ -244,7 +235,11 @@ const BillingReport = ({
 
   useEffect(() => {
     if (filteredData !== null) {
-      getData(filteredData);
+      getData({ ...filteredData, globalSearch: searchValue });
+      setPage(0);
+      setRowsPerPage(10);
+    } else {
+      getData({ ...billingreport_InitialFilter, globalSearch: searchValue });
     }
   }, [filteredData]);
 

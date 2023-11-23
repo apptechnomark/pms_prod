@@ -38,20 +38,11 @@ const getMuiTheme = () =>
     },
   });
 
-const RatingReport = ({ filteredData, onRatingSearchData }: any) => {
+const RatingReport = ({ filteredData, searchValue }: any) => {
   const [page, setPage] = useState<number>(0);
   const [ratingData, setRatingData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
-
-  // getting Rating Data by Search
-  useEffect(() => {
-    if (onRatingSearchData) {
-      setRatingData(onRatingSearchData);
-    } else {
-      getData(rating_InitialFilter);
-    }
-  }, []);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");
@@ -123,9 +114,11 @@ const RatingReport = ({ filteredData, onRatingSearchData }: any) => {
 
   useEffect(() => {
     if (filteredData !== null) {
-      getData(filteredData);
+      getData({ ...filteredData, GlobalSearch: searchValue });
       setPage(0);
       setRowsPerPage(10);
+    } else {
+      getData({ ...rating_InitialFilter, GlobalSearch: searchValue });
     }
   }, [filteredData]);
 

@@ -1,6 +1,7 @@
+import dayjs from "dayjs";
+import axios from "axios";
+import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
-import { FilterType } from "./types/ReportsFilterType";
-import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import {
   Autocomplete,
   Button,
@@ -17,18 +18,28 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
-import { rating_InitialFilter } from "@/utils/reports/getFilters";
-//icons
-import SearchIcon from "@/assets/icons/SearchIcon";
-import { Edit, Delete } from "@mui/icons-material";
-import { toast } from "react-toastify";
 import { Transition } from "./Transition/Transition";
-import { getClientData, getProjectData } from "./api/getDropDownData";
-import axios from "axios";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import dayjs from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+
+//custom component
+import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+
+//Filter Type
+import { FilterType } from "./types/ReportsFilterType";
+
+//Admin Rating Enum
 import { AdminRatingsReports } from "../Enum/Filtertype";
+
+//filter body for rating
+import { rating_InitialFilter } from "@/utils/reports/getFilters";
+
+//dropdown apis
+import { getClientData, getProjectData } from "./api/getDropDownData";
+
+//icons
+import { Edit, Delete } from "@mui/icons-material";
+import SearchIcon from "@/assets/icons/SearchIcon";
 
 const RatingReportFilter = ({
   isFiltering,
@@ -166,57 +177,70 @@ const RatingReportFilter = ({
   };
 
   const handleSaveFilter = async () => {
-    if (filterName.trim() === "") {
-      setError("Filter name cannot be blank");
+    if (filterName.trim().length === 0) {
+      setError("This is required field!");
       return;
-    }
+    } else if (filterName.trim().length > 15) {
+      setError("Max 15 characters allowed!");
+      return;
+    } else {
+      setError("");
 
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/savefilter`,
-        {
-          filterId: currentFilterId !== "" ? currentFilterId : null,
-          name: filterName,
-          AppliedFilter: {
-            Clients: clientName.length > 0 ? clientName : [],
-            Projects:
-              projectName === 0 || projectName === "" ? [] : [projectName],
-            ReturnTypeId: returnType || null,
-            TypeofReturnId: typeOfReturn || null,
-            Ratings: ratings || null,
-            StartDate:
-              startDate !== null
-                ? new Date(new Date(startDate).getTime() + 24 * 60 * 60 * 1000)
-                    .toISOString()
-                    .split("T")[0]
-                : null,
-            EndDate:
-              endDate !== null
-                ? new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000)
-                    .toISOString()
-                    .split("T")[0]
-                : null,
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/filter/savefilter`,
+          {
+            filterId: currentFilterId !== "" ? currentFilterId : null,
+            name: filterName,
+            AppliedFilter: {
+              Clients: clientName.length > 0 ? clientName : [],
+              Projects:
+                projectName === 0 || projectName === "" ? [] : [projectName],
+              ReturnTypeId: returnType || null,
+              TypeofReturnId: typeOfReturn || null,
+              Ratings: ratings || null,
+              StartDate:
+                startDate !== null
+                  ? new Date(
+                      new Date(startDate).getTime() + 24 * 60 * 60 * 1000
+                    )
+                      .toISOString()
+                      .split("T")[0]
+                  : null,
+              EndDate:
+                endDate !== null
+                  ? new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000)
+                      .toISOString()
+                      .split("T")[0]
+                  : null,
+            },
+            type: AdminRatingsReports,
           },
-          type: AdminRatingsReports,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
 
-      if (response.status === 200) {
-        if (response.data.ResponseStatus.toLowerCase() === "success") {
-          toast.success("Filter has been successully saved.");
-          getFilterList();
-          handleFilterApply();
-          setSaveFilter(false);
-          onDialogClose(false);
-          setDefaultFilter(false);
+        if (response.status === 200) {
+          if (response.data.ResponseStatus.toLowerCase() === "success") {
+            toast.success("Filter has been successully saved.");
+            handleClose();
+            getFilterList();
+            handleFilterApply();
+            setSaveFilter(false);
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Please try again later.");
+            } else {
+              toast.error(data);
+            }
+          }
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -225,16 +249,9 @@ const RatingReportFilter = ({
             toast.error(data);
           }
         }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
     }
   };
 
@@ -337,8 +354,9 @@ const RatingReportFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
-          setCurrentFilterId("");
+          handleClose();
           getFilterList();
+          setCurrentFilterId("");
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -462,7 +480,7 @@ const RatingReportFilter = ({
             horizontal: "right",
           }}
         >
-          <div className="flex flex-col py-2 w-[200px] ">
+          <div className="flex flex-col py-2 w-[250px] ">
             <span
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
@@ -476,7 +494,7 @@ const RatingReportFilter = ({
 
             <span className="py-3 px-2 relative">
               <InputBase
-                className="border-b border-b-slatyGrey"
+                className="pr-7 border-b border-b-slatyGrey w-full"
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}

@@ -336,7 +336,8 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         style={{
           color: getColor(
             data.filter((v: any) => v.LogDate.split("T")[0] === date)[0]
-              .AttendanceColor
+              .AttendanceColor,
+            false
           ),
         }}
         className={`relative flex flex-col gap-[5px] ${
@@ -458,7 +459,7 @@ const getMuiTheme = () =>
     },
   });
 
-const TimeSheet = ({ filteredData, onTimesheetSearchData }: any) => {
+const TimeSheet = ({ filteredData, searchValue }: any) => {
   const [page, setPage] = useState<number>(0);
   const [dates, setDates] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -469,15 +470,6 @@ const TimeSheet = ({ filteredData, onTimesheetSearchData }: any) => {
     useState<HTMLButtonElement | null>(null);
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
-
-  // getting timesheet data by search
-  useEffect(() => {
-    if (onTimesheetSearchData) {
-      setTimesheetData(onTimesheetSearchData);
-    } else {
-      getData(timeSheet_InitialFilter);
-    }
-  }, [onTimesheetSearchData]);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");
@@ -543,15 +535,19 @@ const TimeSheet = ({ filteredData, onTimesheetSearchData }: any) => {
 
   useEffect(() => {
     if (filteredData !== null) {
-      getData(filteredData);
+      getData({ ...filteredData, globalSearch: searchValue });
       setDates(
         getDates(
           filteredData.startDate === null ? "" : filteredData.startDate,
           filteredData.endDate === null ? "" : filteredData.endDate
         )
       );
+      setPage(0);
+      setRowsPerPage(10);
+    } else {
+      getData({ ...timeSheet_InitialFilter, globalSearch: searchValue });
     }
-  }, [filteredData]);
+  }, [filteredData, searchValue]);
 
   const isWeekend = (date: any) => {
     const day = dayjs(date).day();

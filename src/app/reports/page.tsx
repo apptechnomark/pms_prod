@@ -9,7 +9,7 @@ import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
 
 //mui components
-import { Button, TextField } from "@mui/material";
+import { Button, InputBase, TextField } from "@mui/material";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 
 //toast
@@ -41,15 +41,7 @@ import { haveSameData } from "@/utils/reports/commonFunctions";
 import { getCurrentTabDetails } from "@/utils/reports/getFilters";
 
 //filter body for reports
-import { client_project_InitialFilter } from "@/utils/reports/getFilters";
-import { user_InitialFilter } from "@/utils/reports/getFilters";
-import { timeSheet_InitialFilter } from "@/utils/reports/getFilters";
-import { workLoad_InitialFilter } from "@/utils/reports/getFilters";
-import { userLogs_InitialFilter } from "@/utils/reports/getFilters";
-import { audit_InitialFilter } from "@/utils/reports/getFilters";
-import { billingreport_InitialFilter } from "@/utils/reports/getFilters";
 import { customreport_InitialFilter } from "@/utils/reports/getFilters";
-import { rating_InitialFilter } from "@/utils/reports/getFilters";
 
 //filter components
 import ClientFilter from "@/components/reports/Filter/ClientFilter";
@@ -93,31 +85,13 @@ const page = () => {
     useState<boolean>(false);
   const [saveBTCData, setSaveBTCData] = useState<boolean>(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [searchValue, setSearchValue] = useState<string>("");
   const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
     (() => void) | null
   >(null);
   const handleUserDetailsFetch = (getData: () => void) => {
     setGetOrgDetailsFunction(() => getData);
   };
-
-  const [projectSearchValue, setProjectSearchValue] = useState("");
-  const [projectSearchData, setProjectSearchData] = useState([]);
-  const [userSeachValue, setUserSearchValue] = useState("");
-  const [userSearchData, setUserSearchData] = useState([]);
-  const [timesheetSearchValue, setTimesheetSeachValue] = useState("");
-  const [timesheetSearchData, setTimesheetSeachData] = useState([]);
-  const [workloadSearchValue, setWorkloadSearchValue] = useState("");
-  const [workloadSearchData, setWorkloadSearchData] = useState([]);
-  const [userLogSearchValue, setUserLogSearchValue] = useState("");
-  const [userLogSearchData, setUserLogSearchData] = useState([]);
-  const [auditSearchValue, setAuditSearchValue] = useState("");
-  const [auditSeachData, setAuditSearchData] = useState([]);
-  const [billingReportSearchValue, setBillingReportSearchValue] = useState("");
-  const [billingReportSearchData, setBillingReportSearchData] = useState([]);
-  const [customReportSearchValue, setCustomReportSearchValue] = useState("");
-  const [customReportSearchData, setCustomReportSearchData] = useState([]);
-  const [ratingSearchValue, setRatingSearchValue] = useState("");
-  const [ratingSearchData, setRatingSearchData] = useState([]);
 
   //handling outside click for moreTabs
   useEffect(() => {
@@ -177,6 +151,7 @@ const page = () => {
   const handleTabChange = (tabId: number) => {
     setActiveTab(tabId);
     setFilteredData(null);
+    setSearchValue("");
   };
 
   //handling more tabs
@@ -261,399 +236,6 @@ const page = () => {
     }
   };
 
-  // getting project data by search
-  const getProjectSearchData = async (seachValue: string) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/project`,
-        { ...client_project_InitialFilter, globalSearch: seachValue },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setProjectSearchData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // getting User data by search
-  const getUserSearchData = async (seachValue: string) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/user`,
-        { ...user_InitialFilter, globalSearch: seachValue },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setUserSearchData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // getting timesheet data by search
-  const getTimesheetSearchData = async (seachValue: string) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/timesheet`,
-        { ...timeSheet_InitialFilter, globalSearch: seachValue },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_Token: Org_Token,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus.toLowerCase() === "success") {
-          setTimesheetSeachData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else toast.error(data);
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else toast.error(data);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // getting Workload data by search
-  const getWorkloadSearchData = async (seachValue: string) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/workLoad`,
-        { ...workLoad_InitialFilter, globalSearch: seachValue },
-        { headers: { Authorization: `bearer ${token}`, org_token: Org_Token } }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus.toLowerCase() === "success") {
-          setWorkloadSearchData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later");
-          } else toast.error(data);
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later");
-        } else toast.error(data);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // getting User Log data by search
-  const getUserLogSearchData = async (seachValue: string) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/userLog`,
-        { ...userLogs_InitialFilter, globalSearch: seachValue },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: Org_Token,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus.toLowerCase() === "success") {
-          setUserLogSearchData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later");
-          } else toast.error(data);
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later");
-        } else toast.error(data);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // getting Audit Data by search
-  const getAuditReportData = async (seachValue: string) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/audit`,
-        { ...audit_InitialFilter, globalSearch: seachValue },
-        { headers: { Authorization: `bearer ${token}`, org_token: Org_Token } }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus.toLowerCase() === "success") {
-          setAuditSearchData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else toast.error(data);
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else toast.error(data);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // getting Billing Report Data by search
-  const getBillingReportData = async (seachValue: string) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/billing`,
-        { ...billingreport_InitialFilter, globalSearch: seachValue },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setBillingReportSearchData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // getting Custom Rport Data by search
-  const getCustomReportData = async (seachValue: string) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/custom`,
-        { ...customreport_InitialFilter, globalSearch: seachValue },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setCustomReportSearchData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // getting Rating Data by search
-  const getRatingSearchData = async (seachValue: string) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/admin/rating`,
-        { ...rating_InitialFilter, GlobalSearch: seachValue },
-        { headers: { Authorization: `bearer ${token}`, org_token: Org_Token } }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus.toLowerCase() === "success") {
-          setRatingSearchData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else toast.error(data);
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else toast.error(data);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // Search function for all tabs
-  useEffect(() => {
-    const handleSearch = (
-      value: string,
-      searchFunction: {
-        (seachValue: string): Promise<void>;
-        (seachValue: string): Promise<void>;
-        (seachValue: string): Promise<void>;
-        (seachValue: string): Promise<void>;
-        (seachValue: string): Promise<void>;
-        (seachValue: string): Promise<void>;
-        (seachValue: string): Promise<void>;
-        (seachValue: string): Promise<void>;
-        (seachValue: string): Promise<void>;
-        (arg0: string): void;
-      }
-    ) => {
-      if (value.length >= 3) {
-        searchFunction(value);
-      } else {
-        searchFunction("");
-      }
-    };
-
-    switch (activeTab) {
-      case 1:
-        handleSearch(projectSearchValue, getProjectSearchData);
-        break;
-      case 2:
-        handleSearch(userSeachValue, getUserSearchData);
-        break;
-      case 3:
-        handleSearch(timesheetSearchValue, getTimesheetSearchData);
-        break;
-      case 4:
-        handleSearch(workloadSearchValue, getWorkloadSearchData);
-        break;
-      case 5:
-        handleSearch(userLogSearchValue, getUserLogSearchData);
-        break;
-      case 6:
-        handleSearch(auditSearchValue, getAuditReportData);
-        break;
-      case 7:
-        handleSearch(billingReportSearchValue, getBillingReportData);
-        break;
-      case 8:
-        handleSearch(customReportSearchValue, getCustomReportData);
-        break;
-      case 9:
-        handleSearch(ratingSearchValue, getRatingSearchData);
-        break;
-      default:
-        break;
-    }
-  }, [
-    activeTab,
-    projectSearchValue,
-    timesheetSearchValue,
-    userSeachValue,
-    workloadSearchValue,
-    userLogSearchValue,
-    auditSearchValue,
-    billingReportSearchValue,
-    customReportSearchValue,
-    ratingSearchValue,
-  ]);
-
   const MoreTabs = () => {
     return (
       <div
@@ -729,132 +311,17 @@ const page = () => {
           </div>
 
           <div className="h-full flex items-center gap-5">
-            {activeTab === 1 && (
-              <div className="flex items-center relative">
-                <TextField
-                  placeholder="Search"
-                  variant="standard"
-                  value={projectSearchValue}
-                  onChange={(e) => setProjectSearchValue(e.target.value)}
-                />
-                <span className="absolute right-1 py-1 pl-1">
-                  <SearchIcon />
-                </span>
-              </div>
-            )}
-
-            {activeTab === 2 && (
-              <div className="flex items-center relative">
-                <TextField
-                  placeholder="Search"
-                  variant="standard"
-                  value={userSeachValue}
-                  onChange={(e) => setUserSearchValue(e.target.value)}
-                />
-                <span className="absolute right-1 py-1 pl-1">
-                  <SearchIcon />
-                </span>
-              </div>
-            )}
-
-            {activeTab === 3 && (
-              <div className="flex items-center relative">
-                <TextField
-                  placeholder="Search"
-                  variant="standard"
-                  value={timesheetSearchValue}
-                  onChange={(e) => setTimesheetSeachValue(e.target.value)}
-                />
-                <span className="absolute right-1 py-1 pl-1">
-                  <SearchIcon />
-                </span>
-              </div>
-            )}
-
-            {activeTab === 4 && (
-              <div className="flex items-center relative">
-                <TextField
-                  placeholder="Search"
-                  variant="standard"
-                  value={workloadSearchValue}
-                  onChange={(e) => setWorkloadSearchValue(e.target.value)}
-                />
-                <span className="absolute right-1 py-1 pl-1">
-                  <SearchIcon />
-                </span>
-              </div>
-            )}
-
-            {activeTab === 5 && (
-              <div className="flex items-center relative">
-                <TextField
-                  placeholder="Search"
-                  variant="standard"
-                  value={userLogSearchValue}
-                  onChange={(e) => setUserLogSearchValue(e.target.value)}
-                />
-                <span className="absolute right-1 py-1 pl-1">
-                  <SearchIcon />
-                </span>
-              </div>
-            )}
-
-            {activeTab === 6 && (
-              <div className="flex items-center relative">
-                <TextField
-                  placeholder="Search"
-                  variant="standard"
-                  value={auditSearchValue}
-                  onChange={(e) => setAuditSearchValue(e.target.value)}
-                />
-                <span className="absolute right-1 py-1 pl-1">
-                  <SearchIcon />
-                </span>
-              </div>
-            )}
-
-            {activeTab === 7 && (
-              <div className="flex items-center relative">
-                <TextField
-                  className="w-[130px]"
-                  placeholder="Search"
-                  variant="standard"
-                  value={billingReportSearchValue}
-                  onChange={(e) => setBillingReportSearchValue(e.target.value)}
-                />
-                <span className="absolute right-1 py-1 pl-1">
-                  <SearchIcon />
-                </span>
-              </div>
-            )}
-
-            {activeTab === 8 && filteredData !== null && (
-              <div className="flex items-center relative">
-                <TextField
-                  placeholder="Search"
-                  variant="standard"
-                  value={customReportSearchValue}
-                  onChange={(e) => setCustomReportSearchValue(e.target.value)}
-                />
-                <span className="absolute right-1 py-1 pl-1">
-                  <SearchIcon />
-                </span>
-              </div>
-            )}
-
-            {activeTab === 9 && (
-              <div className="flex items-center relative">
-                <TextField
-                  placeholder="Search"
-                  variant="standard"
-                  value={ratingSearchValue}
-                  onChange={(e) => setRatingSearchValue(e.target.value)}
-                />
-                <span className="absolute right-1 py-1 pl-1">
-                  <SearchIcon />
-                </span>
-              </div>
-            )}
+            <div className="relative">
+              <InputBase
+                className="pl-1 pr-7 border-b border-b-slatyGrey w-52"
+                placeholder="Search"
+                value={searchValue}
+                onChange={(e: any) => setSearchValue(e.target.value)}
+              />
+              <span className="absolute top-2 right-2 text-slatyGrey">
+                <SearchIcon />
+              </span>
+            </div>
 
             <span
               className="cursor-pointer relative"
@@ -916,58 +383,69 @@ const page = () => {
         {activeTab === 0 && <Client filteredData={filteredData} />}
         {activeTab === 1 && (
           <Project
+            searchValue={searchValue}
             filteredData={filteredData}
-            onProjectSearchData={projectSearchData}
+            // onProjectSearchData={projectSearchData}
           />
         )}
         {activeTab === 2 && (
-          <User filteredData={filteredData} onUserSearchData={userSearchData} />
+          <User
+            searchValue={searchValue}
+            filteredData={filteredData}
+            // onUserSearchData={userSearchData}
+          />
         )}
         {activeTab === 3 && (
           <TimeSheet
+            searchValue={searchValue}
             filteredData={filteredData}
-            onTimesheetSearchData={timesheetSearchData}
+            // onTimesheetSearchData={timesheetSearchData}
           />
         )}
         {activeTab === 4 && (
           <Workload
+            searchValue={searchValue}
             filteredData={filteredData}
-            onWorkloadSearchData={workloadSearchData}
+            // onWorkloadSearchData={workloadSearchData}
           />
         )}
         {activeTab === 5 && (
           <UserLogs
+            searchValue={searchValue}
             filteredData={filteredData}
-            onUserLogSearchData={userLogSearchData}
+            // onUserLogSearchData={userLogSearchData}
           />
         )}
         {activeTab === 6 && (
           <Audit
+            searchValue={searchValue}
             filteredData={filteredData}
-            onAuditSearchData={auditSeachData}
+            // onAuditSearchData={auditSeachData}
           />
         )}
         {activeTab === 7 && (
           <BillingReport
+            searchValue={searchValue}
             filteredData={filteredData}
             hasBTCData={(arg1: any) => setHasBTC(arg1)}
             hasRaisedInvoiceData={(arg1: any) => setHasRaisedInvoiceData(arg1)}
             isSavingBTCData={saveBTCData}
             onSaveBTCDataComplete={() => setSaveBTCData(false)}
-            onBillingReportSearchData={billingReportSearchData}
+            // onBillingReportSearchData={billingReportSearchData}
           />
         )}
         {activeTab === 8 && (
           <CustomReport
+            searchValue={searchValue}
             filteredData={filteredData}
-            searchValue={customReportSearchValue}
-            onCustomReportSearchData={customReportSearchData}
+            // onCustomReportSearchData={customReportSearchData}
           />
         )}
         {activeTab === 9 && (
           <RatingReport
+            searchValue={searchValue}
             filteredData={filteredData}
-            onRatingSearchData={ratingSearchData}
+            // onRatingSearchData={ratingSearchData}
           />
         )}
       </div>

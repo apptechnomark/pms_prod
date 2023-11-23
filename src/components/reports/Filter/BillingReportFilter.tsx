@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useRef, useState } from "react";
@@ -19,10 +20,11 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
 import { Transition } from "./Transition/Transition";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+
+//custom component
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 
 // filter type
@@ -224,55 +226,66 @@ const BillingReportFilter = ({
   };
 
   const handleSaveFilter = async () => {
-    if (filterName.trim() === "") {
-      setError("Filter name cannot be blank");
+    if (filterName.trim().length === 0) {
+      setError("This is required field!");
       return;
-    }
+    } else if (filterName.trim().length > 15) {
+      setError("Max 15 characters allowed!");
+      return;
+    } else {
+      setError("");
 
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/savefilter`,
-        {
-          filterId: currentFilterId !== "" ? currentFilterId : null,
-          name: filterName,
-          AppliedFilter: {
-            clients: clientName.length > 0 ? clientName : [],
-            projects: projectName !== 0 ? [projectName] : [],
-            assigneeId: assignee !== 0 ? assignee : null,
-            reviewerId: reviewer !== 0 ? reviewer : null,
-            typeofReturnId: typeOfReturn !== 0 ? typeOfReturn : null,
-            numberOfPages:
-              noOfPages.toString().trim().length > 0 ? noOfPages : null,
-            IsBTC: isBTC,
-            startDate:
-              startDate.toString().trim().length <= 0
-                ? null
-                : getFormattedDate(startDate),
-            endDate:
-              endDate.toString().trim().length <= 0
-                ? null
-                : getFormattedDate(endDate),
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/filter/savefilter`,
+          {
+            filterId: currentFilterId !== "" ? currentFilterId : null,
+            name: filterName,
+            AppliedFilter: {
+              clients: clientName.length > 0 ? clientName : [],
+              projects: projectName !== 0 ? [projectName] : [],
+              assigneeId: assignee !== 0 ? assignee : null,
+              reviewerId: reviewer !== 0 ? reviewer : null,
+              typeofReturnId: typeOfReturn !== 0 ? typeOfReturn : null,
+              numberOfPages:
+                noOfPages.toString().trim().length > 0 ? noOfPages : null,
+              IsBTC: isBTC,
+              startDate:
+                startDate.toString().trim().length <= 0
+                  ? null
+                  : getFormattedDate(startDate),
+              endDate:
+                endDate.toString().trim().length <= 0
+                  ? null
+                  : getFormattedDate(endDate),
+            },
+            type: billingReport,
           },
-          type: billingReport,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
 
-      if (response.status === 200) {
-        if (response.data.ResponseStatus.toLowerCase() === "success") {
-          handleFilterApply();
-          toast.success("Filter has been successully saved.");
-          getFilterList();
-          setSaveFilter(false);
-          onDialogClose(false);
-          setDefaultFilter(false);
+        if (response.status === 200) {
+          if (response.data.ResponseStatus.toLowerCase() === "success") {
+            toast.success("Filter has been successully saved.");
+            handleClose();
+            getFilterList();
+            handleFilterApply();
+            setSaveFilter(false);
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Please try again later.");
+            } else {
+              toast.error(data);
+            }
+          }
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -281,16 +294,9 @@ const BillingReportFilter = ({
             toast.error(data);
           }
         }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
     }
   };
 
@@ -430,8 +436,9 @@ const BillingReportFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
-          setCurrentFilterId("");
+          handleClose();
           getFilterList();
+          setCurrentFilterId("");
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -475,7 +482,7 @@ const BillingReportFilter = ({
             horizontal: "right",
           }}
         >
-          <div className="flex flex-col py-2 w-[200px] ">
+          <div className="flex flex-col py-2 w-[250px] ">
             <span
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
@@ -489,7 +496,7 @@ const BillingReportFilter = ({
 
             <span className="py-3 px-2 relative">
               <InputBase
-                className="border-b border-b-slatyGrey"
+                className="pr-7 border-b border-b-slatyGrey w-full"
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}

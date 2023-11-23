@@ -33,20 +33,11 @@ const getMuiTheme = () =>
     },
   });
 
-const Audit = ({ filteredData, onAuditSearchData }: any) => {
+const Audit = ({ filteredData, searchValue }: any) => {
   const [page, setPage] = useState<number>(0);
   const [auditData, setAuditData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
-
-  // getting data by search
-  useEffect(() => {
-    if (onAuditSearchData) {
-      setAuditData(onAuditSearchData);
-    } else {
-      getData(audit_InitialFilter);
-    }
-  }, [onAuditSearchData]);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");
@@ -110,9 +101,13 @@ const Audit = ({ filteredData, onAuditSearchData }: any) => {
 
   useEffect(() => {
     if (filteredData !== null) {
-      getData(filteredData);
+      getData({ ...filteredData, GlobalSearch: searchValue });
+      setPage(0);
+      setRowsPerPage(10);
+    } else {
+      getData({ ...audit_InitialFilter, GlobalSearch: searchValue });
     }
-  }, [filteredData]);
+  }, [filteredData, searchValue]);
 
   const columns: any[] = [
     {

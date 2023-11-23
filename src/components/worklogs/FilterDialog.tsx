@@ -384,52 +384,64 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   }, [clientName]);
 
   const saveCurrentFilter = async () => {
-    if (filterName.trim() === "") {
-      setError("Filter name cannot be blank");
+    if (filterName.trim().length === 0) {
+      setError("This is required field!");
       return;
-    }
+    } else if (filterName.trim().length > 15) {
+      setError("Max 15 characters allowed!");
+      return;
+    } else {
+      setError("");
 
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/savefilter`,
-        {
-          filterId: onCurrentFilterId !== 0 ? onCurrentFilterId : null,
-          name: filterName,
-          AppliedFilter: {
-            ClientId: clientName || 0,
-            TypeOfWork: workType || 0,
-            ProjectId: projectName || 0,
-            Status: status || 0,
-            AssignedTo: assignedTo || 0,
-            AssignedBy: assignedBy || 0,
-            DueDate: dueDate || null,
-            StartDate: startDate || null,
-            EndDate: endDate || null,
-            ReviewStatus: ReviewStatus || 0,
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/filter/savefilter`,
+          {
+            filterId: onCurrentFilterId !== 0 ? onCurrentFilterId : null,
+            name: filterName,
+            AppliedFilter: {
+              ClientId: clientName || 0,
+              TypeOfWork: workType || 0,
+              ProjectId: projectName || 0,
+              Status: status || 0,
+              AssignedTo: assignedTo || 0,
+              AssignedBy: assignedBy || 0,
+              DueDate: dueDate || null,
+              StartDate: startDate || null,
+              EndDate: endDate || null,
+              ReviewStatus: ReviewStatus || 0,
+            },
+            type: 1,
           },
-          type: 1,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
 
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success(
-            `Filter has been ${
-              onCurrentFilterId > 0 ? "updated" : "saved"
-            } successully.`
-          );
-          setSaveFilter(false);
-          onDataFetch();
-          sendFilterToPage();
-          onClose();
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            toast.success(
+              `Filter has been ${
+                onCurrentFilterId > 0 ? "updated" : "saved"
+              } successully.`
+            );
+            setSaveFilter(false);
+            onDataFetch();
+            sendFilterToPage();
+            onClose();
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Please try again later.");
+            } else {
+              toast.error(data);
+            }
+          }
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -438,16 +450,9 @@ const FilterDialog: React.FC<FilterModalProps> = ({
             toast.error(data);
           }
         }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
     }
   };
 

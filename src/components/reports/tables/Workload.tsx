@@ -45,7 +45,7 @@ const getMuiTheme = () =>
     },
   });
 
-const Workload = ({ filteredData, onWorkloadSearchData }: any) => {
+const Workload = ({ filteredData, searchValue }: any) => {
   const [page, setPage] = useState<number>(0);
   const [workloadData, setWorkloadData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -57,15 +57,6 @@ const Workload = ({ filteredData, onWorkloadSearchData }: any) => {
   const [clickedRowId, setClickedRowId] = useState<number>(-1);
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
-
-  // getting Workload data by search
-  useEffect(() => {
-    if (onWorkloadSearchData) {
-      setWorkloadData(onWorkloadSearchData);
-    } else {
-      getData(workLoad_InitialFilter);
-    }
-  }, [onWorkloadSearchData]);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");
@@ -125,7 +116,11 @@ const Workload = ({ filteredData, onWorkloadSearchData }: any) => {
 
   useEffect(() => {
     if (filteredData !== null) {
-      getData(filteredData);
+      getData({ ...filteredData, globalSearch: searchValue });
+      setPage(0);
+      setRowsPerPage(10);
+    } else {
+      getData({ ...workLoad_InitialFilter, globalSearch: searchValue });
     }
   }, [filteredData]);
 

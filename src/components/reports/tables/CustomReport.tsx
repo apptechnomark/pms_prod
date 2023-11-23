@@ -32,26 +32,11 @@ const getMuiTheme = () =>
     },
   });
 
-const CustomReport = ({
-  filteredData,
-  onCustomReportSearchData,
-  searchValue,
-}: any) => {
+const CustomReport = ({ filteredData, searchValue }: any) => {
   const [page, setPage] = useState<number>(0);
   const [customReportData, setCustomReportData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
-
-  console.log(searchValue);
-
-  // getting Custom Report Data by search
-  useEffect(() => {
-    if (onCustomReportSearchData) {
-      if (haveSameData(customReportData, customreport_InitialFilter)) {
-        // setCustomReportData(onCustomReportSearchData);
-      }
-    }
-  }, [onCustomReportSearchData]);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");

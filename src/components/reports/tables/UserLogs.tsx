@@ -33,20 +33,11 @@ const getMuiTheme = () =>
     },
   });
 
-const UserLogs = ({ filteredData, onUserLogSearchData }: any) => {
+const UserLogs = ({ filteredData, searchValue }: any) => {
   const [page, setPage] = useState<number>(0);
   const [userlogsData, setUserlogsData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
-
-  // getting User Log data by Search
-  useEffect(() => {
-    if (onUserLogSearchData) {
-      setUserlogsData(onUserLogSearchData);
-    } else {
-      getData(userLogs_InitialFilter);
-    }
-  }, [onUserLogSearchData]);
 
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");
@@ -111,7 +102,11 @@ const UserLogs = ({ filteredData, onUserLogSearchData }: any) => {
 
   useEffect(() => {
     if (filteredData !== null) {
-      getData(filteredData);
+      getData({ ...filteredData, globalSearch: searchValue });
+      setPage(0);
+      setRowsPerPage(10);
+    } else {
+      getData({ ...userLogs_InitialFilter, globalSearch: searchValue });
     }
   }, [filteredData]);
 

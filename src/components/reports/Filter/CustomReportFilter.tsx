@@ -285,79 +285,90 @@ const CustomReportFilter = ({
   };
 
   const handleSaveFilter = async () => {
-    if (filterName.trim() === "") {
-      setError("Filter name cannot be blank");
+    if (filterName.trim().length === 0) {
+      setError("This is required field!");
       return;
-    }
+    } else if (filterName.trim().length > 15) {
+      setError("Max 15 characters allowed!");
+      return;
+    } else {
+      setError("");
 
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/savefilter`,
-        {
-          filterId: currentFilterId !== "" ? currentFilterId : null,
-          name: filterName,
-          AppliedFilter: {
-            clientIdsJSON: clientName.length > 0 ? clientName : [],
-            projectIdsJSON:
-              projectName === 0 || projectName === "" ? [] : [projectName],
-            processIdsJSON:
-              processName === 0 || processName === "" ? [] : [processName],
-            assignedById:
-              assignByName === 0 || assignByName === "" ? null : assignByName,
-            assigneeId:
-              assigneeName === 0 || assigneeName === "" ? null : assigneeName,
-            reviewerId:
-              reviewerName === 0 || reviewerName === "" ? null : reviewerName,
-            returnTypeId:
-              returnTypeName === 0 || returnTypeName === ""
-                ? null
-                : returnTypeName,
-            typeOfReturnId:
-              typeofReturnName === 0 || typeofReturnName === ""
-                ? null
-                : typeofReturnName,
-            numberOfPages:
-              noofPages.toString().trim().length <= 0 ? null : noofPages,
-            returnYear:
-              returnYear === 0 || returnYear === "" ? null : returnYear,
-            currentYear:
-              currentYear === 0 || currentYear === "" ? null : currentYear,
-            complexity:
-              complexity === 0 || complexity === "" ? null : complexity,
-            priority: priority === 0 || priority === "" ? null : priority,
-            receivedDate:
-              receivedDate.toString().trim().length <= 0
-                ? null
-                : getFormattedDate(receivedDate),
-            dueDate:
-              dueDate.toString().trim().length <= 0
-                ? null
-                : getFormattedDate(dueDate),
-            allInfoDate:
-              allInfoDate.toString().trim().length <= 0
-                ? null
-                : getFormattedDate(allInfoDate),
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/filter/savefilter`,
+          {
+            filterId: currentFilterId !== "" ? currentFilterId : null,
+            name: filterName,
+            AppliedFilter: {
+              clientIdsJSON: clientName.length > 0 ? clientName : [],
+              projectIdsJSON:
+                projectName === 0 || projectName === "" ? [] : [projectName],
+              processIdsJSON:
+                processName === 0 || processName === "" ? [] : [processName],
+              assignedById:
+                assignByName === 0 || assignByName === "" ? null : assignByName,
+              assigneeId:
+                assigneeName === 0 || assigneeName === "" ? null : assigneeName,
+              reviewerId:
+                reviewerName === 0 || reviewerName === "" ? null : reviewerName,
+              returnTypeId:
+                returnTypeName === 0 || returnTypeName === ""
+                  ? null
+                  : returnTypeName,
+              typeOfReturnId:
+                typeofReturnName === 0 || typeofReturnName === ""
+                  ? null
+                  : typeofReturnName,
+              numberOfPages:
+                noofPages.toString().trim().length <= 0 ? null : noofPages,
+              returnYear:
+                returnYear === 0 || returnYear === "" ? null : returnYear,
+              currentYear:
+                currentYear === 0 || currentYear === "" ? null : currentYear,
+              complexity:
+                complexity === 0 || complexity === "" ? null : complexity,
+              priority: priority === 0 || priority === "" ? null : priority,
+              receivedDate:
+                receivedDate.toString().trim().length <= 0
+                  ? null
+                  : getFormattedDate(receivedDate),
+              dueDate:
+                dueDate.toString().trim().length <= 0
+                  ? null
+                  : getFormattedDate(dueDate),
+              allInfoDate:
+                allInfoDate.toString().trim().length <= 0
+                  ? null
+                  : getFormattedDate(allInfoDate),
+            },
+            type: customReport,
           },
-          type: customReport,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
 
-      if (response.status === 200) {
-        if (response.data.ResponseStatus.toLowerCase() === "success") {
-          toast.success("Filter has been successully saved.");
-          handleFilterApply();
-          getFilterList();
-          setSaveFilter(false);
-          onDialogClose(false);
-          setDefaultFilter(false);
+        if (response.status === 200) {
+          if (response.data.ResponseStatus.toLowerCase() === "success") {
+            toast.success("Filter has been successully saved.");
+            handleClose();
+            getFilterList();
+            handleFilterApply();
+            setSaveFilter(false);
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Please try again later.");
+            } else {
+              toast.error(data);
+            }
+          }
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -366,16 +377,9 @@ const CustomReportFilter = ({
             toast.error(data);
           }
         }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
     }
   };
 
@@ -543,8 +547,9 @@ const CustomReportFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
-          setCurrentFilterId("");
+          handleClose();
           getFilterList();
+          setCurrentFilterId("");
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -588,7 +593,7 @@ const CustomReportFilter = ({
             horizontal: "right",
           }}
         >
-          <div className="flex flex-col py-2 w-[200px] ">
+          <div className="flex flex-col py-2 w-[250px] ">
             <span
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
@@ -602,7 +607,7 @@ const CustomReportFilter = ({
 
             <span className="py-3 px-2 relative">
               <InputBase
-                className="border-b border-b-slatyGrey"
+                className="pr-7 border-b border-b-slatyGrey w-full"
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}

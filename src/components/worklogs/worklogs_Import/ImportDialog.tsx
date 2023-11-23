@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
 // material imports
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -10,17 +13,19 @@ import { TransitionProps } from "@mui/material/transitions";
 import { TextareaAutosize } from "@mui/base/TextareaAutosize";
 import { FormControl, FormHelperText } from "@mui/material";
 import MUIDataTable from "mui-datatables";
-import { Table_Options, Table_Columns } from "./options/Table_Options";
-import { toast } from "react-toastify";
-import axios from "axios";
 
+// Icons Imports
 import ExcelIcon from "@/assets/icons/Import/ExcelIcon";
 import FileIcon from "@/assets/icons/Import/FileIcon";
 import UploadIcon from "@/assets/icons/Import/UploadIcon";
 
+// Internal components
+import { Table_Options, Table_Columns } from "./options/Table_Options";
+
 interface ImportDialogProp {
   onOpen: boolean;
   onClose: () => void;
+  onDataFetch: any;
 }
 
 const Transition = React.forwardRef(function Transition(
@@ -32,7 +37,11 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
-const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
+const ImportDialog: React.FC<ImportDialogProp> = ({
+  onOpen,
+  onClose,
+  onDataFetch,
+}) => {
   const [error, setError] = useState("");
   const [importText, setImportText] = useState("");
   const [importFields, setImportFields] = useState<any[]>([]);
@@ -40,7 +49,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
   const [selectedTasks, setselectedtasks] = useState<any[]>([]);
   const [isExcelClicked, setIsExcelClicked] = useState<boolean>(false);
   const [isTaskClicked, setIsTaskClicked] = useState<boolean>(false);
-  const [selectedFile, setSelectedFile] = useState<any>("");
+  const [selectedFile, setSelectedFile] = useState<any>(null);
 
   const handleClose = () => {
     handleReset();
@@ -55,7 +64,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
     setIsExcelClicked(false);
     setIsTaskClicked(false);
     setselectedtasks([]);
-    setSelectedFile("");
+    setSelectedFile(null);
   };
 
   //   function to set selected Tasks from table
@@ -91,9 +100,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
         .filter((item) => item.trim() !== "")
         .map((item, index) => ({ id: index + 1, field: item.trim() }));
     } else {
-      dataArray = data
-        .split(" ")
-        .map((item, index) => ({ id: index + 1, field: item }));
+      dataArray = [{ id: 1, field: data.trim() }];
     }
     return dataArray;
   };
@@ -108,6 +115,11 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
     setIsNextClicked(true);
     setIsTaskClicked(false);
     setImportFields(convertToArrayOfObjects(importText));
+  };
+
+  // Adding file
+  const handleFileChange = (event: any) => {
+    setSelectedFile(event.target.files[0]);
   };
 
   //  Calling Import API
@@ -131,6 +143,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Task has been imported successfully.");
+          onDataFetch();
           handleClose();
         } else {
           const data = response.data.Message;
@@ -153,9 +166,83 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
     }
   };
 
-  // Adding file
-  const handleFileChange = (event: any) => {
-    setSelectedFile(event.target.files[0]);
+  //  Calling Import Excel API
+  const handleApplyImportExcel = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    if (selectedFile) {
+      try {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/workitem/importexcel`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            toast.success("Task has been imported successfully.");
+            handleClose();
+          } else if (response.data.ResponseStatus === "Warning") {
+            toast.warning(
+              `Valid Task has been imported and an Excel file ${response.data.ResponseData.FileDownloadName} has been downloaded for invalid tasks.`
+            );
+
+            const byteCharacters = atob(
+              response.data.ResponseData.FileContents
+            );
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+
+            const fileBlob = new Blob([byteArray], {
+              type: `${response.data.ResponseData.ContentType}`,
+            });
+
+            const fileURL = URL.createObjectURL(fileBlob);
+            const downloadLink = document.createElement("a");
+            downloadLink.href = fileURL;
+            downloadLink.setAttribute(
+              "download",
+              response.data.ResponseData.FileDownloadName
+            );
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            URL.revokeObjectURL(fileURL);
+
+            handleClose();
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Please try again later.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
   };
 
   return (
@@ -194,7 +281,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
               color="info"
               onClick={() => {
                 setIsExcelClicked(false);
-                setSelectedFile("");
+                setSelectedFile(null);
               }}
             >
               Back
@@ -256,13 +343,12 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
                 style={{ display: "none" }}
                 id="raised-button-file"
                 onChange={handleFileChange}
-                // multiple
                 type="file"
               />
               <label htmlFor="raised-button-file">
                 <Button
-                  variant="outlined"
                   component="span"
+                  variant="outlined"
                   className="w-full h-52 flex-col gap-[15px]"
                 >
                   <span className="border border-lightSilver rounded p-2">
@@ -284,7 +370,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
                 >
                   <div className="flex flex-col items-center gap-3">
                     <ExcelIcon />
-                    Import Excel
+                    <span className="text-darkCharcoal">Import Excel</span>
                   </div>
                 </div>
                 <div
@@ -293,7 +379,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
                 >
                   <div className="flex flex-col items-center gap-3">
                     <FileIcon />
-                    Import Task
+                    <span className="text-darkCharcoal">Import Task</span>
                   </div>
                 </div>
               </div>
@@ -323,9 +409,10 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
             </Button>
           ) : isExcelClicked ? (
             <Button
-              className={`${selectedFile === "" ? "" : "!bg-secondary"}`}
+              className={`${!selectedFile ? "" : "!bg-secondary"}`}
               variant="contained"
-              disabled={selectedFile === ""}
+              disabled={!selectedFile}
+              onClick={handleApplyImportExcel}
             >
               Upload
             </Button>

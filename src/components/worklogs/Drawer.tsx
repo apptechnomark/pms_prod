@@ -7,11 +7,9 @@ import BellIcon from "@/assets/icons/BellIcon";
 import ClockIcon from "@/assets/icons/ClockIcon";
 import CheckListIcon from "../../assets/icons/CheckListIcon";
 import CommentsIcon from "../../assets/icons/CommentsIcon";
-import FileIcon from "../../assets/icons/worklogs/FileIcon";
 import SendIcon from "../../assets/icons/worklogs/SendIcon";
 import AddIcon from "../../assets/icons/worklogs/AddIcon";
 import RemoveIcon from "../../assets/icons/worklogs/RemoveIcon";
-import ThreeDotIcon from "../../assets/icons/worklogs/ThreeDotIcon";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -35,7 +33,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Close, Save } from "@mui/icons-material";
+import { Close, Download, Save } from "@mui/icons-material";
 import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -62,6 +60,7 @@ import {
   months,
 } from "@/utils/commonDropdownApiCall";
 import ImageUploader from "../common/ImageUploader";
+import { getFileFromBlob } from "@/utils/downloadFile";
 
 const EditDrawer = ({
   onOpen,
@@ -593,8 +592,6 @@ const EditDrawer = ({
   const [remarkErr, setRemarkErr] = useState([false]);
   const [attachmentsErr, setAttachmentsErr] = useState([false]);
   const [deletedErrorLog, setDeletedErrorLog] = useState<any>([]);
-  const [systemFileNameUpload, setSystemFileNameUpload] = useState("");
-  const [originalFileNameUpload, setOriginalFileNameUpload] = useState("");
 
   const handleRootCauseChange = (e: any, index: number) => {
     const newFields = [...errorLogFields];
@@ -651,11 +648,6 @@ const EditDrawer = ({
     const newErrors = [...attachmentsErr];
     newErrors[index] = e.target.value.trim().length <= 0;
     setAttachmentsErr(newErrors);
-  };
-
-  const handlePopoverClose = () => {
-    setSystemFileNameUpload("");
-    setOriginalFileNameUpload("");
   };
 
   const handleCheckboxChange = async (
@@ -2641,10 +2633,6 @@ const EditDrawer = ({
   const [commentAttachmentsErr, setCommentAttachmentsErr] = useState(false);
   const [commentEditAttachmentsErr, setEditCommentAttachmentsErr] =
     useState(false);
-  const [commentSystemFileNameUpload, setCommentSystemFileNameUpload] =
-    useState("");
-  const [commentOriginalFileNameUpload, setCommentOriginalFileNameUpload] =
-    useState("");
 
   const users =
     assigneeDropdownData?.length > 0 &&
@@ -2784,11 +2772,6 @@ const EditDrawer = ({
         commentAttachment.UserFileName?.trim().length <= 0 ||
           commentAttachment.SystemFileName?.trim().length <= 0
       );
-  };
-
-  const handleCommentPopoverClose = () => {
-    setCommentSystemFileNameUpload("");
-    setCommentOriginalFileNameUpload("");
   };
 
   const handleSubmitComment = async (
@@ -3032,8 +3015,6 @@ const EditDrawer = ({
     setRemarkErr([false]);
     setAttachmentsErr([false]);
     setDeletedErrorLog([]);
-    setSystemFileNameUpload("");
-    setOriginalFileNameUpload("");
 
     // Comments
     setCommentData([]);
@@ -3055,8 +3036,6 @@ const EditDrawer = ({
     setEditingCommentIndex(-1);
     setCommentAttachmentsErr(false);
     setEditCommentAttachmentsErr(false);
-    setCommentSystemFileNameUpload("");
-    setCommentOriginalFileNameUpload("");
 
     // Reviewer note
     setReviewerNoteData([]);
@@ -4430,47 +4409,30 @@ const EditDrawer = ({
                                                   commentAttachment
                                                 )
                                               }
-                                              systemFile={
-                                                commentSystemFileNameUpload.length >
-                                                  0 &&
-                                                commentSystemFileNameUpload
-                                              }
-                                              originalFile={
-                                                commentOriginalFileNameUpload.length >
-                                                  0 &&
-                                                commentOriginalFileNameUpload
-                                              }
-                                              isOpen={
-                                                commentSystemFileNameUpload ===
-                                                commentAttachment[0]
-                                                  ?.SystemFileName
-                                                  ? true
-                                                  : false
-                                              }
-                                              onHandlePopoverClose={
-                                                handleCommentPopoverClose
-                                              }
                                               isDisable={false}
                                             />
                                           </div>
                                         </div>
                                         {commentAttachment[0]?.SystemFileName
                                           .length > 0 && (
-                                          <span
-                                            onClick={() => {
-                                              setCommentSystemFileNameUpload(
-                                                commentAttachment[0]
-                                                  ?.SystemFileName
-                                              );
-                                              setCommentOriginalFileNameUpload(
+                                          <div className="flex items-center justify-center gap-2">
+                                            <span className="ml-2 cursor-pointer">
+                                              {
                                                 commentAttachment[0]
                                                   ?.UserFileName
-                                              );
-                                            }}
-                                            className="text-[14px] ml-2"
-                                          >
-                                            {commentAttachment[0]?.UserFileName}
-                                          </span>
+                                              }
+                                            </span>
+                                            <span
+                                              onClick={() =>
+                                                getFileFromBlob(
+                                                  commentAttachment[0]
+                                                    ?.SystemFileName
+                                                )
+                                              }
+                                            >
+                                              <Download />
+                                            </span>
+                                          </div>
                                         )}
                                       </div>
                                       <div className="flex flex-col">
@@ -4532,19 +4494,20 @@ const EditDrawer = ({
                                     </div>
                                     {i.Attachment[0]?.SystemFileName.length >
                                       0 && (
-                                      <span
-                                        onClick={() => {
-                                          setCommentSystemFileNameUpload(
-                                            i.Attachment[0]?.SystemFileName
-                                          );
-                                          setCommentOriginalFileNameUpload(
-                                            i.Attachment[0]?.UserFileName
-                                          );
-                                        }}
-                                        className="text-[14px] ml-2"
-                                      >
-                                        {i.Attachment[0]?.UserFileName}
-                                      </span>
+                                      <div className="flex items-center justify-center gap-2">
+                                        <span className="ml-2 cursor-pointer">
+                                          {i.Attachment[0]?.UserFileName}
+                                        </span>
+                                        <span
+                                          onClick={() =>
+                                            getFileFromBlob(
+                                              i.Attachment[0]?.SystemFileName
+                                            )
+                                          }
+                                        >
+                                          <Download />
+                                        </span>
+                                      </div>
                                     )}
                                     {userId === i.UserId &&
                                       hasPermissionWorklog(
@@ -4615,21 +4578,6 @@ const EditDrawer = ({
                                     commentAttachment
                                   )
                                 }
-                                systemFile={
-                                  commentSystemFileNameUpload.length > 0 &&
-                                  commentSystemFileNameUpload
-                                }
-                                originalFile={
-                                  commentOriginalFileNameUpload.length > 0 &&
-                                  commentOriginalFileNameUpload
-                                }
-                                isOpen={
-                                  commentSystemFileNameUpload ===
-                                  commentAttachment[0]?.SystemFileName
-                                    ? true
-                                    : false
-                                }
-                                onHandlePopoverClose={handleCommentPopoverClose}
                                 isDisable={false}
                               />
                             </div>
@@ -4671,19 +4619,21 @@ const EditDrawer = ({
                           </div>
                           {commentAttachment[0].AttachmentId === 0 &&
                             commentAttachment[0]?.SystemFileName.length > 0 && (
-                              <span
-                                onClick={() => {
-                                  setCommentSystemFileNameUpload(
-                                    commentAttachment[0]?.SystemFileName
-                                  );
-                                  setCommentOriginalFileNameUpload(
-                                    commentAttachment[0]?.UserFileName
-                                  );
-                                }}
-                                className="mt-3 mb-6 mr-8"
-                              >
-                                {commentAttachment[0]?.UserFileName}
-                              </span>
+                              <div className="flex items-center justify-center gap-2 mr-6">
+                                <span className="mt-6 ml-2 cursor-pointer">
+                                  {commentAttachment[0]?.UserFileName}
+                                </span>
+                                <span
+                                  className="mt-6"
+                                  onClick={() =>
+                                    getFileFromBlob(
+                                      commentAttachment[0]?.SystemFileName
+                                    )
+                                  }
+                                >
+                                  <Download />
+                                </span>
+                              </div>
                             )}
                         </div>
                       </>
@@ -5891,39 +5841,24 @@ const EditDrawer = ({
                                 />
                                 <div className="flex flex-col">
                                   <div className="flex">
-                                    <ImageUploader
-                                      systemFile={
-                                        systemFileNameUpload.length > 0 &&
-                                        systemFileNameUpload
-                                      }
-                                      originalFile={
-                                        originalFileNameUpload.length > 0 &&
-                                        originalFileNameUpload
-                                      }
-                                      isOpen={
-                                        systemFileNameUpload ===
-                                        i.Attachments[0]?.SystemFileName
-                                          ? true
-                                          : false
-                                      }
-                                      onHandlePopoverClose={handlePopoverClose}
-                                      isDisable={true}
-                                    />
+                                    <ImageUploader isDisable={true} />
                                     {i.Attachments[0]?.SystemFileName.length >
                                       0 && (
-                                      <span
-                                        onClick={() => {
-                                          setSystemFileNameUpload(
-                                            i.Attachments[0]?.SystemFileName
-                                          );
-                                          setOriginalFileNameUpload(
-                                            i.Attachments[0]?.UserFileName
-                                          );
-                                        }}
-                                        className="mt-6 ml-2"
-                                      >
-                                        {i.Attachments[0]?.UserFileName}
-                                      </span>
+                                      <div className="flex items-center justify-center gap-2">
+                                        <span className="mt-6 ml-2 cursor-pointer">
+                                          {i.Attachments[0]?.UserFileName}
+                                        </span>
+                                        <span
+                                          className="mt-6"
+                                          onClick={() =>
+                                            getFileFromBlob(
+                                              i.Attachments[0]?.SystemFileName
+                                            )
+                                          }
+                                        >
+                                          <Download />
+                                        </span>
+                                      </div>
                                     )}
                                   </div>
                                 </div>

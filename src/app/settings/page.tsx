@@ -944,7 +944,7 @@ const page = () => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `${filename}.xlsx`; // Set the filename dynamically
+        a.download = `${filename}.xlsx`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);

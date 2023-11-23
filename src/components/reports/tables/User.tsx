@@ -38,7 +38,7 @@ const getMuiTheme = () =>
     },
   });
 
-const User = ({ filteredData, onUserSearchData }: any) => {
+const User = ({ filteredData, searchValue }: any) => {
   const [dates, setDates] = useState<any>([]);
   const [page, setPage] = useState<number>(0);
   const [userData, setUserData] = useState<any>([]);
@@ -85,15 +85,6 @@ const User = ({ filteredData, onUserSearchData }: any) => {
     }
   };
 
-  // setting data from search
-  useEffect(() => {
-    if (onUserSearchData) {
-      setUserData(onUserSearchData);
-    } else {
-      getData(user_InitialFilter);
-    }
-  }, [onUserSearchData]);
-
   // functions for handling pagination
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -122,15 +113,19 @@ const User = ({ filteredData, onUserSearchData }: any) => {
 
   useEffect(() => {
     if (filteredData !== null) {
-      getData(filteredData);
+      getData({ ...filteredData, globalSearch: searchValue });
+      setPage(0);
+      setRowsPerPage(10);
       setDates(
         getDates(
           filteredData.startDate === null ? "" : filteredData.startDate,
           filteredData.endDate === null ? "" : filteredData.endDate
         )
       );
+    } else {
+      getData({ ...user_InitialFilter, globalSearch: searchValue });
     }
-  }, [filteredData]);
+  }, [filteredData, searchValue]);
 
   const isWeekend = (date: any) => {
     const day = dayjs(date).day();
@@ -202,7 +197,8 @@ const User = ({ filteredData, onUserSearchData }: any) => {
                         color: getColor(
                           value.filter(
                             (v: any) => v.LogDate.split("T")[0] === date
-                          )[0].AttendanceColor
+                          )[0].AttendanceColor,
+                          true
                         ),
                       }}
                     >
@@ -324,7 +320,7 @@ const User = ({ filteredData, onUserSearchData }: any) => {
           <span className="text-sm font-normal capitalize">absent</span>
         </div>
         <div className="my-4 flex gap-2 items-center">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#FFC107]"></span>
+          <span className="h-2.5 w-2.5 rounded-full bg-secondary"></span>
           <span className="text-sm font-normal capitalize">half day</span>
         </div>
         <div className="my-4 flex gap-2 items-center">

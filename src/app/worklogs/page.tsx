@@ -2,18 +2,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
-import DrawerOverlay from "@/components/settings/drawer/DrawerOverlay";
-import Datatable from "@/components/worklogs/Datatable";
-import Drawer from "@/components/worklogs/Drawer";
-import FilterDialog from "@/components/worklogs/FilterDialog";
-import Navbar from "@/components/common/Navbar";
-import Wrapper from "@/components/common/Wrapper";
 // Icons
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import ImportIcon from "@/assets/icons/ImportIcon";
+import { Delete, Edit } from "@mui/icons-material";
+
 // Material Import
 import {
   Button,
@@ -24,13 +22,18 @@ import {
   styled,
   InputBase,
 } from "@mui/material";
-import { Delete, Edit } from "@mui/icons-material";
-import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+
+// Internal components
+import DrawerOverlay from "@/components/settings/drawer/DrawerOverlay";
+import Datatable from "@/components/worklogs/Datatable";
+import Drawer from "@/components/worklogs/Drawer";
+import FilterDialog from "@/components/worklogs/FilterDialog";
+import Navbar from "@/components/common/Navbar";
+import Wrapper from "@/components/common/Wrapper";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import SearchIcon from "@/assets/icons/SearchIcon";
-import { useRouter } from "next/navigation";
 import UnassigneeDatatable from "@/components/worklogs/UnassigneeDatatable";
 import UnassigneeFilterDialog from "@/components/worklogs/UnassigneeFilterDialog";
 import ImportDialog from "@/components/worklogs/worklogs_Import/ImportDialog";
@@ -418,7 +421,7 @@ const page = () => {
                     horizontal: "right",
                   }}
                 >
-                  <div className="flex flex-col py-2 w-[200px]">
+                  <div className="flex flex-col py-2 w-[250px]">
                     <span
                       className="p-2 cursor-pointer hover:bg-lightGray"
                       onClick={() => {
@@ -433,7 +436,7 @@ const page = () => {
 
                     <span className="py-3 px-2 relative">
                       <InputBase
-                        className="border-b border-b-slatyGrey"
+                        className="pr-7 border-b border-b-slatyGrey w-full"
                         placeholder="Search saved filters"
                         inputProps={{ "aria-label": "search" }}
                         value={searchValue}
@@ -638,6 +641,7 @@ const page = () => {
       <ImportDialog
         onOpen={isImportOpen}
         onClose={() => setIsImportOpen(false)}
+        onDataFetch={dataFunction}
       />
 
       {/* Delete Dialog Box */}
