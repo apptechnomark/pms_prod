@@ -2,10 +2,14 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import axios from "axios";
-import { Box, Button, CircularProgress, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
+
+//custom common components
 import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
+
+//mui components
+import { Button, TextField } from "@mui/material";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 
 //toast
@@ -20,7 +24,7 @@ import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import SearchIcon from "@/assets/icons/SearchIcon";
 
-// Tabs components
+//Tabs components
 import Client from "@/components/reports/tables/Client";
 import Project from "@/components/reports/tables/Project";
 import User from "@/components/reports/tables/User";
@@ -31,11 +35,12 @@ import Audit from "@/components/reports/tables/Audit";
 import BillingReport from "@/components/reports/tables/BillingReport";
 import CustomReport from "@/components/reports/tables/CustomReport";
 
-// common functions
-import { getCurrentTabDetails } from "@/utils/reports/getFilters";
+//common functions
 import { hasPermissionWorklog } from "@/utils/commonFunction";
+import { haveSameData } from "@/utils/reports/commonFunctions";
+import { getCurrentTabDetails } from "@/utils/reports/getFilters";
 
-// filter body for reports
+//filter body for reports
 import { client_project_InitialFilter } from "@/utils/reports/getFilters";
 import { user_InitialFilter } from "@/utils/reports/getFilters";
 import { timeSheet_InitialFilter } from "@/utils/reports/getFilters";
@@ -80,7 +85,6 @@ const page = () => {
   const [activeTabs, setActiveTabs] = useState<any[]>(primaryTabs);
   const [moreTabs, setMoreTabs] = useState<any[]>(secondaryTabs);
   const [activeTab, setActiveTab] = useState<number>(1);
-  const [lastTab, setLastTab] = useState<string>("billing report");
   const [showMoreTabs, setShowMoreTabs] = useState<boolean>(false);
   const [isFiltering, setIsFiltering] = useState<boolean>(false);
   const [filteredData, setFilteredData] = useState<any>(null);
@@ -151,13 +155,11 @@ const page = () => {
             hasPermissionWorklog(tab.label, "view", "report") ? tab : false
           )
         );
-
         setMoreTabs(
           secondaryTabs.map((tab: any) =>
             hasPermissionWorklog(tab.label, "view", "report") ? tab : false
           )
         );
-
         setActiveTab(
           primaryTabs
             .map((tab: any) =>
@@ -826,7 +828,7 @@ const page = () => {
               </div>
             )}
 
-            {activeTab === 8 && (
+            {activeTab === 8 && filteredData !== null && (
               <div className="flex items-center relative">
                 <TextField
                   placeholder="Search"
@@ -867,13 +869,15 @@ const page = () => {
                 isExporting ? "cursor-default" : "cursor-pointer"
               } ${
                 getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
-                filteredData === null
+                (filteredData === null ||
+                  haveSameData(customreport_InitialFilter, filteredData))
                   ? "opacity-50 pointer-events-none"
                   : ""
               }`}
               onClick={
                 getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
-                filteredData === null
+                (filteredData === null ||
+                  haveSameData(customreport_InitialFilter, filteredData))
                   ? undefined
                   : handleExport
               }
@@ -956,6 +960,7 @@ const page = () => {
         {activeTab === 8 && (
           <CustomReport
             filteredData={filteredData}
+            searchValue={customReportSearchValue}
             onCustomReportSearchData={customReportSearchData}
           />
         )}

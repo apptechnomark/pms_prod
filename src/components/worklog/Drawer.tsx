@@ -2248,7 +2248,7 @@ const Drawer = ({
                                         : false
                                     }
                                     onHandlePopoverClose={handlePopoverClose}
-                                    isDisable={false}
+                                    isDisable={field.isSolved}
                                   />
                                   {field.Attachments[0]?.SystemFileName.length >
                                     0 && (
@@ -2313,7 +2313,7 @@ const Drawer = ({
                               {field.isSolved && (
                                 <FormGroup>
                                   <FormControlLabel
-                                    className="mt-5"
+                                    className="mt-4 ml-2"
                                     control={
                                       <Checkbox checked={field.isSolved} />
                                     }

@@ -92,6 +92,7 @@ const Datatable_OverallProjectSummary: React.FC<OverallProjectSummaryProps> = ({
           if (response.status === 200) {
             if (response.data.ResponseStatus === "Success") {
               setData(response.data.ResponseData.List);
+              setTableDataCount(response.data.ResponseData.TotalCount);
             } else {
               const data = response.data.Message;
               if (data === null) {

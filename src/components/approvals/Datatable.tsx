@@ -752,7 +752,7 @@ const Datatable = ({
     // adding all selected Ids in an array
     const selectedWorkItemIds: any =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.WorkitemId)
+        ? selectedData.map((selectedRow: any) => selectedRow?.WorkitemId)
         : [];
 
     setSelectedWorkItemIds(selectedWorkItemIds);
@@ -760,21 +760,21 @@ const Datatable = ({
     // adding selected workItem Id
     const workitem =
       selectedData.length > 0
-        ? selectedData[selectedData.length - 1].WorkitemId
+        ? selectedData[selectedData.length - 1]?.WorkitemId
         : null;
     setWorkitemId(workitem);
 
     // adding selected workItem Id
     const Id =
       selectedData.length > 0
-        ? selectedData[selectedData.length - 1].SubmissionId
+        ? selectedData[selectedData.length - 1]?.SubmissionId
         : null;
     setId(Id);
 
     // adding all selected Ids in an array
     const selectedSubmissionIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.SubmissionId)
+        ? selectedData?.map((selectedRow: any) => selectedRow?.SubmissionId)
         : [];
 
     setSelectedRowIds(selectedSubmissionIds);
@@ -782,7 +782,7 @@ const Datatable = ({
     // adding all selected row's Client Ids in an array
     const selectedWorkItemClientIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.ClientId)
+        ? selectedData?.map((selectedRow: any) => selectedRow?.ClientId)
         : [];
 
     setSelectedRowClientId(selectedWorkItemClientIds);
@@ -790,7 +790,7 @@ const Datatable = ({
     // adding all selected row's WorkType Ids in an array
     const selectedWorkItemWorkTypeIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.WorkTypeId)
+        ? selectedData?.map((selectedRow: any) => selectedRow?.WorkTypeId)
         : [];
 
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
@@ -798,7 +798,7 @@ const Datatable = ({
     // adding all selected row's status Ids in an array
     const selectedWorkItemStatusIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.StatusId)
+        ? selectedData?.map((selectedRow: any) => selectedRow?.StatusId)
         : [];
 
     setSelectedRowStatusId(selectedWorkItemStatusIds);

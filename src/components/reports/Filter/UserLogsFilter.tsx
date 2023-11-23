@@ -110,11 +110,7 @@ const UserLogsFilter = ({
       departmentId: dept === 0 || dept === "" ? null : dept,
       dateFilter: dateFilter === null || dateFilter === "" ? null : dateFilter,
       isLoggedInFilter:
-        isloggedIn === defaultLoggedValue
-          ? null
-          : isloggedIn === isLoggedIn
-          ? 1
-          : 0,
+        isloggedIn === isLoggedIn ? 1 : isloggedIn === isLoggedOut ? 0 : null,
     });
 
     onDialogClose(false);
@@ -155,11 +151,11 @@ const UserLogsFilter = ({
             dateFilter:
               dateFilter === null || dateFilter === "" ? null : dateFilter,
             isLoggedInFilter:
-              isloggedIn === defaultLoggedValue
-                ? null
-                : isloggedIn === isLoggedIn
+              isloggedIn === isLoggedIn
                 ? 1
-                : 0,
+                : isloggedIn === isLoggedOut
+                ? 0
+                : null,
           },
           type: user,
         },

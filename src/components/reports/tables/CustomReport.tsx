@@ -7,6 +7,7 @@ import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
 import { options } from "./Options/Options";
 import { customreport_InitialFilter } from "@/utils/reports/getFilters";
+import { haveSameData } from "@/utils/reports/commonFunctions";
 
 const getMuiTheme = () =>
   createTheme({
@@ -31,30 +32,24 @@ const getMuiTheme = () =>
     },
   });
 
-const haveSameData = function (obj1: any, obj2: any) {
-  const obj1Length = Object.keys(obj1).length;
-  const obj2Length = Object.keys(obj2).length;
-
-  if (obj1Length === obj2Length) {
-    return Object.keys(obj1).every(
-      (key) => obj2.hasOwnProperty(key) && obj2[key] === obj1[key]
-    );
-  }
-  return false;
-};
-
-const CustomReport = ({ filteredData, onCustomReportSearchData }: any) => {
+const CustomReport = ({
+  filteredData,
+  onCustomReportSearchData,
+  searchValue,
+}: any) => {
   const [page, setPage] = useState<number>(0);
   const [customReportData, setCustomReportData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
 
+  console.log(searchValue);
+
   // getting Custom Report Data by search
   useEffect(() => {
     if (onCustomReportSearchData) {
-      setCustomReportData(onCustomReportSearchData);
-    } else {
-      getData(customreport_InitialFilter);
+      if (haveSameData(customReportData, customreport_InitialFilter)) {
+        // setCustomReportData(onCustomReportSearchData);
+      }
     }
   }, [onCustomReportSearchData]);
 
@@ -137,10 +132,10 @@ const CustomReport = ({ filteredData, onCustomReportSearchData }: any) => {
         setCustomReportData([]);
         setTableDataCount(0);
       } else {
-        getData(filteredData);
+        getData({ ...filteredData, globalSearch: searchValue });
       }
     }
-  }, [filteredData]);
+  }, [filteredData, searchValue]);
 
   const columns: any[] = [
     {

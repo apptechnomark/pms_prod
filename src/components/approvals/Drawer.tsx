@@ -629,7 +629,15 @@ const EditDrawer = ({
       scrollToPanel(isManual === null || isManual === true ? 6 : 5);
     }
     onComment === true ? scrollToPanel(3) : scrollToPanel(0);
-    onErrorLog === true ? scrollToPanel(6) : scrollToPanel(0);
+    onErrorLog === true
+      ? scrollToPanel(
+          isManual === null || isManual === true
+            ? 8
+            : isPartiallySubmitted
+            ? 8
+            : 7
+        )
+      : scrollToPanel(0);
   }, [onEdit, onComment, onErrorLog]);
 
   const handleTabClick = (index: number) => {
