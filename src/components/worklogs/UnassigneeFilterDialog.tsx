@@ -32,11 +32,11 @@ const Transition = React.forwardRef(function Transition(
 const initialFilter = {
   ClientId: null,
   TypeOfWork: null,
-  ProjectId: null,
-  DueDate: null,
-  StartDate: null,
-  EndDate: null,
-  Priority: null,
+  // ProjectId: null,
+  // DueDate: null,
+  // StartDate: null,
+  // EndDate: null,
+  // Priority: null,
 };
 
 const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
@@ -46,16 +46,16 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
 }) => {
   // Dropdown Data
   const [clientDropdownData, setClientDropdownData] = useState([]);
-  const [projectDropdownData, setProjectDropdownData] = useState([]);
+  // const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState([]);
 
   const [clientName, setClientName] = useState<any>(0);
-  const [project, setProject] = useState<any>(0);
+  // const [project, setProject] = useState<any>(0);
   const [typeOfWork, setTypeOfWork] = useState<any>(0);
-  const [dueDate, setDueDate] = useState<null | string>(null);
-  const [startDate, setStartDate] = useState<null | string>(null);
-  const [endDate, setEndDate] = useState<null | string>(null);
-  const [priority, setPriority] = useState<any>(0);
+  // const [dueDate, setDueDate] = useState<null | string>(null);
+  // const [startDate, setStartDate] = useState<null | string>(null);
+  // const [endDate, setEndDate] = useState<null | string>(null);
+  // const [priority, setPriority] = useState<any>(0);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
 
@@ -66,12 +66,12 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
 
   const handleResetAll = () => {
     setClientName(0);
-    setProject(0);
+    // setProject(0);
     setTypeOfWork(0);
-    setDueDate(null);
-    setStartDate(null);
-    setEndDate(null);
-    setPriority(0);
+    // setDueDate(null);
+    // setStartDate(null);
+    // setEndDate(null);
+    // setPriority(0);
     currentFilterData(initialFilter);
   };
 
@@ -79,43 +79,48 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
   useEffect(() => {
     const isAnyFieldSelected =
       clientName !== 0 ||
-      project !== 0 ||
-      typeOfWork !== 0 ||
-      dueDate !== null ||
-      startDate !== null ||
-      endDate !== null ||
-      priority !== 0;
+      // project !== 0 ||
+      typeOfWork !== 0 
+      // ||
+      // dueDate !== null ||
+      // startDate !== null ||
+      // endDate !== null ||
+      // priority !== 0;
 
     setAnyFieldSelected(isAnyFieldSelected);
-  }, [clientName, project, typeOfWork, dueDate, startDate, endDate, priority]);
+  }, [clientName, typeOfWork,
+    //  project, dueDate, startDate, endDate, priority
+    ]);
 
   useEffect(() => {
     const selectedFields = {
       ClientId: clientName || null,
-      ProjectId: project === 0 ? null : project,
+      // ProjectId: project === 0 ? null : project,
       TypeOfWork: typeOfWork || null,
-      DueDate:
-        dueDate !== null
-          ? new Date(
-              new Date(dueDate).getTime() + 24 * 60 * 60 * 1000
-            ).toISOString()
-          : null,
-      StartDate:
-        startDate !== null
-          ? new Date(
-              new Date(startDate).getTime() + 24 * 60 * 60 * 1000
-            ).toISOString()
-          : null,
-      EndDate:
-        endDate !== null
-          ? new Date(
-              new Date(endDate).getTime() + 24 * 60 * 60 * 1000
-            ).toISOString()
-          : null,
-      Priority: priority === 0 ? null : priority,
+      // DueDate:
+      //   dueDate !== null
+      //     ? new Date(
+      //         new Date(dueDate).getTime() + 24 * 60 * 60 * 1000
+      //       ).toISOString()
+      //     : null,
+      // StartDate:
+      //   startDate !== null
+      //     ? new Date(
+      //         new Date(startDate).getTime() + 24 * 60 * 60 * 1000
+      //       ).toISOString()
+      //     : null,
+      // EndDate:
+      //   endDate !== null
+      //     ? new Date(
+      //         new Date(endDate).getTime() + 24 * 60 * 60 * 1000
+      //       ).toISOString()
+      //     : null,
+      // Priority: priority === 0 ? null : priority,
     };
     setCurrSelectedFileds(selectedFields);
-  }, [clientName, project, typeOfWork, dueDate, startDate, endDate, priority]);
+  }, [clientName, typeOfWork, 
+    // project, dueDate, startDate, endDate, priority
+  ]);
 
   const sendFilterToPage = () => {
     currentFilterData(currSelectedFields);
@@ -201,46 +206,46 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
     }
   };
 
-  const getProjectData = async (clientName: string | number) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/project/getdropdown`,
-        {
-          clientId: clientName ? clientName : 0,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
+  // const getProjectData = async (clientName: string | number) => {
+  //   const token = await localStorage.getItem("token");
+  //   const Org_Token = await localStorage.getItem("Org_Token");
+  //   try {
+  //     const response = await axios.post(
+  //       `${process.env.pms_api_url}/project/getdropdown`,
+  //       {
+  //         clientId: clientName ? clientName : 0,
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `bearer ${token}`,
+  //           org_token: `${Org_Token}`,
+  //         },
+  //       }
+  //     );
 
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setProjectDropdownData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  //     if (response.status === 200) {
+  //       if (response.data.ResponseStatus === "Success") {
+  //         setProjectDropdownData(response.data.ResponseData.List);
+  //       } else {
+  //         const data = response.data.Message;
+  //         if (data === null) {
+  //           toast.error("Please try again later.");
+  //         } else {
+  //           toast.error(data);
+  //         }
+  //       }
+  //     } else {
+  //       const data = response.data.Message;
+  //       if (data === null) {
+  //         toast.error("Please try again.");
+  //       } else {
+  //         toast.error(data);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
   useEffect(() => {
     if (onOpen === true) {
@@ -250,7 +255,7 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
 
   useEffect(() => {
     getWorkTypeData(clientName);
-    getProjectData(clientName);
+    // getProjectData(clientName);
   }, [clientName]);
 
   const isWeekend = (date: any) => {
@@ -284,7 +289,7 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
                   value={clientName === 0 ? "" : clientName}
                   onChange={(e) => {
                     setClientName(e.target.value);
-                    setProject(0);
+                    // setProject(0);
                   }}
                 >
                   {clientDropdownData.map((i: any, index: number) => (
@@ -311,7 +316,7 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
                 </Select>
               </FormControl>
 
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
+              {/* <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
                 <InputLabel id="project_Name">Project Name</InputLabel>
                 <Select
                   labelId="project_Name"
@@ -325,10 +330,10 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
                     </MenuItem>
                   ))}
                 </Select>
-              </FormControl>
+              </FormControl> */}
             </div>
 
-            <div className="flex gap-[20px]">
+            {/* <div className="flex gap-[20px]">
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
                 <InputLabel id="demo-simple-select-standard-label">
                   Priority
@@ -385,9 +390,9 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
                   />
                 </LocalizationProvider>
               </div>
-            </div>
+            </div> */}
 
-            <div className="flex gap-[20px]">
+            {/* <div className="flex gap-[20px]">
               <div
                 className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
               >
@@ -408,7 +413,7 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
                   />
                 </LocalizationProvider>
               </div>
-            </div>
+            </div> */}
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">

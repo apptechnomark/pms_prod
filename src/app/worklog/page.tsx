@@ -29,7 +29,7 @@ import ImportIcon from "@/assets/icons/ImportIcon";
 import axios from "axios";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
-import ImportDialog from "@/components/worklog/Import/ImportDialog";
+import ImportDialog from "@/components/worklog/worklog_Import/ImportDialog";
 
 const Worklog = () => {
   const router = useRouter();

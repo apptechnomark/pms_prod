@@ -103,12 +103,26 @@ const UserLogsFilter = ({
     setError("");
   };
 
+  const getFormattedDate = (newValue: any) => {
+    if (newValue !== "") {
+      return `${newValue.$y}-${
+        (newValue.$M + 1).toString().length > 1
+          ? newValue.$M + 1
+          : `0${newValue.$M + 1}`
+      }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+    }
+  };
+
   const handleFilterApply = () => {
     sendFilterToPage({
       ...userLogs_InitialFilter,
       users: userNames,
       departmentId: dept === 0 || dept === "" ? null : dept,
-      dateFilter: dateFilter === null || dateFilter === "" ? null : dateFilter,
+      // dateFilter: dateFilter === null || dateFilter === "" ? null : dateFilter,
+      dateFilter:
+        dateFilter === null || dateFilter.toString().trim().length <= 0
+          ? null
+          : getFormattedDate(dateFilter),
       isLoggedInFilter:
         isloggedIn === isLoggedIn ? 1 : isloggedIn === isLoggedOut ? 0 : null,
     });
@@ -148,8 +162,12 @@ const UserLogsFilter = ({
           AppliedFilter: {
             users: userNames.length > 0 ? userNames : [],
             Department: dept === 0 ? null : dept,
+            // dateFilter:
+            //   dateFilter === null || dateFilter === "" ? null : dateFilter,
             dateFilter:
-              dateFilter === null || dateFilter === "" ? null : dateFilter,
+              dateFilter === null || dateFilter.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(dateFilter),
             isLoggedInFilter:
               isloggedIn === isLoggedIn
                 ? 1

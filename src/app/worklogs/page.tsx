@@ -33,7 +33,7 @@ import SearchIcon from "@/assets/icons/SearchIcon";
 import { useRouter } from "next/navigation";
 import UnassigneeDatatable from "@/components/worklogs/UnassigneeDatatable";
 import UnassigneeFilterDialog from "@/components/worklogs/UnassigneeFilterDialog";
-import ImportDialog from "@/components/worklog/Import/ImportDialog";
+import ImportDialog from "@/components/worklogs/worklogs_Import/ImportDialog";
 
 const page = () => {
   const router = useRouter();

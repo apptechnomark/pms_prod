@@ -267,6 +267,7 @@ const Datatable = ({
         : [];
 
     setSelectedRowIds(selectedWorkItemIds);
+    console.log(selectedWorkItemIds);
 
     // adding only one or last selected id
     const lastSelectedWorkItemId =
