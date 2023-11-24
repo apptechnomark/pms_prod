@@ -5,11 +5,13 @@ const nextConfig = {
     pms_api_url: process.env.pms_api_url,
     worklog_api_url: process.env.worklog_api_url,
     report_api_url: process.env.report_api_url,
+    storageName: process.env.storageName,
+    attachment: process.env.attachment,
+    sasToken: process.env.sasToken,
   },
 };
 
 module.exports = nextConfig;
-
 
 // Injected content via Sentry wizard below
 
