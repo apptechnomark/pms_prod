@@ -3,19 +3,7 @@ import axios from "axios";
 import MUIDataTable from "mui-datatables";
 import { createTheme, styled, ThemeProvider } from "@mui/material/styles";
 import Popover from "@mui/material/Popover";
-import {
-  Avatar,
-  Button,
-  Card,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  InputBase,
-  List,
-  TextField,
-} from "@mui/material";
+import { Avatar, Card, InputBase, List } from "@mui/material";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import TablePagination from "@mui/material/TablePagination";
 import { toast } from "react-toastify";
@@ -25,16 +13,22 @@ import Assignee from "@/assets/icons/worklogs/Assignee";
 import Minus from "@/assets/icons/worklogs/Minus";
 import Priority from "@/assets/icons/worklogs/Priority";
 import DetectorStatus from "@/assets/icons/worklogs/DetectorStatus";
-import Delete from "@/assets/icons/worklogs/Delete";
-import ContentCopy from "@/assets/icons/worklogs/ContentCopy";
 import Recurring from "@/assets/icons/worklogs/Recurring";
 import Comments from "@/assets/icons/worklogs/Comments";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import EditIcon from "@/assets/icons/worklogs/EditIcon";
+import RecurringIcon from "@/assets/icons/worklogs/RecurringIcon";
+
 // Internal Component imports
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
-import { toHoursAndMinutes, toSeconds } from "@/utils/timerFunctions";
+import {
+  genrateCustomHeaderName,
+  generateCommonBodyRender,
+  generateCustomFormatDate,
+  generatePriorityWithColor,
+  generateStatusWithColor,
+} from "@/utils/datatable/CommonFunction";
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -760,11 +754,9 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Task ID</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Task ID"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -773,9 +765,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Client</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Client"),
         customBodyRender: (value: any, tableMeta: any) => {
           const IsHasErrorlog = tableMeta.rowData[17];
           return (
@@ -798,9 +788,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Project</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
         customBodyRender: (value: any, tableMeta: any) => {
           const IsRecurring = tableMeta.rowData[18];
           return (
@@ -808,18 +796,7 @@ const UnassigneeDatatable = ({
               {value === null || value === "" ? "-" : value}
               {IsRecurring && (
                 <span className="text-secondary font-semibold">
-                  <svg
-                    stroke="currentColor"
-                    fill="currentColor"
-                    strokeWidth="0"
-                    viewBox="0 0 24 24"
-                    height="20px"
-                    width="20px"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M12.14 2a10 10 0 1 0 10 10 10 10 0 0 0-10-10zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path>
-                    <path d="M16.14 10a3 3 0 0 0-3-3h-5v10h2v-4h1.46l2.67 4h2.4l-2.75-4.12A3 3 0 0 0 16.14 10zm-3 1h-3V9h3a1 1 0 0 1 0 2z"></path>
-                  </svg>
+                  <RecurringIcon />
                 </span>
               )}
             </div>
@@ -832,9 +809,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Process</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Process"),
         customBodyRender: (value: any) => {
           const shortProcessName = value.split(" ");
           return (
@@ -852,11 +827,9 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Sub Process</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Sub Process"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -871,9 +844,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Assigned To</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Assigned To"),
         customBodyRender: (value: any) => {
           return (
             <div>
@@ -890,43 +861,8 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Priority</span>
-        ),
-        customBodyRender: (value: any) => {
-          let isHighPriority;
-          let isMediumPriority;
-          let isLowPriority;
-
-          if (value) {
-            isHighPriority = value.toLowerCase() === "high";
-            isMediumPriority = value.toLowerCase() === "medium";
-            isLowPriority = value.toLowerCase() === "low";
-          }
-
-          return (
-            <div>
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <div className="inline-block mr-1">
-                  <div
-                    className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
-                      isHighPriority
-                        ? "bg-defaultRed"
-                        : isMediumPriority
-                        ? "bg-yellowColor"
-                        : isLowPriority
-                        ? "bg-primary"
-                        : "bg-lightSilver"
-                    }`}
-                  ></div>
-                  {value}
-                </div>
-              )}
-            </div>
-          );
-        },
+        customHeadLabelRender: () => genrateCustomHeaderName("Priority"),
+        customBodyRender: (value: any) => generatePriorityWithColor(value),
       },
     },
     {
@@ -942,27 +878,9 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Status</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          const statusColorCode = tableMeta.rowData[8];
-          return (
-            <div>
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <div className="inline-block mr-1">
-                  <div
-                    className="w-[10px] h-[10px] rounded-full inline-block mr-2"
-                    style={{ backgroundColor: statusColorCode }}
-                  ></div>
-                  {value}
-                </div>
-              )}
-            </div>
-          );
-        },
+        customHeadLabelRender: () => genrateCustomHeaderName("Status"),
+        customBodyRender: (value: any, tableMeta: any) =>
+          generateStatusWithColor(value, tableMeta.rowData[8]),
       },
     },
 
@@ -971,11 +889,9 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Est. Time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Est. Time"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -984,11 +900,9 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Qty.</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Qty."),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -997,11 +911,9 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Actual Time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Actual Time"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -1010,11 +922,9 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Total Time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Total Time"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -1023,23 +933,9 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Start Date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
         customBodyRender: (value: any) => {
-          if (value === null || value === "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },
@@ -1048,23 +944,9 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">End Date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("End Date"),
         customBodyRender: (value: any) => {
-          if (value === null || value === "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },
@@ -1073,11 +955,9 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Assigned By</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Assigned By"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },

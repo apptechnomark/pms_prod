@@ -4,6 +4,13 @@ import { toast } from "react-toastify";
 import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import TablePagination from "@mui/material/TablePagination";
+import {
+  genrateCustomHeaderName,
+  generateCommonBodyRender,
+  generateCustomFormatDate,
+  generatePriorityWithColor,
+  generateStatusWithColor,
+} from "@/utils/datatable/CommonFunction";
 
 interface TaskStatusInfoProps {
   onSelectedProjectIds: number[];
@@ -119,13 +126,9 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">Task Name</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Task Name"),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-2">{value === null || "" ? "-" : value}</div>
-          );
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -134,13 +137,9 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">Project Name</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Project Name"),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-2">{value === null || "" ? "-" : value}</div>
-          );
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -149,13 +148,9 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">Type of Work</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Type of Work"),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-2">{value === null || "" ? "-" : value}</div>
-          );
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -164,23 +159,9 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold">Start Date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
         customBodyRender: (value: any) => {
-          if (value === null || "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },
@@ -189,23 +170,9 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold">End Date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("End Date"),
         customBodyRender: (value: any) => {
-          if (value === null || "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },
@@ -214,23 +181,9 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold">Due Date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Due Date"),
         customBodyRender: (value: any) => {
-          if (value === null || "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },
@@ -239,28 +192,9 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">STATUS</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          const statusColorCode = tableMeta.rowData[9];
-
-          return (
-            <div>
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <div className="inline-block mr-1">
-                  <div
-                    className="w-[10px] h-[10px] rounded-full inline-block mr-2"
-                    style={{ backgroundColor: statusColorCode }}
-                  ></div>
-                  {value}
-                </div>
-              )}
-            </div>
-          );
-        },
+        customHeadLabelRender: () => genrateCustomHeaderName("Status"),
+        customBodyRender: (value: any, tableMeta: any) =>
+          generateStatusWithColor(value, tableMeta.rowData[9]),
       },
     },
     {
@@ -268,43 +202,8 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">PRIORITY</span>
-        ),
-        customBodyRender: (value: any) => {
-          let isHighPriority;
-          let isMediumPriority;
-          let isLowPriority;
-
-          if (value) {
-            isHighPriority = value.toLowerCase() === "high";
-            isMediumPriority = value.toLowerCase() === "medium";
-            isLowPriority = value.toLowerCase() === "low";
-          }
-
-          return (
-            <div>
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <div className="inline-block mr-1">
-                  <div
-                    className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
-                      isHighPriority
-                        ? "bg-defaultRed"
-                        : isMediumPriority
-                        ? "bg-yellowColor"
-                        : isLowPriority
-                        ? "bg-primary"
-                        : "bg-lightSilver"
-                    }`}
-                  ></div>
-                  {value}
-                </div>
-              )}
-            </div>
-          );
-        },
+        customHeadLabelRender: () => genrateCustomHeaderName("Priority"),
+        customBodyRender: (value: any) => generatePriorityWithColor(value),
       },
     },
     {
@@ -312,13 +211,9 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">Assigned To</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Assigned To"),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-2">{value === null || "" ? "-" : value}</div>
-          );
+          return generateCommonBodyRender(value);
         },
       },
     },

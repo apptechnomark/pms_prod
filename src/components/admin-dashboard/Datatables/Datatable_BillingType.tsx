@@ -4,6 +4,10 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
 import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
+import {
+  genrateCustomHeaderName,
+  generateCommonBodyRender,
+} from "@/utils/datatable/CommonFunction";
 
 interface BillingTypeProps {
   onSelectedWorkType: number;
@@ -135,13 +139,9 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Client Name</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Client Name"),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-2">{value === null || "" ? "-" : value}</div>
-          );
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -150,13 +150,9 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Type Of Work</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Type of Work"),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-2">{value === null || "" ? "-" : value}</div>
-          );
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -165,13 +161,9 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Billing Type</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Billing Type"),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-2">{value === null || "" ? "-" : value}</div>
-          );
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -180,9 +172,7 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Billing Type</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Status"),
         customBodyRender: (value: any) => {
           return (
             <div className="ml-2">
@@ -201,13 +191,10 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Contracted Hours</span>
-        ),
+        customHeadLabelRender: () =>
+          genrateCustomHeaderName("Contracted Hours"),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-2">{value === null || "" ? "-" : value}</div>
-          );
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -216,13 +203,9 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Internal Hours</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Internal Hours"),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-2">{value === null || "" ? "-" : value}</div>
-          );
+          return generateCommonBodyRender(value);
         },
       },
     },

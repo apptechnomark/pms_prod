@@ -45,6 +45,13 @@ import RestartButton from "@/assets/icons/worklogs/RestartButton";
 import ClockIcon from "@/assets/icons/ClockIcon";
 import Comments from "@/assets/icons/worklogs/Comments";
 import Assignee from "@/assets/icons/worklogs/Assignee";
+import {
+  genrateCustomHeaderName,
+  generateCommonBodyRender,
+  generateCustomFormatDate,
+  generatePriorityWithColor,
+  generateStatusWithColor,
+} from "@/utils/datatable/CommonFunction";
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -1163,11 +1170,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Task ID</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Task ID"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -1176,11 +1181,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Employees</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Employees"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -1190,11 +1193,9 @@ const Datatable = ({
         filter: true,
         sort: true,
         // display: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Task</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Task"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -1203,11 +1204,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Designation</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Designation"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -1216,9 +1215,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Est. Hours</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Est. Hours"),
         // converting time (Seconnds) into HH:MM:SS
         customBodyRender: (value: any) => {
           return <div>{value ? formatTime(value) : "00:00:00"}</div>;
@@ -1230,9 +1227,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Total Hrs</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Total Hrs"),
         // converting time (Seconnds) into HH:MM:SS
         customBodyRender: (value: any) => {
           return <div>{value ? formatTime(value) : "00:00:00"}</div>;
@@ -1245,9 +1240,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Review Timer</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Review Timer"),
         customBodyRender: (value: any, tableMeta: any) => {
           const timerValue =
             value === 0 ? "00:00:00" : toHoursAndMinutes(value);
@@ -1368,11 +1361,9 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Assigned To</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Assigned To"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -1382,43 +1373,8 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Priority</span>
-        ),
-        customBodyRender: (value: any) => {
-          let isHighPriority;
-          let isMediumPriority;
-          let isLowPriority;
-
-          if (value) {
-            isHighPriority = value.toLowerCase() === "high";
-            isMediumPriority = value.toLowerCase() === "medium";
-            isLowPriority = value.toLowerCase() === "low";
-          }
-
-          return (
-            <div>
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <div className="inline-block mr-1">
-                  <div
-                    className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
-                      isHighPriority
-                        ? "bg-defaultRed"
-                        : isMediumPriority
-                        ? "bg-yellowColor"
-                        : isLowPriority
-                        ? "bg-primary"
-                        : "bg-lightSilver"
-                    }`}
-                  ></div>
-                  {value}
-                </div>
-              )}
-            </div>
-          );
-        },
+        customHeadLabelRender: () => genrateCustomHeaderName("Priority"),
+        customBodyRender: (value: any) => generatePriorityWithColor(value),
       },
     },
     {
@@ -1436,27 +1392,9 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Status</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          const statusColorCode = tableMeta.rowData[8];
-          return (
-            <div>
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <div className="inline-block mr-1">
-                  <div
-                    className="w-[10px] h-[10px] rounded-full inline-block mr-2"
-                    style={{ backgroundColor: statusColorCode }}
-                  ></div>
-                  {value}
-                </div>
-              )}
-            </div>
-          );
-        },
+        customHeadLabelRender: () => genrateCustomHeaderName("Status"),
+        customBodyRender: (value: any, tableMeta: any) =>
+          generateStatusWithColor(value, tableMeta.rowData[8]),
       },
     },
     {
@@ -1464,11 +1402,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Client</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Client"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -1477,11 +1413,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Project</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -1490,9 +1424,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Process</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Process"),
         customBodyRender: (value: any) => {
           const shortProcessName = value && value.split(" ");
           return (
@@ -1514,11 +1446,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Sub Process</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Sub Process"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -1527,23 +1457,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Start Date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
         customBodyRender: (value: any) => {
-          if (value === null || value === "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },
@@ -1552,23 +1468,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">End Date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("End Date"),
         customBodyRender: (value: any) => {
-          if (value === null || value === "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },
@@ -1577,11 +1479,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Qty.</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Qty."),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -1590,9 +1490,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Edited Time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Edited Time"),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
           return <div>{value ? formatTime(value) : "00:00:00"}</div>;
         },
@@ -1603,9 +1501,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Is Manual</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Is Manual"),
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
           return <div>{value === true ? "Yes" : "No"}</div>;
         },
@@ -1617,11 +1513,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Manager</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Manager"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },

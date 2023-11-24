@@ -15,6 +15,13 @@ import { getDates } from "@/utils/timerFunctions";
 import { getColor } from "@/utils/reports/getColor";
 import dayjs from "dayjs";
 
+// common functions for datatable
+import {
+  genrateCustomHeaderName,
+  generateCommonBodyRender,
+  generateInitialTimer,
+} from "@/utils/datatable/CommonFunction";
+
 const getMuiTheme = () =>
   createTheme({
     components: {
@@ -138,9 +145,7 @@ const User = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">user name</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("User Name"),
         customBodyRender: (value: any, tableMeta: any) => {
           return (
             <div className="flex flex-col">
@@ -162,11 +167,9 @@ const User = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">designation</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Destination"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -221,11 +224,9 @@ const User = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">present days</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Present Day"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -234,15 +235,9 @@ const User = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">std. time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("STd. Time"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 ? "00:00:00" : value}
-            </div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },
@@ -251,15 +246,9 @@ const User = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">total time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Total Time"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 ? "00:00:00" : value}
-            </div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },
@@ -268,15 +257,10 @@ const User = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">total break time</span>
-        ),
+        customHeadLabelRender: () =>
+          genrateCustomHeaderName("Total Break Time"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 ? "00:00:00" : value}
-            </div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },
@@ -285,15 +269,9 @@ const User = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">total idle time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Total Idle Time"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 ? "00:00:00" : value}
-            </div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },

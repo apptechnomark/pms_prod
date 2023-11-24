@@ -10,6 +10,15 @@ import { options } from "./Options/Options";
 //filter for audit
 import { audit_InitialFilter } from "@/utils/reports/getFilters";
 
+// common functions for datatable
+import {
+  genrateCustomHeaderName,
+  generateCommonBodyRender,
+  generateInitialTimer,
+  generateDateWithoutTime,
+  generateDateWithTime,
+} from "@/utils/datatable/CommonFunction";
+
 const getMuiTheme = () =>
   createTheme({
     components: {
@@ -115,11 +124,9 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">User name</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("User Name"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -128,11 +135,9 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">Department</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Department"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -141,13 +146,10 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">
-            task created date
-          </span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return <div>{value && value.split("T")[0]}</div>;
+        customHeadLabelRender: () =>
+          genrateCustomHeaderName("Task Created Date"),
+        customBodyRender: (value: any) => {
+          return generateDateWithoutTime(value);
         },
       },
     },
@@ -156,22 +158,9 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">login time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Login Time"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div>
-              {value === null || value === 0 || value === "0" ? (
-                "-"
-              ) : (
-                <>
-                  {value.split("T")[0]}&nbsp;
-                  {value.split("T")[1]}
-                </>
-              )}
-            </div>
-          );
+          return generateDateWithTime(value);
         },
       },
     },
@@ -180,22 +169,9 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">logout time</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div>
-              {value === null || value === 0 || value === "0" ? (
-                "-"
-              ) : (
-                <>
-                  {value.split("T")[0]}&nbsp;
-                  {value.split("T")[1]}
-                </>
-              )}
-            </div>
-          );
+        customHeadLabelRender: () => genrateCustomHeaderName("Logout Time"),
+        customBodyRender: (value: any) => {
+          return generateDateWithTime(value);
         },
       },
     },
@@ -204,11 +180,9 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">client name</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Client Name"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -217,24 +191,9 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">project name</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Project Name"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
-        },
-      },
-    },
-    {
-      name: "SubProcessName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">sub process name</span>
-        ),
-        customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -243,11 +202,21 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">process name</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Process Name"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "SubProcessName",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          genrateCustomHeaderName("Sub Process Name"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -256,18 +225,10 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">std time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Std. Time"),
       },
-      customBodyRender: (value: any, tableMeta: any) => {
-        return (
-          <div>
-            {value === null || value === 0 || value === "0"
-              ? "00:00:00"
-              : value}
-          </div>
-        );
+      customBodyRender: (value: any) => {
+        return generateInitialTimer(value);
       },
     },
     {
@@ -275,17 +236,9 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">total time</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div>
-              {value === null || value === 0 || value === "0"
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+        customHeadLabelRender: () => genrateCustomHeaderName("Total Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
         },
       },
     },
@@ -294,17 +247,9 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">break time</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div>
-              {value === null || value === 0 || value === "0"
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+        customHeadLabelRender: () => genrateCustomHeaderName("Break Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
         },
       },
     },
@@ -313,17 +258,9 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">idle time</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div>
-              {value === null || value === 0 || value === "0"
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+        customHeadLabelRender: () => genrateCustomHeaderName("Idle Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
         },
       },
     },

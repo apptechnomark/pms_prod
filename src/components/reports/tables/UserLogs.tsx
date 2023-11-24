@@ -10,6 +10,14 @@ import { options } from "./Options/Options";
 //filter for userlogs
 import { userLogs_InitialFilter } from "@/utils/reports/getFilters";
 
+// common functions for datatable
+import {
+  genrateCustomHeaderName,
+  generateCommonBodyRender,
+  generateInitialTimer,
+  generateDateWithTime,
+} from "@/utils/datatable/CommonFunction";
+
 const getMuiTheme = () =>
   createTheme({
     components: {
@@ -116,11 +124,9 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">user name</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("User Name"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -129,11 +135,9 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">reporting to</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Reporting To"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -142,11 +146,9 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">department</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Department"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -155,22 +157,9 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">login</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Login"),
         customBodyRender: (value: any) => {
-          return (
-            <div>
-              {value === 0 || value === "0" || value === null ? (
-                "-"
-              ) : (
-                <>
-                  {value.split("T")[0]}&nbsp;
-                  {value.split("T")[1]}
-                </>
-              )}
-            </div>
-          );
+          return generateDateWithTime(value);
         },
       },
     },
@@ -179,22 +168,9 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">logout</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Logout"),
         customBodyRender: (value: any) => {
-          return (
-            <div>
-              {value === 0 || value === "0" || value === null ? (
-                "-"
-              ) : (
-                <>
-                  {value.split("T")[0]}&nbsp;
-                  {value.split("T")[1]}
-                </>
-              )}
-            </div>
-          );
+          return generateDateWithTime(value);
         },
       },
     },
@@ -203,17 +179,9 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">idle time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Idle Time"),
         customBodyRender: (value: any) => {
-          return (
-            <div>
-              {value === 0 || value === "0" || value === null
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },
@@ -222,17 +190,9 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">break time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Break Time"),
         customBodyRender: (value: any) => {
-          return (
-            <div>
-              {value === 0 || value === "0" || value === null
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },
@@ -241,17 +201,9 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">productive time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Productive Time"),
         customBodyRender: (value: any) => {
-          return (
-            <div>
-              {value === 0 || value === "0" || value === null
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },
@@ -260,9 +212,7 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">is logged in?</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Is Logged In"),
         customBodyRender: (value: any) => {
           return value === 0 ? <div>No</div> : value === 1 && <div>Yes</div>;
         },

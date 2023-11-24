@@ -22,6 +22,15 @@ import { Transition } from "../Filter/Transition/Transition";
 import LineIcon from "@/assets/icons/reports/LineIcon";
 import CloseIcon from "@/assets/icons/reports/CloseIcon";
 
+// common functions for datatable
+import {
+  genrateCustomHeaderName,
+  generateCommonBodyRender,
+  generateInitialTimer,
+  generateDateWithTime,
+  generateDateWithoutTime,
+} from "@/utils/datatable/CommonFunction";
+
 const getMuiTheme = () =>
   createTheme({
     components: {
@@ -130,9 +139,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">user name</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("User Name"),
         customBodyRender: (value: any, tableMeta: any) => {
           return (
             <div
@@ -166,11 +173,9 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">designation</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Designation"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -179,17 +184,9 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">std time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Std. Time"),
         customBodyRender: (value: any) => {
-          return (
-            <div>
-              {value === 0 || value === "0" || value === null
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },
@@ -198,17 +195,9 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">total time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Total Time"),
         customBodyRender: (value: any) => {
-          return (
-            <div>
-              {value === 0 || value === "0" || value === null
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },
@@ -217,11 +206,9 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">Qty.</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Qty."),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -233,17 +220,9 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">Created date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Created Date"),
         customBodyRender: (value: any) => {
-          return (
-            <div>
-              {value === 0 || value === "0" || value === null
-                ? "00:00:00"
-                : value.split("T")[0]}
-            </div>
-          );
+          return generateDateWithoutTime(value);
         },
       },
     },
@@ -252,11 +231,9 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">client name</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Client Name"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -265,11 +242,9 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">project</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -278,11 +253,9 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">task/process</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Task/Process"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -291,9 +264,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">Estimate Time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Est. Time"),
         customBodyRender: (value: any) => {
           return (
             <div>{value === null || value === "" ? "00:00:00" : value}</div>

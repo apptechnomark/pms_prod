@@ -10,6 +10,13 @@ import { options } from "./Options/Options";
 //filter for project
 import { client_project_InitialFilter } from "@/utils/reports/getFilters";
 
+// common functions for datatable
+import {
+  genrateCustomHeaderName,
+  generateCommonBodyRender,
+  generateInitialTimer,
+} from "@/utils/datatable/CommonFunction";
+
 const getMuiTheme = () =>
   createTheme({
     components: {
@@ -137,11 +144,9 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">project</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -150,11 +155,9 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">client name</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Client Name"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -163,11 +166,9 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">type of work</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Type of Work"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -176,11 +177,9 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">billing type</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Billing Type"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -189,15 +188,9 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">internal hours</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Internal Hours"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 ? "00:00:00" : `${value}`}
-            </div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },
@@ -206,15 +199,9 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">std. time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Std. Time"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 ? "00:00:00" : value}
-            </div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },
@@ -223,15 +210,9 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">edited hours</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Edited Hours"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 ? "00:00:00" : value}
-            </div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },
@@ -240,15 +221,9 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">total time</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Total Time"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 ? "00:00:00" : value}
-            </div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },
@@ -257,15 +232,9 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">differences</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Difference"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 ? "00:00:00" : value}
-            </div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },

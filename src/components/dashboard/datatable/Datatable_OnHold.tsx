@@ -4,6 +4,11 @@ import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
+import {
+  genrateCustomHeaderName,
+  generateCommonBodyRender,
+  generateCustomFormatDate,
+} from "@/utils/datatable/CommonFunction";
 
 interface OnHoldProps {
   onSelectedProjectIds: number[];
@@ -169,13 +174,9 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">Project Name</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return (
-            <div className="ml-2">{value === null || "" ? "-" : value}</div>
-          );
+        customHeadLabelRender: () => genrateCustomHeaderName("Project Name"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -184,15 +185,9 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold uppercase">Task Name</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return (
-            <div className="ml-2">
-              {value === null || value === "" ? "-" : value}
-            </div>
-          );
+        customHeadLabelRender: () => genrateCustomHeaderName("Task Name"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -201,23 +196,9 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold">Start Date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
         customBodyRender: (value: any) => {
-          if (value === null || "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },
@@ -226,23 +207,9 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold">Due Date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Due Date"),
         customBodyRender: (value: any) => {
-          if (value === null || "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },
@@ -251,10 +218,8 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-extrabold">Due From</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
+        customHeadLabelRender: () => genrateCustomHeaderName("Due From"),
+        customBodyRender: (value: any) => {
           return (
             <div className="ml-2">
               {value === null || "" ? "-" : value}&nbsp;

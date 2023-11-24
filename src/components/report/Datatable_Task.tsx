@@ -5,6 +5,13 @@ import MUIDataTable from "mui-datatables";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
+import {
+  genrateCustomHeaderName,
+  generateCommonBodyRender,
+  generateCustomFormatDate,
+  generatePriorityWithColor,
+  generateStatusWithColor,
+} from "@/utils/datatable/CommonFunction";
 
 const getMuiTheme = () =>
   createTheme({
@@ -143,9 +150,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Task ID</span>,
+        customHeadLabelRender: () => genrateCustomHeaderName("Task ID"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -154,9 +161,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Project</span>,
+        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -165,9 +172,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Task</span>,
+        customHeadLabelRender: () => genrateCustomHeaderName("Task"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -176,9 +183,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Process</span>,
+        customHeadLabelRender: () => genrateCustomHeaderName("Process"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -187,9 +194,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Type</span>,
+        customHeadLabelRender: () => genrateCustomHeaderName("Type"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -198,45 +205,8 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Priority</span>
-        ),
-        customBodyRender: (value: any) => {
-          let isHighPriority;
-          let isMediumPriority;
-          let isLowPriority;
-
-          if (value) {
-            isHighPriority = value.toLowerCase() === "high";
-            isMediumPriority = value.toLowerCase() === "medium";
-            isLowPriority = value.toLowerCase() === "low";
-          }
-
-          return (
-            <div>
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <>
-                  <div className="inline-block mr-1">
-                    <div
-                      className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
-                        isHighPriority
-                          ? "bg-defaultRed"
-                          : isMediumPriority
-                          ? "bg-yellowColor"
-                          : isLowPriority
-                          ? "bg-primary"
-                          : "bg-lightSilver"
-                      }`}
-                    ></div>
-                  </div>
-                  {value}
-                </>
-              )}
-            </div>
-          );
-        },
+        customHeadLabelRender: () => genrateCustomHeaderName("Priority"),
+        customBodyRender: (value: any) => generatePriorityWithColor(value),
       },
     },
     {
@@ -244,27 +214,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Status</span>,
-        customBodyRender: (value: any, tableMeta: any) => {
-          const statusColorCode = tableMeta.rowData[11];
-          return (
-            <div>
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <>
-                  <div className="inline-block mr-3">
-                    <div
-                      className="w-[10px] h-[10px] rounded-full inline-block"
-                      style={{ backgroundColor: statusColorCode }}
-                    ></div>
-                  </div>
-                  {value}
-                </>
-              )}
-            </div>
-          );
-        },
+        customHeadLabelRender: () => genrateCustomHeaderName("Status"),
+        customBodyRender: (value: any, tableMeta: any) =>
+          generateStatusWithColor(value, tableMeta.rowData[11]),
       },
     },
     {
@@ -272,11 +224,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Assigned To</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Assigned To"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -298,11 +248,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Hours Logged</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Hours Logged"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -311,23 +259,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Start Date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
         customBodyRender: (value: any) => {
-          if (value === null || value === "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },
@@ -336,23 +270,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Due Date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Due Date"),
         customBodyRender: (value: any) => {
-          if (value === null || value === "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },

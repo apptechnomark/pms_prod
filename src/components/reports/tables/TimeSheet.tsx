@@ -8,9 +8,6 @@ import {
   ThemeProvider,
   createTheme,
 } from "@mui/material";
-import LinearProgress, {
-  linearProgressClasses,
-} from "@mui/material/LinearProgress";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
@@ -29,6 +26,13 @@ import dayjs from "dayjs";
 import { makeStyles } from "@mui/styles";
 import CloseIcon from "@/assets/icons/reports/CloseIcon";
 import { Transition } from "../Filter/Transition/Transition";
+
+// common functions for datatable
+import {
+  genrateCustomHeaderName,
+  generateCommonBodyRender,
+  generateDateWithoutTime,
+} from "@/utils/datatable/CommonFunction";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -113,11 +117,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">Task</div>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Task"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -126,11 +128,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">client</div>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Client"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -139,11 +139,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">project</div>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -152,11 +150,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">task/process</div>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Task/Process"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -165,11 +161,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">sub process</div>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Sub Process"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -178,9 +172,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">is manual</div>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Is Manual"),
         customBodyRender: (value: any, tableMeta: any) => {
           return <span className="capitalize">{value ? "yes" : "no"}</span>;
         },
@@ -191,9 +183,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">description</div>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Description"),
       },
     },
     {
@@ -201,11 +191,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">estimated time</div>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Est. Time"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -214,11 +202,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">status</div>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Status"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -227,11 +213,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">qty.</div>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Qty."),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -240,11 +224,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">start date</div>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return <span>{value && value.split("T")[0]}</span>;
+        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
+        customBodyRender: (value: any) => {
+          return generateDateWithoutTime(value);
         },
       },
     },
@@ -253,11 +235,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">end date</div>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return <span>{value && value.split("T")[0]}</span>;
+        customHeadLabelRender: () => genrateCustomHeaderName("End Date"),
+        customBodyRender: (value: any) => {
+          return generateDateWithoutTime(value);
         },
       },
     },
@@ -266,11 +246,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">std time</div>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Std. Time"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -302,11 +280,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize">reviewer status</div>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Reviewer Status"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },

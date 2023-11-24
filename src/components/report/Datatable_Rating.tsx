@@ -5,6 +5,11 @@ import MUIDataTable from "mui-datatables";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
+import {
+  genrateCustomHeaderName,
+  generateCommonBodyRender,
+  generateCustomFormatDate,
+} from "@/utils/datatable/CommonFunction";
 
 const getMuiTheme = () =>
   createTheme({
@@ -144,9 +149,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Task ID</span>,
+        customHeadLabelRender: () => genrateCustomHeaderName("Task ID"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -155,9 +160,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Project</span>,
+        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -166,9 +171,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Task</span>,
+        customHeadLabelRender: () => genrateCustomHeaderName("Task"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -177,9 +182,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Process</span>,
+        customHeadLabelRender: () => genrateCustomHeaderName("Process"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -188,11 +193,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Return Type</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Return Type"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -201,11 +204,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Type Of Return</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Type of Return"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -214,23 +215,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Rating Date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Rating Date"),
         customBodyRender: (value: any) => {
-          if (value === null || value === "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },
@@ -239,23 +226,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Date Submitted</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Date Submitted"),
         customBodyRender: (value: any) => {
-          if (value === null || value === "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },
@@ -264,11 +237,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Hours Logged</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Hours Logged"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -277,7 +248,7 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Ratings</span>,
+        customHeadLabelRender: () => genrateCustomHeaderName("Ratings"),
         customBodyRender: (value: any) => {
           return <Rating name="read-only" value={value} readOnly />;
         },
@@ -288,11 +259,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Comments</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Comments"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },

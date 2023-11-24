@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { handleLogoutUtil } from "@/utils/commonFunction";
 
-const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
+const Navbar = (props: any) => {
   const router = useRouter();
   const [orgData, setOrgData] = useState([]);
   const [openLogout, setOpenLogout] = useState(false);
@@ -128,7 +128,7 @@ const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
           ProcessModuleName,
           SubProcessModuleName,
         } = filteredOrganization[0];
-        onHandleModuleNames(
+        props?.onHandleModuleNames(
           ClientModuleName,
           ProjectModuleName,
           ProcessModuleName,
@@ -146,7 +146,7 @@ const Navbar = ({ onUserDetailsFetch, onHandleModuleNames }: any) => {
 
   const fetchData = async () => {
     const fetchedData = await getUserDetails();
-    onUserDetailsFetch(() => fetchData());
+    props?.onUserDetailsFetch(() => fetchData());
   };
 
   useEffect(() => {

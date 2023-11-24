@@ -19,6 +19,13 @@ import EditIcon from "@/assets/icons/worklogs/EditIcon";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
+import {
+  genrateCustomHeaderName,
+  generateCommonBodyRender,
+  generateCustomFormatDate,
+  generatePriorityWithColor,
+  generateStatusWithColor,
+} from "@/utils/datatable/CommonFunction";
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -712,9 +719,9 @@ const Datatable_Worklog = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Task Id</span>,
+        customHeadLabelRender: () => genrateCustomHeaderName("Task ID"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -723,9 +730,9 @@ const Datatable_Worklog = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Project</span>,
+        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -734,9 +741,9 @@ const Datatable_Worklog = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Task</span>,
+        customHeadLabelRender: () => genrateCustomHeaderName("Task"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -745,11 +752,9 @@ const Datatable_Worklog = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Assigned To</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Assigned To"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -758,43 +763,8 @@ const Datatable_Worklog = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Priority</span>
-        ),
-        customBodyRender: (value: any) => {
-          let isHighPriority;
-          let isMediumPriority;
-          let isLowPriority;
-
-          if (value) {
-            isHighPriority = value.toLowerCase() === "high";
-            isMediumPriority = value.toLowerCase() === "medium";
-            isLowPriority = value.toLowerCase() === "low";
-          }
-
-          return (
-            <div>
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <div className="inline-block mr-1">
-                  <div
-                    className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
-                      isHighPriority
-                        ? "bg-defaultRed"
-                        : isMediumPriority
-                        ? "bg-yellowColor"
-                        : isLowPriority
-                        ? "bg-primary"
-                        : "bg-lightSilver"
-                    }`}
-                  ></div>
-                  {value}
-                </div>
-              )}
-            </div>
-          );
-        },
+        customHeadLabelRender: () => genrateCustomHeaderName("Priority"),
+        customBodyRender: (value: any) => generatePriorityWithColor(value),
       },
     },
     {
@@ -802,25 +772,9 @@ const Datatable_Worklog = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Status</span>,
-        customBodyRender: (value: any, tableMeta: any) => {
-          const statusColorCode = tableMeta.rowData[9];
-          return (
-            <div>
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <div className="inline-block mr-1">
-                  <div
-                    className="w-[10px] h-[10px] rounded-full inline-block mr-2"
-                    style={{ backgroundColor: statusColorCode }}
-                  ></div>
-                  {value}
-                </div>
-              )}
-            </div>
-          );
-        },
+        customHeadLabelRender: () => genrateCustomHeaderName("Status"),
+        customBodyRender: (value: any, tableMeta: any) =>
+          generateStatusWithColor(value, tableMeta.rowData[9]),
       },
     },
     {
@@ -828,7 +782,7 @@ const Datatable_Worklog = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => <span className="font-bold">Qty.</span>,
+        customHeadLabelRender: () => genrateCustomHeaderName("Qty."),
       },
       customBodyRender: (value: any) => {
         return <div>{value === null || value === "" ? "-" : value}</div>;
@@ -839,23 +793,9 @@ const Datatable_Worklog = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Start Date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
         customBodyRender: (value: any) => {
-          if (value === null || value === "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },
@@ -864,23 +804,9 @@ const Datatable_Worklog = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold">Due Date</span>
-        ),
+        customHeadLabelRender: () => genrateCustomHeaderName("Due Date"),
         customBodyRender: (value: any) => {
-          if (value === null || value === "") {
-            return "-";
-          }
-
-          const startDate = new Date(value);
-          const month = startDate.getMonth() + 1;
-          const formattedMonth = month < 10 ? `0${month}` : month;
-          const day = startDate.getDate();
-          const formattedDay = day < 10 ? `0${day}` : day;
-          const formattedYear = startDate.getFullYear();
-          const formattedDate = `${formattedMonth}-${formattedDay}-${formattedYear}`;
-
-          return <div>{formattedDate}</div>;
+          return generateCustomFormatDate(value);
         },
       },
     },
