@@ -100,10 +100,6 @@ const BillingReportFilter = ({
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const handleSearchChange = (e: any) => {
-    setSearchValue(e.target.value);
-  };
-
   const handleNoOfPageChange = (e: any) => {
     if (/^\d+$/.test(e.target.value.trim())) {
       setNoOfPages(e.target.value);
@@ -119,11 +115,13 @@ const BillingReportFilter = ({
       newValue.$M !== undefined &&
       newValue.$D !== undefined
     ) {
-      return `${newValue.$y}-${
+      const formattedDate = `${newValue.$y}-${
         (newValue.$M + 1).toString().length > 1
           ? newValue.$M + 1
           : `0${newValue.$M + 1}`
       }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+
+      return formattedDate;
     }
 
     return null;
@@ -228,10 +226,8 @@ const BillingReportFilter = ({
   const handleSaveFilter = async () => {
     if (filterName.trim().length === 0) {
       setError("This is required field!");
-      return;
     } else if (filterName.trim().length > 15) {
       setError("Max 15 characters allowed!");
-      return;
     } else {
       setError("");
 
@@ -500,7 +496,7 @@ const BillingReportFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}
-                onChange={handleSearchChange}
+                onChange={(e: any) => setSearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">

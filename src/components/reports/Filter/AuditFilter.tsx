@@ -63,24 +63,21 @@ const AuditFilter = ({
   const [resetting, setResetting] = useState<boolean>(false);
   const [error, setError] = useState("");
 
-  const [anchorElFilter, setAnchorElFilter] =
-    React.useState<HTMLButtonElement | null>(null);
+  const anchorElFilter: HTMLButtonElement | null = null;
 
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
 
   const getFormattedDate = (newValue: any) => {
     if (newValue !== "") {
-      return `${newValue.$y}-${
+      const formattedDate = `${newValue.$y}-${
         (newValue.$M + 1).toString().length > 1
           ? newValue.$M + 1
           : `0${newValue.$M + 1}`
       }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
-    }
-  };
 
-  const handleSearchChange = (e: any) => {
-    setSearchValue(e.target.value);
+      return formattedDate;
+    }
   };
 
   const handleResetAll = () => {
@@ -153,32 +150,33 @@ const AuditFilter = ({
   const handleSaveFilter = async () => {
     if (filterName.trim().length === 0) {
       setError("This is required field!");
-      return;
     } else if (filterName.trim().length > 15) {
       setError("Max 15 characters allowed!");
-      return;
     } else {
       setError("");
 
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
+      const startdate =
+        startDate.toString().trim().length <= 0
+          ? null
+          : getFormattedDate(startDate);
+      const enddate =
+        endDate.toString().trim().length <= 0
+          ? null
+          : getFormattedDate(endDate);
+
       try {
         const response = await axios.post(
           `${process.env.worklog_api_url}/filter/savefilter`,
           {
-            filterId: currentFilterId !== "" ? currentFilterId : null,
+            filterId: !!currentFilterId ? currentFilterId : null,
             name: filterName,
             AppliedFilter: {
-              clients: clientName.length > 0 ? clientName : [],
-              users: userName.length > 0 ? userName : [],
-              startDate:
-                startDate.toString().trim().length <= 0
-                  ? null
-                  : getFormattedDate(startDate),
-              endDate:
-                endDate.toString().trim().length <= 0
-                  ? null
-                  : getFormattedDate(endDate),
+              clients: clientName,
+              users: userName,
+              startDate: startdate,
+              endDate: enddate,
             },
             type: audit,
           },
@@ -190,8 +188,11 @@ const AuditFilter = ({
           }
         );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus.toLowerCase() === "success") {
+        const status = response.status;
+        const responseStatus = response.data.ResponseStatus.toLowerCase();
+
+        if (status === 200) {
+          if (responseStatus === "success") {
             toast.success("Filter has been successully saved.");
             handleClose();
             getFilterList();
@@ -199,7 +200,7 @@ const AuditFilter = ({
             setSaveFilter(false);
           } else {
             const data = response.data.Message;
-            if (data === null) {
+            if (!data) {
               toast.error("Please try again later.");
             } else {
               toast.error(data);
@@ -207,7 +208,7 @@ const AuditFilter = ({
           }
         } else {
           const data = response.data.Message;
-          if (data === null) {
+          if (!data) {
             toast.error("Please try again later.");
           } else {
             toast.error(data);
@@ -416,7 +417,7 @@ const AuditFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}
-                onChange={handleSearchChange}
+                onChange={(e: any) => setSearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">

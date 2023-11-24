@@ -80,23 +80,19 @@ const ProjectFilter = ({
   const [resetting, setResetting] = useState<boolean>(false);
   const [error, setError] = useState("");
 
-  const [anchorElFilter, setAnchorElFilter] =
-    React.useState<HTMLButtonElement | null>(null);
-
+  const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const handleSearchChange = (e: any) => {
-    setSearchValue(e.target.value);
-  };
-
   const getFormattedDate = (newValue: any) => {
     if (newValue !== "") {
-      return `${newValue.$y}-${
+      const formattedDate = `${newValue.$y}-${
         (newValue.$M + 1).toString().length > 1
           ? newValue.$M + 1
           : `0${newValue.$M + 1}`
       }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+
+      return formattedDate;
     }
   };
 
@@ -178,10 +174,8 @@ const ProjectFilter = ({
   const handleSaveFilter = async () => {
     if (filterName.trim().length === 0) {
       setError("This is required field!");
-      return;
     } else if (filterName.trim().length > 15) {
       setError("Max 15 characters allowed!");
-      return;
     } else {
       setError("");
 
@@ -453,7 +447,7 @@ const ProjectFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}
-                onChange={handleSearchChange}
+                onChange={(e: any) => setSearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">

@@ -68,10 +68,6 @@ const ClientFilter = ({
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const handleSearchChange = (e: any) => {
-    setSearchValue(e.target.value);
-  };
-
   const handleResetAll = () => {
     setTypeOfWork(0);
     setBillingType(0);
@@ -126,10 +122,8 @@ const ClientFilter = ({
   const handleSaveFilter = async () => {
     if (filterName.trim().length === 0) {
       setError("This is required field!");
-      return;
     } else if (filterName.trim().length > 15) {
       setError("Max 15 characters allowed!");
-      return;
     } else {
       setError("");
 
@@ -337,7 +331,7 @@ const ClientFilter = ({
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
                 value={searchValue}
-                onChange={handleSearchChange}
+                onChange={(e: any) => setSearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
