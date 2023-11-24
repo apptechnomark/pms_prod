@@ -11,6 +11,7 @@ import Wrapper from "@/components/common/Wrapper";
 import {
   Autocomplete,
   Card,
+  FormControl,
   Grid,
   TextField,
   ThemeProvider,
@@ -112,7 +113,7 @@ const page = () => {
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
-  const [clientName, setClientName] = useState(0);
+  const [clients, setClients] = useState<any[]>([]);
   const [clientDropdownData, setClientDropdownData] = useState<any>([]);
 
   const handleUserDetailsFetch = (getData: () => void) => {
@@ -570,7 +571,7 @@ const page = () => {
               onClick={() => {
                 setIsDashboardClicked(true);
                 setIsReportClicked(false);
-                setClientName(0);
+                setClients([]);
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isDashboardClicked
@@ -585,7 +586,7 @@ const page = () => {
               onClick={() => {
                 setIsReportClicked(true);
                 setIsDashboardClicked(false);
-                setClientName(0);
+                setClients([]);
                 setFilteredOject({ ...filteredObject, Clients: null });
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
@@ -599,23 +600,37 @@ const page = () => {
           </div>
 
           {isReportClicked && (
-            <Autocomplete
-              disablePortal
-              id="combo-box-demo"
-              options={clientDropdownData}
-              value={
-                clientDropdownData.find((i: any) => i.value === clientName) ||
-                null
-              }
-              onChange={(e: any, value: any) => {
-                setFilteredOject({ ...filteredObject, Clients: [value.value] });
-                setClientName(value.value);
-              }}
-              sx={{ mx: 0.75, width: 210 }}
-              renderInput={(params) => (
-                <TextField {...params} variant="standard" label="Client Name" />
-              )}
-            />
+            <FormControl
+              variant="standard"
+              sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
+            >
+              <Autocomplete
+                multiple
+                id="tags-standard"
+                options={clientDropdownData.filter(
+                  (option: any) =>
+                    !clients.find(
+                      (client: any) => client.value === option.value
+                    )
+                )}
+                getOptionLabel={(option: any) => option.label}
+                onChange={(e: any, data: any) => {
+                  setFilteredOject({
+                    ...filteredObject,
+                    Clients: data.map((i: any) => i.value),
+                  });
+                  setClients(data);
+                }}
+                value={clients}
+                renderInput={(params: any) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    label="Client Name"
+                  />
+                )}
+              />
+            </FormControl>
           )}
         </div>
 
