@@ -128,7 +128,7 @@ const Navbar = (props: any) => {
           ProcessModuleName,
           SubProcessModuleName,
         } = filteredOrganization[0];
-        props?.onHandleModuleNames(
+        onHandleModuleNames(
           ClientModuleName,
           ProjectModuleName,
           ProcessModuleName,

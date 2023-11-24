@@ -37,7 +37,6 @@ const Transition = React.forwardRef(function Transition(
 const initialFilter = {
   Projects: [],
   ReturnTypeId: null,
-  TypeofReturnId: null,
   StartDate: null,
   EndDate: null,
   Ratings: null,
@@ -52,10 +51,6 @@ const filterDialog_Rating: React.FC<FilterModalProps> = ({
   const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [returnType, setReturnType] = useState<null | number>(0);
-  const [typeOfReturn, setTypeOfReturn] = useState<any>(0);
-  const [typeOfReturnDropdownData, setTypeOfReturnDropdownData] = useState<any>(
-    []
-  );
   const [startDate, setStartDate] = useState<null | string>(null);
   const [endDate, setEndDate] = useState<null | string>(null);
 
@@ -70,7 +65,6 @@ const filterDialog_Rating: React.FC<FilterModalProps> = ({
   const handleResetAll = () => {
     setProject(0);
     setReturnType(0);
-    setTypeOfReturn(0);
     setRatings(0);
     setStartDate(null);
     setEndDate(null);
@@ -83,18 +77,16 @@ const filterDialog_Rating: React.FC<FilterModalProps> = ({
       project !== 0 ||
       returnType !== 0 ||
       ratings !== 0 ||
-      typeOfReturn !== 0 ||
       startDate !== null ||
       endDate !== null;
 
     setAnyFieldSelected(isAnyFieldSelected);
-  }, [project, returnType, typeOfReturn, ratings, startDate, endDate]);
+  }, [project, returnType, ratings, startDate, endDate]);
 
   useEffect(() => {
     const selectedFields = {
       Projects: project === 0 ? [] : [project] || null,
       ReturnTypeId: returnType || null,
-      TypeofReturnId: typeOfReturn || null,
       Ratings: ratings || null,
       StartDate:
         startDate !== null
@@ -110,7 +102,7 @@ const filterDialog_Rating: React.FC<FilterModalProps> = ({
           : null,
     };
     setCurrSelectedFileds(selectedFields);
-  }, [project, returnType, typeOfReturn, ratings, startDate, endDate]);
+  }, [project, returnType, ratings, startDate, endDate]);
 
   const sendFilterToPage = () => {
     currentFilterData(currSelectedFields);
@@ -138,45 +130,6 @@ const filterDialog_Rating: React.FC<FilterModalProps> = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           setProjectDropdownData(response.data.ResponseData.List);
-          getReturnTypeData();
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getReturnTypeData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      let response = await axios.get(
-        `${process.env.worklog_api_url}/workitem/getformtypelist`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setTypeOfReturnDropdownData(response.data.ResponseData);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -253,26 +206,7 @@ const filterDialog_Rating: React.FC<FilterModalProps> = ({
                   <MenuItem value={2}>Business Return</MenuItem>
                 </Select>
               </FormControl>
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 210 }}>
-                <InputLabel id="demo-simple-select-standard-label">
-                  Type of Return
-                  <span className="text-defaultRed">&nbsp;*</span>
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-standard-label"
-                  id="demo-simple-select-standard"
-                  value={typeOfReturn === 0 ? "" : typeOfReturn}
-                  onChange={(e) => setTypeOfReturn(e.target.value)}
-                >
-                  {typeOfReturnDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-            <div className="flex gap-[20px]">
+
               <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
@@ -289,7 +223,8 @@ const filterDialog_Rating: React.FC<FilterModalProps> = ({
                   />
                 </LocalizationProvider>
               </div>
-
+            </div>
+            <div className="flex gap-[20px]">
               <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker

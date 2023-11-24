@@ -188,17 +188,6 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
       },
     },
     {
-      name: "TypeOfReturn",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Type of Return"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
       name: "RatingOn",
       options: {
         filter: true,

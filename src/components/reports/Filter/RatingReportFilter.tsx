@@ -50,10 +50,6 @@ const RatingReportFilter = ({
   const [clientName, setClientName] = useState<any[]>([]);
   const [projectName, setProjectName] = useState<number | string>(0);
   const [returnType, setReturnType] = useState<null | number>(0);
-  const [typeOfReturn, setTypeOfReturn] = useState<any>(0);
-  const [typeOfReturnDropdownData, setTypeOfReturnDropdownData] = useState<any>(
-    []
-  );
   const [startDate, setStartDate] = useState<null | string>(null);
   const [endDate, setEndDate] = useState<null | string>(null);
   const [ratings, setRatings] = useState<null | number>(0);
@@ -85,7 +81,6 @@ const RatingReportFilter = ({
     setClientName([]);
     setProjectName(0);
     setReturnType(0);
-    setTypeOfReturn(0);
     setStartDate(null);
     setEndDate(null);
     setRatings(0);
@@ -97,7 +92,6 @@ const RatingReportFilter = ({
       Clients: [],
       Projects: [],
       ReturnTypeId: null,
-      TypeofReturnId: null,
       Ratings: null,
       StartDate: null,
       EndDate: null,
@@ -113,7 +107,6 @@ const RatingReportFilter = ({
     setClients([]);
     setProjectName(0);
     setReturnType(0);
-    setTypeOfReturn(0);
     setStartDate(null);
     setEndDate(null);
     setRatings(0);
@@ -126,7 +119,6 @@ const RatingReportFilter = ({
       Clients: clientName.length > 0 ? clientName : [],
       Projects: projectName === 0 || projectName === "" ? [] : [projectName],
       ReturnTypeId: returnType || null,
-      TypeofReturnId: typeOfReturn || null,
       Ratings: ratings || null,
       StartDate:
         startDate !== null
@@ -162,10 +154,6 @@ const RatingReportFilter = ({
             savedFilters[index].AppliedFilter.ReturnTypeId === null
               ? 0
               : savedFilters[index].AppliedFilter.ReturnTypeId === null,
-          TypeofReturnId:
-            savedFilters[index].AppliedFilter.TypeofReturnId === null
-              ? 0
-              : savedFilters[index].AppliedFilter.TypeofReturnId,
           Ratings: savedFilters[index].AppliedFilter.Ratings,
           StartDate: savedFilters[index].AppliedFilter.StartDate,
           EndDate: savedFilters[index].AppliedFilter.EndDate,
@@ -199,7 +187,6 @@ const RatingReportFilter = ({
               Projects:
                 projectName === 0 || projectName === "" ? [] : [projectName],
               ReturnTypeId: returnType || null,
-              TypeofReturnId: typeOfReturn || null,
               Ratings: ratings || null,
               StartDate:
                 startDate !== null
@@ -324,11 +311,6 @@ const RatingReportFilter = ({
         ? 0
         : savedFilters[index].AppliedFilter.ReturnTypes
     );
-    setTypeOfReturn(
-      savedFilters[index].AppliedFilter.TypeOfReturn === null
-        ? 0
-        : savedFilters[index].AppliedFilter.TypeOfReturn
-    );
     setStartDate(savedFilters[index].AppliedFilter.DateSubmitted);
     setEndDate(savedFilters[index].AppliedFilter.RatingOn);
     setRatings(savedFilters[index].AppliedFilter.Ratings);
@@ -388,22 +370,13 @@ const RatingReportFilter = ({
       projectName !== 0 ||
       returnType !== 0 ||
       ratings !== 0 ||
-      typeOfReturn !== 0 ||
       startDate !== null ||
       endDate !== null;
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
     setResetting(false);
-  }, [
-    clientName,
-    projectName,
-    returnType,
-    typeOfReturn,
-    ratings,
-    startDate,
-    endDate,
-  ]);
+  }, [clientName, projectName, returnType, ratings, startDate, endDate]);
 
   useEffect(() => {
     const filterDropdowns = async () => {
@@ -413,50 +386,11 @@ const RatingReportFilter = ({
       );
     };
     filterDropdowns();
-    getReturnTypeData();
 
     if (clientName.length > 0 || resetting) {
       onDialogClose(true);
     }
   }, [clientName]);
-
-  const getReturnTypeData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      let response = await axios.get(
-        `${process.env.worklog_api_url}/workitem/getformtypelist`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setTypeOfReturnDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const isWeekend = (date: any) => {
     const day = date.day();
@@ -643,27 +577,6 @@ const RatingReportFilter = ({
                 </FormControl>
               </div>
               <div className="flex gap-[20px]">
-                <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
-                >
-                  <InputLabel id="demo-simple-select-standard-label">
-                    Type of Return
-                    <span className="text-defaultRed">&nbsp;*</span>
-                  </InputLabel>
-                  <Select
-                    labelId="demo-simple-select-standard-label"
-                    id="demo-simple-select-standard"
-                    value={typeOfReturn === 0 ? "" : typeOfReturn}
-                    onChange={(e) => setTypeOfReturn(e.target.value)}
-                  >
-                    {typeOfReturnDropdownData.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
                 <div className="inline-flex mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]">
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
@@ -697,8 +610,6 @@ const RatingReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
