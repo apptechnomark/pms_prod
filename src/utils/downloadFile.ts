@@ -15,7 +15,6 @@ export const getFileFromBlob = async (fileName: string) => {
 
   if (downloadBlockBlobResponse.blobBody) {
     const url = URL.createObjectURL(await downloadBlockBlobResponse.blobBody);
-    console.log(url, fileName);
     const a = document.createElement("a");
     a.href = url;
     a.download = fileName;

@@ -257,11 +257,11 @@ const page = () => {
                 className={`mx-4 my-1 flex capitalize cursor-pointer text-base`}
               >
                 {tab.label}
-                {tab.label.toLowerCase() === "billing" ||
+                {/* {tab.label.toLowerCase() === "billing" ||
                 tab.label.toLowerCase() === "custom" ||
                 tab.label.toLowerCase() === "rating"
                   ? " report"
-                  : ""}
+                  : ""} */}
               </label>
             </div>
           ))}
@@ -289,11 +289,11 @@ const page = () => {
                       onClick={() => handleTabChange(tab.value)}
                     >
                       {tab.label}
-                      {tab.label.toLowerCase() === "billing" ||
+                      {/* {tab.label.toLowerCase() === "billing" ||
                       tab.label.toLowerCase() === "custom" ||
                       tab.label.toLowerCase() === "rating"
                         ? " report"
-                        : ""}
+                        : ""} */}
                     </label>
                     <LineIcon />
                   </Fragment>
@@ -359,7 +359,9 @@ const page = () => {
                   variant="contained"
                   color="info"
                   disabled={!hasRaisedInvoiceData}
-                  className={`${hasRaisedInvoiceData ? "!bg-secondary" : ""}`}
+                  className={`whitespace-nowrap ${
+                    hasRaisedInvoiceData ? "!bg-secondary" : ""
+                  }`}
                   onClick={() => setSaveBTCData(true)}
                 >
                   Raise Invoice

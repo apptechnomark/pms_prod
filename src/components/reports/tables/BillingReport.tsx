@@ -127,6 +127,7 @@ const BillingReport = ({
             filteredData !== null ? filteredData : billingreport_InitialFilter
           );
           toast.success("BTC Data saved successfully!");
+          setTimeout(() => setBTCSaved(false), 100);
         } else {
           const data = response.data.Message;
           if (data === null) {

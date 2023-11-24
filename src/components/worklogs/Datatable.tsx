@@ -267,7 +267,6 @@ const Datatable = ({
         : [];
 
     setSelectedRowIds(selectedWorkItemIds);
-    console.log(selectedWorkItemIds);
 
     // adding only one or last selected id
     const lastSelectedWorkItemId =
@@ -1862,7 +1861,7 @@ const Datatable = ({
   const options: any = {
     filterType: "checkbox",
     responsive: "standard",
-    tableBodyHeight: "68vh",
+    tableBodyHeight: "73vh",
     viewColumns: false,
     filter: false,
     print: false,

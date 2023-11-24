@@ -1,6 +1,6 @@
 "use client";
 
-import { hasPermissionWorklog } from "@/utils/commonFunction";
+import { handleLogoutUtil, hasPermissionWorklog } from "@/utils/commonFunction";
 import { CircularProgress } from "@mui/material";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -11,87 +11,119 @@ import "react-toastify/dist/ReactToastify.css";
 const Home = () => {
   const router = useRouter();
 
+  const handlePermissionsForClientUser = () => {
+    if (hasPermissionWorklog("", "View", "Dashboard")) {
+      router.push("/dashboard");
+    } else if (
+      hasPermissionWorklog("", "View", "WorkLogs") &&
+      (hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") ||
+        hasPermissionWorklog("Rating", "View", "WorkLogs"))
+    ) {
+      router.push("/worklog");
+    } else if (
+      hasPermissionWorklog("", "View", "Report") &&
+      (hasPermissionWorklog("Task", "View", "Report") ||
+        hasPermissionWorklog("Rating", "View", "Report"))
+    ) {
+      router.push("/report");
+    } else {
+      setTimeout(
+        () => toast.warning("You don't have required permissions"),
+        8000
+      );
+      setTimeout(() => router.push("/login"), 13000);
+      localStorage.clear();
+    }
+  };
+
+  const handlePermissionsForNonClientUser = () => {
+    if (hasPermissionWorklog("", "View", "Dashboard")) {
+      router.push("/admin-dashboard");
+    } else if (hasPermissionWorklog("", "View", "Settings")) {
+      router.push("/settings");
+    } else if (
+      hasPermissionWorklog("", "View", "WorkLogs") &&
+      (hasPermissionWorklog("", "TaskManager", "WorkLogs") ||
+        hasPermissionWorklog("", "ManageAssignee", "WorkLogs"))
+    ) {
+      router.push("/worklogs");
+    } else if (hasPermissionWorklog("", "View", "Approvals")) {
+      router.push("/approvals");
+    } else if (hasPermissionWorklog("", "View", "Report")) {
+      router.push("/reports");
+    } else {
+      setTimeout(
+        () => toast.warning("You don't have required permissions"),
+        8000
+      );
+      setTimeout(() => router.push("/login"), 13000);
+      handleLogoutUtil();
+    }
+  };
+
+  const handlePermissions = (response: any) => {
+    if (response.data.ResponseData.IsClientUser) {
+      handlePermissionsForClientUser();
+    } else {
+      handlePermissionsForNonClientUser();
+    }
+  };
+
+  const setLocalStorageItems = (response: any) => {
+    localStorage.setItem(
+      "IsHaveManageAssignee",
+      response.data.ResponseData.IsHaveManageAssignee
+    );
+
+    localStorage.setItem(
+      "permission",
+      JSON.stringify(response.data.ResponseData.Menu)
+    );
+    localStorage.setItem("roleId", response.data.ResponseData.RoleId);
+    localStorage.setItem("isClient", response.data.ResponseData.IsClientUser);
+    localStorage.setItem("clientId", response.data.ResponseData.ClientId);
+
+    // Set organization details if not already set
+    if (localStorage.getItem("Org_Token") === null) {
+      localStorage.setItem(
+        "Org_Token",
+        response.data.ResponseData.Organizations[0].Token
+      );
+    }
+    if (localStorage.getItem("Org_Id") === null) {
+      localStorage.setItem(
+        "Org_Id",
+        response.data.ResponseData.Organizations[0].OrganizationId
+      );
+    }
+    if (localStorage.getItem("Org_Name") === null) {
+      localStorage.setItem(
+        "Org_Name",
+        response.data.ResponseData.Organizations[0].OrganizationName
+      );
+    }
+  };
+
   const getUserDetails = async () => {
-    const token = await localStorage.getItem("token");
     try {
+      const token = await localStorage.getItem("token");
       const headers = {
         "Content-Type": "application/json",
         Authorization: token,
       };
+
       const response = await axios.get(
         `${process.env.api_url}/auth/getuserdetails`,
         { headers: headers }
       );
-      if (response.status === 200) {
-        localStorage.setItem(
-          "IsHaveManageAssignee",
-          response.data.ResponseData.IsHaveManageAssignee
-        );
 
-        localStorage.setItem(
-          "permission",
-          JSON.stringify(response.data.ResponseData.Menu)
-        );
-        localStorage.setItem("roleId", response.data.ResponseData.RoleId);
-        localStorage.setItem(
-          "isClient",
-          response.data.ResponseData.IsClientUser
-        );
-        localStorage.setItem("clientId", response.data.ResponseData.ClientId);
-        if (localStorage.getItem("Org_Token") === null) {
-          localStorage.setItem(
-            "Org_Token",
-            response.data.ResponseData.Organizations[0].Token
-          );
-        }
-        if (localStorage.getItem("Org_Id") === null) {
-          localStorage.setItem(
-            "Org_Id",
-            response.data.ResponseData.Organizations[0].OrganizationId
-          );
-        }
-        if (localStorage.getItem("Org_Name") === null) {
-          localStorage.setItem(
-            "Org_Name",
-            response.data.ResponseData.Organizations[0].OrganizationName
-          );
-        }
+      if (response.status === 200) {
+        setLocalStorageItems(response);
+
         const local: any = await localStorage.getItem("permission");
 
         if (local.length > 2) {
-          if (response.data.ResponseData.IsClientUser === true) {
-            hasPermissionWorklog("", "View", "Report") &&
-              (hasPermissionWorklog("Task", "View", "Report") ||
-                hasPermissionWorklog("Rating", "View", "Report")) &&
-              router.push("/report");
-            hasPermissionWorklog("", "View", "WorkLogs") &&
-              (hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") ||
-                hasPermissionWorklog("Rating", "View", "WorkLogs")) &&
-              router.push("/worklog");
-            hasPermissionWorklog("", "View", "Dashboard") &&
-              router.push("/dashboard");
-          }
-          if (response.data.ResponseData.IsClientUser === false) {
-            hasPermissionWorklog("", "View", "Report") &&
-              router.push("/reports");
-            hasPermissionWorklog("", "View", "Approvals") &&
-              router.push("/approvals");
-            hasPermissionWorklog("", "View", "WorkLogs") &&
-              (hasPermissionWorklog("", "TaskManager", "WorkLogs") ||
-                hasPermissionWorklog("", "ManageAssignee", "WorkLogs")) &&
-              router.push("/worklogs");
-            hasPermissionWorklog("", "View", "Settings") &&
-              router.push("/settings");
-            hasPermissionWorklog("", "View", "Dashboard") &&
-              router.push("/admin-dashboard");
-          }
-        } else {
-          setTimeout(
-            () => toast.warning("You don't have required permissions"),
-            10000
-          );
-          setTimeout(() => router.push("/login"), 15000);
-          localStorage.clear();
+          handlePermissions(response);
         }
       }
     } catch (error: any) {

@@ -31,7 +31,9 @@ import {
   Switch,
   TextField,
   Tooltip,
+  TooltipProps,
   Typography,
+  tooltipClasses,
 } from "@mui/material";
 import { Close, Download, Save } from "@mui/icons-material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -61,6 +63,7 @@ import {
 } from "@/utils/commonDropdownApiCall";
 import ImageUploader from "../common/ImageUploader";
 import { getFileFromBlob } from "@/utils/downloadFile";
+import styled from "@emotion/styled";
 
 const EditDrawer = ({
   onOpen,
@@ -2397,15 +2400,14 @@ const EditDrawer = ({
       );
       reviewerData.length > 0 && setReviewerDropdownData(reviewerData);
       const UserId: any = await localStorage.getItem("UserId");
+      const reviwerId =
+        reviewerData.length > 0 &&
+        reviewerData
+          .map((i: any) => (i.value === parseInt(UserId) ? i.value : undefined))
+          .filter((i: any) => i !== undefined)[0];
       reviewerData.length > 0 &&
         onEdit === 0 &&
-        setReviewer(
-          reviewerData
-            .map((i: any) =>
-              i.value === parseInt(UserId) ? i.value : undefined
-            )
-            .filter((i: any) => i !== undefined)[0]
-        );
+        setReviewer(!reviwerId ? 0 : reviwerId);
     };
 
     const getTypeOfReturn = async () => {
@@ -2791,7 +2793,7 @@ const EditDrawer = ({
     );
 
     if (
-      value.trim().length > 5 &&
+      value.trim().length >= 5 &&
       value.trim().length < 501 &&
       !valueError &&
       commentAttachment[0].UserFileName.trim().length > 0 &&
@@ -3064,6 +3066,17 @@ const EditDrawer = ({
       }
     }
   };
+
+  const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
+    <Tooltip {...props} arrow classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.arrow}`]: {
+      color: "#0281B9",
+    },
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: "#0281B9",
+    },
+  }));
 
   const isWeekend = (date: any) => {
     const day = date.day();
@@ -4430,7 +4443,13 @@ const EditDrawer = ({
                                                 )
                                               }
                                             >
-                                              <Download />
+                                              <ColorToolTip
+                                                title="Download"
+                                                placement="top"
+                                                arrow
+                                              >
+                                                <Download />
+                                              </ColorToolTip>
                                             </span>
                                           </div>
                                         )}
@@ -4505,7 +4524,13 @@ const EditDrawer = ({
                                             )
                                           }
                                         >
-                                          <Download />
+                                          <ColorToolTip
+                                            title="Download"
+                                            placement="top"
+                                            arrow
+                                          >
+                                            <Download />
+                                          </ColorToolTip>
                                         </span>
                                       </div>
                                     )}
@@ -4631,7 +4656,13 @@ const EditDrawer = ({
                                     )
                                   }
                                 >
-                                  <Download />
+                                  <ColorToolTip
+                                    title="Download"
+                                    placement="top"
+                                    arrow
+                                  >
+                                    <Download />
+                                  </ColorToolTip>
                                 </span>
                               </div>
                             )}
@@ -5856,7 +5887,13 @@ const EditDrawer = ({
                                             )
                                           }
                                         >
-                                          <Download />
+                                          <ColorToolTip
+                                            title="Download"
+                                            placement="top"
+                                            arrow
+                                          >
+                                            <Download />
+                                          </ColorToolTip>
                                         </span>
                                       </div>
                                     )}

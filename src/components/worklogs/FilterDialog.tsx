@@ -301,12 +301,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
         if (response.data.ResponseStatus === "Success") {
           setRevwStatusDropdownData(
             response.data.ResponseData.map((i: any) =>
-              i.Type === "Accept" ||
-              i.Type === "AcceptWithNotes" ||
-              i.Type === "Errorlogs" ||
-              i.Type === "SignedOff"
-                ? i
-                : ""
+              i.Type !== "Reject" ? i : ""
             ).filter((i: any) => i !== "")
           );
         } else {

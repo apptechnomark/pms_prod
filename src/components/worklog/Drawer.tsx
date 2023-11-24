@@ -22,7 +22,9 @@ import {
   Switch,
   TextField,
   Tooltip,
+  TooltipProps,
   Typography,
+  tooltipClasses,
 } from "@mui/material";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -39,6 +41,7 @@ import {
 } from "@/utils/commonDropdownApiCall";
 import ImageUploader from "../common/ImageUploader";
 import { getFileFromBlob } from "@/utils/downloadFile";
+import styled from "@emotion/styled";
 
 const Drawer = ({
   onOpen,
@@ -540,7 +543,7 @@ const Drawer = ({
         commentAttachment[0].SystemFileName.trim().length <= 0
     );
     if (
-      value.trim().length > 5 &&
+      value.trim().length >= 5 &&
       value.trim().length < 501 &&
       !valueError &&
       commentAttachment[0].UserFileName.trim().length > 0 &&
@@ -1377,6 +1380,17 @@ const Drawer = ({
     onClose();
   };
 
+  const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
+    <Tooltip {...props} arrow classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.arrow}`]: {
+      color: "#0281B9",
+    },
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: "#0281B9",
+    },
+  }));
+
   return (
     <div
       className={`fixed top-0 right-0 z-30 h-screen overflow-y-auto w-[1300px] border border-lightSilver bg-pureWhite transform  ${
@@ -1884,7 +1898,13 @@ const Drawer = ({
                                               )
                                             }
                                           >
-                                            <Download />
+                                            <ColorToolTip
+                                              title="Download"
+                                              placement="top"
+                                              arrow
+                                            >
+                                              <Download />
+                                            </ColorToolTip>
                                           </span>
                                         </div>
                                       )}
@@ -1956,7 +1976,13 @@ const Drawer = ({
                                           )
                                         }
                                       >
-                                        <Download />
+                                        <ColorToolTip
+                                          title="Download"
+                                          placement="top"
+                                          arrow
+                                        >
+                                          <Download />
+                                        </ColorToolTip>
                                       </span>
                                     </div>
                                   )}
@@ -2078,7 +2104,13 @@ const Drawer = ({
                                   )
                                 }
                               >
-                                <Download />
+                                <ColorToolTip
+                                  title="Download"
+                                  placement="top"
+                                  arrow
+                                >
+                                  <Download />
+                                </ColorToolTip>
                               </span>
                             </div>
                           )}
@@ -2199,7 +2231,13 @@ const Drawer = ({
                                           )
                                         }
                                       >
-                                        <Download />
+                                        <ColorToolTip
+                                          title="Download"
+                                          placement="top"
+                                          arrow
+                                        >
+                                          <Download />
+                                        </ColorToolTip>
                                       </span>
                                     </div>
                                   )}
