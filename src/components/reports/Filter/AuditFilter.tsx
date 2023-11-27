@@ -70,11 +70,14 @@ const AuditFilter = ({
 
   const getFormattedDate = (newValue: any) => {
     if (newValue !== "") {
-      const formattedDate = `${newValue.$y}-${
+      const year = newValue.$y;
+      const month =
         (newValue.$M + 1).toString().length > 1
           ? newValue.$M + 1
-          : `0${newValue.$M + 1}`
-      }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+          : `0${newValue.$M + 1}`;
+      const date =
+        newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`;
+      const formattedDate = year + "-" + month + "-" + date;
 
       return formattedDate;
     }
@@ -150,73 +153,62 @@ const AuditFilter = ({
   const handleSaveFilter = async () => {
     if (filterName.trim().length === 0) {
       setError("This is required field!");
-    } else if (filterName.trim().length > 15) {
+      return;
+    }
+    if (filterName.trim().length > 15) {
       setError("Max 15 characters allowed!");
-    } else {
-      setError("");
+      return;
+    }
+    setError("");
 
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      const startdate =
-        startDate.toString().trim().length <= 0
-          ? null
-          : getFormattedDate(startDate);
-      const enddate =
-        endDate.toString().trim().length <= 0
-          ? null
-          : getFormattedDate(endDate);
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    const startdate =
+      startDate.toString().trim().length <= 0 ?? getFormattedDate(startDate);
+    const enddate =
+      endDate.toString().trim().length <= 0 ?? getFormattedDate(endDate);
 
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/filter/savefilter`,
-          {
-            filterId: !!currentFilterId ? currentFilterId : null,
-            name: filterName,
-            AppliedFilter: {
-              clients: clientName,
-              users: userName,
-              startDate: startdate,
-              endDate: enddate,
-            },
-            type: audit,
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/filter/savefilter`,
+        {
+          filterId: !!currentFilterId ?? currentFilterId,
+          name: filterName,
+          AppliedFilter: {
+            clients: clientName,
+            users: userName,
+            startDate: startdate,
+            endDate: enddate,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        const status = response.status;
-        const responseStatus = response.data.ResponseStatus.toLowerCase();
-
-        if (status === 200) {
-          if (responseStatus === "success") {
-            toast.success("Filter has been successully saved.");
-            handleClose();
-            getFilterList();
-            handleFilterApply();
-            setSaveFilter(false);
-          } else {
-            const data = response.data.Message;
-            if (!data) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (!data) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+          type: audit,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
         }
-      } catch (error) {
-        console.error(error);
+      );
+
+      const status = response.status;
+      const responseStatus = response.data.ResponseStatus.toLowerCase();
+
+      if (status === 200 && responseStatus === "success") {
+        toast.success("Filter has been successully saved.");
+        handleClose();
+        getFilterList();
+        handleFilterApply();
+        setSaveFilter(false);
+      } else {
+        const data = response.data.Message;
+        if (!data) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
       }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -237,7 +229,6 @@ const AuditFilter = ({
   }, [clientName, userName, startDate, endDate]);
 
   useEffect(() => {
-    // handleFilterApply();
     const filterDropdowns = async () => {
       setClientDropdown(await getClientData());
       setUserDropdown(await getUserData());
@@ -428,7 +419,7 @@ const AuditFilter = ({
               return (
                 <>
                   <div
-                    key={index}
+                    key={i.FilterId}
                     className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
                   >
                     <span
@@ -437,7 +428,6 @@ const AuditFilter = ({
                         setCurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleSavedFilterApply(index);
-                        // setFilterApplied(true);
                       }}
                     >
                       {i.Name}
@@ -613,7 +603,8 @@ const AuditFilter = ({
                     variant="standard"
                     value={filterName}
                     onChange={(e) => {
-                      setFilterName(e.target.value), setError("");
+                      setFilterName(e.target.value);
+                      setError("");
                     }}
                     error={Boolean(error)}
                     helperText={error}

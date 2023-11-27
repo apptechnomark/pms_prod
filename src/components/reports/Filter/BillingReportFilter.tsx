@@ -47,11 +47,27 @@ import {
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
 
+const typeOfReturnDropdown = [
+  {
+    label: "Form1060",
+    value: 1,
+  },
+  {
+    label: "Form1040",
+    value: 2,
+  },
+  {
+    label: "Form1040B",
+    value: 3,
+  },
+];
+
 const BillingReportFilter = ({
   isFiltering,
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
+  const isBTCRef_ForPreviousValue = useRef<boolean>(false);
   const [clients, setClients] = useState<any[]>([]);
   const [clientName, setClientName] = useState<any[]>([]);
   const [projectName, setProjectName] = useState<number | string>(0);
@@ -60,7 +76,6 @@ const BillingReportFilter = ({
   const [typeOfReturn, setTypeOfReturn] = useState<number | string>(0);
   const [noOfPages, setNoOfPages] = useState<number | string>("");
   const [isBTC, setIsBTC] = useState<boolean>(false);
-  const isBTCRef_ForPreviousValue = useRef<boolean>(false);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
 
@@ -68,20 +83,6 @@ const BillingReportFilter = ({
   const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
   const [assigneeDropdown, setAssigneeDropdown] = useState<any[]>([]);
   const [reviewerDropdown, setReviewerDropdown] = useState<any[]>([]);
-  const [typeOfReturnDropdown, setTypeOfReturnDropdown] = useState<any[]>([
-    {
-      label: "Form1060",
-      value: 1,
-    },
-    {
-      label: "Form1040",
-      value: 2,
-    },
-    {
-      label: "Form1040B",
-      value: 3,
-    },
-  ]);
 
   const [filterName, setFilterName] = useState<string>("");
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
@@ -94,9 +95,7 @@ const BillingReportFilter = ({
   const [resetting, setResetting] = useState<boolean>(false);
   const [error, setError] = useState("");
 
-  const [anchorElFilter, setAnchorElFilter] =
-    useState<HTMLButtonElement | null>(null);
-
+  const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
 
@@ -115,11 +114,14 @@ const BillingReportFilter = ({
       newValue.$M !== undefined &&
       newValue.$D !== undefined
     ) {
-      const formattedDate = `${newValue.$y}-${
+      const year = newValue.$y;
+      const month =
         (newValue.$M + 1).toString().length > 1
           ? newValue.$M + 1
-          : `0${newValue.$M + 1}`
-      }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+          : `0${newValue.$M + 1}`;
+      const date =
+        newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`;
+      const formattedDate = year + "-" + month + "-" + date;
 
       return formattedDate;
     }
@@ -226,73 +228,69 @@ const BillingReportFilter = ({
   const handleSaveFilter = async () => {
     if (filterName.trim().length === 0) {
       setError("This is required field!");
-    } else if (filterName.trim().length > 15) {
+      return;
+    }
+    if (filterName.trim().length > 15) {
       setError("Max 15 characters allowed!");
-    } else {
-      setError("");
+      return;
+    }
 
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/filter/savefilter`,
-          {
-            filterId: currentFilterId !== "" ? currentFilterId : null,
-            name: filterName,
-            AppliedFilter: {
-              clients: clientName.length > 0 ? clientName : [],
-              projects: projectName !== 0 ? [projectName] : [],
-              assigneeId: assignee !== 0 ? assignee : null,
-              reviewerId: reviewer !== 0 ? reviewer : null,
-              typeofReturnId: typeOfReturn !== 0 ? typeOfReturn : null,
-              numberOfPages:
-                noOfPages.toString().trim().length > 0 ? noOfPages : null,
-              IsBTC: isBTC,
-              startDate:
-                startDate.toString().trim().length <= 0
-                  ? null
-                  : getFormattedDate(startDate),
-              endDate:
-                endDate.toString().trim().length <= 0
-                  ? null
-                  : getFormattedDate(endDate),
-            },
-            type: billingReport,
+    setError("");
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/filter/savefilter`,
+        {
+          filterId: currentFilterId !== "" ? currentFilterId : null,
+          name: filterName,
+          AppliedFilter: {
+            clients: clientName,
+            projects: projectName,
+            assigneeId: assignee !== 0 ? assignee : null,
+            reviewerId: reviewer !== 0 ? reviewer : null,
+            typeofReturnId: typeOfReturn !== 0 ? typeOfReturn : null,
+            numberOfPages:
+              noOfPages.toString().trim().length > 0 ? noOfPages : null,
+            IsBTC: isBTC,
+            startDate:
+              startDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(startDate),
+            endDate:
+              endDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(endDate),
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus.toLowerCase() === "success") {
-            toast.success("Filter has been successully saved.");
-            handleClose();
-            getFilterList();
-            handleFilterApply();
-            setSaveFilter(false);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+          type: billingReport,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
         }
-      } catch (error) {
-        console.error(error);
+      );
+
+      if (
+        response.status === 200 &&
+        response.data.ResponseStatus.toLowerCase() === "success"
+      ) {
+        toast.success("Filter has been successully saved.");
+        handleClose();
+        getFilterList();
+        handleFilterApply();
+        setSaveFilter(false);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
       }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -324,7 +322,6 @@ const BillingReportFilter = ({
   ]);
 
   useEffect(() => {
-    // handleFilterApply();
     const filterDropdowns = async () => {
       setClientDropdown(await getClientData());
       setProjectDropdown(
@@ -507,7 +504,7 @@ const BillingReportFilter = ({
               return (
                 <>
                   <div
-                    key={index}
+                    key={i.FilterId}
                     className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
                   >
                     <span
@@ -516,7 +513,6 @@ const BillingReportFilter = ({
                         setCurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleSavedFilterApply(index);
-                        // setFilterApplied(true);
                       }}
                     >
                       {i.Name}
@@ -569,20 +565,6 @@ const BillingReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
                 >
-                  {/* <InputLabel id="clientName">Client Name</InputLabel>
-                  <Select
-                  
-                    labelId="clientName"
-                    id="clientName"
-                    value={clientName === 0 ? "" : clientName}
-                    onChange={(e) => setClientName(e.target.value)}
-                  >
-                    {clientDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select> */}
                   <Autocomplete
                     multiple
                     id="tags-standard"
@@ -619,7 +601,7 @@ const BillingReportFilter = ({
                     disabled={clients.length > 1}
                   >
                     {projectDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -637,7 +619,7 @@ const BillingReportFilter = ({
                     onChange={(e) => setAssignee(e.target.value)}
                   >
                     {assigneeDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -657,7 +639,7 @@ const BillingReportFilter = ({
                     onChange={(e) => setReviewer(e.target.value)}
                   >
                     {reviewerDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -675,7 +657,7 @@ const BillingReportFilter = ({
                     onChange={(e) => setTypeOfReturn(e.target.value)}
                   >
                     {typeOfReturnDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -685,19 +667,6 @@ const BillingReportFilter = ({
                   variant="standard"
                   sx={{ mt: 0.35, mx: 0.75, minWidth: 210 }}
                 >
-                  {/* <InputLabel id="department">Department</InputLabel> */}
-                  {/* <Select
-                    labelId="department"
-                    id="department"
-                    value={dept === 0 ? "" : dept}
-                    onChange={(e) => setDept(e.target.value)}
-                  >
-                    {deptDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select> */}
                   <TextField
                     id="noOfPages"
                     label="Number of Pages"
@@ -756,19 +725,6 @@ const BillingReportFilter = ({
                     minWidth: 100,
                   }}
                 >
-                  {/* <InputLabel id="department">Department</InputLabel> */}
-                  {/* <Select
-                    labelId="department"
-                    id="department"
-                    value={dept === 0 ? "" : dept}
-                    onChange={(e) => setDept(e.target.value)}
-                  >
-                    {deptDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select> */}
                   <FormControlLabel
                     sx={{ color: "#818181" }}
                     control={
@@ -816,7 +772,8 @@ const BillingReportFilter = ({
                     variant="standard"
                     value={filterName}
                     onChange={(e) => {
-                      setFilterName(e.target.value), setError("");
+                      setFilterName(e.target.value);
+                      setError("");
                     }}
                     error={Boolean(error)}
                     helperText={error}

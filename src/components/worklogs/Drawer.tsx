@@ -3236,7 +3236,7 @@ const EditDrawer = ({
                             setTypeOfWork(e.target.value);
                             setDateOfReview("");
                             setDateOfPreperation("");
-                            setReturnYear(0);
+                            // setReturnYear(0);
                             setNoOfPages(0);
                           }}
                           onBlur={(e: any) => {
