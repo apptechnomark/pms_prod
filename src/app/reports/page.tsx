@@ -9,7 +9,7 @@ import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
 
 //mui components
-import { Button, InputBase, TextField } from "@mui/material";
+import { Button, InputBase } from "@mui/material";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 
 //toast
@@ -36,12 +36,13 @@ import BillingReport from "@/components/reports/tables/BillingReport";
 import CustomReport from "@/components/reports/tables/CustomReport";
 
 //common functions
+//filter body for reports
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { haveSameData } from "@/utils/reports/commonFunctions";
-import { getCurrentTabDetails } from "@/utils/reports/getFilters";
-
-//filter body for reports
-import { customreport_InitialFilter } from "@/utils/reports/getFilters";
+import {
+  customreport_InitialFilter,
+  getCurrentTabDetails,
+} from "@/utils/reports/getFilters";
 
 //filter components
 import ClientFilter from "@/components/reports/Filter/ClientFilter";
@@ -96,7 +97,10 @@ const page = () => {
   //handling outside click for moreTabs
   useEffect(() => {
     const handleOutsideClick = (event: any) => {
-      if (moreTabsRef.current && !moreTabsRef.current.contains(event.target)) {
+      const isOutsideMoreTabs =
+        moreTabsRef.current && !moreTabsRef.current.contains(event.target);
+
+      if (isOutsideMoreTabs) {
         setShowMoreTabs(false);
       }
     };
@@ -108,40 +112,52 @@ const page = () => {
     };
   }, []);
 
+  //check if has permissions
+  const hasTabsPermission = () => {
+    return (
+      !hasPermissionWorklog("", "View", "Report") &&
+      (!hasPermissionWorklog("project", "View", "Report") ||
+        !hasPermissionWorklog("user", "View", "Report") ||
+        !hasPermissionWorklog("timesheet", "View", "Report") ||
+        !hasPermissionWorklog("workload", "View", "Report") ||
+        !hasPermissionWorklog("user log", "View", "Report") ||
+        !hasPermissionWorklog("audit", "View", "Report") ||
+        !hasPermissionWorklog("billing report", "View", "Report") ||
+        !hasPermissionWorklog("custom report", "View", "Report"))
+    );
+  };
+
+  //redirect or set required states
+  const actionAfterPermissionCheck = () => {
+    if (hasTabsPermission()) {
+      router.push("/");
+    } else {
+      setActiveTabs(
+        primaryTabs.map((tab: any) =>
+          hasPermissionWorklog(tab.label, "view", "report") ? tab : false
+        )
+      );
+      setMoreTabs(
+        secondaryTabs.map((tab: any) =>
+          hasPermissionWorklog(tab.label, "view", "report") ? tab : false
+        )
+      );
+      setActiveTab(
+        primaryTabs
+          .map((tab: any) =>
+            hasPermissionWorklog(tab.label, "view", "report") ? tab : false
+          )
+          .filter((tab: any) => tab !== false)[0].value
+      );
+    }
+  };
+
   //handle routing & permission
   useEffect(() => {
-    if (localStorage.getItem("isClient") === "false") {
-      if (
-        !hasPermissionWorklog("", "View", "Report") &&
-        (!hasPermissionWorklog("project", "View", "Report") ||
-          !hasPermissionWorklog("user", "View", "Report") ||
-          !hasPermissionWorklog("timesheet", "View", "Report") ||
-          !hasPermissionWorklog("workload", "View", "Report") ||
-          !hasPermissionWorklog("user log", "View", "Report") ||
-          !hasPermissionWorklog("audit", "View", "Report") ||
-          !hasPermissionWorklog("billing report", "View", "Report") ||
-          !hasPermissionWorklog("custom report", "View", "Report"))
-      ) {
-        router.push("/");
-      } else {
-        setActiveTabs(
-          primaryTabs.map((tab: any) =>
-            hasPermissionWorklog(tab.label, "view", "report") ? tab : false
-          )
-        );
-        setMoreTabs(
-          secondaryTabs.map((tab: any) =>
-            hasPermissionWorklog(tab.label, "view", "report") ? tab : false
-          )
-        );
-        setActiveTab(
-          primaryTabs
-            .map((tab: any) =>
-              hasPermissionWorklog(tab.label, "view", "report") ? tab : false
-            )
-            .filter((tab: any) => tab !== false)[0].value
-        );
-      }
+    const isClient = localStorage.getItem("isClient") === "false";
+
+    if (isClient) {
+      actionAfterPermissionCheck();
     } else {
       router.push("/");
     }
@@ -171,6 +187,7 @@ const page = () => {
     //updating the activeTabs state with the newly clicked tab
     setActiveTabs((prevTabs) =>
       prevTabs.map((tab: any, index: number) =>
+        //swap the last tab of activeTabs with clicked tab of moreTabs
         index === activeTabs.length - 1 ? moreTabs[clickedIndex] : tab
       )
     );
@@ -178,6 +195,7 @@ const page = () => {
     //updating the moreTabs state with the last tab present in activeTabs
     setMoreTabs((prevTabs) =>
       prevTabs.map((tab: any, index: number) =>
+        //swap the last tab of activeTabs with clicked tab of moreTabs
         index === clickedIndex ? lastVisibleTab : tab
       )
     );
@@ -248,6 +266,7 @@ const page = () => {
           .filter((tab: any) => tab !== false)
           .map((tab: any, index: number) => (
             <div
+              key={tab.value}
               className={`py-2 w-full hover:bg-[#0000000e] ${
                 index === 0 ? "rounded-t" : ""
               } ${index === moreTabs.length - 1 ? "rounded-b" : ""}`}
@@ -257,11 +276,6 @@ const page = () => {
                 className={`mx-4 my-1 flex capitalize cursor-pointer text-base`}
               >
                 {tab.label}
-                {/* {tab.label.toLowerCase() === "billing" ||
-                tab.label.toLowerCase() === "custom" ||
-                tab.label.toLowerCase() === "rating"
-                  ? " report"
-                  : ""} */}
               </label>
             </div>
           ))}
@@ -279,7 +293,7 @@ const page = () => {
               {activeTabs
                 .filter((tab: any) => tab !== false)
                 .map((tab: any, index: number) => (
-                  <Fragment key={index}>
+                  <Fragment key={tab.value}>
                     <label
                       className={`mx-4 capitalize cursor-pointer text-base ${
                         activeTab === tab.value
@@ -289,11 +303,6 @@ const page = () => {
                       onClick={() => handleTabChange(tab.value)}
                     >
                       {tab.label}
-                      {/* {tab.label.toLowerCase() === "billing" ||
-                      tab.label.toLowerCase() === "custom" ||
-                      tab.label.toLowerCase() === "rating"
-                        ? " report"
-                        : ""} */}
                     </label>
                     <LineIcon />
                   </Fragment>

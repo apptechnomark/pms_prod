@@ -1,6 +1,6 @@
 import { BlobServiceClient } from "@azure/storage-blob";
 
-export const getFileFromBlob = async (fileName: string) => {
+export const getFileFromBlob = async (fileName: string, originalName: any) => {
   const storageAccount = process.env.storageName;
   const containerName: any = process.env.attachment;
   const sasToken = process.env.sasToken;
@@ -16,7 +16,7 @@ export const getFileFromBlob = async (fileName: string) => {
     const url = URL.createObjectURL(await downloadBlockBlobResponse.blobBody);
     const a = document.createElement("a");
     a.href = url;
-    a.download = fileName;
+    a.download = originalName;
     document.body.appendChild(a);
     a.click();
     a.remove();

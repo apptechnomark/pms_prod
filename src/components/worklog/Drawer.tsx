@@ -1894,7 +1894,9 @@ const Drawer = ({
                                             onClick={() =>
                                               getFileFromBlob(
                                                 commentAttachment[0]
-                                                  ?.SystemFileName
+                                                  ?.SystemFileName,
+                                                commentAttachment[0]
+                                                  ?.UserFileName
                                               )
                                             }
                                           >
@@ -1972,7 +1974,8 @@ const Drawer = ({
                                       <span
                                         onClick={() =>
                                           getFileFromBlob(
-                                            i.Attachment[0]?.SystemFileName
+                                            i.Attachment[0]?.SystemFileName,
+                                            i.Attachment[0]?.UserFileName
                                           )
                                         }
                                       >
@@ -2100,7 +2103,8 @@ const Drawer = ({
                               <span
                                 onClick={() =>
                                   getFileFromBlob(
-                                    commentAttachment[0]?.SystemFileName
+                                    commentAttachment[0]?.SystemFileName,
+                                    commentAttachment[0]?.UserFileName
                                   )
                                 }
                               >
@@ -2227,7 +2231,9 @@ const Drawer = ({
                                         className="mt-6"
                                         onClick={() =>
                                           getFileFromBlob(
-                                            field.Attachments[0]?.SystemFileName
+                                            field.Attachments[0]
+                                              ?.SystemFileName,
+                                            field.Attachments[0]?.UserFileName
                                           )
                                         }
                                       >
