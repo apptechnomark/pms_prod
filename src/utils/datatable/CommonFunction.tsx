@@ -6,7 +6,7 @@ export const genrateCustomHeaderName = (headerName: string) => {
 
 export const generateCommonBodyRender = (baodyValue: any) => {
   return (
-    <div className="ml-2">{baodyValue === null || "" ? "-" : baodyValue}</div>
+    <div className="ml-2">{baodyValue === null || baodyValue === "" ? "-" : baodyValue}</div>
   );
 };
 

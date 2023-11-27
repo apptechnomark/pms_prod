@@ -28,6 +28,15 @@ import { hasNoToken, hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import Loading from "@/assets/icons/reports/Loading";
+import {
+  CLIENT,
+  GROUP,
+  ORGANIZATION,
+  PROCESS,
+  PROJECT,
+  STATUS,
+  USER,
+} from "@/components/settings/tables/Constants/Tabname";
 
 type Tabs = { id: string; label: string; canView: boolean };
 
@@ -874,28 +883,26 @@ const page = () => {
     };
 
     switch (tab) {
-      case "Client":
+      case CLIENT:
         handleSearch(clientSearchValue, handleClientSearch);
         break;
-      case "Project":
+      case PROJECT:
         handleSearch(projectSearchValue, handleProjectSearch);
         break;
-      case "User":
+      case USER:
         handleSearch(userSearchValue, handleUserSearch);
         break;
-      case "Process":
+      case PROCESS:
         handleSearch(processSearchValue, handleProcessSearch);
         break;
-      case "Group":
+      case GROUP:
         handleSearch(groupSearchValue, handleGroupSearch);
         break;
-      case "Status":
+      case STATUS:
         handleSearch(statusSearchValue, handleStatusSearch);
         break;
-      case "Organization":
+      case ORGANIZATION:
         handleSearch(orgSearchValue, handleOrganizationSearch);
-        break;
-      default:
         break;
     }
   }, [
@@ -960,6 +967,32 @@ const page = () => {
     } catch (error) {
       setIsExporting(false);
       Toast.error("Error exporting data.");
+    }
+  };
+
+  const clearSearchValue = (tab: string) => {
+    switch (tab) {
+      case CLIENT:
+        setClientSearchValue("");
+        break;
+      case PROJECT:
+        setProjectSearchValue("");
+        break;
+      case USER:
+        setUserSearchValue("");
+        break;
+      case PROCESS:
+        setProcessSearchValue("");
+        break;
+      case GROUP:
+        setGroupSearchValue("");
+        break;
+      case STATUS:
+        setStatusSearchValue("");
+        break;
+      case ORGANIZATION:
+        setOrgSearchValue("");
+        break;
     }
   };
 
@@ -1140,35 +1173,35 @@ const page = () => {
                           tab === "Client"
                             ? exportData(
                                 "client",
-                                "client_data",
+                                "Client_data",
                                 clientSearchValue
                               )
                             : tab === "Group"
                             ? exportData(
                                 "group",
-                                "group_data",
+                                "Group_data",
                                 groupSearchValue
                               )
                             : tab === "Process"
                             ? exportData(
                                 "process",
-                                "process_data",
+                                "Process_data",
                                 processSearchValue
                               )
                             : tab === "Project"
                             ? exportData(
                                 "project",
-                                "project_data",
+                                "Project_data",
                                 projectSearchValue
                               )
                             : tab === "Status"
                             ? exportData(
                                 "status",
-                                "status_data",
+                                "Status_data",
                                 statusSearchValue
                               )
                             : tab === "User"
-                            ? exportData("user", "user_data", userSearchValue)
+                            ? exportData("user", "User_data", userSearchValue)
                             : null
                         }
                       >
@@ -1313,6 +1346,7 @@ const page = () => {
             canDelete={hasPermissionWorklog("client", "delete", "settings")}
             canProcess={hasPermissionWorklog("client", "save", "settings")}
             onSearchClientData={clientSearchData}
+            onSearchClear={clearSearchValue}
           />
         )}
         {tab === "Project" && (
@@ -1330,6 +1364,7 @@ const page = () => {
             canEdit={hasPermissionWorklog("project", "save", "settings")}
             canDelete={hasPermissionWorklog("project", "delete", "settings")}
             onSearchProjectData={projectSearchData}
+            onSearchClear={clearSearchValue}
           />
         )}
         {tab === "User" && (
@@ -1351,6 +1386,7 @@ const page = () => {
               hasPermissionWorklog("permission", "view", "settings") &&
               hasPermissionWorklog("permission", "save", "settings")
             }
+            onSearchClear={clearSearchValue}
           />
         )}
         {tab === "Group" && (
@@ -1368,6 +1404,7 @@ const page = () => {
             canEdit={hasPermissionWorklog("group", "save", "settings")}
             canDelete={hasPermissionWorklog("group", "delete", "settings")}
             onSearchGroupData={groupSearchData}
+            onSearchClear={clearSearchValue}
           />
         )}
         {tab === "Process" && (
@@ -1385,6 +1422,7 @@ const page = () => {
             canEdit={hasPermissionWorklog("process", "save", "settings")}
             canDelete={hasPermissionWorklog("process", "delete", "settings")}
             onSearchProcessData={processSearchData}
+            onSearchClear={clearSearchValue}
           />
         )}
         {tab === "Status" && (
@@ -1402,6 +1440,7 @@ const page = () => {
             canEdit={hasPermissionWorklog("status", "save", "settings")}
             canDelete={hasPermissionWorklog("status", "delete", "settings")}
             onSearchStatusData={statusSearchData}
+            onSearchClear={clearSearchValue}
           />
         )}
         {tab === "Permission" && (
@@ -1419,6 +1458,7 @@ const page = () => {
             canView={hasPermissionWorklog("permission", "view", "settings")}
             canEdit={hasPermissionWorklog("permission", "save", "settings")}
             canDelete={hasPermissionWorklog("permission", "delete", "settings")}
+            onSearchClear={clearSearchValue}
           />
         )}
         {tab === "Organization" && (
@@ -1433,6 +1473,7 @@ const page = () => {
             onDataFetch={handleDataFetch}
             getOrgDetailsFunction={getOrgDetailsFunction}
             onSearchOrgData={orgSearchData}
+            onSearchClear={clearSearchValue}
           />
         )}
       </div>

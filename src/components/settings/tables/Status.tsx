@@ -4,6 +4,7 @@ import "next-ts-lib/dist/index.css";
 import axios from "axios";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteModal from "@/components/common/DeleteModal";
+import { STATUS } from "./Constants/Tabname";
 
 function Status({
   onOpen,
@@ -15,6 +16,7 @@ function Status({
   canEdit,
   canDelete,
   onSearchStatusData,
+  onSearchClear,
 }: any) {
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
@@ -76,6 +78,7 @@ function Status({
         setLoader(false);
         setStatusList(response.data.ResponseData.List);
         getOrgDetailsFunction();
+        onSearchClear(STATUS);
       } else {
         const data = response.data.Message;
         if (data === null) {

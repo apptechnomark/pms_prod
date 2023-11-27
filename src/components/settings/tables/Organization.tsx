@@ -8,6 +8,7 @@ import TableActionIcon from "@/assets/icons/TableActionIcon";
 import axios from "axios";
 import DeleteModal from "@/components/common/DeleteModal";
 import SwitchModal from "@/components/common/SwitchModal";
+import { ORGANIZATION } from "./Constants/Tabname";
 
 function Organization({
   onOpen,
@@ -16,6 +17,7 @@ function Organization({
   onDataFetch,
   getOrgDetailsFunction,
   onSearchOrgData,
+  onSearchClear,
 }: any) {
   const [userList, setUserList] = useState([]);
   const [isOpenSwitchModal, setIsOpenSwitchModal] = useState(false);
@@ -68,6 +70,7 @@ function Organization({
           setIsOpenSwitchModal(false);
           getOrgDetailsFunction();
           getOrganizationList();
+          onSearchClear(ORGANIZATION);
           Toast.success("Organization Updated Successfully.");
         } else {
           const data = response.data.Message;

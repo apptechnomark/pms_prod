@@ -50,13 +50,13 @@ const ProcessContent = forwardRef<
   const [subProcessName, setSubProcessName] = useState("");
   const [subProcessNameError, setSubProcessNameError] = useState(false);
   const [subProcessNameHasError, setSubProcessNameHasError] = useState(false);
-  const [returnType, setReturnType] = useState(-1);
+  const [returnType, setReturnType] = useState(0);
   const [returnTypeError, setReturnTypeError] = useState(false);
   const [returnTypeHasError, setReturnTypeHasError] = useState(false);
-  const [returnTypeDrpdown, setReturnTypeDrpdown] = useState([
+  const returnTypeDrpdown = [
     {
       label: "None",
-      value: 0,
+      value: 3,
     },
     {
       label: "Individual Return",
@@ -66,7 +66,7 @@ const ProcessContent = forwardRef<
       label: "Business Return",
       value: 2,
     },
-  ]);
+  ];
   const [estTime, setEstTime] = useState<any>("");
   const [estTimeError, setEstTimeError] = useState(false);
   const [estTimeHasError, setEstTimeHasError] = useState(false);
@@ -224,7 +224,9 @@ const ProcessContent = forwardRef<
             setSubProcessName(response.data.ResponseData.Name);
             setReturnType(
               response.data.ResponseData.ReturnType === null
-                ? -1
+                ? 0
+                : response.data.ResponseData.ReturnType === 0
+                ? 3
                 : response.data.ResponseData.ReturnType
             );
             const estTimeConverted = secondsToHHMMSS(
@@ -376,7 +378,7 @@ const ProcessContent = forwardRef<
   };
   const clearData = () => {
     setSubProcessName("");
-    setReturnType(-1);
+    setReturnType(0);
     setEstTime("");
     setSelectValue(0);
     setInputList([]);
@@ -408,12 +410,12 @@ const ProcessContent = forwardRef<
     const estTimeTotalSeconds =
       parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
     subProcessName.trim().length <= 0 && setSubProcessNameError(true);
-    returnType <= -1 && setReturnTypeError(true);
+    returnType <= 0 && setReturnTypeError(true);
     estTime.length < 8 && setEstTimeError(true);
     if (
       !(selectValue <= 0) &&
       !(subProcessName.length <= 0) &&
-      !(returnType <= -1) &&
+      !(returnType <= 0) &&
       !(estTime === "00:00:00") &&
       !(estTime === "") &&
       !(estTime.length < 8) &&
@@ -424,7 +426,7 @@ const ProcessContent = forwardRef<
         const prams = {
           ProcessId: onEdit || 0,
           Name: subProcessName,
-          ReturnTypeId: returnType,
+          ReturnTypeId: returnType === 3 ? 0 : returnType,
           ActivityList: activity,
           EstimatedHour: estTimeTotalSeconds,
           IsProductive: productive,
@@ -484,13 +486,13 @@ const ProcessContent = forwardRef<
     const estTimeTotalSeconds =
       parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
     subProcessName.trim().length <= 0 && setSubProcessNameError(true);
-    returnType <= -1 && setReturnTypeError(true);
+    returnType <= 0 && setReturnTypeError(true);
     estTimeTotalSeconds === 0 && setEstTimeError(true);
 
     if (
       !(selectValue <= 0) &&
       !(subProcessName.length <= 0) &&
-      !(returnType <= -1) &&
+      !(returnType <= 0) &&
       !(estTime === "00:00:00") &&
       !(estTime === "") &&
       !(estTime.length < 8) &&
@@ -501,7 +503,7 @@ const ProcessContent = forwardRef<
         const prams = {
           ProcessId: onEdit || 0,
           Name: subProcessName,
-          ReturnTypeId: returnType,
+          ReturnTypeId: returnType === 3 ? 0 : returnType,
           ActivityList: activity,
           EstimatedHour: estTimeTotalSeconds,
           IsProductive: productive,
@@ -688,7 +690,7 @@ const ProcessContent = forwardRef<
             id="return_type"
             validate
             placeholder="Select Return Type"
-            defaultValue={returnType === -1 ? "" : returnType}
+            defaultValue={returnType === 0 ? "" : returnType}
             onSelect={() => {}}
             options={returnTypeDrpdown}
             hasError={returnTypeError}

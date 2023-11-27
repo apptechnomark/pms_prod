@@ -6,6 +6,7 @@ import axios from "axios";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteModal from "@/components/common/DeleteModal";
 import "next-ts-lib/dist/index.css";
+import { GROUP } from "./Constants/Tabname";
 
 function Group({
   onOpen,
@@ -17,6 +18,7 @@ function Group({
   canEdit,
   canDelete,
   onSearchGroupData,
+  onSearchClear,
 }: any) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
@@ -81,6 +83,7 @@ function Group({
           setLoader(false);
           setData(response.data.ResponseData.List);
           getOrgDetailsFunction();
+          onSearchClear(GROUP);
         } else {
           const data = response.data.Message;
           setLoader(false);

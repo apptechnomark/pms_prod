@@ -242,7 +242,10 @@ const page = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${getCurrentTabDetails(activeTab)}_report.xlsx`;
+      a.download = `${
+        getCurrentTabDetails(activeTab).charAt(0).toUpperCase() +
+        getCurrentTabDetails(activeTab).slice(1)
+      }_report.xlsx`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

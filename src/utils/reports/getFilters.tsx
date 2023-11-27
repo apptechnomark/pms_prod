@@ -148,11 +148,7 @@ export const rating_InitialFilter: any = {
   EndDate: null,
 };
 
-export const getCurrentTabDetails = (
-  activeTab: number,
-  getBody?: boolean,
-  lastTab?: string
-) => {
+export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
   if (activeTab === 1) {
     return getBody ? client_project_InitialFilter : "project";
   }

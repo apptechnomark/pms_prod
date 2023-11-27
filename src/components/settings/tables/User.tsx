@@ -20,6 +20,7 @@ import axios from "axios";
 import SwitchModal from "@/components/common/SwitchModal";
 import DrawerOverlay from "../drawer/DrawerOverlay";
 import UserPermissionDrawer from "../drawer/UserPermissionDrawer";
+import { USER } from "./Constants/Tabname";
 
 const User = ({
   onOpen,
@@ -32,6 +33,7 @@ const User = ({
   canDelete,
   canPermission,
   onSearchUserData,
+  onSearchClear,
 }: any) => {
   const headers = [
     { header: "User Name", accessor: "FullName", sortable: true },
@@ -430,6 +432,7 @@ const User = ({
           setLoader(false);
           setData(response.data.ResponseData.List);
           getOrgDetailsFunction();
+          onSearchClear(USER);
         } else {
           const data = response.data.Message;
           if (data === null) {

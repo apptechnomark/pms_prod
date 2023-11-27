@@ -7,6 +7,7 @@ import TableActionIcon from "@/assets/icons/TableActionIcon";
 import { DataTable, Loader, Toast, Tooltip } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import DeleteModal from "@/components/common/DeleteModal";
+import { PROCESS } from "./Constants/Tabname";
 
 function Process({
   onOpen,
@@ -18,6 +19,7 @@ function Process({
   canEdit,
   canDelete,
   onSearchProcessData,
+  onSearchClear,
 }: any) {
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
@@ -80,6 +82,7 @@ function Process({
           setLoader(false);
           setData(response.data.ResponseData.List);
           getOrgDetailsFunction();
+          onSearchClear(PROCESS);
         } else {
           setLoader(false);
           const data = response.data.Message;

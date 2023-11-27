@@ -12,6 +12,7 @@ import SwitchModal from "@/components/common/SwitchModal";
 import ClientProcessDrawer from "../drawer/ClientProcessDrawer";
 import DrawerOverlay from "../drawer/DrawerOverlay";
 import ClientFieldsDrawer from "../drawer/ClientFieldDrawer";
+import { CLIENT } from "./Constants/Tabname";
 
 function Client({
   onOpen,
@@ -23,6 +24,7 @@ function Client({
   canDelete,
   canProcess,
   onSearchClientData,
+  onSearchClear,
 }: any) {
   const headers = [
     {
@@ -116,6 +118,7 @@ function Client({
           setLoader(false);
           setData(response.data.ResponseData.List);
           getOrgDetailsFunction();
+          onSearchClear(CLIENT);
         } else {
           setLoader(false);
           const data = response.data.Message;

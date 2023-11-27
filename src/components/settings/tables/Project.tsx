@@ -10,6 +10,7 @@ import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteModal from "@/components/common/DeleteModal";
 import SwitchModal from "@/components/common/SwitchModal";
 import { ACTION } from "next/dist/client/components/app-router-headers";
+import { PROJECT } from "./Constants/Tabname";
 
 const Project = ({
   onOpen,
@@ -20,6 +21,7 @@ const Project = ({
   canEdit,
   canDelete,
   onSearchProjectData,
+  onSearchClear,
 }: any) => {
   const headers = [
     { header: "Client Name", accessor: "ClientName", sortable: true },
@@ -219,10 +221,14 @@ const Project = ({
                   return {
                     ...child,
                     ClientName: (
-                      <span className="w-[155px] text-sm">{child.ClientName}</span>
+                      <span className="w-[155px] text-sm">
+                        {child.ClientName}
+                      </span>
                     ),
                     ProjectName: (
-                      <span className="w-[220px] text-sm">{child.ProjectName}</span>
+                      <span className="w-[220px] text-sm">
+                        {child.ProjectName}
+                      </span>
                     ),
                     SubProjectName: (
                       <span className="w-[180px] -ml-20 text-sm">
@@ -287,6 +293,7 @@ const Project = ({
           setLoader(false);
           setData(response.data.ResponseData.List);
           getOrgDetailsFunction();
+          onSearchClear(PROJECT);
         } else {
           const data = response.data.Message;
           if (data === null) {

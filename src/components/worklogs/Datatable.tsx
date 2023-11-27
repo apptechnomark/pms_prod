@@ -37,6 +37,11 @@ import Comments from "@/assets/icons/worklogs/Comments";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import EditIcon from "@/assets/icons/worklogs/EditIcon";
 import RecurringIcon from "@/assets/icons/worklogs/RecurringIcon";
+import ClientIcon from "@/assets/icons/worklogs/ClientIcon";
+import ProjectIcon from "@/assets/icons/worklogs/ProjectIcon";
+import ReturnYearIcon from "@/assets/icons/worklogs/ReturnYearIcon";
+import ManagerIcon from "@/assets/icons/worklogs/ManagerIcon";
+import DateIcon from "@/assets/icons/worklogs/DateIcon";
 // Internal Component imports
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
@@ -48,6 +53,13 @@ import {
   generatePriorityWithColor,
   generateStatusWithColor,
 } from "@/utils/datatable/CommonFunction";
+import {
+  getClientDropdownData,
+  getManagerDropdownData,
+} from "@/utils/commonDropdownApiCall";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -130,8 +142,14 @@ const Datatable = ({
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [clientSearchQuery, setClientSearchQuery] = useState("");
+  const [managerSearchQuery, setManagerSearchQuery] = useState("");
+  const [processSearchQuery, setprocessSearchQuery] = useState("");
   const [workItemData, setWorkItemData] = useState<any | any[]>([]);
   const [selectedRowIds, setSelectedRowIds] = useState<any | number[]>([]);
+  const [clientDropdownData, setClientDropdownData] = useState([]);
+  const [managerDropdownData, setManagerDropdownData] = useState([]);
+  const [processDropdownData, setProcessDropdownData] = useState([]);
   const [selectedRowStatusName, setSelectedRowStatusName] = useState<
     any | string[]
   >([]);
@@ -188,6 +206,16 @@ const Datatable = ({
     React.useState<HTMLButtonElement | null>(null);
   const [anchorElStatus, setAnchorElStatus] =
     React.useState<HTMLButtonElement | null>(null);
+  const [anchorElClient, setAnchorElClient] =
+    React.useState<HTMLButtonElement | null>(null);
+  const [anchorElProcess, setAnchorElProcess] =
+    React.useState<HTMLButtonElement | null>(null);
+  const [anchorElReturnYear, setAnchorElReturnYear] =
+    React.useState<HTMLButtonElement | null>(null);
+  const [anchorElManager, setAnchorElManager] =
+    React.useState<HTMLButtonElement | null>(null);
+  const [anchorElDateReceived, setAnchorElDateReceived] =
+    React.useState<HTMLButtonElement | null>(null);
 
   const handleClickPriority = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorElPriority(event.currentTarget);
@@ -213,6 +241,52 @@ const Datatable = ({
     setAnchorElStatus(null);
   };
 
+  const handleClickClient = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElClient(event.currentTarget);
+    getClientData();
+  };
+
+  const handleCloseClient = () => {
+    setAnchorElClient(null);
+  };
+
+  const handleClickProcess = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElProcess(event.currentTarget);
+  };
+
+  const handleCloseProcess = () => {
+    setAnchorElProcess(null);
+  };
+
+  const handleClickReturnYear = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    setAnchorElReturnYear(event.currentTarget);
+  };
+
+  const handleCloseReturnYear = () => {
+    setAnchorElReturnYear(null);
+  };
+
+  const handleClickManager = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElManager(event.currentTarget);
+    getManagerData();
+  };
+
+  const handleCloseManager = () => {
+    setAnchorElManager(null);
+  };
+
+  const handleClickDateReceived = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    setAnchorElDateReceived(event.currentTarget);
+  };
+
+  const handleCloseDateReceived = () => {
+    setAnchorElDateReceived(null);
+  };
+
   const openPriority = Boolean(anchorElPriority);
   const idPriority = openPriority ? "simple-popover" : undefined;
 
@@ -222,12 +296,51 @@ const Datatable = ({
   const openStatus = Boolean(anchorElStatus);
   const idStatus = openStatus ? "simple-popover" : undefined;
 
+  const openClient = Boolean(anchorElClient);
+  const idClient = openClient ? "simple-popover" : undefined;
+
+  const openProcess = Boolean(anchorElProcess);
+  const idProcess = openProcess ? "simple-popover" : undefined;
+
+  const openReturnYear = Boolean(anchorElReturnYear);
+  const idReturnYear = openReturnYear ? "simple-popover" : undefined;
+
+  const openManager = Boolean(anchorElManager);
+  const idManager = openManager ? "simple-popover" : undefined;
+
+  const openDateReceived = Boolean(anchorElDateReceived);
+  const idDateReceived = openDateReceived ? "simple-popover" : undefined;
+
   const handleSearchChange = (event: any) => {
     setSearchQuery(event.target.value);
   };
 
   const filteredAssignees = assignee.filter((assignee: any) =>
     assignee.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleClientSearchChange = (event: any) => {
+    setClientSearchQuery(event.target.value);
+  };
+
+  const handleManagerSearchChange = (event: any) => {
+    setManagerSearchQuery(event.target.value);
+  };
+
+  const handleProcessSearchChange = (event: any) => {
+    setprocessSearchQuery(event.target.value);
+  };
+
+  const filteredClient = clientDropdownData.filter((client: any) =>
+    client.label.toLowerCase().includes(clientSearchQuery.toLowerCase())
+  );
+
+  const filteredManager = managerDropdownData.filter((manager: any) =>
+    manager.label.toLowerCase().includes(managerSearchQuery.toLowerCase())
+  );
+
+  const filteredProcess = processDropdownData.filter((process: any) =>
+    process.label.toLowerCase().includes(processSearchQuery.toLowerCase())
   );
 
   // actions for priority popup
@@ -246,9 +359,37 @@ const Datatable = ({
     handleCloseStatus();
   };
 
+  const handleOptionreturnYear = (id: any) => {
+    updateReturnYear(selectedRowIds, id);
+    handleCloseReturnYear();
+  };
+
+  const handleOptionManager = (id: any) => {
+    updateManager(selectedRowIds, id);
+    handleCloseReturnYear();
+  };
+
+  const handleOptionClient = (id: any) => {
+    updateClient(selectedRowIds, id);
+    handleCloseClient();
+  };
+
+  const handleOptionProcess = (id: any) => {
+    updateProcess(selectedRowIds, id);
+    handleCloseProcess();
+  };
+
   // Function for checking that All vlaues in the arrar are same or not
   function areAllValuesSame(arr: any[]) {
     return arr.every((value, index, array) => value === array[0]);
+  }
+
+  // getting years
+  const currentYear = new Date().getFullYear();
+  const Years = [];
+
+  for (let year = 2010; year <= currentYear + 1; year++) {
+    Years.push({ label: String(year), value: year });
   }
 
   // For Closing Delete Modal
@@ -540,6 +681,16 @@ const Datatable = ({
     getWorkItemList();
   }, [currentFilterData]);
 
+  // client Dropdown API
+  const getClientData = async () => {
+    setClientDropdownData(await getClientDropdownData());
+  };
+
+  const getManagerData = async () => {
+    setManagerDropdownData(await getManagerDropdownData());
+  };
+
+  // API for filte list
   const getFilterList = async (filterId: number) => {
     if (filterId === 0) {
       setFilteredOject(initialFilter);
@@ -1025,7 +1176,7 @@ const Datatable = ({
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Error duplicating task.");
+            toast.error("Something went wrong, Please try again later..");
           } else {
             toast.error(data);
           }
@@ -1033,7 +1184,7 @@ const Datatable = ({
       } else {
         const data = response.data.Message;
         if (data === null) {
-          toast.error("Error duplicating task.");
+          toast.error("Something went wrong, Please try again later..");
         } else {
           toast.error(data);
         }
@@ -1042,6 +1193,78 @@ const Datatable = ({
       console.error(error);
     }
   };
+
+  // API for process Data
+  const getProcessData = async (ids: any) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/getclientcommonprocess`,
+        { ClientIds: ids },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setProcessDropdownData(response.data.ResponseData);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    if (
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId > 0 &&
+          i.ProcessId === 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length > 0 &&
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length <= 0 &&
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId > 0 &&
+          i.ProcessId !== 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length <= 0
+    ) {
+      getProcessData(selectedRowClientId);
+    }
+  }, [selectedRowClientId]);
 
   // API for update status
   const updateStatus = async (id: number[], statusId: number) => {
@@ -1131,7 +1354,7 @@ const Datatable = ({
           } else {
             const data = response.data.Message;
             if (data === null) {
-              toast.error("Error duplicating task.");
+              toast.error("Something went wrong, Please try again later..");
             } else {
               toast.error(data);
             }
@@ -1139,7 +1362,7 @@ const Datatable = ({
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Error duplicating task.");
+            toast.error("Something went wrong, Please try again later..");
           } else {
             toast.error(data);
           }
@@ -1183,7 +1406,7 @@ const Datatable = ({
             } else {
               const data = response.data.Message;
               if (data === null) {
-                toast.error("Error duplicating task.");
+                toast.error("Something went wrong, Please try again later..");
               } else {
                 toast.error(data);
               }
@@ -1191,7 +1414,7 @@ const Datatable = ({
           } else {
             const data = response.data.Message;
             if (data === null) {
-              toast.error("Error duplicating task.");
+              toast.error("Something went wrong, Please try again later..");
             } else {
               toast.error(data);
             }
@@ -1253,7 +1476,7 @@ const Datatable = ({
           } else {
             const data = response.data.Message;
             if (data === null) {
-              toast.error("Error duplicating task.");
+              toast.error("Something went wrong, Please try again later..");
             } else {
               toast.error(data);
             }
@@ -1261,7 +1484,7 @@ const Datatable = ({
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Error duplicating task.");
+            toast.error("Something went wrong, Please try again later..");
           } else {
             toast.error(data);
           }
@@ -1269,6 +1492,232 @@ const Datatable = ({
       } catch (error) {
         console.error(error);
       }
+    }
+  };
+
+  // API for update Manager
+  const updateManager = async (id: number[], manager: number) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/bulkupdateworkitemmanager`,
+        {
+          WorkitemIds: id,
+          ManagerId: manager,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Manager has been updated successfully.");
+          handleClearSelection();
+          getWorkItemList();
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Something went wrong, Please try again later..");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Something went wrong, Please try again later..");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // API for update date
+  const updateDate = async (id: number[], date: any) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/bulkupdateworkitemreceiverdate`,
+        {
+          WorkitemIds: id,
+          ReceiverDate: dayjs(date).format("YYYY/MM/DD"),
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Reciever Date has been updated successfully.");
+          handleClearSelection();
+          handleCloseDateReceived();
+          getWorkItemList();
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Something went wrong, Please try again later..");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Something went wrong, Please try again later..");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // API for update Return Year
+  const updateReturnYear = async (id: number[], retunYear: number) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/bulkupdateworkitemreturnyear`,
+        {
+          workitemIds: id,
+          returnYear: retunYear,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Return Year has been updated successfully.");
+          handleClearSelection();
+          getWorkItemList();
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Something went wrong, Please try again later..");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Something went wrong, Please try again later..");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // API for update Client
+  const updateClient = async (id: number[], clientId: number) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/bulkupdateworkitemclient`,
+        {
+          workitemIds: id,
+          ClientId: clientId,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Client has been updated successfully.");
+          handleClearSelection();
+          getWorkItemList();
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Something went wrong, Please try again later..");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Something went wrong, Please try again later..");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // API for update Process
+  const updateProcess = async (id: number[], processId: number) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/bulkupdateworkitemprocess`,
+        {
+          workitemIds: id,
+          ProcessId: processId,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Process has been updated successfully.");
+          handleClearSelection();
+          getWorkItemList();
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Something went wrong, Please try again later..");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Something went wrong, Please try again later..");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -1796,6 +2245,11 @@ const Datatable = ({
     (data: any) => data.WorkitemId === isRunning
   );
 
+  const isWeekend = (date: any) => {
+    const day = date.day();
+    return day === 6 || day === 0;
+  };
+
   return (
     <div>
       <ThemeProvider theme={getMuiTheme()}>
@@ -1939,8 +2393,8 @@ const Datatable = ({
         <div className="flex items-center justify-start ml-12">
           <Card
             className={`rounded-full flex border p-2 border-[#1976d2] absolute shadow-lg  ${
-              selectedRowsCount === 1 ? "w-[80%]" : "w-[65%]"
-            } h-[8%] bottom-12 -translate-y-1/2`}
+              selectedRowsCount === 1 ? "w-[81%]" : "w-[70%]"
+            } bottom-12 -translate-y-1/2`}
           >
             <div className="flex flex-row w-full">
               <div className="pt-1 pl-2 flex w-[30%]">
@@ -1954,7 +2408,7 @@ const Datatable = ({
 
               <div
                 className={`flex flex-row z-10 h-8 justify-center ${
-                  selectedRowsCount === 1 ? "w-[90%]" : "w-[80%]"
+                  selectedRowsCount === 1 ? "w-[100%]" : "w-[80%]"
                 }`}
               >
                 {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
@@ -2059,39 +2513,7 @@ const Datatable = ({
                   }}
                 >
                   <nav className="!w-52">
-                    <List>
-                      {filteredAssignees.map((assignee: any, index: any) => {
-                        return (
-                          <span
-                            key={index}
-                            className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
-                          >
-                            <span
-                              className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
-                              onClick={() =>
-                                handleOptionAssignee(assignee.value)
-                              }
-                            >
-                              <Avatar
-                                sx={{ width: 32, height: 32, fontSize: 14 }}
-                              >
-                                {assignee.label
-                                  .split(" ")
-                                  .map((word: any) =>
-                                    word.charAt(0).toUpperCase()
-                                  )
-                                  .join("")}
-                              </Avatar>
-
-                              <span className="pt-[0.8px]">
-                                {assignee.label}
-                              </span>
-                            </span>
-                          </span>
-                        );
-                      })}
-                    </List>
-                    <div className="mr-4 ml-4 mb-4">
+                    <div className="mr-4 ml-4 mt-4">
                       <div
                         className="flex items-center h-10 rounded-md pl-2 flex-row"
                         style={{
@@ -2112,6 +2534,44 @@ const Datatable = ({
                         </span>
                       </div>
                     </div>
+                    <List>
+                      {assignee.length === 0 ? (
+                        <span className="flex flex-col py-2 px-4  text-sm">
+                          No Data Available
+                        </span>
+                      ) : (
+                        filteredAssignees.map((assignee: any, index: any) => {
+                          return (
+                            <span
+                              key={index}
+                              className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                            >
+                              <span
+                                className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
+                                onClick={() =>
+                                  handleOptionAssignee(assignee.value)
+                                }
+                              >
+                                <Avatar
+                                  sx={{ width: 32, height: 32, fontSize: 14 }}
+                                >
+                                  {assignee.label
+                                    .split(" ")
+                                    .map((word: any) =>
+                                      word.charAt(0).toUpperCase()
+                                    )
+                                    .join("")}
+                                </Avatar>
+
+                                <span className="pt-[0.8px]">
+                                  {assignee.label}
+                                </span>
+                              </span>
+                            </span>
+                          );
+                        })
+                      )}
+                    </List>
                   </nav>
                 </Popover>
 
@@ -2193,6 +2653,444 @@ const Datatable = ({
                       </span>
                     </ColorToolTip>
                   )}
+
+                {/* Change client */}
+                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      (i.ClientId === 0 || i.ClientId === null)
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length > 0 &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) && i.ClientId > 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length <= 0 && (
+                    <ColorToolTip title="Client" arrow>
+                      <span
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                        aria-describedby={idClient}
+                        onClick={handleClickClient}
+                      >
+                        <ClientIcon />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
+                {/* Client Popover */}
+                <Popover
+                  id={idClient}
+                  open={openClient}
+                  anchorEl={anchorElClient}
+                  onClose={handleCloseClient}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                >
+                  <nav className="!w-52">
+                    <div className="mr-4 ml-4 mt-4">
+                      <div
+                        className="flex items-center h-10 rounded-md pl-2 flex-row"
+                        style={{
+                          border: "1px solid lightgray",
+                        }}
+                      >
+                        <span className="mr-2">
+                          <SearchIcon />
+                        </span>
+                        <span>
+                          <InputBase
+                            placeholder="Search"
+                            inputProps={{ "aria-label": "search" }}
+                            value={clientSearchQuery}
+                            onChange={handleClientSearchChange}
+                            style={{ fontSize: "13px" }}
+                          />
+                        </span>
+                      </div>
+                    </div>
+                    <List>
+                      {clientDropdownData.length === 0 ? (
+                        <span className="flex flex-col py-2 px-4  text-sm">
+                          No Data Available
+                        </span>
+                      ) : (
+                        filteredClient.map((client: any, index: any) => {
+                          return (
+                            <span
+                              key={index}
+                              className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                            >
+                              <span
+                                className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
+                                onClick={() => handleOptionClient(client.value)}
+                              >
+                                <span className="pt-[0.8px]">
+                                  {client.label}
+                                </span>
+                              </span>
+                            </span>
+                          );
+                        })
+                      )}
+                    </List>
+                  </nav>
+                </Popover>
+
+                {/* Change Process */}
+                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      i.ClientId > 0 &&
+                      i.ProcessId === 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length > 0 &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length <= 0 &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      i.ClientId > 0 &&
+                      i.ProcessId !== 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length <= 0 && (
+                    <ColorToolTip title="Process" arrow>
+                      <span
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                        aria-describedby={idProcess}
+                        onClick={handleClickProcess}
+                      >
+                        <ProjectIcon />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
+                {/* Process Popover */}
+                <Popover
+                  id={idProcess}
+                  open={openProcess}
+                  anchorEl={anchorElProcess}
+                  onClose={handleCloseProcess}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                >
+                  <nav className="!w-52">
+                    <div className="mr-4 ml-4 mt-4">
+                      <div
+                        className="flex items-center h-10 rounded-md pl-2 flex-row"
+                        style={{
+                          border: "1px solid lightgray",
+                        }}
+                      >
+                        <span className="mr-2">
+                          <SearchIcon />
+                        </span>
+                        <span>
+                          <InputBase
+                            placeholder="Search"
+                            inputProps={{ "aria-label": "search" }}
+                            value={processSearchQuery}
+                            onChange={handleProcessSearchChange}
+                            style={{ fontSize: "13px" }}
+                          />
+                        </span>
+                      </div>
+                    </div>
+                    <List>
+                      {processDropdownData.length === 0 ? (
+                        <span className="flex flex-col py-2 px-4  text-sm">
+                          No Data Available
+                        </span>
+                      ) : (
+                        filteredProcess.map((process: any, index: any) => {
+                          return (
+                            <span
+                              key={index}
+                              className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                            >
+                              <span
+                                className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
+                                onClick={() => handleOptionProcess(process.value)}
+                              >
+                                <span className="pt-[0.8px]">
+                                  {process.label}
+                                </span>
+                              </span>
+                            </span>
+                          );
+                        })
+                      )}
+                    </List>
+                  </nav>
+                </Popover>
+
+                {/* Change Return Year */}
+                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      (i.ReturnYear === 0 || i.ReturnYear === null)
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length > 0 &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      (i.ReturnYear > 0 || i.ReturnYear !== null)
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length <= 0 && (
+                    <ColorToolTip title="Return Year" arrow>
+                      <span
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                        aria-describedby={idReturnYear}
+                        onClick={handleClickReturnYear}
+                      >
+                        <ReturnYearIcon />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
+                {/* Return Year Popover */}
+                <Popover
+                  id={idReturnYear}
+                  open={openReturnYear}
+                  anchorEl={anchorElReturnYear}
+                  onClose={handleCloseReturnYear}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                >
+                  <nav className="!w-52">
+                    <List>
+                      {Years.length === 0 ? (
+                        <span className="flex flex-col py-2 px-4  text-sm">
+                          No Data Available
+                        </span>
+                      ) : (
+                        Years.map((yr: any, index: any) => {
+                          return (
+                            <span
+                              key={index}
+                              className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                            >
+                              <span
+                                className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
+                                onClick={() => handleOptionreturnYear(yr.value)}
+                              >
+                                <span className="pt-[0.8px]">{yr.label}</span>
+                              </span>
+                            </span>
+                          );
+                        })
+                      )}
+                    </List>
+                  </nav>
+                </Popover>
+
+                {/* Change manager */}
+                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      (i.ManagerId === 0 || i.ManagerId === null)
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length > 0 &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      (i.ManagerId > 0 || i.ManagerId !== null)
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length <= 0 && (
+                    <ColorToolTip title="Manager" arrow>
+                      <span
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                        aria-describedby={idManager}
+                        onClick={handleClickManager}
+                      >
+                        <ManagerIcon />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
+                {/* Manager Popover */}
+                <Popover
+                  id={idManager}
+                  open={openManager}
+                  anchorEl={anchorElManager}
+                  onClose={handleCloseManager}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                >
+                  <nav className="!w-52">
+                    <div className="mr-4 ml-4 mt-4">
+                      <div
+                        className="flex items-center h-10 rounded-md pl-2 flex-row"
+                        style={{
+                          border: "1px solid lightgray",
+                        }}
+                      >
+                        <span className="mr-2">
+                          <SearchIcon />
+                        </span>
+                        <span>
+                          <InputBase
+                            placeholder="Search"
+                            inputProps={{ "aria-label": "search" }}
+                            value={managerSearchQuery}
+                            onChange={handleManagerSearchChange}
+                            style={{ fontSize: "13px" }}
+                          />
+                        </span>
+                      </div>
+                    </div>
+                    <List>
+                      {managerDropdownData.length === 0 ? (
+                        <span className="flex flex-col py-2 px-4  text-sm">
+                          No Data Available
+                        </span>
+                      ) : (
+                        filteredManager.map((manager: any, index: any) => {
+                          return (
+                            <span
+                              key={index}
+                              className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                            >
+                              <span
+                                className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
+                                onClick={() =>
+                                  handleOptionManager(manager.value)
+                                }
+                              >
+                                <span className="pt-[0.8px]">
+                                  {manager.label}
+                                </span>
+                              </span>
+                            </span>
+                          );
+                        })
+                      )}
+                    </List>
+                  </nav>
+                </Popover>
+
+                {/* Change date received */}
+                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      (i.ReceiverDate?.length === 0 || i.ReceiverDate === null)
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length > 0 &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      (i.ReceiverDate?.length > 0 || i.ReceiverDate !== null)
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length <= 0 && (
+                    <ColorToolTip title="Date Received" arrow>
+                      <span
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                        aria-describedby={idDateReceived}
+                        onClick={handleClickDateReceived}
+                      >
+                        <DateIcon />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
+                {/* Date Received Popover */}
+                <Popover
+                  id={idDateReceived}
+                  open={openDateReceived}
+                  anchorEl={anchorElDateReceived}
+                  onClose={handleCloseDateReceived}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                >
+                  <nav className="!w-52">
+                    <div className="mx-4 my-2">
+                      <div className="flex items-center h-16 rounded-md pl-2 flex-row">
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            label={
+                              <span>
+                                Received Date
+                                <span className="!text-defaultRed">
+                                  &nbsp;*
+                                </span>
+                              </span>
+                            }
+                            className="b-lightgray"
+                            shouldDisableDate={isWeekend}
+                            maxDate={dayjs(Date.now())}
+                            onChange={(newDate: any) =>
+                              updateDate(selectedRowIds, newDate.$d)
+                            }
+                            slotProps={{
+                              textField: {
+                                readOnly: true,
+                              } as Record<string, any>,
+                            }}
+                          />
+                        </LocalizationProvider>
+                      </div>
+                    </div>
+                  </nav>
+                </Popover>
 
                 <span className="pl-2 pr-2 border-t-0 cursor-pointer border-b-0 border-l-[1.5px] border-r-[1.5px] border-gray-300">
                   <Button
