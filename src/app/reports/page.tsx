@@ -9,7 +9,13 @@ import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
 
 //mui components
-import { Button, InputBase } from "@mui/material";
+import {
+  Button,
+  InputBase,
+  Tooltip,
+  TooltipProps,
+  tooltipClasses,
+} from "@mui/material";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 
 //toast
@@ -56,6 +62,7 @@ import CustomReportFilter from "@/components/reports/Filter/CustomReportFilter";
 import RatingReport from "@/components/reports/tables/RatingReport";
 import RatingReportFilter from "@/components/reports/Filter/RatingReportFilter";
 import AuditFilter from "@/components/reports/Filter/AuditFilter";
+import styled from "@emotion/styled";
 
 const primaryTabs = [
   { label: "project", value: 1 },
@@ -111,6 +118,17 @@ const page = () => {
       window.removeEventListener("click", handleOutsideClick);
     };
   }, []);
+
+  const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
+    <Tooltip {...props} arrow classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.arrow}`]: {
+      color: "#0281B9",
+    },
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: "#0281B9",
+    },
+  }));
 
   //check if has permissions
   const hasTabsPermission = () => {
@@ -335,34 +353,38 @@ const page = () => {
               </span>
             </div>
 
-            <span
-              className="cursor-pointer relative"
-              onClick={() => {
-                setIsFiltering(true);
-              }}
-            >
-              <FilterIcon />
-            </span>
-            <span
-              className={`${
-                isExporting ? "cursor-default" : "cursor-pointer"
-              } ${
-                getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
-                (filteredData === null ||
-                  haveSameData(customreport_InitialFilter, filteredData))
-                  ? "opacity-50 pointer-events-none"
-                  : ""
-              }`}
-              onClick={
-                getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
-                (filteredData === null ||
-                  haveSameData(customreport_InitialFilter, filteredData))
-                  ? undefined
-                  : handleExport
-              }
-            >
-              {isExporting ? <Loading /> : <ExportIcon />}
-            </span>
+            <ColorToolTip title="Filter" placement="top" arrow>
+              <span
+                className="cursor-pointer relative"
+                onClick={() => {
+                  setIsFiltering(true);
+                }}
+              >
+                <FilterIcon />
+              </span>
+            </ColorToolTip>
+            <ColorToolTip title="Export" placement="top" arrow>
+              <span
+                className={`${
+                  isExporting ? "cursor-default" : "cursor-pointer"
+                } ${
+                  getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
+                  (filteredData === null ||
+                    haveSameData(customreport_InitialFilter, filteredData))
+                    ? "opacity-50 pointer-events-none"
+                    : ""
+                }`}
+                onClick={
+                  getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
+                  (filteredData === null ||
+                    haveSameData(customreport_InitialFilter, filteredData))
+                    ? undefined
+                    : handleExport
+                }
+              >
+                {isExporting ? <Loading /> : <ExportIcon />}
+              </span>
+            </ColorToolTip>
 
             {activeTab === 7 && (
               <>

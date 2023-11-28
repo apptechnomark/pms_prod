@@ -2106,7 +2106,8 @@ const EditDrawer = ({
                       ).filter(Boolean),
                       Remark: i.Remark,
                       Attachments:
-                      i.Attachment.length > 0 && i.Attachment[0].SystemFileName.length > 0
+                        i.Attachment.length > 0 &&
+                        i.Attachment[0].SystemFileName.length > 0
                           ? i.Attachment
                           : [
                               {

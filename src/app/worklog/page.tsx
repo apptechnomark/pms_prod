@@ -364,7 +364,7 @@ const Worklog = () => {
                 </span>
               </div>
             )}
-          <ColorToolTip title="filter" placement="top" arrow>
+          <ColorToolTip title="Filter" placement="top" arrow>
             <span
               className="cursor-pointer"
               onClick={() => setIsFilterOpen(true)}

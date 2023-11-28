@@ -100,6 +100,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
           response.data.ResponseStatus === "Success"
         ) {
           setData(response.data.ResponseData.List);
+          setTableDataCount(response.data.ResponseData.TotalCount)
         } else {
           const errorMessage = response.data.Message || "Something went wrong.";
           toast.error(errorMessage);

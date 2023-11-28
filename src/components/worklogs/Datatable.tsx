@@ -887,7 +887,9 @@ const Datatable = ({
         (selectedRowStatusId.includes(8) && selectedRowIds.length > 1) ||
         (selectedRowStatusId.includes(9) && selectedRowIds.length > 1) ||
         (selectedRowStatusId.includes(10) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(11) && selectedRowIds.length > 1)
+        (selectedRowStatusId.includes(11) && selectedRowIds.length > 1) ||
+        (selectedRowStatusId.includes(12) && selectedRowIds.length > 1) ||
+        (selectedRowStatusId.includes(13) && selectedRowIds.length > 1)
       ) {
         toast.warning(
           "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
@@ -1026,20 +1028,22 @@ const Datatable = ({
       selectedRowsCount === 1 &&
       (selectedRowStatusId.includes(7) ||
         selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9))
+        selectedRowStatusId.includes(9) ||
+        selectedRowStatusId.includes(13))
     ) {
       toast.warning(
-        "Cannot change priority for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+        "Cannot change priority for 'Accept', 'Accept with Notes' or 'Signed-off' tasks."
       );
     } else {
       if (
         selectedRowsCount > 1 &&
         (selectedRowStatusId.includes(7) ||
           selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9))
+          selectedRowStatusId.includes(9) ||
+          selectedRowStatusId.includes(13))
       ) {
         toast.warning(
-          "Cannot change priority for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+          "Cannot change priority for 'Accept', 'Accept with Notes' or 'Signed-off' tasks."
         );
       }
       const token = await localStorage.getItem("token");
@@ -1276,7 +1280,7 @@ const Datatable = ({
         selectedRowStatusId.includes(13))
     ) {
       toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', 'Reject', or 'Signed-off' tasks."
+        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
       );
     }
     if (
@@ -1301,7 +1305,7 @@ const Datatable = ({
         selectedRowStatusId.includes(13))
     ) {
       toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', 'Reject', or 'Signed-off' tasks."
+        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
       );
     }
     if (
@@ -1435,20 +1439,22 @@ const Datatable = ({
       selectedRowsCount === 1 &&
       (selectedRowStatusId.includes(7) ||
         selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9))
+        selectedRowStatusId.includes(9) ||
+        selectedRowStatusId.includes(13))
     ) {
       toast.warning(
-        "Cannot change assignee for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+        "Cannot change assignee for 'Accept', 'Accept with Notes' or 'Signed-off' tasks."
       );
     } else {
       if (
         selectedRowsCount > 1 &&
         (selectedRowStatusId.includes(7) ||
           selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9))
+          selectedRowStatusId.includes(9) ||
+          selectedRowStatusId.includes(13))
       ) {
         toast.warning(
-          "Cannot change assignee for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+          "Cannot change assignee for 'Accept', 'Accept with Notes' or 'Signed-off' tasks."
         );
       }
       const token = await localStorage.getItem("token");
@@ -2836,7 +2842,9 @@ const Datatable = ({
                             >
                               <span
                                 className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
-                                onClick={() => handleOptionProcess(process.value)}
+                                onClick={() =>
+                                  handleOptionProcess(process.value)
+                                }
                               >
                                 <span className="pt-[0.8px]">
                                   {process.label}

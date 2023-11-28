@@ -238,20 +238,22 @@ const Datatable = ({
       selectedRowsCount === 1 &&
       (selectedRowStatusId.includes(7) ||
         selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9))
+        selectedRowStatusId.includes(9) ||
+        selectedRowStatusId.includes(13))
     ) {
       toast.warning(
-        "Cannot change priority for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
       );
     } else {
       if (
         selectedRowsCount > 1 &&
         (selectedRowStatusId.includes(7) ||
           selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9))
+          selectedRowStatusId.includes(9) ||
+          selectedRowStatusId.includes(13))
       ) {
         toast.warning(
-          "Cannot change priority for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
         );
       }
       const token = await localStorage.getItem("token");
@@ -360,20 +362,22 @@ const Datatable = ({
       selectedRowsCount === 1 &&
       (selectedRowStatusId.includes(7) ||
         selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9))
+        selectedRowStatusId.includes(9) ||
+        selectedRowStatusId.includes(13))
     ) {
       toast.warning(
-        "Cannot change assignee for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
       );
     } else {
       if (
         selectedRowsCount > 1 &&
         (selectedRowStatusId.includes(7) ||
           selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9))
+          selectedRowStatusId.includes(9) ||
+          selectedRowStatusId.includes(13))
       ) {
         toast.warning(
-          "Cannot change assignee for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
         );
       }
       const token = await localStorage.getItem("token");
@@ -482,20 +486,22 @@ const Datatable = ({
       selectedRowsCount === 1 &&
       (selectedRowStatusId.includes(7) ||
         selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9))
+        selectedRowStatusId.includes(9) ||
+        selectedRowStatusId.includes(13))
     ) {
       toast.warning(
-        "Cannot change Reviewer for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
       );
     } else {
       if (
         selectedRowsCount > 1 &&
         (selectedRowStatusId.includes(7) ||
           selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9))
+          selectedRowStatusId.includes(9) ||
+          selectedRowStatusId.includes(13))
       ) {
         toast.warning(
-          "Cannot change Reviewer for 'Accept,' 'Reject,' or 'Accept with Notes' tasks."
+          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
         );
       }
       const token = await localStorage.getItem("token");
@@ -595,7 +601,7 @@ const Datatable = ({
         selectedRowStatusId.includes(13))
     ) {
       toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', 'Reject', or 'Signed-off' tasks."
+        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
       );
     }
     if (
@@ -620,7 +626,7 @@ const Datatable = ({
         selectedRowStatusId.includes(13))
     ) {
       toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', 'Reject', or 'Signed-off' tasks."
+        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
       );
     }
     if (

@@ -392,7 +392,7 @@ const Report = () => {
                 </span>
               </div>
             )}
-          <ColorToolTip title="filter" placement="top" arrow>
+          <ColorToolTip title="Filter" placement="top" arrow>
             <span
               className="cursor-pointer"
               onClick={() => setIsFilterOpen(true)}
@@ -400,7 +400,7 @@ const Report = () => {
               <FilterIcon />
             </span>
           </ColorToolTip>
-          <ColorToolTip title="export" placement="top" arrow>
+          <ColorToolTip title="Export" placement="top" arrow>
             <span
               className={`${isExporting ? "cursor-default" : "cursor-pointer"}`}
               onClick={exportClientReport}
