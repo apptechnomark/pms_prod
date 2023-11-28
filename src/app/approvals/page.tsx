@@ -25,9 +25,6 @@ const page = () => {
   const [hasEditId, setHasEditId] = useState(0);
   const [iconIndex, setIconIndex] = useState<number>(0);
   const [hasId, setHasId] = useState("");
-  const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
-    (() => void) | null
-  >(null);
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
   const [currentFilterData, setCurrentFilterData] = useState([]);
@@ -62,10 +59,6 @@ const page = () => {
       backgroundColor: "#0281B9",
     },
   }));
-
-  const handleUserDetailsFetch = (getData: () => void) => {
-    setGetOrgDetailsFunction(() => getData);
-  };
 
   // To Toggle Drawer
   const handleDrawerOpen = () => {
@@ -110,7 +103,7 @@ const page = () => {
   return (
     <Wrapper>
       <div>
-        <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
+        <Navbar />
         <div className="bg-white flex justify-between items-center px-[20px]">
           <div className="flex gap-[10px] items-center py-[6.5px]">
             <label className="py-[10px] cursor-pointer select-none text-[16px] text-slatyGrey">

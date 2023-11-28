@@ -51,9 +51,6 @@ import Dialog_ReturnTypeData from "@/components/dashboard/dialog/Dialog_ReturnTy
 
 const page = () => {
   const router = useRouter();
-  const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
-    (() => void) | null
-  >(null);
   const [isTotalHrsDialogOpen, setIsTotalHrsDialogOpen] =
     useState<boolean>(false);
   const [isTaskStatusDialogOpen, setIsTaskStatusDialogOpen] =
@@ -116,10 +113,6 @@ const page = () => {
         project.ProjectName.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : projects;
-
-  const handleUserDetailsFetch = (getData: () => void) => {
-    setGetOrgDetailsFunction(() => getData);
-  };
 
   // handling "All projects"
   const handleSelectAllProject = () => {
@@ -344,7 +337,7 @@ const page = () => {
   return (
     <Wrapper className="min-h-screen overflow-y-auto">
       <div>
-        <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
+        <Navbar />
         <div>
           <section className="flex py-[10px] px-[20px] justify-between items-center">
             <div

@@ -35,9 +35,6 @@ const Worklog = () => {
   const router = useRouter();
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEdit, setHasEdit] = useState(0);
-  const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
-    (() => void) | null
-  >(null);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
   const [isWorklogClicked, setIsWorklogClicked] = useState(true);
@@ -239,10 +236,6 @@ const Worklog = () => {
     setDataFunction(() => getData);
   };
 
-  const handleUserDetailsFetch = (getData: () => void) => {
-    setGetOrgDetailsFunction(() => getData);
-  };
-
   // To Toggle Drawer for Edit
   const handleEdit = (rowData: any) => {
     setHasEdit(rowData);
@@ -280,7 +273,7 @@ const Worklog = () => {
 
   return (
     <Wrapper>
-      <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
+      <Navbar />
       <div className="bg-white flex justify-between items-center px-[20px]">
         <div className="flex gap-[16px] items-center py-[6.5px]">
           {hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && (

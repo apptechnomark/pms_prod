@@ -1024,31 +1024,19 @@ const Datatable = ({
 
   // Update Priority API
   const updatePriority = async (id: number[], priorityId: number) => {
-    if (
-      selectedRowsCount === 1 &&
-      (selectedRowStatusId.includes(7) ||
-        selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9) ||
-        selectedRowStatusId.includes(13))
-    ) {
-      toast.warning(
-        "Cannot change priority for 'Accept', 'Accept with Notes' or 'Signed-off' tasks."
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
+        [7, 8, 9, 13].includes(statusId)
       );
-    } else {
-      if (
-        selectedRowsCount > 1 &&
-        (selectedRowStatusId.includes(7) ||
-          selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9) ||
-          selectedRowStatusId.includes(13))
-      ) {
+
+      if (selectedRowsCount >= 1 && isInvalidStatus) {
         toast.warning(
-          "Cannot change priority for 'Accept', 'Accept with Notes' or 'Signed-off' tasks."
+          "Cannot change Priority for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
         );
-      }
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
+      } else {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdatePriority`,
           {
@@ -1064,29 +1052,21 @@ const Datatable = ({
         );
 
         if (response.status === 200) {
+          const data = response.data.Message;
           if (response.data.ResponseStatus === "Success") {
             toast.success("Priority has been updated successfully.");
             handleClearSelection();
             getWorkItemList();
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
+            toast.error(data || "Please try again later.");
           }
         } else {
           const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+          toast.error(data || "Please try again later.");
         }
-      } catch (error) {
-        console.error(error);
       }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -1272,57 +1252,33 @@ const Datatable = ({
 
   // API for update status
   const updateStatus = async (id: number[], statusId: number) => {
-    if (
-      selectedRowsCount === 1 &&
-      (selectedRowStatusId.includes(7) ||
-        selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9) ||
-        selectedRowStatusId.includes(13))
-    ) {
-      toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      );
-    }
-    if (
-      workItemData
-        .map((item: any) =>
-          id.includes(item.WorkitemId)
-            ? item.TimelogId !== null
-              ? item.WorkitemId
-              : false
-            : undefined
-        )
-        .filter((i: any) => i !== undefined)
-        .filter((i: any) => i !== false).length > 0
-    ) {
-      toast.warning("Cannot change status for running task.");
-    }
-    if (
-      selectedRowsCount > 1 &&
-      (selectedRowStatusId.includes(7) ||
-        selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9) ||
-        selectedRowStatusId.includes(13))
-    ) {
-      toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      );
-    }
-    if (
-      workItemData
-        .map((item: any) =>
-          id.includes(item.WorkitemId)
-            ? item.TimelogId === null
-              ? item.WorkitemId
-              : false
-            : undefined
-        )
-        .filter((i: any) => i !== undefined)
-        .filter((i: any) => i !== false).length > 0
-    ) {
+    try {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
-      try {
+
+      const isInvalidStatus = selectedRowStatusId.some((status: number) =>
+        [7, 8, 9, 13].includes(status)
+      );
+
+      const hasRunningTasks = workItemData.some((item: any) =>
+        id.includes(item.WorkitemId)
+          ? item.TimelogId !== null
+            ? true
+            : false
+          : false
+      );
+
+      if (selectedRowsCount === 1 && isInvalidStatus) {
+        toast.warning(
+          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+        );
+      } else if (selectedRowsCount > 1 && isInvalidStatus) {
+        toast.warning(
+          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+        );
+      } else if (hasRunningTasks) {
+        toast.warning("Cannot change status for running task.");
+      } else {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdateStatus`,
           {
@@ -1330,10 +1286,7 @@ const Datatable = ({
               .map((item: any) =>
                 id.includes(item.WorkitemId)
                   ? item.TimelogId === null &&
-                    item.StatusId !== 7 &&
-                    item.StatusId !== 8 &&
-                    item.StatusId !== 9 &&
-                    item.StatusId !== 13
+                    ![7, 8, 9, 13].includes(item.StatusId)
                     ? item.WorkitemId
                     : false
                   : undefined
@@ -1351,29 +1304,21 @@ const Datatable = ({
         );
 
         if (response.status === 200) {
+          const data = response.data.Message;
           if (response.data.ResponseStatus === "Success") {
             toast.success("Status has been updated successfully.");
             handleClearSelection();
             getWorkItemList();
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Something went wrong, Please try again later..");
-            } else {
-              toast.error(data);
-            }
+            toast.error(data || "Error duplicating task.");
           }
         } else {
           const data = response.data.Message;
-          if (data === null) {
-            toast.error("Something went wrong, Please try again later..");
-          } else {
-            toast.error(data);
-          }
+          toast.error(data || "Error duplicating task.");
         }
-      } catch (error) {
-        console.error(error);
       }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -1435,31 +1380,19 @@ const Datatable = ({
 
   // API for update Assignee
   const updateAssignee = async (id: number[], assigneeId: number) => {
-    if (
-      selectedRowsCount === 1 &&
-      (selectedRowStatusId.includes(7) ||
-        selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9) ||
-        selectedRowStatusId.includes(13))
-    ) {
-      toast.warning(
-        "Cannot change assignee for 'Accept', 'Accept with Notes' or 'Signed-off' tasks."
-      );
-    } else {
-      if (
-        selectedRowsCount > 1 &&
-        (selectedRowStatusId.includes(7) ||
-          selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9) ||
-          selectedRowStatusId.includes(13))
-      ) {
-        toast.warning(
-          "Cannot change assignee for 'Accept', 'Accept with Notes' or 'Signed-off' tasks."
-        );
-      }
+    try {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
-      try {
+
+      const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
+        [7, 8, 9, 13].includes(statusId)
+      );
+
+      if (selectedRowsCount >= 1 && isInvalidStatus) {
+        toast.warning(
+          "Cannot change Assignee for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+        );
+      } else {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdateAssignee`,
           {
@@ -1475,29 +1408,21 @@ const Datatable = ({
         );
 
         if (response.status === 200) {
+          const data = response.data.Message;
           if (response.data.ResponseStatus === "Success") {
             toast.success("Assignee has been updated successfully.");
             handleClearSelection();
             getWorkItemList();
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Something went wrong, Please try again later..");
-            } else {
-              toast.error(data);
-            }
+            toast.error(data || "Error duplicating task.");
           }
         } else {
           const data = response.data.Message;
-          if (data === null) {
-            toast.error("Something went wrong, Please try again later..");
-          } else {
-            toast.error(data);
-          }
+          toast.error(data || "Error duplicating task.");
         }
-      } catch (error) {
-        console.error(error);
       }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -1550,12 +1475,20 @@ const Datatable = ({
   const updateDate = async (id: number[], date: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
+    const selectedDate = dayjs(date);
+    let nextDate: any = selectedDate;
+    if (selectedDate.day() === 4 || selectedDate.day() === 5) {
+      nextDate = nextDate.add(4, "day");
+    } else {
+      nextDate = dayjs(date).add(2, "day").toDate();
+    }
     try {
       const response = await axios.post(
         `${process.env.worklog_api_url}/workitem/bulkupdateworkitemreceiverdate`,
         {
           WorkitemIds: id,
           ReceiverDate: dayjs(date).format("YYYY/MM/DD"),
+          DueDate: dayjs(nextDate).format("YYYY/MM/DD"),
         },
         {
           headers: {
@@ -1903,7 +1836,9 @@ const Datatable = ({
         viewColumns: false,
         customHeadLabelRender: () => genrateCustomHeaderName("Timer"),
         customBodyRender: (value: any, tableMeta: any) => {
-          const estimatedTime = tableMeta.rowData[14].split(":");
+          const estimatedTime = tableMeta.rowData[14].includes(":")
+            ? tableMeta.rowData[14].split(":")
+            : "00:00:00".split(":");
           const estimatedTimeInSeconds =
             parseInt(estimatedTime[0]) * 60 * 60 +
             parseInt(estimatedTime[1]) * 60 +

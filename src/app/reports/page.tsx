@@ -94,12 +94,6 @@ const page = () => {
   const [saveBTCData, setSaveBTCData] = useState<boolean>(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
-  const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
-    (() => void) | null
-  >(null);
-  const handleUserDetailsFetch = (getData: () => void) => {
-    setGetOrgDetailsFunction(() => getData);
-  };
 
   //handling outside click for moreTabs
   useEffect(() => {
@@ -243,6 +237,7 @@ const page = () => {
       )}/export`,
       {
         ...filtered,
+        globalSearch: searchValue.trim().length > 0 ? searchValue : "",
         isDownload: true,
       },
       {
@@ -307,7 +302,7 @@ const page = () => {
   return (
     <Wrapper>
       <div>
-        <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
+        <Navbar />
         <div className="w-full pr-5 flex items-center justify-between">
           <div className="flex justify-between items-center">
             <div className="flex justify-center items-center">

@@ -227,8 +227,6 @@ const Report = () => {
     setIsFilterOpen(false);
   };
 
-  const handleUserDetailsFetch = () => {};
-
   const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
     <Tooltip {...props} arrow classes={{ popper: className }} />
   ))(({ theme }) => ({
@@ -245,75 +243,94 @@ const Report = () => {
   };
 
   const exportClientReport = async () => {
-    setIsExporting(true);
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    const filteredData =
-      typeof currentFilterData === "object" &&
-      currentFilterData !== null &&
-      !Array.isArray(currentFilterData)
-        ? isTaskClicked
-          ? {
-              ...task_InitialFilter,
-              projectIdsForFilter: currentFilterData.ProjectIdsForFilter,
-              workType: currentFilterData.WorkType,
-              priority: currentFilterData.Priority,
-              startDate: currentFilterData.StartDate,
-              endDate: currentFilterData.EndDate,
-            }
-          : isRatingClicked && {
-              ...rating_InitialFilter,
-              projects: currentFilterData.Projects,
-              returnTypeId: currentFilterData.ReturnTypeId,
-              typeofReturnId: currentFilterData.TypeofReturnId,
-              ratings: currentFilterData.Ratings,
-              dateSubmitted: currentFilterData.DateSubmitted,
-            }
-        : isTaskClicked
-        ? { ...task_InitialFilter }
-        : isRatingClicked && { ...rating_InitialFilter };
-
     try {
+      setIsExporting(true);
+
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+
+      const filteredData = getFilteredData();
+
+      const endpoint = isTaskClicked ? "task" : isRatingClicked ? "rating" : "";
+
       const response = await axios.post(
-        `${process.env.report_api_url}/report/client/${
-          isTaskClicked ? "task" : isRatingClicked && "rating"
-        }/export`,
-        { ...filteredData },
+        `${process.env.report_api_url}/report/client/${endpoint}/export`,
+        {
+          ...filteredData,
+          globalSearch: isTaskClicked ? isTaskSearch : isRatingSearch,
+        },
         {
           headers: { Authorization: `bearer ${token}`, org_token: Org_Token },
           responseType: "arraybuffer",
         }
       );
 
-      if (response.status === 200) {
-        const blob = new Blob([response.data], {
-          type: response.headers["content-type"],
-        });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${
-          isTaskClicked ? "task" : isRatingClicked && "rating"
-        }_report.xlsx`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        setIsExporting(false);
-      } else {
-        setIsExporting(false);
-        toast.error("Login failed. Please try again.");
-      }
+      handleExportResponse(response);
     } catch (error) {
-      setIsExporting(false);
-      console.error(error);
+      handleExportError(error);
     }
+  };
+
+  const getFilteredData = () => {
+    return typeof currentFilterData === "object" &&
+      currentFilterData !== null &&
+      !Array.isArray(currentFilterData)
+      ? isTaskClicked
+        ? {
+            ...task_InitialFilter,
+            projectIdsForFilter: currentFilterData.ProjectIdsForFilter,
+            workType: currentFilterData.WorkType,
+            priority: currentFilterData.Priority,
+            startDate: currentFilterData.StartDate,
+            endDate: currentFilterData.EndDate,
+          }
+        : isRatingClicked
+        ? {
+            ...rating_InitialFilter,
+            projects: currentFilterData.Projects,
+            returnTypeId: currentFilterData.ReturnTypeId,
+            typeofReturnId: currentFilterData.TypeofReturnId,
+            ratings: currentFilterData.Ratings,
+            dateSubmitted: currentFilterData.DateSubmitted,
+          }
+        : {}
+      : isTaskClicked
+      ? { ...task_InitialFilter }
+      : isRatingClicked
+      ? { ...rating_InitialFilter }
+      : {};
+  };
+
+  const handleExportResponse = (response: any) => {
+    if (response.status === 200) {
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${
+        isTaskClicked ? "Task" : isRatingClicked ? "Rating" : ""
+      }_report.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      setIsExporting(false);
+    } else {
+      setIsExporting(false);
+      toast.error("Login failed. Please try again.");
+    }
+  };
+
+  const handleExportError = (error: any) => {
+    setIsExporting(false);
+    toast.error(error);
   };
 
   return (
     <Wrapper>
-      <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
+      <Navbar />
       <div className="bg-white flex justify-between items-center px-[20px]">
         <div className="flex gap-[20px] items-center py-[6.5px]">
           {hasPermissionWorklog("Task", "View", "Report") && (

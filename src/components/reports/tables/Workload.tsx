@@ -122,6 +122,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
   useEffect(() => {
     getData(workLoad_InitialFilter);
   }, []);
+  console.log(searchValue);
 
   useEffect(() => {
     if (filteredData !== null) {
@@ -131,7 +132,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
     } else {
       getData({ ...workLoad_InitialFilter, globalSearch: searchValue });
     }
-  }, [filteredData]);
+  }, [filteredData, searchValue]);
 
   const columns: any[] = [
     {

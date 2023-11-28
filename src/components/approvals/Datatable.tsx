@@ -234,31 +234,19 @@ const Datatable = ({
 
   // Update Priority API
   const updatePriority = async (id: number[], priorityId: number) => {
-    if (
-      selectedRowsCount === 1 &&
-      (selectedRowStatusId.includes(7) ||
-        selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9) ||
-        selectedRowStatusId.includes(13))
-    ) {
-      toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
+        [7, 8, 9, 13].includes(statusId)
       );
-    } else {
-      if (
-        selectedRowsCount > 1 &&
-        (selectedRowStatusId.includes(7) ||
-          selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9) ||
-          selectedRowStatusId.includes(13))
-      ) {
+
+      if (selectedRowsCount >= 1 && isInvalidStatus) {
         toast.warning(
-          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+          "Cannot change Priority for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
         );
-      }
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
+      } else {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdatePriority`,
           {
@@ -274,29 +262,21 @@ const Datatable = ({
         );
 
         if (response.status === 200) {
+          const data = response.data.Message;
           if (response.data.ResponseStatus === "Success") {
             toast.success("Priority has been updated successfully.");
             handleClearSelection();
             getReviewList();
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
+            toast.error(data || "Please try again later.");
           }
         } else {
           const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+          toast.error(data || "Please try again later.");
         }
-      } catch (error) {
-        console.error(error);
       }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -358,31 +338,19 @@ const Datatable = ({
 
   // API for update Assignee
   const updateAssignee = async (id: number[], assigneeId: number) => {
-    if (
-      selectedRowsCount === 1 &&
-      (selectedRowStatusId.includes(7) ||
-        selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9) ||
-        selectedRowStatusId.includes(13))
-    ) {
-      toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      );
-    } else {
-      if (
-        selectedRowsCount > 1 &&
-        (selectedRowStatusId.includes(7) ||
-          selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9) ||
-          selectedRowStatusId.includes(13))
-      ) {
-        toast.warning(
-          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-        );
-      }
+    try {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
-      try {
+
+      const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
+        [7, 8, 9, 13].includes(statusId)
+      );
+
+      if (selectedRowsCount >= 1 && isInvalidStatus) {
+        toast.warning(
+          "Cannot change Assignee for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+        );
+      } else {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdateAssignee`,
           {
@@ -398,29 +366,21 @@ const Datatable = ({
         );
 
         if (response.status === 200) {
+          const data = response.data.Message;
           if (response.data.ResponseStatus === "Success") {
             toast.success("Assignee has been updated successfully.");
             handleClearSelection();
             getReviewList();
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Error duplicating task.");
-            } else {
-              toast.error(data);
-            }
+            toast.error(data || "Error duplicating task.");
           }
         } else {
           const data = response.data.Message;
-          if (data === null) {
-            toast.error("Error duplicating task.");
-          } else {
-            toast.error(data);
-          }
+          toast.error(data || "Error duplicating task.");
         }
-      } catch (error) {
-        console.error(error);
       }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -482,31 +442,19 @@ const Datatable = ({
 
   // API for update Assignee
   const updateReviewer = async (id: number[], reviewerId: number) => {
-    if (
-      selectedRowsCount === 1 &&
-      (selectedRowStatusId.includes(7) ||
-        selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9) ||
-        selectedRowStatusId.includes(13))
-    ) {
-      toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      );
-    } else {
-      if (
-        selectedRowsCount > 1 &&
-        (selectedRowStatusId.includes(7) ||
-          selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9) ||
-          selectedRowStatusId.includes(13))
-      ) {
-        toast.warning(
-          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-        );
-      }
+    try {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
-      try {
+
+      const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
+        [7, 8, 9, 13].includes(statusId)
+      );
+
+      if (selectedRowsCount >= 1 && isInvalidStatus) {
+        toast.warning(
+          "Cannot change Reviewer for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+        );
+      } else {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdateReviewer`,
           {
@@ -522,29 +470,21 @@ const Datatable = ({
         );
 
         if (response.status === 200) {
+          const data = response.data.Message;
           if (response.data.ResponseStatus === "Success") {
             toast.success("Reviewer has been updated successfully.");
             handleClearSelection();
             getReviewList();
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Error duplicating task.");
-            } else {
-              toast.error(data);
-            }
+            toast.error(data || "Error duplicating task.");
           }
         } else {
           const data = response.data.Message;
-          if (data === null) {
-            toast.error("Error duplicating task.");
-          } else {
-            toast.error(data);
-          }
+          toast.error(data || "Error duplicating task.");
         }
-      } catch (error) {
-        console.error(error);
       }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -593,57 +533,33 @@ const Datatable = ({
 
   // API for update status
   const updateStatus = async (id: number[], statusId: number) => {
-    if (
-      selectedRowsCount === 1 &&
-      (selectedRowStatusId.includes(7) ||
-        selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9) ||
-        selectedRowStatusId.includes(13))
-    ) {
-      toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      );
-    }
-    if (
-      reviewList
-        .map((item: any) =>
-          id.includes(item.WorkitemId)
-            ? item.TimelogId !== null
-              ? item.WorkitemId
-              : false
-            : undefined
-        )
-        .filter((i: any) => i !== undefined)
-        .filter((i: any) => i !== false).length > 0
-    ) {
-      toast.warning("Cannot change status for running task.");
-    }
-    if (
-      selectedRowsCount > 1 &&
-      (selectedRowStatusId.includes(7) ||
-        selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9) ||
-        selectedRowStatusId.includes(13))
-    ) {
-      toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      );
-    }
-    if (
-      reviewList
-        .map((item: any) =>
-          id.includes(item.WorkitemId)
-            ? item.TimelogId === null
-              ? item.WorkitemId
-              : false
-            : undefined
-        )
-        .filter((i: any) => i !== undefined)
-        .filter((i: any) => i !== false).length > 0
-    ) {
+    try {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
-      try {
+
+      const isInvalidStatus = selectedRowStatusId.some((status: number) =>
+        [7, 8, 9, 13].includes(status)
+      );
+
+      const hasRunningTasks = reviewList.some((item: any) =>
+        id.includes(item.WorkitemId)
+          ? item.TimelogId !== null
+            ? true
+            : false
+          : false
+      );
+
+      if (selectedRowsCount === 1 && isInvalidStatus) {
+        toast.warning(
+          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+        );
+      } else if (selectedRowsCount > 1 && isInvalidStatus) {
+        toast.warning(
+          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+        );
+      } else if (hasRunningTasks) {
+        toast.warning("Cannot change status for running task.");
+      } else {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdateStatus`,
           {
@@ -651,10 +567,7 @@ const Datatable = ({
               .map((item: any) =>
                 id.includes(item.WorkitemId)
                   ? item.TimelogId === null &&
-                    item.StatusId !== 7 &&
-                    item.StatusId !== 8 &&
-                    item.StatusId !== 9 &&
-                    item.StatusId !== 13
+                    ![7, 8, 9, 13].includes(item.StatusId)
                     ? item.WorkitemId
                     : false
                   : undefined
@@ -672,29 +585,21 @@ const Datatable = ({
         );
 
         if (response.status === 200) {
+          const data = response.data.Message;
           if (response.data.ResponseStatus === "Success") {
             toast.success("Status has been updated successfully.");
             handleClearSelection();
             getReviewList();
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Error duplicating task.");
-            } else {
-              toast.error(data);
-            }
+            toast.error(data || "Error duplicating task.");
           }
         } else {
           const data = response.data.Message;
-          if (data === null) {
-            toast.error("Error duplicating task.");
-          } else {
-            toast.error(data);
-          }
+          toast.error(data || "Error duplicating task.");
         }
-      } catch (error) {
-        console.error(error);
       }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -878,11 +783,6 @@ const Datatable = ({
   ) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
-
-    // if (state === 1 && isOnBreak !== 0) {
-    //   onGetBreakData();
-    //   onSetBreak();
-    // }
 
     try {
       const response = await axios.post(
@@ -1255,7 +1155,7 @@ const Datatable = ({
             <div className="w-40 h-7 flex items-center">
               <ColorToolTip
                 title={`Estimated Time: ${toHoursAndMinutes(
-                  tableMeta.rowData[4]
+                  tableMeta.rowData[4] * tableMeta.rowData[17]
                 )}`}
                 placement="top"
                 arrow
@@ -1400,7 +1300,7 @@ const Datatable = ({
         viewColumns: false,
         customHeadLabelRender: () => genrateCustomHeaderName("Status"),
         customBodyRender: (value: any, tableMeta: any) =>
-          generateStatusWithColor(value, tableMeta.rowData[8]),
+          generateStatusWithColor(value, tableMeta.rowData[9]),
       },
     },
     {
@@ -1497,7 +1397,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => genrateCustomHeaderName("Edited Time"),
-        customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
+        customBodyRender: (value: any) => {
           return <div>{value ? formatTime(value) : "00:00:00"}</div>;
         },
       },
@@ -1508,7 +1408,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => genrateCustomHeaderName("Is Manual"),
-        customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
+        customBodyRender: (value: any) => {
           return <div>{value === true ? "Yes" : "No"}</div>;
         },
       },

@@ -4,9 +4,11 @@ export const genrateCustomHeaderName = (headerName: string) => {
   return <span className="font-extrabold capitalize">{headerName}</span>;
 };
 
-export const generateCommonBodyRender = (baodyValue: any) => {
+export const generateCommonBodyRender = (bodyValue: any) => {
   return (
-    <div className="ml-2">{baodyValue === null || baodyValue === "" ? "-" : baodyValue}</div>
+    <div className="ml-2">
+      {!bodyValue || bodyValue === "0" ? "-" : bodyValue}
+    </div>
   );
 };
 

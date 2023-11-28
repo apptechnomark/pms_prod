@@ -559,12 +559,20 @@ const UnassigneeDatatable = ({
   const updateDate = async (id: number[], date: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
+    const selectedDate = dayjs(date);
+    let nextDate: any = selectedDate;
+    if (selectedDate.day() === 4 || selectedDate.day() === 5) {
+      nextDate = nextDate.add(4, "day");
+    } else {
+      nextDate = dayjs(date).add(2, "day").toDate();
+    }
     try {
       const response = await axios.post(
         `${process.env.worklog_api_url}/workitem/bulkupdateworkitemreceiverdate`,
         {
           WorkitemIds: id,
           ReceiverDate: dayjs(date).format("YYYY/MM/DD"),
+          DueDate: dayjs(nextDate).format("YYYY/MM/DD"),
         },
         {
           headers: {
@@ -772,31 +780,19 @@ const UnassigneeDatatable = ({
 
   // Update Priority API
   const updatePriority = async (id: number[], priorityId: number) => {
-    if (
-      selectedRowsCount === 1 &&
-      (selectedRowStatusId.includes(7) ||
-        selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9) ||
-        selectedRowStatusId.includes(13))
-    ) {
-      toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
+        [7, 8, 9, 13].includes(statusId)
       );
-    } else {
-      if (
-        selectedRowsCount > 1 &&
-        (selectedRowStatusId.includes(7) ||
-          selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9) ||
-          selectedRowStatusId.includes(13))
-      ) {
+
+      if (selectedRowsCount >= 1 && isInvalidStatus) {
         toast.warning(
           "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
         );
-      }
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
+      } else {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdatePriority`,
           {
@@ -812,29 +808,21 @@ const UnassigneeDatatable = ({
         );
 
         if (response.status === 200) {
+          const data = response.data.Message;
           if (response.data.ResponseStatus === "Success") {
             toast.success("Priority has been updated successfully.");
             handleClearSelection();
             getWorkItemList();
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
+            toast.error(data || "Please try again later.");
           }
         } else {
           const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+          toast.error(data || "Please try again later.");
         }
-      } catch (error) {
-        console.error(error);
       }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -1000,30 +988,18 @@ const UnassigneeDatatable = ({
 
   // API for update status
   const updateStatus = async (id: number[], statusId: number) => {
-    if (
-      selectedRowsCount === 1 &&
-      (selectedRowStatusId.includes(7) ||
-        selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9) ||
-        selectedRowStatusId.includes(13))
-    ) {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
+      [7, 8, 9, 13].includes(statusId)
+    );
+
+    if (selectedRowsCount >= 1 && isInvalidStatus) {
       toast.warning(
         "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
       );
     } else {
-      if (
-        selectedRowsCount > 1 &&
-        (selectedRowStatusId.includes(7) ||
-          selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9) ||
-          selectedRowStatusId.includes(13))
-      ) {
-        toast.warning(
-          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-        );
-      }
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
       try {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdateStatus`,
@@ -1124,31 +1100,19 @@ const UnassigneeDatatable = ({
 
   // API for update Assignee
   const updateAssignee = async (id: number[], assigneeId: number) => {
-    if (
-      selectedRowsCount === 1 &&
-      (selectedRowStatusId.includes(7) ||
-        selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9) ||
-        selectedRowStatusId.includes(13))
-    ) {
-      toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      );
-    } else {
-      if (
-        selectedRowsCount > 1 &&
-        (selectedRowStatusId.includes(7) ||
-          selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9) ||
-          selectedRowStatusId.includes(13))
-      ) {
-        toast.warning(
-          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-        );
-      }
+    try {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
-      try {
+
+      const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
+        [7, 8, 9, 13].includes(statusId)
+      );
+
+      if (selectedRowsCount >= 1 && isInvalidStatus) {
+        toast.warning(
+          "Cannot change Assignee for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+        );
+      } else {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdateAssignee`,
           {
@@ -1164,29 +1128,21 @@ const UnassigneeDatatable = ({
         );
 
         if (response.status === 200) {
+          const data = response.data.Message;
           if (response.data.ResponseStatus === "Success") {
             toast.success("Assignee has been updated successfully.");
             handleClearSelection();
             getWorkItemList();
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Error duplicating task.");
-            } else {
-              toast.error(data);
-            }
+            toast.error(data || "Error duplicating task.");
           }
         } else {
           const data = response.data.Message;
-          if (data === null) {
-            toast.error("Error duplicating task.");
-          } else {
-            toast.error(data);
-          }
+          toast.error(data || "Error duplicating task.");
         }
-      } catch (error) {
-        console.error(error);
       }
+    } catch (error) {
+      console.error(error);
     }
   };
 

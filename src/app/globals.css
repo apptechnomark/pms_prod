@@ -186,3 +186,8 @@ input[type="time"]::-moz-time-text {
 .checkboxRadio input:disabled ~ span {
   opacity: 0.5;
 }
+
+.css-1q04gal-MuiDateCalendar-root {
+  width: 294px;
+  max-height: 290px;
+}

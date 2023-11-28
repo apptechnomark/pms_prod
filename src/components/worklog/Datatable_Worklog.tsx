@@ -466,31 +466,19 @@ const Datatable_Worklog = ({
 
   // Update Priority API
   const updatePriority = async (id: number[], priorityId: number) => {
-    if (
-      selectedRowsCount === 1 &&
-      (selectedRowStatusId.includes(7) ||
-        selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9) ||
-        selectedRowStatusId.includes(13))
-    ) {
-      toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
+        [7, 8, 9, 13].includes(statusId)
       );
-    } else {
-      if (
-        selectedRowsCount > 1 &&
-        (selectedRowStatusId.includes(7) ||
-          selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9) ||
-          selectedRowStatusId.includes(13))
-      ) {
+
+      if (selectedRowsCount >= 1 && isInvalidStatus) {
         toast.warning(
-          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+          "Cannot change Priority for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
         );
-      }
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
+      } else {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdatePriority`,
           {
@@ -506,29 +494,21 @@ const Datatable_Worklog = ({
         );
 
         if (response.status === 200) {
+          const data = response.data.Message;
           if (response.data.ResponseStatus === "Success") {
             toast.success("Priority has been updated successfully.");
             handleClearSelection();
             getWorkItemList();
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
+            toast.error(data || "Please try again later.");
           }
         } else {
           const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+          toast.error(data || "Please try again later.");
         }
-      } catch (error) {
-        console.error(error);
       }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -642,30 +622,18 @@ const Datatable_Worklog = ({
 
   // API for update status
   const updateStatus = async (id: number[], statusId: number) => {
-    if (
-      selectedRowsCount === 1 &&
-      (selectedRowStatusId.includes(7) ||
-        selectedRowStatusId.includes(8) ||
-        selectedRowStatusId.includes(9) ||
-        selectedRowStatusId.includes(13))
-    ) {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
+      [7, 8, 9, 13].includes(statusId)
+    );
+
+    if (selectedRowsCount >= 1 && isInvalidStatus) {
       toast.warning(
         "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
       );
     } else {
-      if (
-        selectedRowsCount > 1 &&
-        (selectedRowStatusId.includes(7) ||
-          selectedRowStatusId.includes(8) ||
-          selectedRowStatusId.includes(9) ||
-          selectedRowStatusId.includes(13))
-      ) {
-        toast.warning(
-          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-        );
-      }
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
       try {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdateStatus`,

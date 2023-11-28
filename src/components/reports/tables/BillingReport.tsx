@@ -250,7 +250,7 @@ const BillingReport = ({
     } else {
       getData({ ...billingreport_InitialFilter, globalSearch: searchValue });
     }
-  }, [filteredData]);
+  }, [filteredData, searchValue]);
 
   //handling btcData as well as raisedInvoice props
   useEffect(

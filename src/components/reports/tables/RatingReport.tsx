@@ -127,7 +127,7 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
     } else {
       getData({ ...rating_InitialFilter, GlobalSearch: searchValue });
     }
-  }, [filteredData]);
+  }, [filteredData, searchValue]);
 
   // Table Columns
   const columns = [

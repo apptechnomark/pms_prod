@@ -86,9 +86,6 @@ const initialFilter = {
 
 const page = () => {
   const router = useRouter();
-  const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
-    (() => void) | null
-  >(null);
   const [isBillingTypeDialogOpen, setIsBillingTypeDialogOpen] =
     useState<boolean>(false);
   const [isTaskStatusDialogOpen, setIsTaskStatusDialogOpen] =
@@ -115,10 +112,6 @@ const page = () => {
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
   const [clients, setClients] = useState<any[]>([]);
   const [clientDropdownData, setClientDropdownData] = useState<any>([]);
-
-  const handleUserDetailsFetch = (getData: () => void) => {
-    setGetOrgDetailsFunction(() => getData);
-  };
 
   useEffect(() => {
     if (localStorage.getItem("isClient") === "false") {
@@ -563,7 +556,7 @@ const page = () => {
   return (
     <Wrapper className="min-h-screen overflow-y-auto">
       <div>
-        <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
+        <Navbar />
 
         <div className="flex items-center justify-between w-full px-6">
           <div className="flex gap-[16px] items-center py-[6.5px]">

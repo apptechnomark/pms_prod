@@ -1,12 +1,11 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import axios from "axios";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 // Library Components
 import { Button, Select, Text, Toast, Tooltip, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 // Icons
-import DotsIcon from "@/assets/icons/DotsIcon";
 import ImportIcon from "@/assets/icons/ImportIcon";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
@@ -59,8 +58,6 @@ const page = () => {
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(-1);
   const [visibleTabs, setVisibleTabs] = useState(tabs.slice(0, 6));
   const [dropdownTabs, setDropdownTabs] = useState(tabs.slice(6));
-  const selectRef = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [isLoaded, setLoaded] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -161,11 +158,6 @@ const page = () => {
     hasNoToken(router);
   }, [router]);
 
-  // To Toggle Tab-list
-  const handleToggleOpen = () => {
-    setOpen((prevOpen) => !prevOpen);
-  };
-
   // To Toggle Drawer
   const handleDrawerOpen = () => {
     setOpenDrawer(true);
@@ -224,23 +216,8 @@ const page = () => {
       setTab(tabId);
       setVisibleTabs(updatedVisibleTabs);
       setDropdownTabs(updatedDropdownTabs);
-      setOpen(false);
     }
   };
-
-  useEffect(() => {
-    const handleOutsideClick = (event: any) => {
-      if (selectRef.current && !selectRef.current.contains(event.target)) {
-        setOpen(false);
-      }
-    };
-
-    window.addEventListener("click", handleOutsideClick);
-
-    return () => {
-      window.removeEventListener("click", handleOutsideClick);
-    };
-  }, []);
 
   const getPermissionDropdown = async () => {
     const token = await localStorage.getItem("token");
@@ -704,7 +681,7 @@ const page = () => {
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
       const prams = {
-        GlobalFilter: searchValue,
+        GlobalSearch: searchValue,
         PageNo: 1,
         PageSize: 50000,
         SortColumn: "",
@@ -796,7 +773,7 @@ const page = () => {
         pageSize: 50000,
         SortColumn: "",
         IsDec: true,
-        globalFilter: searchValue,
+        GlobalSearch: searchValue,
         IsDefault: null,
         Type: "",
         Export: false,
@@ -1169,41 +1146,35 @@ const page = () => {
                         className={`${
                           isExporting ? "cursor-default" : "cursor-pointer"
                         }`}
-                        onClick={() =>
-                          tab === "Client"
-                            ? exportData(
-                                "client",
-                                "Client_data",
-                                clientSearchValue
-                              )
-                            : tab === "Group"
-                            ? exportData(
-                                "group",
-                                "Group_data",
-                                groupSearchValue
-                              )
-                            : tab === "Process"
-                            ? exportData(
-                                "process",
-                                "Process_data",
-                                processSearchValue
-                              )
-                            : tab === "Project"
-                            ? exportData(
-                                "project",
-                                "Project_data",
-                                projectSearchValue
-                              )
-                            : tab === "Status"
-                            ? exportData(
-                                "status",
-                                "Status_data",
-                                statusSearchValue
-                              )
-                            : tab === "User"
-                            ? exportData("user", "User_data", userSearchValue)
-                            : null
-                        }
+                        onClick={() => {
+                          const tabMappings: any = {
+                            Client: "client",
+                            Group: "group",
+                            Process: "process",
+                            Project: "project",
+                            Status: "status",
+                            User: "user",
+                          };
+
+                          const searchData: any = {
+                            Client: clientSearchValue,
+                            Group: groupSearchValue,
+                            Process: processSearchValue,
+                            Project: projectSearchValue,
+                            Status: statusSearchValue,
+                            User: userSearchValue,
+                          };
+
+                          const selectedTab = tabMappings[tab];
+
+                          if (selectedTab) {
+                            exportData(
+                              selectedTab,
+                              `${tab}_data`,
+                              searchData[tab]
+                            );
+                          }
+                        }}
                       >
                         {isExporting ? <Loading /> : <ExportIcon />}
                       </span>

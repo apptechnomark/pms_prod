@@ -116,7 +116,7 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
     } else {
       getData({ ...userLogs_InitialFilter, globalSearch: searchValue });
     }
-  }, [filteredData]);
+  }, [filteredData, searchValue]);
 
   const columns: any[] = [
     {
