@@ -315,7 +315,7 @@ const Datatable = ({
     setSearchQuery(event.target.value);
   };
 
-  const filteredAssignees = assignee.filter((assignee: any) =>
+  const filteredAssignees = assignee?.filter((assignee: any) =>
     assignee.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -331,15 +331,15 @@ const Datatable = ({
     setprocessSearchQuery(event.target.value);
   };
 
-  const filteredClient = clientDropdownData.filter((client: any) =>
+  const filteredClient = clientDropdownData?.filter((client: any) =>
     client.label.toLowerCase().includes(clientSearchQuery.toLowerCase())
   );
 
-  const filteredManager = managerDropdownData.filter((manager: any) =>
+  const filteredManager = managerDropdownData?.filter((manager: any) =>
     manager.label.toLowerCase().includes(managerSearchQuery.toLowerCase())
   );
 
-  const filteredProcess = processDropdownData.filter((process: any) =>
+  const filteredProcess = processDropdownData?.filter((process: any) =>
     process.label.toLowerCase().includes(processSearchQuery.toLowerCase())
   );
 

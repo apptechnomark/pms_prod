@@ -382,9 +382,6 @@ const Drawer = ({
       AttachmentPath: process.env.attachment,
     },
   ]);
-  const [commentAttachmentsErr, setCommentAttachmentsErr] = useState(false);
-  const [commentEditAttachmentsErr, setEditCommentAttachmentsErr] =
-    useState(false);
   const [editingCommentIndex, setEditingCommentIndex] = useState(-1);
   const [commentDropdownData, setCommentDropdownData] = useState([]);
 
@@ -430,16 +427,10 @@ const Drawer = ({
     setValueEditError(
       valueEdit.trim().length < 5 || valueEdit.trim().length > 500
     );
-    setEditCommentAttachmentsErr(
-      commentAttachment[0].UserFileName.trim().length <= 0 ||
-        commentAttachment[0].SystemFileName.trim().length <= 0
-    );
     if (
       valueEdit.trim().length > 5 &&
       valueEdit.trim().length < 501 &&
-      !valueEditError &&
-      commentAttachment[0].UserFileName.trim().length > 0 &&
-      commentAttachment[0].SystemFileName.trim().length > 0
+      !valueEditError
     ) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
         const token = await localStorage.getItem("token");
@@ -474,7 +465,6 @@ const Drawer = ({
                   AttachmentPath: process.env.attachment,
                 },
               ]);
-              setEditCommentAttachmentsErr(false);
               setValueEditError(false);
               setValueEdit("");
               getCommentData();
@@ -522,33 +512,13 @@ const Drawer = ({
       },
     ];
     setCommentAttachment(Attachment);
-    commentAttachment[0].AttachmentId === 0 &&
-      setCommentAttachmentsErr(
-        commentAttachment.UserFileName?.trim().length <= 0 ||
-          commentAttachment.SystemFileName?.trim().length <= 0
-      );
-    commentAttachment[0].AttachmentId > 0 &&
-      setEditCommentAttachmentsErr(
-        commentAttachment.UserFileName?.trim().length <= 0 ||
-          commentAttachment.SystemFileName?.trim().length <= 0
-      );
   };
 
   // Save Comment
   const handleSubmitComment = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setValueError(value.trim().length < 5 || value.trim().length > 500);
-    setCommentAttachmentsErr(
-      commentAttachment[0].UserFileName.trim().length <= 0 ||
-        commentAttachment[0].SystemFileName.trim().length <= 0
-    );
-    if (
-      value.trim().length >= 5 &&
-      value.trim().length < 501 &&
-      !valueError &&
-      commentAttachment[0].UserFileName.trim().length > 0 &&
-      commentAttachment[0].SystemFileName.trim().length > 0
-    ) {
+    if (value.trim().length >= 5 && value.trim().length < 501 && !valueError) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
@@ -560,7 +530,10 @@ const Drawer = ({
               CommentId: 0,
               Message: value,
               TaggedUsers: mention,
-              Attachment: commentAttachment.length > 0 ? commentAttachment : [],
+              Attachment:
+                commentAttachment[0].SystemFileName.length > 0
+                  ? commentAttachment
+                  : null,
               type: 2,
             },
             {
@@ -582,7 +555,6 @@ const Drawer = ({
                   AttachmentPath: process.env.attachment,
                 },
               ]);
-              setEditCommentAttachmentsErr(false);
               setValueEditError(false);
               setValueEdit("");
               setValue("");
@@ -642,7 +614,6 @@ const Drawer = ({
     },
   ]);
   const [remarkErr, setRemarkErr] = useState([false]);
-  const [attachmentsErr, setAttachmentsErr] = useState([false]);
   const [deletedErrorLog, setDeletedErrorLog] = useState<any>([]);
 
   const addErrorLogField = () => {
@@ -670,7 +641,6 @@ const Drawer = ({
       },
     ]);
     setRemarkErr([...remarkErr, false]);
-    setAttachmentsErr([...attachmentsErr, false]);
   };
 
   const removeErrorLogField = (index: number) => {
@@ -681,9 +651,6 @@ const Drawer = ({
     const newRemarkErrors = [...remarkErr];
     newRemarkErrors.splice(index, 1);
     setRemarkErr(newRemarkErrors);
-    const newAttachmentErrors = [...attachmentsErr];
-    newAttachmentErrors.splice(index, 1);
-    setAttachmentsErr(newAttachmentErrors);
   };
 
   const handleRemarksChange = (e: any, index: number) => {
@@ -711,12 +678,6 @@ const Drawer = ({
       },
     ];
     setErrorLogFields(newFields);
-
-    const newErrors = [...attachmentsErr];
-    newErrors[index] =
-      newFields[index].Attachments[0].UserFileName.length <= 0 ||
-      newFields[index].Attachments[0].SystemFileName.length <= 0;
-    setAttachmentsErr(newErrors);
   };
 
   const handleSubmitErrorLog = async (e: { preventDefault: () => void }) => {
@@ -727,15 +688,9 @@ const Drawer = ({
         field.Remark.trim().length < 5 || field.Remark.trim().length > 500
     );
     setRemarkErr(newRemarkErrors);
-    const newAttachmentsErrors = errorLogFields.map(
-      (field) =>
-        field.Attachments[0].UserFileName.length <= 0 ||
-        field.Attachments[0].SystemFileName.length <= 0
-    );
-    setAttachmentsErr(newAttachmentsErrors);
-    hasErrorLogErrors =
-      newRemarkErrors.some((error) => error) ||
-      newAttachmentsErrors.some((error) => error);
+
+    hasErrorLogErrors = newRemarkErrors.some((error) => error);
+
     if (!hasErrorLogErrors) {
       if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
         const token = await localStorage.getItem("token");
@@ -756,7 +711,10 @@ const Drawer = ({
                     NatureOfError: 0,
                     CC: [],
                     Remark: i.Remark,
-                    Attachments: i.Attachments,
+                    Attachments:
+                      i.Attachments[0].SystemFileName.length > 0
+                        ? i.Attachments
+                        : null,
                   })
               ),
               IsClientWorklog: true,
@@ -827,66 +785,13 @@ const Drawer = ({
     };
 
     const fieldValidations = {
-      // projectName: typeChecked("ProjectName") && validateField(projectName),
-      // typeOfWork: typeChecked("TypeOfWork") && validateField(typeOfWork),
-      // returnType:
-      //   typeOfWork === 3 &&
-      //   typeChecked("ReturnType") &&
-      //   validateField(returnType),
-      // typeOfReturn:
-      //   typeOfWork === 3 &&
-      //   typeChecked("TypeOfReturn") &&
-      //   validateField(typeOfReturn),
-      // priority: typeChecked("Priority") && validateField(priority),
-      // processName: typeChecked("ProcessName") && validateField(processName),
-      // subProcess: typeChecked("SubProcessName") && validateField(subProcess),
       clientTaskName: typeChecked("TaskName") && validateField(clientTaskName),
-      // startDate: typeChecked("StartDate") && validateField(startDate),
-      // endDate: typeChecked("EndDate") && validateField(endDate),
-      // quantity: typeChecked("Quantity") && validateField(quantity),
     };
 
     fieldsData.map((field: any) => {
-      // field.Type === "ProjectName" &&
-      //   field.IsChecked &&
-      //   setProjectNameErr(fieldValidations.projectName);
-      // field.Type === "TypeOfWork" &&
-      //   field.IsChecked &&
-      //   setTypeOfWorkErr(fieldValidations.typeOfWork);
-      // field.Type === "Priority" &&
-      //   field.IsChecked &&
-      //   setPriorityErr(fieldValidations.priority);
-      // field.Type === "ProcessName" &&
-      //   field.IsChecked &&
-      //   setProcessNameErr(fieldValidations.processName);
-      // field.Type === "SubProcessName" &&
-      //   field.IsChecked &&
-      //   setSubProcessErr(fieldValidations.subProcess);
       field.Type === "TaskName" &&
         field.IsChecked &&
         setClientTaskNameErr(fieldValidations.clientTaskName);
-      // field.Type === "StartDate" &&
-      //   field.IsChecked &&
-      //   setStartDateErr(fieldValidations.startDate);
-      // field.Type === "EndDate" &&
-      //   field.IsChecked &&
-      //   setEndDateErr(fieldValidations.endDate);
-      // field.Type === "Quantity" &&
-      //   field.IsChecked &&
-      //   setQuantityErr(fieldValidations.quantity);
-      // field.Type === "Quantity" &&
-      //   field.IsChecked &&
-      //   setQuantityErr(
-      //     quantity.length <= 0 ||
-      //       quantity.length > 4 ||
-      //       quantity <= 0 ||
-      //       quantity.toString().includes(".")
-      //   );
-      // typeOfWork === 3 && setReturnTypeErr(fieldValidations.returnType);
-      // field.Type === "TypeOfReturn" &&
-      //   field.IsChecked &&
-      //   typeOfWork === 3 &&
-      //   setTypeOfReturnErr(fieldValidations.typeOfReturn);
     });
 
     const hasErrors = Object.values(fieldValidations).some((error) => error);
@@ -1122,7 +1027,17 @@ const Drawer = ({
                         )
                       ).filter(Boolean),
                       Remark: i.Remark,
-                      Attachments: i.Attachment,
+                      Attachments:
+                        i.Attachment === null || i.Attachment.length <= 0
+                          ? [
+                              {
+                                AttachmentId: 0,
+                                UserFileName: "",
+                                SystemFileName: "",
+                                AttachmentPath: process.env.attachment,
+                              },
+                            ]
+                          : i.Attachment,
                       isSolved: i.IsSolved,
                     })
                 )
@@ -1341,8 +1256,6 @@ const Drawer = ({
     ]);
     setEditingCommentIndex(-1);
     setCommentDropdownData([]);
-    setCommentAttachmentsErr(false);
-    setEditCommentAttachmentsErr(false);
 
     // ErrorLogs
     setErrorLogDrawer(true);
@@ -1368,12 +1281,7 @@ const Drawer = ({
         isSolved: false,
       },
     ]);
-    // setRootCauseErr([false]);
-    // setErrorLogPriorityErr([false]);
-    // setErrorCountErr([false]);
-    // setNatureOfErr([false]);
     setRemarkErr([false]);
-    setAttachmentsErr([false]);
     setDeletedErrorLog([]);
 
     onDataFetch();
@@ -1930,11 +1838,6 @@ const Drawer = ({
                                           </span>
                                         )
                                       )}
-                                      {commentEditAttachmentsErr && (
-                                        <span className="text-defaultRed text-[14px]">
-                                          Attachment is required.
-                                        </span>
-                                      )}
                                     </div>
                                   </div>
                                   <button
@@ -2087,11 +1990,6 @@ const Drawer = ({
                                 This is a required field.
                               </span>
                             )
-                          )}
-                          {commentAttachmentsErr && (
-                            <span className="text-defaultRed text-[14px] ml-20">
-                              Attachment is required.
-                            </span>
                           )}
                         </div>
                         {commentAttachment[0].AttachmentId === 0 &&
@@ -2248,11 +2146,6 @@ const Drawer = ({
                                     </div>
                                   )}
                                 </div>
-                                {attachmentsErr[index] && (
-                                  <span className="text-defaultRed">
-                                    Attachment is required.
-                                  </span>
-                                )}
                               </div>
                               {field.isSolved && (
                                 <FormGroup>

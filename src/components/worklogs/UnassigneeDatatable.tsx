@@ -285,7 +285,7 @@ const UnassigneeDatatable = ({
     setSearchQuery(event.target.value);
   };
 
-  const filteredAssignees = assignee.filter((assignee: any) =>
+  const filteredAssignees = assignee?.filter((assignee: any) =>
     assignee.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -301,15 +301,15 @@ const UnassigneeDatatable = ({
     setprocessSearchQuery(event.target.value);
   };
 
-  const filteredClient = clientDropdownData.filter((client: any) =>
+  const filteredClient = clientDropdownData?.filter((client: any) =>
     client.label.toLowerCase().includes(clientSearchQuery.toLowerCase())
   );
 
-  const filteredManager = managerDropdownData.filter((manager: any) =>
+  const filteredManager = managerDropdownData?.filter((manager: any) =>
     manager.label.toLowerCase().includes(managerSearchQuery.toLowerCase())
   );
 
-  const filteredProcess = processDropdownData.filter((process: any) =>
+  const filteredProcess = processDropdownData?.filter((process: any) =>
     process.label.toLowerCase().includes(processSearchQuery.toLowerCase())
   );
 
@@ -1212,7 +1212,7 @@ const UnassigneeDatatable = ({
         sort: true,
         customHeadLabelRender: () => genrateCustomHeaderName("Client"),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsHasErrorlog = tableMeta.rowData[17];
+          const IsHasErrorlog = tableMeta.rowData[18];
           return (
             <div>
               {IsHasErrorlog && (
@@ -1234,15 +1234,37 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () => genrateCustomHeaderName("Project"),
-        customBodyRender: (value: any, tableMeta: any) => {
-          const IsRecurring = tableMeta.rowData[18];
+        customBodyRender: (value: any) => {
           return (
             <div className="flex items-center gap-2">
               {value === null || value === "" ? "-" : value}
-              {IsRecurring && (
-                <span className="text-secondary font-semibold">
-                  <RecurringIcon />
-                </span>
+            </div>
+          );
+        },
+      },
+    },
+    {
+      name: "TaskName",
+      options: {
+        filter: true,
+        sort: true,
+        // viewColumns: true,
+        customHeadLabelRender: () => genrateCustomHeaderName("Task"),
+        customBodyRender: (value: any, tableMeta: any) => {
+          const IsRecurring = tableMeta.rowData[19];
+          return (
+            <div className="flex items-center gap-2">
+              {value === null || value === "" ? (
+                "-"
+              ) : (
+                <>
+                  {IsRecurring && (
+                    <span className="text-secondary font-semibold">
+                      <RecurringIcon />
+                    </span>
+                  )}
+                  {value}
+                </>
               )}
             </div>
           );
@@ -1325,7 +1347,7 @@ const UnassigneeDatatable = ({
         sort: true,
         customHeadLabelRender: () => genrateCustomHeaderName("Status"),
         customBodyRender: (value: any, tableMeta: any) =>
-          generateStatusWithColor(value, tableMeta.rowData[8]),
+          generateStatusWithColor(value, tableMeta.rowData[9]),
       },
     },
 

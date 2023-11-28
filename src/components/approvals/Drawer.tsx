@@ -1397,9 +1397,6 @@ const EditDrawer = ({
       AttachmentPath: process.env.attachment,
     },
   ]);
-  const [commentAttachmentsErr, setCommentAttachmentsErr] = useState(false);
-  const [commentEditAttachmentsErr, setEditCommentAttachmentsErr] =
-    useState(false);
   const users =
     assigneeDropdownData?.length > 0 &&
     assigneeDropdownData.map(
@@ -1420,17 +1417,11 @@ const EditDrawer = ({
     setValueEditError(
       valueEdit.trim().length < 5 || valueEdit.trim().length > 500
     );
-    setEditCommentAttachmentsErr(
-      commentAttachment[0].UserFileName.trim().length <= 0 ||
-        commentAttachment[0].SystemFileName.trim().length <= 0
-    );
 
     if (
       valueEdit.trim().length > 5 &&
       valueEdit.trim().length < 501 &&
-      !valueEditError &&
-      commentAttachment[0].UserFileName.trim().length > 0 &&
-      commentAttachment[0].SystemFileName.trim().length > 0
+      !valueEditError
     ) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
         const token = await localStorage.getItem("token");
@@ -1443,7 +1434,10 @@ const EditDrawer = ({
               CommentId: i.CommentId,
               Message: valueEdit,
               TaggedUsers: mention,
-              Attachment: commentAttachment,
+              Attachment:
+                commentAttachment[0].SystemFileName.length > 0
+                  ? commentAttachment
+                  : null,
               type: type,
             },
             {
@@ -1466,7 +1460,6 @@ const EditDrawer = ({
                   AttachmentPath: process.env.attachment,
                 },
               ]);
-              setEditCommentAttachmentsErr(false);
               setValueEditError(false);
               setValueEdit("");
               getCommentData(1);
@@ -1528,16 +1521,6 @@ const EditDrawer = ({
       },
     ];
     setCommentAttachment(Attachment);
-    commentAttachment[0].AttachmentId === 0 &&
-      setCommentAttachmentsErr(
-        commentAttachment.UserFileName?.trim().length <= 0 ||
-          commentAttachment.SystemFileName?.trim().length <= 0
-      );
-    commentAttachment[0].AttachmentId > 0 &&
-      setEditCommentAttachmentsErr(
-        commentAttachment.UserFileName?.trim().length <= 0 ||
-          commentAttachment.SystemFileName?.trim().length <= 0
-      );
   };
 
   const handleSubmitComment = async (
@@ -1546,18 +1529,8 @@ const EditDrawer = ({
   ) => {
     e.preventDefault();
     setValueError(value.trim().length < 5 || value.trim().length > 500);
-    setCommentAttachmentsErr(
-      commentAttachment[0].UserFileName.trim().length <= 0 ||
-        commentAttachment[0].SystemFileName.trim().length <= 0
-    );
 
-    if (
-      value.trim().length >= 5 &&
-      value.trim().length < 501 &&
-      !valueError &&
-      commentAttachment[0].UserFileName.trim().length > 0 &&
-      commentAttachment[0].SystemFileName.trim().length > 0
-    ) {
+    if (value.trim().length >= 5 && value.trim().length < 501 && !valueError) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
@@ -1569,7 +1542,10 @@ const EditDrawer = ({
               CommentId: 0,
               Message: value,
               TaggedUsers: mention,
-              Attachment: commentAttachment.length > 0 ? commentAttachment : [],
+              Attachment:
+                commentAttachment[0].SystemFileName.length > 0
+                  ? commentAttachment
+                  : null,
               type: type,
             },
             {
@@ -1592,7 +1568,6 @@ const EditDrawer = ({
                   AttachmentPath: process.env.attachment,
                 },
               ]);
-              setEditCommentAttachmentsErr(false);
               setValueEditError(false);
               setValueEdit("");
               setValue("");
@@ -2130,7 +2105,17 @@ const EditDrawer = ({
                         )
                       ).filter(Boolean),
                       Remark: i.Remark,
-                      Attachments: i.Attachment,
+                      Attachments:
+                      i.Attachment.length > 0 && i.Attachment[0].SystemFileName.length > 0
+                          ? i.Attachment
+                          : [
+                              {
+                                AttachmentId: 0,
+                                UserFileName: "",
+                                SystemFileName: "",
+                                AttachmentPath: process.env.attachment,
+                              },
+                            ],
                       isSolved: i.IsSolved,
                     })
                 )
@@ -2413,7 +2398,6 @@ const EditDrawer = ({
   const [errorCountErr, setErrorCountErr] = useState([false]);
   const [natureOfErr, setNatureOfErr] = useState([false]);
   const [remarkErr, setRemarkErr] = useState([false]);
-  const [attachmentsErr, setAttachmentsErr] = useState([false]);
   const [deletedErrorLog, setDeletedErrorLog] = useState<any>([]);
 
   const addErrorLogField = () => {
@@ -2447,7 +2431,6 @@ const EditDrawer = ({
     setErrorCountErr([...errorCountErr, false]);
     setNatureOfErr([...natureOfErr, false]);
     setRemarkErr([...remarkErr, false]);
-    setAttachmentsErr([...attachmentsErr, false]);
   };
 
   const removeErrorLogField = (index: number) => {
@@ -2480,10 +2463,6 @@ const EditDrawer = ({
     const newRemarkErrors = [...remarkErr];
     newRemarkErrors.splice(index, 1);
     setRemarkErr(newRemarkErrors);
-
-    const newAttachmentErrors = [...attachmentsErr];
-    newAttachmentErrors.splice(index, 1);
-    setAttachmentsErr(newAttachmentErrors);
   };
 
   const handleErrorTypeChange = (e: any, index: number) => {
@@ -2569,12 +2548,6 @@ const EditDrawer = ({
       },
     ];
     setErrorLogFields(newFields);
-
-    const newErrors = [...attachmentsErr];
-    newErrors[index] =
-      newFields[index].Attachments[0].UserFileName.length <= 0 ||
-      newFields[index].Attachments[0].SystemFileName.length <= 0;
-    setAttachmentsErr(newErrors);
   };
 
   const handleSubmitErrorLog = async (e: { preventDefault: () => void }) => {
@@ -2606,12 +2579,6 @@ const EditDrawer = ({
         field.Remark.trim().length < 5 || field.Remark.trim().length > 500
     );
     setRemarkErr(newRemarkErrors);
-    const newAttachmentsErrors = errorLogFields.map(
-      (field) =>
-        field.Attachments[0].UserFileName.length <= 0 ||
-        field.Attachments[0].SystemFileName.length <= 0
-    );
-    setAttachmentsErr(newAttachmentsErrors);
 
     hasErrorLogErrors =
       newErrorTypeErrors.some((error) => error) ||
@@ -2619,8 +2586,7 @@ const EditDrawer = ({
       newNatureOfErrors.some((error) => error) ||
       newPriorityErrors.some((error) => error) ||
       newErrorCountErrors.some((error) => error) ||
-      newRemarkErrors.some((error) => error) ||
-      newAttachmentsErrors.some((error) => error);
+      newRemarkErrors.some((error) => error);
 
     if (!hasErrorLogErrors) {
       if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
@@ -2642,7 +2608,10 @@ const EditDrawer = ({
                     NatureOfError: i.NatureOfError,
                     CC: i.CC.map((j: any) => j.value),
                     Remark: i.Remark,
-                    Attachments: i.Attachments,
+                    Attachments:
+                      i.Attachments[0].SystemFileName.length > 0
+                        ? i.Attachments
+                        : null,
                   })
               ),
               IsClientWorklog: false,
@@ -2929,8 +2898,6 @@ const EditDrawer = ({
       },
     ]);
     setEditingCommentIndex(-1);
-    setCommentAttachmentsErr(false);
-    setEditCommentAttachmentsErr(false);
 
     // Reviewer note
     setReviewerNoteData([]);
@@ -2966,7 +2933,6 @@ const EditDrawer = ({
     setErrorCountErr([false]);
     setNatureOfErr([false]);
     setRemarkErr([false]);
-    setAttachmentsErr([false]);
     setDeletedErrorLog([]);
 
     // Dropdown
@@ -4405,11 +4371,6 @@ const EditDrawer = ({
                                           </span>
                                         )
                                       )}
-                                      {commentEditAttachmentsErr && (
-                                        <span className="text-defaultRed text-[14px]">
-                                          Attachment is required.
-                                        </span>
-                                      )}
                                     </div>
                                   </div>
                                   <button
@@ -4564,11 +4525,6 @@ const EditDrawer = ({
                                 This is a required field.
                               </span>
                             )
-                          )}
-                          {commentAttachmentsErr && (
-                            <span className="text-defaultRed text-[14px] ml-20">
-                              Attachment is required.
-                            </span>
                           )}
                         </div>
                         {commentAttachment[0].AttachmentId === 0 &&
@@ -5980,11 +5936,6 @@ const EditDrawer = ({
                                   </div>
                                 )}
                               </div>
-                              {attachmentsErr[index] && (
-                                <span className="text-defaultRed">
-                                  Attachment is required.
-                                </span>
-                              )}
                             </div>
                             {field.isSolved && (
                               <FormGroup>
