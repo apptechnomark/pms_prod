@@ -159,12 +159,12 @@ const ClientProcessDrawer = ({
       accessor: "Check",
       sortable: false,
     },
-    { header: "PROCESS", accessor: "Process", sortable: true },
-    { header: "SUB-PROCESS", accessor: "SubProcess", sortable: true },
-    { header: "STANDARD HRS", accessor: "EstimatedHour", sortable: false },
-    { header: "PROCESS TYPE", accessor: "IsProductive", sortable: false },
-    { header: "BILL TYPE", accessor: "IsBillable", sortable: false },
-    { header: "ACTIONS", accessor: "actions", sortable: false },
+    { header: "Process", accessor: "Process", sortable: true },
+    { header: "Sub-Process", accessor: "SubProcess", sortable: true },
+    { header: "Standard Hrs.", accessor: "EstimatedHour", sortable: false },
+    { header: "Process Type", accessor: "IsProductive", sortable: false },
+    { header: "Bill Type", accessor: "IsBillable", sortable: false },
+    { header: "Actions", accessor: "actions", sortable: false },
   ];
 
   const handleClose = () => {
@@ -496,24 +496,25 @@ const ClientProcessDrawer = ({
         </div>
       )}
 
-      <div className="flex justify-start fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">
+      <div className="flex justify-end fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">
+        <Button
+          onClick={handleClose}
+          variant="btn-outline-primary"
+          className="rounded-[4px] !h-[36px] uppercase"
+        >
+          Cancel
+        </Button>
+
         <Button
           type="submit"
           variant="btn-primary"
-          className="rounded-[4px] !h-[36px]"
+          className="rounded-[4px] !h-[36px] uppercase"
           onClick={() => {
             handleSubmit();
           }}
           disabled={selectedRowsData.length === 0}
         >
           Update Process
-        </Button>
-        <Button
-          onClick={handleClose}
-          variant="btn-error"
-          className="rounded-[4px] !h-[36px]"
-        >
-          Cancel
         </Button>
       </div>
     </div>

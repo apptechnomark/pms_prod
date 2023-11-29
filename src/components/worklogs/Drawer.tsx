@@ -3328,7 +3328,7 @@ const EditDrawer = ({
                             variant="standard"
                             label={
                               <span>
-                                Sub Process
+                                Sub-Process
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }

@@ -426,6 +426,7 @@ const UserContent = forwardRef<
         if (response.data.ResponseStatus === "Success") {
           setLoader(false);
           onUserDataFetch();
+          setClientDataTrue();
           clearDataClient();
           {
             !addMoreClicked && onClose();
@@ -498,10 +499,9 @@ const UserContent = forwardRef<
       clientLastName.trim().length <= 0 && setClientLastNameHasError(true);
       clientEmail.trim().length <= 0 && setClientEmailHasError(true);
       clientRole <= 0 && setClientRoleHasError(true);
-
       if (
         clientNameError &&
-        clientName !== 0 &&
+        clientName > 0 &&
         clientFirstNameError &&
         clientFirstName.trim().length !== 0 &&
         clientLastNameError &&
@@ -642,6 +642,7 @@ const UserContent = forwardRef<
               hasError={roleHasError}
               getValue={(value) => {
                 setRole(value);
+                value > 0 && setRoleHasError(false);
               }}
               getError={(e) => setRoleError(e)}
               options={roleDropdownData
@@ -658,6 +659,7 @@ const UserContent = forwardRef<
               hasError={departmentHasError}
               getValue={(value) => {
                 setDepartment(value);
+                value > 0 && setDepartmentHasError(false);
               }}
               getError={(e) => setDepartmentError(e)}
               options={departmentDropdownData}
@@ -672,6 +674,7 @@ const UserContent = forwardRef<
               hasError={reportHasError}
               getValue={(value) => {
                 setReport(value);
+                value > 0 && setReportHasError(false);
               }}
               getError={(e) => setReportError(e)}
               options={reportManagerDropdownData}
@@ -704,6 +707,7 @@ const UserContent = forwardRef<
               hasError={clientNameHasError}
               getValue={(value) => {
                 setClientName(value);
+                value > 0 && setClientNameHasError(false);
               }}
               getError={(e) => setClientNameError(e)}
               options={clientDropdownData}
@@ -752,6 +756,7 @@ const UserContent = forwardRef<
               hasError={clientRoleHasError}
               getValue={(value) => {
                 setClientRole(value);
+                value > 0 && setClientRoleHasError(false);
               }}
               getError={(e) => setClientRoleError(e)}
               options={roleDropdownData
@@ -775,7 +780,7 @@ const UserContent = forwardRef<
         {onEdit ? (
           <Button
             variant="btn-outline-secondary"
-            className="rounded-[4px] !h-[36px]"
+            className="rounded-[4px] !h-[36px] !uppercase"
             onClick={clearAllData}
           >
             Cancel
@@ -783,7 +788,7 @@ const UserContent = forwardRef<
         ) : (
           <Button
             variant="btn-outline-secondary"
-            className="rounded-[4px] !h-[36px]"
+            className="rounded-[4px] !h-[36px] !uppercase"
             type="submit"
             onClick={() => setAddMoreClicked(true)}
           >
@@ -797,7 +802,7 @@ const UserContent = forwardRef<
         ) : (
           <Button
             variant="btn-secondary"
-            className="rounded-[4px] !h-[36px]"
+            className="rounded-[4px] !h-[36px] !uppercase"
             type="submit"
           >
             {onEdit ? "Save" : `Create ${tab === "Permissions" ? "Role" : tab}`}

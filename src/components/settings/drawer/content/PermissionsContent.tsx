@@ -140,7 +140,7 @@ const PermissionsContent = forwardRef<
       <div className="flex justify-end fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] border-t border-lightSilver">
         <Button
           variant="btn-outline-primary"
-          className="rounded-[4px] !h-[36px]"
+          className="rounded-[4px] !h-[36px] !uppercase"
           onClick={clearAllData}
         >
           Cancel
@@ -153,7 +153,7 @@ const PermissionsContent = forwardRef<
           <Button
             type="submit"
             variant="btn-primary"
-            className="rounded-[4px] !h-[36px]"
+            className="rounded-[4px] !h-[36px] !uppercase"
           >
             Create {tab === "Permissions" ? "Role" : tab}
           </Button>

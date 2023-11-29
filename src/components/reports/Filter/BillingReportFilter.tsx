@@ -47,21 +47,6 @@ import {
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
 
-const typeOfReturnDropdown = [
-  {
-    label: "Form1060",
-    value: 1,
-  },
-  {
-    label: "Form1040",
-    value: 2,
-  },
-  {
-    label: "Form1040B",
-    value: 3,
-  },
-];
-
 const BillingReportFilter = ({
   isFiltering,
   sendFilterToPage,
@@ -73,7 +58,6 @@ const BillingReportFilter = ({
   const [projectName, setProjectName] = useState<number | string>(0);
   const [assignee, setAssignee] = useState<number | string>(0);
   const [reviewer, setReviewer] = useState<number | string>(0);
-  const [typeOfReturn, setTypeOfReturn] = useState<number | string>(0);
   const [noOfPages, setNoOfPages] = useState<number | string>("");
   const [isBTC, setIsBTC] = useState<boolean>(false);
   const [startDate, setStartDate] = useState<string | number>("");
@@ -140,7 +124,6 @@ const BillingReportFilter = ({
     setProjectName(0);
     setAssignee(0);
     setReviewer(0);
-    setTypeOfReturn(0);
     setNoOfPages("");
     setResetting(true);
     setIsBTC(false);
@@ -154,7 +137,6 @@ const BillingReportFilter = ({
       projects: [],
       assigneeId: null,
       reviewerId: null,
-      typeofReturnId: null,
       numberOfPages: null,
       IsBTC: false,
       startDate: null,
@@ -173,7 +155,6 @@ const BillingReportFilter = ({
     setProjectName(0);
     setAssignee(0);
     setReviewer(0);
-    setTypeOfReturn(0);
     setNoOfPages("");
     setIsBTC(false);
     setStartDate("");
@@ -188,7 +169,6 @@ const BillingReportFilter = ({
       projects: projectName !== 0 ? [projectName] : [],
       assigneeId: assignee !== 0 ? assignee : null,
       reviewerId: reviewer !== 0 ? reviewer : null,
-      typeofReturnId: typeOfReturn !== 0 ? typeOfReturn : null,
       numberOfPages: noOfPages.toString().trim().length > 0 ? noOfPages : null,
       IsBTC: isBTC,
       startDate:
@@ -213,7 +193,6 @@ const BillingReportFilter = ({
           projects: savedFilters[index].AppliedFilter.projects,
           assigneeId: savedFilters[index].AppliedFilter.assigneeId,
           reviewerId: savedFilters[index].AppliedFilter.reviewerId,
-          typeofReturnId: savedFilters[index].AppliedFilter.typeofReturnId,
           numberOfPages: savedFilters[index].AppliedFilter.numberOfPages,
           IsBTC: savedFilters[index].AppliedFilter.IsBTC,
           startDate: savedFilters[index].AppliedFilter.startDate,
@@ -249,7 +228,6 @@ const BillingReportFilter = ({
             projects: projectName,
             assigneeId: assignee !== 0 ? assignee : null,
             reviewerId: reviewer !== 0 ? reviewer : null,
-            typeofReturnId: typeOfReturn !== 0 ? typeOfReturn : null,
             numberOfPages:
               noOfPages.toString().trim().length > 0 ? noOfPages : null,
             IsBTC: isBTC,
@@ -300,7 +278,6 @@ const BillingReportFilter = ({
       projectName !== 0 ||
       assignee !== 0 ||
       reviewer !== 0 ||
-      typeOfReturn !== 0 ||
       noOfPages.toString().trim().length > 0 ||
       isBTC !== isBTCRef_ForPreviousValue.current ||
       startDate.toString().trim().length > 0 ||
@@ -314,7 +291,6 @@ const BillingReportFilter = ({
     projectName,
     assignee,
     reviewer,
-    typeOfReturn,
     noOfPages,
     isBTC,
     startDate,
@@ -398,7 +374,6 @@ const BillingReportFilter = ({
     );
     setAssignee(savedFilters[index].AppliedFilter.assigneeId);
     setReviewer(savedFilters[index].AppliedFilter.reviewerId);
-    setTypeOfReturn(savedFilters[index].AppliedFilter.typeofReturnId);
     setNoOfPages(savedFilters[index].AppliedFilter.numberOfPages);
     setStartDate(savedFilters[index].AppliedFilter.startDate);
     setEndDate(savedFilters[index].AppliedFilter.endDate);
@@ -645,7 +620,7 @@ const BillingReportFilter = ({
                     ))}
                   </Select>
                 </FormControl>
-                <FormControl
+                {/* <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
@@ -662,7 +637,7 @@ const BillingReportFilter = ({
                       </MenuItem>
                     ))}
                   </Select>
-                </FormControl>
+                </FormControl> */}
                 <FormControl
                   variant="standard"
                   sx={{ mt: 0.35, mx: 0.75, minWidth: 210 }}
@@ -675,8 +650,6 @@ const BillingReportFilter = ({
                     onChange={handleNoOfPageChange}
                   />
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
@@ -695,7 +668,8 @@ const BillingReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-
+              </div>
+              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}
                 >
@@ -715,12 +689,10 @@ const BillingReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{
-                    mt: 0.35,
+                    mt: 2,
                     mx: 0.75,
                     minWidth: 100,
                   }}

@@ -45,6 +45,47 @@ import {
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
 
+const returnTypeDropdown = [
+  {
+    label: "Individual Return",
+    value: 1,
+  },
+  {
+    label: "Business Return",
+    value: 2,
+  },
+];
+
+const complexityDropdown = [
+  {
+    label: "Moderate",
+    value: 1,
+  },
+  {
+    label: "Intermediate",
+    value: 2,
+  },
+  {
+    label: "Complex",
+    value: 3,
+  },
+];
+
+const priorityDropdown = [
+  {
+    label: "High",
+    value: 1,
+  },
+  {
+    label: "Medium",
+    value: 2,
+  },
+  {
+    label: "Low",
+    value: 3,
+  },
+];
+
 const getYears = () => {
   const currentYear = new Date().getFullYear();
   const Years = [];
@@ -81,7 +122,6 @@ const CustomReportFilter = ({
   const [assigneeName, setAssigneeName] = useState<number | string>(0);
   const [reviewerName, setReviewerName] = useState<number | string>(0);
   const [returnTypeName, setReturnTypeName] = useState<number | string>(0);
-  const [typeofReturnName, setTypeofReturnName] = useState<number | string>(0);
   const [noofPages, setNoofPages] = useState<number | string>("");
   const [returnYear, setReturnYear] = useState<number | string>(0);
   const [currentYear, setCurrentYear] = useState<number | string>(0);
@@ -98,47 +138,7 @@ const CustomReportFilter = ({
   const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
   const [processDropdown, setProcessDropdown] = useState<any[]>([]);
   const [userDropdown, setUserDropdown] = useState<any[]>([]);
-  const [returnTypeDropdown, setReturnTypeDropdown] = useState<any[]>([
-    {
-      label: "Individual Return",
-      value: 1,
-    },
-    {
-      label: "Business Return",
-      value: 2,
-    },
-  ]);
-  const [typeOfReturnDropdown, setTypeOfReturnDropdown] = useState<any[]>([]);
   const [yearDropdown, setYearDropdown] = useState<any[]>(getYears());
-  const [complexityDropdown, setComplexityDropdown] = useState<any[]>([
-    {
-      label: "Moderate",
-      value: 1,
-    },
-    {
-      label: "Intermediate",
-      value: 2,
-    },
-    {
-      label: "Complex",
-      value: 3,
-    },
-  ]);
-  const [priorityDropdown, setPriorityDropdown] = useState<any[]>([
-    {
-      label: "High",
-      value: 1,
-    },
-    {
-      label: "Medium",
-      value: 2,
-    },
-    {
-      label: "Low",
-      value: 3,
-    },
-  ]);
-
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [savedFilters, setSavedFilters] = useState<any[]>([]);
@@ -169,7 +169,6 @@ const CustomReportFilter = ({
     setAssigneeName(0);
     setReviewerName(0);
     setReturnTypeName(0);
-    setTypeofReturnName(0);
     setNoofPages("");
     setReturnYear(0);
     setCurrentYear(0);
@@ -198,7 +197,6 @@ const CustomReportFilter = ({
     setAssigneeName(0);
     setReviewerName(0);
     setReturnTypeName(0);
-    setTypeofReturnName(0);
     setNoofPages("");
     setReturnYear(0);
     setCurrentYear(0);
@@ -226,10 +224,6 @@ const CustomReportFilter = ({
         reviewerName === 0 || reviewerName === "" ? null : reviewerName,
       returnTypeId:
         returnTypeName === 0 || returnTypeName === "" ? null : returnTypeName,
-      typeOfReturnId:
-        typeofReturnName === 0 || typeofReturnName === ""
-          ? null
-          : typeofReturnName,
       numberOfPages: noofPages.toString().trim().length <= 0 ? null : noofPages,
       returnYear: returnYear === 0 || returnYear === "" ? null : returnYear,
       currentYear: currentYear === 0 || currentYear === "" ? null : currentYear,
@@ -264,7 +258,6 @@ const CustomReportFilter = ({
           assigneeId: savedFilters[index].AppliedFilter.assigneeId,
           reviewerId: savedFilters[index].AppliedFilter.reviewerId,
           returnTypeId: savedFilters[index].AppliedFilter.returnTypeId,
-          typeOfReturnId: savedFilters[index].AppliedFilter.typeOfReturnId,
           numberOfPages: savedFilters[index].AppliedFilter.numberOfPages,
           returnYear: savedFilters[index].AppliedFilter.returnYear,
           currentYear: savedFilters[index].AppliedFilter.currentYear,
@@ -312,10 +305,6 @@ const CustomReportFilter = ({
                 returnTypeName === 0 || returnTypeName === ""
                   ? null
                   : returnTypeName,
-              typeOfReturnId:
-                typeofReturnName === 0 || typeofReturnName === ""
-                  ? null
-                  : typeofReturnName,
               numberOfPages:
                 noofPages.toString().trim().length <= 0 ? null : noofPages,
               returnYear:
@@ -390,7 +379,6 @@ const CustomReportFilter = ({
       assigneeName !== 0 ||
       reviewerName !== 0 ||
       returnTypeName !== 0 ||
-      typeofReturnName !== 0 ||
       noofPages.toString().trim().length > 0 ||
       returnYear !== 0 ||
       currentYear !== 0 ||
@@ -410,7 +398,6 @@ const CustomReportFilter = ({
     assigneeName,
     reviewerName,
     returnTypeName,
-    typeofReturnName,
     noofPages,
     returnYear,
     currentYear,
@@ -432,7 +419,6 @@ const CustomReportFilter = ({
         await getProcessDropdownData(clientName.length > 0 ? clientName[0] : 0)
       );
       setUserDropdown(await getUserData());
-      setTypeOfReturnDropdown(await getTypeOfReturnDropdownData());
     };
     customDropdowns();
 
@@ -510,7 +496,6 @@ const CustomReportFilter = ({
     setAssigneeName(savedFilters[index].AppliedFilter.assigneeId);
     setReviewerName(savedFilters[index].AppliedFilter.reviewerId);
     setReturnTypeName(savedFilters[index].AppliedFilter.returnTypeId);
-    setTypeofReturnName(savedFilters[index].AppliedFilter.typeOfReturnId);
     setNoofPages(savedFilters[index].AppliedFilter.numberOfPages);
     setReturnYear(savedFilters[index].AppliedFilter.returnYear);
     setCurrentYear(savedFilters[index].AppliedFilter.currentYear);
@@ -820,24 +805,6 @@ const CustomReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
-                  <InputLabel id="typeOfReturn">Type of Return</InputLabel>
-                  <Select
-                    labelId="typeOfReturn"
-                    id="typeOfReturn"
-                    value={typeofReturnName === 0 ? "" : typeofReturnName}
-                    onChange={(e) => setTypeofReturnName(e.target.value)}
-                  >
-                    {typeOfReturnDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
-                >
                   <TextField
                     id="noOfPages"
                     label="Number of Pages"
@@ -846,8 +813,6 @@ const CustomReportFilter = ({
                     onChange={handleNoOfPageChange}
                   />
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -866,6 +831,8 @@ const CustomReportFilter = ({
                     ))}
                   </Select>
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -902,8 +869,6 @@ const CustomReportFilter = ({
                     ))}
                   </Select>
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -922,6 +887,8 @@ const CustomReportFilter = ({
                     ))}
                   </Select>
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >
@@ -959,8 +926,6 @@ const CustomReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-              </div>
-              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >
@@ -978,6 +943,7 @@ const CustomReportFilter = ({
                   </LocalizationProvider>
                 </div>
               </div>
+              <div className="flex gap-[20px]"></div>
             </div>
           </DialogContent>
           <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">

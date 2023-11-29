@@ -266,7 +266,7 @@ const StatusContent = forwardRef<
           {onEdit ? (
             <Button
               variant="btn-outline-primary"
-              className="rounded-[4px] !h-[36px]"
+              className="rounded-[4px] !h-[36px] !uppercase"
               onClick={onClose}
             >
               Cancel
@@ -274,7 +274,7 @@ const StatusContent = forwardRef<
           ) : (
             <Button
               variant="btn-outline-primary"
-              className="rounded-[4px] !h-[36px]"
+              className="rounded-[4px] !h-[36px] !uppercase"
               onClick={addMoreSubmit}
             >
               Add More
@@ -287,7 +287,7 @@ const StatusContent = forwardRef<
           ) : (
             <Button
               variant="btn-primary"
-              className="rounded-[4px] !h-[36px]"
+              className="rounded-[4px] !h-[36px] !uppercase"
               type="submit"
               onClick={handleSubmit}
             >

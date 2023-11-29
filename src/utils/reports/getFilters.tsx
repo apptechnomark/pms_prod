@@ -100,7 +100,6 @@ export const billingreport_InitialFilter = {
   returnTypeId: null,
   assigneeId: null,
   reviewerId: null,
-  typeofReturnId: null,
   numberOfPages: null,
 };
 
@@ -116,7 +115,6 @@ export const customreport_InitialFilter = {
   assignedById: null,
   assigneeId: null,
   returnTypeId: null,
-  typeOfReturnId: null,
   numberOfPages: null,
   returnYear: null,
   currentYear: null,
@@ -132,14 +130,13 @@ export const customreport_InitialFilter = {
 };
 
 export const rating_InitialFilter: any = {
-  PageNo: 1,
-  PageSize: 10,
+  pageNo: 1,
+  pageSize: 10,
   GlobalSearch: "",
   SortColumn: "",
   IsDesc: false,
   Projects: [],
   ReturnTypeId: null,
-  TypeofReturnId: null,
   Ratings: null,
   Clients: [],
   DepartmentId: null,

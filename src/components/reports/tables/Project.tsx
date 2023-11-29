@@ -119,7 +119,7 @@ const Project = ({ filteredData, searchValue }: any) => {
       getData({
         ...project_InitialFilter,
         pageNo: 1,
-        pageSize: rowsPerPage,
+        pageSize: event.target.value,
       });
     }
   };

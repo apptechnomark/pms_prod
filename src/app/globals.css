@@ -187,12 +187,12 @@ input[type="time"]::-moz-time-text {
   opacity: 0.5;
 }
 
-.css-1q04gal-MuiDateCalendar-root {
+.MuiDateCalendar-root {
   width: 294px;
   max-height: 270px !important;
 }
 
-.css-nk89i7-MuiPickersCalendarHeader-root {
+.MuiPickersCalendarHeader-root {
   margin-top: 8px !important;
   margin-bottom: 0px !important;
 }

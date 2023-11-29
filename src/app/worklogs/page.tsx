@@ -37,6 +37,7 @@ import SearchIcon from "@/assets/icons/SearchIcon";
 import UnassigneeDatatable from "@/components/worklogs/UnassigneeDatatable";
 import UnassigneeFilterDialog from "@/components/worklogs/UnassigneeFilterDialog";
 import ImportDialog from "@/components/worklogs/worklogs_Import/ImportDialog";
+import IdleTimer from "@/components/common/IdleTimer";
 
 const Page = () => {
   const router = useRouter();
@@ -357,6 +358,7 @@ const Page = () => {
 
   return (
     <Wrapper>
+      <IdleTimer onIdle={() => window.location.reload()} />
       <div>
         <Navbar onUserDetailsFetch={handleUserDetailsFetch} />
         <div className="bg-white flex justify-between items-center px-[20px]">

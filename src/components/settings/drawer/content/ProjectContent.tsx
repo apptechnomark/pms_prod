@@ -220,6 +220,7 @@ const ProjectContent = forwardRef<
 
   const clearAllData = async () => {
     onClose();
+    setAddMoreClicked(false);
     await setDataTrue();
     await clearAllFields();
   };
@@ -295,7 +296,7 @@ const ProjectContent = forwardRef<
         console.error(error);
       }
     } else if (client > 0 && projectValue > 0) {
-      onClose();
+      !addMoreClicked && onClose();
       onDataFetch();
     }
   };
@@ -384,6 +385,7 @@ const ProjectContent = forwardRef<
           hasError={clientHasError}
           getValue={(e) => {
             setClient(e);
+            e > 0 && setClientHasError(false);
             setProjectValue(0);
             setProjectHasError(false);
           }}
@@ -399,7 +401,10 @@ const ProjectContent = forwardRef<
           onSelect={() => {}}
           options={projectDrpdown}
           hasError={projectHasError}
-          getValue={(e) => setProjectValue(e)}
+          getValue={(e) => {
+            setProjectValue(e);
+            e > 0 && setProjectHasError(false);
+          }}
           getError={(e) => setProjectError(e)}
           addDynamicForm
           addDynamicForm_Icons_Edit
@@ -418,7 +423,7 @@ const ProjectContent = forwardRef<
         />
         {!textFieldOpen && (
           <Text
-            label="Sub-project Name"
+            label="Sub-Project Name"
             placeholder="Enter Sub-Project Name"
             value={subProject}
             getValue={(e) => setSubProject(e)}
@@ -431,7 +436,7 @@ const ProjectContent = forwardRef<
         {onEdit ? (
           <Button
             variant="btn-outline-primary"
-            className="rounded-[4px] !h-[36px]"
+            className="rounded-[4px] !h-[36px] !uppercase"
             onClick={clearAllData}
           >
             Cancel
@@ -440,7 +445,7 @@ const ProjectContent = forwardRef<
           <Button
             type="submit"
             variant="btn-outline-primary"
-            className="rounded-[4px] !h-[36px]"
+            className="rounded-[4px] !h-[36px] !uppercase"
             onClick={() => setAddMoreClicked(true)}
           >
             Add More
@@ -453,7 +458,7 @@ const ProjectContent = forwardRef<
         ) : (
           <Button
             variant="btn-primary"
-            className="rounded-[4px] !h-[36px]"
+            className="rounded-[4px] !h-[36px] !uppercase"
             type="submit"
           >
             {onEdit ? "Save" : `Create ${tab === "Permissions" ? "Role" : tab}`}

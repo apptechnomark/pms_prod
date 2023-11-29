@@ -1150,6 +1150,7 @@ const Page = () => {
                             Project: "project",
                             Status: "status",
                             User: "user",
+                            Organization: "organization",
                           };
 
                           const searchData: any = {
@@ -1216,7 +1217,7 @@ const Page = () => {
                       className={`rounded-md ${
                         permissionValue === 0 ||
                         !hasPermissionWorklog(tab, "save", "settings")
-                          ? "opacity-50 pointer-events-none"
+                          ? "opacity-50 pointer-events-none uppercase"
                           : ""
                       }`}
                       disabled={

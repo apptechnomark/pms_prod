@@ -809,7 +809,7 @@ const ProcessContent = forwardRef<
             {onEdit ? (
               <Button
                 variant="btn-outline-primary"
-                className="rounded-[4px] !h-[36px]"
+                className="rounded-[4px] !h-[36px] !uppercase"
                 onClick={() => {
                   ProcessDataValue();
                   onClose();
@@ -820,7 +820,7 @@ const ProcessContent = forwardRef<
             ) : (
               <Button
                 variant="btn-outline-primary"
-                className="rounded-[4px] !h-[36px]"
+                className="rounded-[4px] !h-[36px] !uppercase"
                 onClick={addMoreSubmit}
               >
                 Add More
@@ -833,7 +833,7 @@ const ProcessContent = forwardRef<
             ) : (
               <Button
                 variant="btn-primary"
-                className="rounded-[4px] !h-[36px]"
+                className="rounded-[4px] !h-[36px] !uppercase"
                 onClick={handleSubmit}
               >
                 {onEdit ? "Save" : "Create Process"}

@@ -1814,7 +1814,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         // display: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Sub Process"),
+        customHeadLabelRender: () => genrateCustomHeaderName("Sub-Process"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },

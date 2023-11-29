@@ -18,6 +18,7 @@ import { ToastContainer } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import FilterDialog_Approval from "@/components/approvals/FilterDialog_Approval";
+import IdleTimer from "@/components/common/IdleTimer";
 
 const Page = () => {
   const router = useRouter();
@@ -102,6 +103,7 @@ const Page = () => {
 
   return (
     <Wrapper>
+      <IdleTimer onIdle={() => window.location.reload()} />
       <div>
         <Navbar />
         <div className="bg-white flex justify-between items-center px-[20px]">

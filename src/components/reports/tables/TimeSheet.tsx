@@ -161,7 +161,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Sub Process"),
+        customHeadLabelRender: () => genrateCustomHeaderName("Sub-Process"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },

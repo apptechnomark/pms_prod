@@ -110,7 +110,7 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
       getData({
         ...rating_InitialFilter,
         pageNo: 1,
-        pageSize: rowsPerPage,
+        pageSize: event.target.value,
       });
     }
   };

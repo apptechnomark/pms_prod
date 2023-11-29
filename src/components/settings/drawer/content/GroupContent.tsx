@@ -4,7 +4,7 @@ import { Autocomplete, Checkbox, TextField } from "@mui/material";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import axios from "axios";
-import { Button, Loader, Toast } from "next-ts-lib";
+import { Button, Loader, Text, Toast } from "next-ts-lib";
 import React, {
   forwardRef,
   useEffect,
@@ -36,15 +36,11 @@ const GroupContent = forwardRef<
   }
 >(({ tab, orgData, groupData, onEdit, onClose, onDataFetch }, ref) => {
   const [data, setData] = useState<Options[]>([]);
-  const [name, setName] = useState<string>("");
-  const [nameErr, setNameErr] = useState(false);
-  const [nameErrText, setNameErrText] = useState<string>(
-    "This field is required."
-  );
+  const [groupName, setGroupName] = useState("");
+  const [groupNameHasError, setGroupNameHasError] = useState(false);
+  const [groupNameError, setGroupNameError] = useState(false);
   const [selectValue, setSelectValue] = useState<any[]>([]);
   const [selectedOptions, setSelectOptions] = useState<Options[]>([]);
-  const [selectvalueErr, setSelectValueErr] = useState(false);
-  const [selectvalueHasErr, setSelectValueHasErr] = useState(false);
   const [loader, setLoader] = useState(false);
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
@@ -73,7 +69,8 @@ const GroupContent = forwardRef<
           });
 
           if (response.data.ResponseStatus === "Success") {
-            setName(response.data.ResponseData.Name);
+            setGroupName(response.data.ResponseData.Name);
+            setGroupNameError(true);
             if (!groupuserIds) {
               groupuserIds = null;
             } else {
@@ -93,22 +90,19 @@ const GroupContent = forwardRef<
         console.error(error);
       }
     } else {
-      setName("");
+      setGroupName("");
+      setGroupNameError(false);
+      setGroupNameHasError(false);
       setSelectOptions([]);
       setSelectValue([]);
     }
   };
 
   useEffect(() => {
-    // Call the async function
     fetchEditData();
-    // Fetch dropdown data unconditionally
     getDropdownData();
-
-    setNameErr(false);
-    setNameErrText("This field is required.");
-    setSelectValueErr(false);
-    setSelectValueHasErr(false);
+    setGroupNameError(false);
+    setGroupNameHasError(false);
   }, [onEdit]);
 
   // For drop down fetch data in api
@@ -151,17 +145,15 @@ const GroupContent = forwardRef<
   // For Error Handling
   const groupDataValue = async () => {
     const setHasTrue = () => {
-      setNameErr(true);
-      setSelectValueErr(true);
+      setGroupNameError(true);
+      setGroupNameHasError(true);
     };
     const clearData = () => {
-      setName("");
+      setGroupName("");
       setSelectValue([]);
       setSelectOptions([]);
-      setNameErr(false);
-      setSelectValueErr(false);
-      setNameErrText("This field is required.");
-      setSelectValueHasErr(false);
+      setGroupNameError(false);
+      setGroupNameHasError(false);
     };
     await setHasTrue();
     await clearData();
@@ -174,19 +166,13 @@ const GroupContent = forwardRef<
   // For create Group
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    name.trim().length <= 0 && setNameErr(true);
-    // const validName = /^[a-zA-Z0-9 ]+$/.test(name);
-
-    // if (!validName) {
-    //   setNameErr(true);
-    //   return;
-    // }
-    if (!nameErr && name !== "" && name.trim.length <= 0) {
+    groupName.trim().length <= 0 && setGroupNameHasError(true);
+    if (groupNameError && groupName !== "" && groupName.trim.length <= 0) {
       setLoader(true);
       try {
         const prams = {
           id: onEdit || 0,
-          name: name,
+          name: groupName,
           groupUserIds: selectValue,
         };
         const response = await axios.post(
@@ -239,13 +225,13 @@ const GroupContent = forwardRef<
   // AddMore data Submit
   const addMoreSubmit = async (e: any) => {
     e.preventDefault();
-    name.trim().length <= 0 && setNameErr(true);
+    groupName.trim().length <= 0 && setGroupNameHasError(true);
 
-    if (!nameErr && name !== "" && name.trim.length <= 0) {
+    if (groupNameError && groupName !== "" && groupName.trim.length <= 0) {
       try {
         const prams = {
           id: onEdit || 0,
-          name: name,
+          name: groupName,
           groupUserIds: selectValue,
         };
         const response = await axios.post(
@@ -280,29 +266,11 @@ const GroupContent = forwardRef<
       } catch (error) {
         console.error(error);
       }
-      setName("");
+      setGroupName("");
+      setGroupNameError(false);
+      setGroupNameHasError(false);
       setSelectValue([]);
       setSelectOptions([]);
-    }
-  };
-
-  const handleGroupName = (e: any) => {
-    if (e.target.value === "" || e.target.value.trim().length <= 0) {
-      setName(e.target.value);
-      setNameErr(true);
-      setNameErrText("This is required field.");
-    } else if (/[^a-zA-Z0-9\s]/.test(e.target.value)) {
-      setName(e.target.value);
-      setNameErr(true);
-      setNameErrText("Special Character is not allowed.");
-    } else if (e.target.value.length > 20) {
-      setName(e.target.value);
-      setNameErr(true);
-      setNameErrText("More than 20 Characters are not allowed.");
-    } else {
-      setName(e.target.value);
-      setNameErr(false);
-      setNameErrText("This field is required.");
     }
   };
 
@@ -319,16 +287,15 @@ const GroupContent = forwardRef<
   return (
     <>
       <div className="flex gap-[20px] flex-col p-[20px]">
-        <TextField
-          value={name}
-          error={nameErr}
-          helperText={nameErr && nameErrText}
-          required
-          id="standard-basic"
+        <Text
           label="Group Name"
           placeholder="Add group name"
-          variant="standard"
-          onChange={handleGroupName}
+          validate
+          value={groupName}
+          maxChar={20}
+          hasError={groupNameHasError}
+          getValue={(e) => setGroupName(e)}
+          getError={(e) => setGroupNameError(e)}
         />
         <Autocomplete
           multiple
@@ -368,15 +335,15 @@ const GroupContent = forwardRef<
           {onEdit ? (
             <Button
               variant="btn-outline-primary"
-              className="rounded-[4px] !h-[36px]"
-              onClick={()=> onClose()}
+              className="rounded-[4px] !h-[36px] !uppercase"
+              onClick={() => onClose()}
             >
               Cancel
             </Button>
           ) : (
             <Button
               variant="btn-outline-primary"
-              className="rounded-[4px] !h-[36px]"
+              className="rounded-[4px] !h-[36px] !uppercase"
               onClick={addMoreSubmit}
             >
               Add More
@@ -390,7 +357,7 @@ const GroupContent = forwardRef<
           ) : (
             <Button
               variant="btn-primary"
-              className="rounded-[4px] !h-[36px]"
+              className="rounded-[4px] !h-[36px] !uppercase"
               type="submit"
               onClick={handleSubmit}
             >

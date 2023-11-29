@@ -180,7 +180,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Client Name"),
+        customHeadLabelRender: () => genrateCustomHeaderName("Client"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -191,7 +191,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project Name"),
+        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -202,7 +202,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Process Name"),
+        customHeadLabelRender: () => genrateCustomHeaderName("Process"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -214,7 +214,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () =>
-          genrateCustomHeaderName("Sub Process Name"),
+          genrateCustomHeaderName("Sub-Process"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },

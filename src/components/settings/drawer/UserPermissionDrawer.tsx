@@ -300,7 +300,7 @@ const UserPermissionDrawer = ({
         <Button
           onClick={handleClose}
           variant="btn-outline-primary"
-          className="rounded-[4px] !h-[36px]"
+          className="rounded-[4px] !h-[36px] uppercase"
         >
           Cancel
         </Button>

@@ -535,7 +535,7 @@ const ClientContent = forwardRef<
       //   setAccLayoutErr(true);
       // }
 
-      if (accContHrs < 0) {
+      if (accContHrs <= 0) {
         setAccContHrsErr(true);
         setAccContHrsErrMsg("Contracted Hours must be greater than 0.");
       } else if (
@@ -562,10 +562,10 @@ const ClientContent = forwardRef<
         return false;
       }
 
-      if (accActualHrs < 0) {
+      if (accActualHrs <= 0) {
         setAccActHrsErr(true);
         setAccActualHrsErrMsg("Internal Hours must be greater than 0.");
-        return false;
+        // return false;
       } else if (Number(accActualHrs) > Number(accContHrs)) {
         setAccActHrsErr(true);
         setAccActualHrsErrMsg(
@@ -578,11 +578,11 @@ const ClientContent = forwardRef<
         accActualHrs === "000" ||
         accActualHrs === "0000" ||
         accActualHrs === "00000" ||
-        accContHrs === "-0" ||
-        accContHrs === "-00" ||
-        accContHrs === "-000" ||
-        accContHrs === "-0000" ||
-        accContHrs === "-00000"
+        accActualHrs === "-0" ||
+        accActualHrs === "-00" ||
+        accActualHrs === "-000" ||
+        accActualHrs === "-0000" ||
+        accActualHrs === "-00000"
       ) {
         setAccActHrsErr(true);
         setAccActualHrsErrMsg(`Internal Hours should not be ${accActualHrs}.`);
@@ -608,10 +608,9 @@ const ClientContent = forwardRef<
       //   setAuditLayoutErr(true);
       // }
 
-      if (auditContHrs < 0) {
+      if (auditContHrs <= 0) {
         setAuditContHrsErr(true);
         setAuditContHrsErrMsg("Contracted Hours must be greater than 0.");
-        return false;
       } else if (
         auditContHrs === "0" ||
         auditContHrs === "00" ||
@@ -638,10 +637,10 @@ const ClientContent = forwardRef<
         return false;
       }
 
-      if (auditActualHrs < 0) {
+      if (auditActualHrs <= 0) {
         setAuditActHrsErr(true);
         setAuditActualHrsErrMsg("Internal Hours must be greater than 0.");
-        return false;
+        // return false;
       } else if (Number(auditActualHrs) > Number(auditContHrs)) {
         setAuditActHrsErr(true);
         setAuditActualHrsErrMsg(
@@ -654,11 +653,11 @@ const ClientContent = forwardRef<
         auditActualHrs === "000" ||
         auditActualHrs === "0000" ||
         auditActualHrs === "00000" ||
-        auditContHrs === "-0" ||
-        auditContHrs === "-00" ||
-        auditContHrs === "-000" ||
-        auditContHrs === "-0000" ||
-        auditContHrs === "-00000"
+        auditActualHrs === "-0" ||
+        auditActualHrs === "-00" ||
+        auditActualHrs === "-000" ||
+        auditActualHrs === "-0000" ||
+        auditActualHrs === "-00000"
       ) {
         setAuditActHrsErr(true);
         setAuditActualHrsErrMsg(
@@ -683,13 +682,13 @@ const ClientContent = forwardRef<
         setTaxGroupErr(true);
       }
       // if (taxLayout <= 0) {
-      //   setTaxLayoutErr(true);
+      //   setTaxLayout(true);
       // }
 
-      if (taxContHrs < 0) {
+      if (taxContHrs <= 0) {
         setTaxContHrsErr(true);
         setTaxContHrsErrMsg("Contracted Hours must be greater than 0.");
-        return false;
+        // return false;
       } else if (
         taxContHrs === "0" ||
         taxContHrs === "00" ||
@@ -714,10 +713,10 @@ const ClientContent = forwardRef<
         return false;
       }
 
-      if (taxActualHrs < 0) {
+      if (taxActualHrs <= 0) {
         setTaxActHrsErr(true);
         setTaxActualHrsErrMsg("Internal Hours must be greater than 0.");
-        return false;
+        // return false;
       } else if (Number(taxActualHrs) > Number(taxContHrs)) {
         setTaxActHrsErr(true);
         setTaxActualHrsErrMsg(
@@ -730,11 +729,11 @@ const ClientContent = forwardRef<
         taxActualHrs === "000" ||
         taxActualHrs === "0000" ||
         taxActualHrs === "00000" ||
-        taxContHrs === "-0" ||
-        taxContHrs === "-00" ||
-        taxContHrs === "-000" ||
-        taxContHrs === "-0000" ||
-        taxContHrs === "-00000"
+        taxActualHrs === "-0" ||
+        taxActualHrs === "-00" ||
+        taxActualHrs === "-000" ||
+        taxActualHrs === "-0000" ||
+        taxActualHrs === "-00000"
       ) {
         setTaxActHrsErr(true);
         setTaxActualHrsErrMsg(`Internal Hours should not be ${taxActualHrs}.`);
@@ -1403,6 +1402,116 @@ const ClientContent = forwardRef<
                 getError={() => {}}
               />
 
+              {/* Taxation Section */}
+              <div>
+                <label
+                  className={`flex items-center justify-between cursor-pointer`}
+                  htmlFor="Tax"
+                >
+                  <span className="flex items-center">
+                    <CheckBox
+                      checked={tax}
+                      id="Tax"
+                      label="Tax"
+                      onChange={toggleTaxAccordion}
+                    />
+                  </span>
+                  {isTaxOpen ? (
+                    <span
+                      className={`transition-transform duration-300 transform rotate-180`}
+                    >
+                      <ChevronDownIcon />
+                    </span>
+                  ) : (
+                    <span
+                      className={`transition-transform duration-300 transform rotate-0`}
+                    >
+                      <ChevronDownIcon />
+                    </span>
+                  )}
+                </label>
+                <div
+                  className={`${
+                    isTaxOpen
+                      ? "max-h-[430px] transition-all duration-700 pt-[10px]"
+                      : "max-h-0 transition-all duration-700"
+                  } overflow-hidden`}
+                >
+                  <div className="flex flex-col gap-[17px] pl-[34px]">
+                    <Select
+                      id="billing_type"
+                      label="Billing Type"
+                      defaultValue={taxBillingType}
+                      options={billingTypeData}
+                      onSelect={() => {}}
+                      getValue={(e) => {
+                        e > 0 && setTaxBillingErr(false);
+                        setTaxBillingType(e);
+                      }}
+                      getError={(e) => setTaxBillingHasErr(e)}
+                      hasError={taxBillingErr}
+                      validate
+                      errorClass="!-mt-[15px]"
+                    />
+                    <MultiSelectChip
+                      type="checkbox"
+                      id="Group"
+                      label="Group"
+                      defaultValue={taxGroup}
+                      options={groupTypeData}
+                      onSelect={() => {}}
+                      getValue={(e) => setTaxGroup(e)}
+                      getError={(e) => setTaxGroupHasErr(e)}
+                      hasError={taxGroupErr}
+                      validate
+                      errorClass="!-mt-[15px]"
+                    />
+                    {/* <Select
+                    id="Layout"
+                    label="Layout"
+                    defaultValue={taxLayout}
+                    options={layoutTypeData}
+                    onSelect={() => {}}
+                    getValue={(e) => setTaxLayout(e)}
+                    getError={(e) => setTaxLayoutHasErr(e)}
+                    hasError={taxLayoutErr}
+                    validate
+                    errorClass="!-mt-[15px]"
+                  /> */}
+                    <Text
+                      className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      type="number"
+                      label="Contracted Hours"
+                      placeholder="Enter Total Contracted Hours"
+                      validate
+                      maxLength={5}
+                      value={taxContHrs === 0 ? "" : taxContHrs}
+                      getValue={(e) => handleTaxContHrs(e)}
+                      getError={(e) => setTaxContHrsHasErr(e)}
+                      hasError={taxContHrsErr}
+                      errorMessage={taxContHrsErrMsg}
+                      noText
+                      onWheel={(e) => e.currentTarget.blur()}
+                    />
+                    <Text
+                      className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      type="number"
+                      label="Internal Hours"
+                      placeholder="Enter Total Internal Hours"
+                      validate
+                      maxLength={5}
+                      value={taxActualHrs === 0 ? "" : taxActualHrs}
+                      getValue={(e) => handleTaxActHrs(e)}
+                      getError={(e) => setTaxActHrsHasErr(e)}
+                      hasError={taxActualHrsErr}
+                      errorMessage={taxActualHrsErrMsg}
+                      noText
+                      onWheel={(e) => e.currentTarget.blur()}
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Accounting Section */}
               <div>
                 <label
@@ -1445,7 +1554,10 @@ const ClientContent = forwardRef<
                       defaultValue={accBillingType}
                       options={billingTypeData}
                       onSelect={() => {}}
-                      getValue={(e) => setAccBillingType(e)}
+                      getValue={(e) => {
+                        e > 0 && setAccBillingErr(false);
+                        setAccBillingType(e);
+                      }}
                       getError={(e) => setAccBillingHasErr(e)}
                       hasError={accBillingErr}
                       validate
@@ -1554,7 +1666,10 @@ const ClientContent = forwardRef<
                       defaultValue={auditBillingType}
                       options={billingTypeData}
                       onSelect={() => {}}
-                      getValue={(e) => setAuditBillingType(e)}
+                      getValue={(e) => {
+                        e > 0 && setAuditBillingErr(false);
+                        setAuditBillingType(e);
+                      }}
                       getError={(e) => setAuditBillingHasErr(e)}
                       hasError={auditBillingErr}
                       validate
@@ -1618,115 +1733,6 @@ const ClientContent = forwardRef<
                   </div>
                 </div>
               </div>
-
-              {/* Taxation Section */}
-              {hasTax && (
-                <div>
-                  <label
-                    className={`flex items-center justify-between cursor-pointer`}
-                    htmlFor="Tax"
-                  >
-                    <span className="flex items-center">
-                      <CheckBox
-                        checked={tax}
-                        id="Tax"
-                        label="Tax"
-                        onChange={toggleTaxAccordion}
-                      />
-                    </span>
-                    {isTaxOpen ? (
-                      <span
-                        className={`transition-transform duration-300 transform rotate-180`}
-                      >
-                        <ChevronDownIcon />
-                      </span>
-                    ) : (
-                      <span
-                        className={`transition-transform duration-300 transform rotate-0`}
-                      >
-                        <ChevronDownIcon />
-                      </span>
-                    )}
-                  </label>
-                  <div
-                    className={`${
-                      isTaxOpen
-                        ? "max-h-[430px] transition-all duration-700 pt-[10px]"
-                        : "max-h-0 transition-all duration-700"
-                    } overflow-hidden`}
-                  >
-                    <div className="flex flex-col gap-[17px] pl-[34px]">
-                      <Select
-                        id="billing_type"
-                        label="Billing Type"
-                        defaultValue={taxBillingType}
-                        options={billingTypeData}
-                        onSelect={() => {}}
-                        getValue={(e) => setTaxBillingType(e)}
-                        getError={(e) => setTaxBillingHasErr(e)}
-                        hasError={taxBillingErr}
-                        validate
-                        errorClass="!-mt-[15px]"
-                      />
-                      <MultiSelectChip
-                        type="checkbox"
-                        id="Group"
-                        label="Group"
-                        defaultValue={taxGroup}
-                        options={groupTypeData}
-                        onSelect={() => {}}
-                        getValue={(e) => setTaxGroup(e)}
-                        getError={(e) => setTaxGroupHasErr(e)}
-                        hasError={taxGroupErr}
-                        validate
-                        errorClass="!-mt-[15px]"
-                      />
-                      {/* <Select
-                    id="Layout"
-                    label="Layout"
-                    defaultValue={taxLayout}
-                    options={layoutTypeData}
-                    onSelect={() => {}}
-                    getValue={(e) => setTaxLayout(e)}
-                    getError={(e) => setTaxLayoutHasErr(e)}
-                    hasError={taxLayoutErr}
-                    validate
-                    errorClass="!-mt-[15px]"
-                  /> */}
-                      <Text
-                        className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        type="number"
-                        label="Contracted Hours"
-                        placeholder="Enter Total Contracted Hours"
-                        validate
-                        maxLength={5}
-                        value={taxContHrs === 0 ? "" : taxContHrs}
-                        getValue={(e) => handleTaxContHrs(e)}
-                        getError={(e) => setTaxContHrsHasErr(e)}
-                        hasError={taxContHrsErr}
-                        errorMessage={taxContHrsErrMsg}
-                        noText
-                        onWheel={(e) => e.currentTarget.blur()}
-                      />
-                      <Text
-                        className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        type="number"
-                        label="Internal Hours"
-                        placeholder="Enter Total Internal Hours"
-                        validate
-                        maxLength={5}
-                        value={taxActualHrs === 0 ? "" : taxActualHrs}
-                        getValue={(e) => handleTaxActHrs(e)}
-                        getError={(e) => setTaxActHrsHasErr(e)}
-                        hasError={taxActualHrsErr}
-                        errorMessage={taxActualHrsErrMsg}
-                        noText
-                        onWheel={(e) => e.currentTarget.blur()}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
             </>
           )}
 
@@ -1785,8 +1791,8 @@ const ClientContent = forwardRef<
                 />
 
                 <Text
-                  label="Zip"
-                  placeholder="Enter Zip"
+                  label="ZIP Code"
+                  placeholder="Enter ZIP Code"
                   type="number"
                   value={zip}
                   getValue={(e) => setZip(e)}
@@ -2058,8 +2064,8 @@ const ClientContent = forwardRef<
                 />
 
                 <Text
-                  label="Client Timezone (AUTO)"
-                  placeholder="Enter Client Timezone (AUTO)"
+                  label="Client Timezone"
+                  placeholder="Enter Client Timezone"
                   value={clientTimeZone}
                   getValue={(e) => setClientTimeZone(e)}
                   getError={() => {}}

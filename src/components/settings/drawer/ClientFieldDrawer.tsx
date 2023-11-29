@@ -3,7 +3,7 @@ import { CheckBox, Close, Switch, Toast } from "next-ts-lib";
 import React, { useEffect, useState } from "react";
 
 import TaskIcon from "@/assets/icons/TaskIcon";
-import { Button } from "@mui/material";
+import { Button } from "next-ts-lib";
 
 const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
   const [fieldsData, setFieldsData] = useState<string[] | any>([]);
@@ -145,11 +145,11 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
         </div>
       </div>
 
-      <div className="fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">
+      <div className="fixed flex justify-end w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">
         <Button
           onClick={handleClose}
-          variant="outlined"
-          className="rounded-[4px] !h-[36px] !text-secondary"
+          variant="btn-outline-primary"
+          className="rounded-[4px] !h-[36px] !text-secondary uppercase"
         >
           Cancel
         </Button>
