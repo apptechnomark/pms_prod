@@ -145,8 +145,8 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
                 onChange={(e) => setSummaryName(e.target.value)}
                 sx={{ height: "36px" }}
               >
-                {summaryList.map((i: any, index: number) => (
-                  <MenuItem value={i.Key} key={index}>
+                {summaryList.map((i: any) => (
+                  <MenuItem value={i.Key} key={i.Key}>
                     {i.Key}
                   </MenuItem>
                 ))}

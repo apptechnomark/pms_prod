@@ -18,7 +18,6 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
   const [data, setData] = useState<any | any[]>([]);
 
   useEffect(() => {
-    // if (onSelectedProjectIds.length > 0) {
     const getData = async () => {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -61,7 +60,6 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
 
     // Fetch data when component mounts
     getData();
-    // }
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
   const chartOptions: Highcharts.Options = {

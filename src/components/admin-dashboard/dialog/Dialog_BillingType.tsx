@@ -116,9 +116,7 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
       }
     };
 
-    // if (onOpen) {
     getAllStatus();
-    // }
   }, []);
 
   return (
@@ -167,8 +165,8 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
                 sx={{ height: "36px" }}
               >
                 <MenuItem value={0}>All</MenuItem>
-                {allBillingType.map((i: any, index: number) => (
-                  <MenuItem value={i.value} key={index}>
+                {allBillingType.map((i: any) => (
+                  <MenuItem value={i.value} key={i.value}>
                     {i.label}
                   </MenuItem>
                 ))}

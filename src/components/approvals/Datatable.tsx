@@ -221,7 +221,7 @@ const Datatable = ({
 
   // Function for checking that All vlaues in the arrar are same or not
   function areAllValuesSame(arr: any[]) {
-    return arr.every((value, index, array) => value === array[0]);
+    return arr.every(({ value, array }: any) => value === array[0]);
   }
 
   const filteredAssignees = assignee.filter((assignee: any) =>
@@ -549,31 +549,42 @@ const Datatable = ({
           : false
       );
 
-      if (selectedRowsCount === 1 && isInvalidStatus) {
-        toast.warning(
-          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-        );
-      } else if (selectedRowsCount > 1 && isInvalidStatus) {
-        toast.warning(
-          "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-        );
+      if (isInvalidStatus) {
+        if (selectedRowsCount > 1 || selectedRowsCount === 1) {
+          toast.warning(
+            "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+          );
+        }
       } else if (hasRunningTasks) {
         toast.warning("Cannot change status for running task.");
       } else {
+        const filteredWorkitemIds = reviewList
+          .map(
+            (item: {
+              WorkitemId: number;
+              TimelogId: null;
+              StatusId: number;
+            }) => {
+              if (id.includes(item.WorkitemId)) {
+                if (
+                  item.TimelogId === null &&
+                  ![7, 8, 9, 13].includes(item.StatusId)
+                ) {
+                  return item.WorkitemId;
+                } else {
+                  return false;
+                }
+              } else {
+                return undefined;
+              }
+            }
+          )
+          .filter((i: boolean | undefined) => i !== undefined && i !== false);
+
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdateStatus`,
           {
-            workitemIds: reviewList
-              .map((item: any) =>
-                id.includes(item.WorkitemId)
-                  ? item.TimelogId === null &&
-                    ![7, 8, 9, 13].includes(item.StatusId)
-                    ? item.WorkitemId
-                    : false
-                  : undefined
-              )
-              .filter((i: any) => i !== undefined)
-              .filter((i: any) => i !== false),
+            workitemIds: filteredWorkitemIds,
             statusId: statusId,
           },
           {
@@ -851,7 +862,7 @@ const Datatable = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           setReviewList((prev: any) =>
-            prev.map((data: any, index: number) => {
+            prev.map((data: any) => {
               if (data.SubmissionId === submissionId) {
                 return new Object({
                   ...data,
@@ -1564,18 +1575,6 @@ const Datatable = ({
                   </ColorToolTip>
                 )}
 
-                {/* {hasPermissionWorklog("", "Reject", "Approvals") &&
-                  selectedRowsCount === 1 && (
-                    <ColorToolTip title="Reject" arrow>
-                      <span
-                        className="pl-2 pr-2 pt-1 cursor-pointer border-l-[1.5px] border-gray-300"
-                        onClick={() => setisRejectOpen(true)}
-                      >
-                        <RejectIcon />
-                      </span>
-                    </ColorToolTip>
-                  )} */}
-
                 {hasPermissionWorklog("", "Approve", "Approvals") &&
                   selectedRowsCount === 1 && (
                     <ColorToolTip title="Accept with Note" arrow>
@@ -1615,9 +1614,9 @@ const Datatable = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {priorityOptions.map((option, index) => (
+                      {priorityOptions.map((option) => (
                         <span
-                          key={index}
+                          key={option.id}
                           className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                         >
                           <span
@@ -1659,10 +1658,10 @@ const Datatable = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {allStatus.map((option: any, index: any) => {
+                      {allStatus.map((option: any) => {
                         return (
                           <span
-                            key={index}
+                            key={option.value}
                             className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                           >
                             <span
@@ -1706,10 +1705,10 @@ const Datatable = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {filteredAssignees.map((assignee: any, index: any) => {
+                      {filteredAssignees.map((assignee: any) => {
                         return (
                           <span
-                            key={index}
+                            key={assignee.value}
                             className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                           >
                             <span
@@ -1789,10 +1788,10 @@ const Datatable = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {filteredReviewer.map((reviewer: any, index: any) => {
+                      {filteredReviewer.map((reviewer: any) => {
                         return (
                           <span
-                            key={index}
+                            key={reviewer.value}
                             className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                           >
                             <span

@@ -5,11 +5,9 @@ import { Table, Switch, Toast, DataTable, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
 // Import Common Components
-import ColumnFilterDropdown from "@/components/common/ColumnFilterDropdown";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteModal from "@/components/common/DeleteModal";
 import SwitchModal from "@/components/common/SwitchModal";
-import { ACTION } from "next/dist/client/components/app-router-headers";
 import { PROJECT } from "./Constants/Tabname";
 
 const Project = ({
@@ -60,7 +58,7 @@ const Project = ({
         //   visibleHeaders={visibleHeaders.map((h) => h.header)}
         //   handleHeaderToggle={handleHeaderToggle}
         // />
-        "ACTIONS",
+        "Actions",
       accessor: "actions",
       sortable: false,
     },

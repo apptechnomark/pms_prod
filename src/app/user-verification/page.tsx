@@ -1,5 +1,4 @@
 "use client";
-
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -9,7 +8,7 @@ import axios from "axios";
 import Footer from "@/components/common/Footer";
 import Pabs from "@/assets/icons/Pabs";
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const Token = useSearchParams();
   const [password, setPassword] = useState("");
@@ -220,4 +219,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

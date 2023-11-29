@@ -7,7 +7,7 @@ import "next-ts-lib/dist/index.css";
 import axios from "axios";
 import Pabs from "@/assets/icons/Pabs";
 
-export default function ForgetPassword() {
+const ForgetPassword = () => {
   const router = useRouter();
   const [forgetValue, setForgetValue] = useState("");
   const [error, setError] = useState(false);
@@ -118,7 +118,8 @@ export default function ForgetPassword() {
           </form>
         </div>
       </div>
-      {/* <Footer /> */}
     </div>
   );
-}
+};
+
+export default ForgetPassword;

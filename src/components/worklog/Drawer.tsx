@@ -174,8 +174,8 @@ const Drawer = ({
         Description: "",
       },
     ]);
-    setTaskNameErr([...taskNameErr, false]),
-      setSubTaskDescriptionErr([...subTaskDescriptionErr, false]);
+    setTaskNameErr([...taskNameErr, false]);
+    setSubTaskDescriptionErr([...subTaskDescriptionErr, false]);
   };
 
   const removeTaskField = (index: number) => {

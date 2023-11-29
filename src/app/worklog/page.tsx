@@ -1,19 +1,14 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
-
 import React, { useEffect, useState } from "react";
-
 import DrawerOverlay from "@/components/settings/drawer/DrawerOverlay";
 import Drawer from "@/components/worklog/Drawer";
 import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
-
 import Datatable_Worklog from "@/components/worklog/Datatable_Worklog";
 import Datatable_CompletedTask from "@/components/worklog/Datatable_CompletedTask";
-// Icons
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
-// Material Import
 import {
   Button,
   TextField,

@@ -50,7 +50,6 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
 }) => {
   const [allProjectStatus, setAllProjectStatus] = useState<Status[]>([]);
   const [projectStatus, setProjectStatus] = useState<string>("");
-  //   const [searchValue, setSearchValue] = useState("");
 
   const handleClose = () => {
     onClose();
@@ -157,8 +156,8 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
                 onChange={(e) => setProjectStatus(e.target.value)}
                 sx={{ height: "36px" }}
               >
-                {allProjectStatus.map((i: any, index: number) => (
-                  <MenuItem value={i.name} key={index}>
+                {allProjectStatus.map((i: any) => (
+                  <MenuItem value={i.name} key={i.name}>
                     {i.name}
                   </MenuItem>
                 ))}

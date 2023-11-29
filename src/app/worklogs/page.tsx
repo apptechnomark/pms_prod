@@ -38,7 +38,7 @@ import UnassigneeDatatable from "@/components/worklogs/UnassigneeDatatable";
 import UnassigneeFilterDialog from "@/components/worklogs/UnassigneeFilterDialog";
 import ImportDialog from "@/components/worklogs/worklogs_Import/ImportDialog";
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEdit, setHasEdit] = useState(0);
@@ -674,4 +674,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

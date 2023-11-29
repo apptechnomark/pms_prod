@@ -220,17 +220,6 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       },
     },
     {
-      name: "TypeOfReturnName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Type of Return"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
       name: "NoOfPages",
       options: {
         filter: true,
@@ -269,7 +258,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => genrateCustomHeaderName("Complexity"),
-        customBodyRender: (value: any, tableMeta: any) => {
+        customBodyRender: (value: any) => {
           return (
             <div className="flex items-center gap-2">
               {value === null || value === 0 || value === ""

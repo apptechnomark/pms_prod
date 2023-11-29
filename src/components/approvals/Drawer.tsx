@@ -410,8 +410,8 @@ const EditDrawer = ({
         IsApproved: false,
       },
     ]);
-    setInputDateErrors([...inputDateErrors, false]),
-      setStartTimeErrors([...startTimeErrors, false]);
+    setInputDateErrors([...inputDateErrors, false]);
+    setStartTimeErrors([...startTimeErrors, false]);
     setEndTimeErrors([...endTimeErrors, false]);
     setManualDescErrors([...manualDescErrors, false]);
     setInputTypeDate([...inputTypeDate, "text"]);
@@ -1086,8 +1086,8 @@ const EditDrawer = ({
         Description: "",
       },
     ]);
-    setTaskNameErr([...taskNameErr, false]),
-      setSubTaskDescriptionErr([...subTaskDescriptionErr, false]);
+    setTaskNameErr([...taskNameErr, false]);
+    setSubTaskDescriptionErr([...subTaskDescriptionErr, false]);
   };
 
   const removeTaskField = (index: number) => {
@@ -2269,42 +2269,29 @@ const EditDrawer = ({
           setStatus(data.StatusId);
           setAllInfoDate(data.AllInfoDate === null ? "" : data.AllInfoDate);
           setEditStatus(data.StatusId);
-          data.StatusId === 2 && data.IsManual === true
-            ? setStatusDropdownDataUse(
-                statusDropdownData
-                  .map((i: any) =>
-                    i.Type === "OnHoldFromClient" ||
-                    i.Type === "WithDraw" ||
-                    i.Type === "Stop" ||
-                    i.value === data.StatusId
-                      ? i
-                      : ""
-                  )
-                  .filter((i: any) => i !== "")
+          const filterStatusDropdown = (
+            statusId: number,
+            isManual: boolean
+          ) => {
+            const filteredData = statusDropdownData
+              .map((i: any) =>
+                (i.Type === "OnHoldFromClient" ||
+                  i.Type === "WithDraw" ||
+                  i.value === statusId) &&
+                (!isManual || i.Type === "Stop")
+                  ? i
+                  : ""
               )
-            : data.StatusId === 2
-            ? setStatusDropdownDataUse(
-                statusDropdownData
-                  .map((i: any) =>
-                    i.Type === "OnHoldFromClient" ||
-                    i.Type === "WithDraw" ||
-                    i.value === data.StatusId
-                      ? i
-                      : ""
-                  )
-                  .filter((i: any) => i !== "")
-              )
-            : setStatusDropdownDataUse(
-                statusDropdownData
-                  .map((i: any) =>
-                    i.Type === "OnHoldFromClient" ||
-                    i.Type === "WithDraw" ||
-                    i.value === data.StatusId
-                      ? i
-                      : ""
-                  )
-                  .filter((i: any) => i !== "")
-              );
+              .filter((i: any) => i !== "");
+
+            setStatusDropdownDataUse(filteredData);
+          };
+
+          if (data.StatusId === 2) {
+            filterStatusDropdown(data.StatusId, data.IsManual === true);
+          } else {
+            filterStatusDropdown(data.StatusId, false);
+          }
           setPriority(data.Priority);
           setQuantity(data.Quantity);
           setDescription(data.Description === null ? "" : data.Description);
@@ -4243,8 +4230,8 @@ const EditDrawer = ({
                         id="demo-simple-select-standard"
                         value={commentSelect}
                         onChange={(e) => {
-                          setCommentSelect(e.target.value),
-                            getCommentData(e.target.value);
+                          setCommentSelect(e.target.value);
+                          getCommentData(e.target.value);
                         }}
                       >
                         <MenuItem value={1}>Internal</MenuItem>

@@ -10,7 +10,7 @@
 }
 
 * {
-  font-family: "Proxima Nova";
+  font-family: "Proxima Nova", sans-serif;
 }
 
 /* For time logo hide */
@@ -189,5 +189,10 @@ input[type="time"]::-moz-time-text {
 
 .css-1q04gal-MuiDateCalendar-root {
   width: 294px;
-  max-height: 290px;
+  max-height: 270px !important;
+}
+
+.css-nk89i7-MuiPickersCalendarHeader-root {
+  margin-top: 8px !important;
+  margin-bottom: 0px !important;
 }

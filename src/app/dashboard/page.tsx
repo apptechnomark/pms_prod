@@ -49,7 +49,7 @@ import Dialog_OverallProjectSummary from "@/components/dashboard/dialog/Dialog_O
 import Dialog_SummaryList from "@/components/dashboard/dialog/Dialog_SummaryList";
 import Dialog_ReturnTypeData from "@/components/dashboard/dialog/Dialog_ReturnTypeData";
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const [isTotalHrsDialogOpen, setIsTotalHrsDialogOpen] =
     useState<boolean>(false);
@@ -272,7 +272,6 @@ const page = () => {
   }, []);
 
   useEffect(() => {
-    // if (currentProjectId.length > 0) {
     const getProjectSummary = async () => {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -316,7 +315,6 @@ const page = () => {
     };
 
     getProjectSummary();
-    // }
   }, [currentProjectId, workType]);
 
   // Change workType when select individual project
@@ -449,10 +447,10 @@ const page = () => {
                       </span>
                     )}
 
-                  {filteredProjects.map((project: any, index: any) => {
+                  {filteredProjects.map((project: any) => {
                     return (
                       <span
-                        key={index}
+                        key={project.ProjectId}
                         className="flex flex-col py-1 px-4 hover-bg-whiteSmoke text-sm"
                       >
                         <span
@@ -490,8 +488,8 @@ const page = () => {
                 disabled={!isAllProject}
               >
                 <MenuItem value={0}>All</MenuItem>
-                {workTypeData.map((i: any, index: number) => (
-                  <MenuItem value={i.value} key={index}>
+                {workTypeData.map((i: any) => (
+                  <MenuItem value={i.value} key={i.value}>
                     {i.label}
                   </MenuItem>
                 ))}
@@ -510,8 +508,8 @@ const page = () => {
                   <div
                     className="flex p-[20px] items-center"
                     onClick={() => {
-                      setSummaryLabel(item.Key),
-                        setIsSummaryListDialogOpen(true);
+                      setSummaryLabel(item.Key);
+                      setIsSummaryListDialogOpen(true);
                     }}
                   >
                     <span
@@ -713,4 +711,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

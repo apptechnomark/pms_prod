@@ -208,9 +208,6 @@ const Workload = ({ filteredData, searchValue }: any) => {
         sort: true,
         filter: true,
         customHeadLabelRender: () => genrateCustomHeaderName("Qty."),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
       },
     },
   ];

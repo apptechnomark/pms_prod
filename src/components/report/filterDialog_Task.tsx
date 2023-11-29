@@ -42,7 +42,7 @@ const initialFilter = {
   EndDate: null,
 };
 
-const filterDialog_Task: React.FC<FilterModalProps> = ({
+const FilterDialog_Task: React.FC<FilterModalProps> = ({
   onOpen,
   onClose,
   currentFilterData,
@@ -354,4 +354,4 @@ const filterDialog_Task: React.FC<FilterModalProps> = ({
   );
 };
 
-export default filterDialog_Task;
+export default FilterDialog_Task;

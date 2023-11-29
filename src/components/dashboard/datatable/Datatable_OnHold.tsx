@@ -222,7 +222,7 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
         customBodyRender: (value: any) => {
           return (
             <div className="ml-2">
-              {value === null || "" ? "-" : value}&nbsp;
+              {value === null || value === "" ? "-" : value}&nbsp;
               {value > 1 ? "days" : "day"}
             </div>
           );

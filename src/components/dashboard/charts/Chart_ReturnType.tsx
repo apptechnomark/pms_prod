@@ -26,7 +26,6 @@ const Chart_ReturnType: React.FC<ReturnTypeProps> = ({
   const [data, setData] = useState<any | any[]>([]);
 
   useEffect(() => {
-    // if (onSelectedProjectIds.length > 0) {
     const getData = async () => {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -69,7 +68,6 @@ const Chart_ReturnType: React.FC<ReturnTypeProps> = ({
 
     // Fetch data when component mounts
     getData();
-    // }
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
   // Define the drilldown data
@@ -108,9 +106,25 @@ const Chart_ReturnType: React.FC<ReturnTypeProps> = ({
     },
     tooltip: {
       headerFormat: "",
-      pointFormat:
-        '<span style="color:{point.color}">\u25CF</span> <b> {point.name}</b><br/>' +
-        "count: <b>{point.y}</b><br/>",
+      formatter(this: Highcharts.TooltipFormatterContextObject) {
+        const count = this.point.y !== undefined ? this.point.y : 0;
+        const percentage =
+          this.point.percentage !== undefined ? this.point.percentage : 0;
+
+        return (
+          '<span style="color:' +
+          this.point.color +
+          '">\u25CF</span> <b>' +
+          this.point.name +
+          "</b><br/>" +
+          "Count: <b>" +
+          count +
+          "</b><br/>" +
+          "Percentage: <b>" +
+          Highcharts.numberFormat(percentage, 2, ".") +
+          "%</b>"
+        );
+      },
     },
     legend: {
       layout: "horizontal",

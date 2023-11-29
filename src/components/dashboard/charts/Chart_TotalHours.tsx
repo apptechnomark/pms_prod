@@ -25,7 +25,6 @@ const Chart_TotalHours: React.FC<TotalHoursProps> = ({
   const [totalCount, setTotalCount] = useState<number>(0);
 
   useEffect(() => {
-    // if (onSelectedProjectIds.length > 0) {
     const getData = async () => {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -63,9 +62,7 @@ const Chart_TotalHours: React.FC<TotalHoursProps> = ({
       }
     };
 
-    // Fetch data when component mounts
     getData();
-    // }
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
   // Define the chart options

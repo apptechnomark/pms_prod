@@ -40,7 +40,6 @@ const initialFilter = {
 const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   onOpen,
   onClose,
-  onDataFetch,
   currentFilterData,
 }) => {
   const [clientName, setClientName] = useState<number | string>(0);
@@ -48,7 +47,6 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   const [projectName, setProjectName] = useState<number | string>(0);
   const [status, setStatus] = useState<number | string>(0);
   const [processName, setProcessName] = useState<number | string>(0);
-  const [appliedFilterData, setAppliedFilterData] = useState<any | any[]>([]);
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [userDropdownData, setUserData] = useState([]);
   const [projectDropdownData, setProjectDropdownData] = useState([]);
@@ -305,24 +303,6 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     setAnyFieldSelected(isAnyFieldSelected);
   }, [clientName, userName, projectName, processName, status]);
 
-  // Set state values based on applied filter data
-  useEffect(() => {
-    if (appliedFilterData.length > 0) {
-      const appliedFilter = appliedFilterData[0].AppliedFilter;
-
-      if (appliedFilter) {
-        const { ClientId, userId, ProjectId, ProcessId, StatusId } =
-          appliedFilter;
-
-        setClientName(ClientId > 0 ? ClientId : "");
-        setUser(userId > 0 ? userId : "");
-        setProjectName(ProjectId > 0 ? ProjectId : "");
-        setStatus(StatusId > 0 ? StatusId : "");
-        setProcessName(ProcessId > 0 ? ProcessId : "");
-      }
-    }
-  }, [appliedFilterData]);
-
   useEffect(() => {
     const selectedFields = {
       ClientId: clientName || null,
@@ -361,8 +341,8 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   value={clientName === 0 ? "" : clientName}
                   onChange={(e) => setClientName(e.target.value)}
                 >
-                  {clientDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                  {clientDropdownData.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}
@@ -377,8 +357,8 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   value={userName === 0 ? "" : userName}
                   onChange={(e) => setUser(e.target.value)}
                 >
-                  {userDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                  {userDropdownData.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}
@@ -393,8 +373,8 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   value={projectName === 0 ? "" : projectName}
                   onChange={(e) => setProjectName(e.target.value)}
                 >
-                  {projectDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                  {projectDropdownData.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}
@@ -411,8 +391,8 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   value={status === 0 ? "" : status}
                   onChange={(e) => setStatus(e.target.value)}
                 >
-                  {statusDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                  {statusDropdownData.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}
@@ -427,8 +407,8 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   value={processName === 0 ? "" : processName}
                   onChange={(e) => setProcessName(e.target.value)}
                 >
-                  {processDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                  {processDropdownData.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}

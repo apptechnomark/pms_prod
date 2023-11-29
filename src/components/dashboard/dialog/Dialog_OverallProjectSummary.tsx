@@ -131,8 +131,8 @@ const Dialog_OverallProjectSummary: React.FC<
                 onChange={(e) => setTaskStatusName(e.target.value)}
                 sx={{ height: "36px" }}
               >
-                {allTaskList.map((i: any, index: number) => (
-                  <MenuItem value={i.name} key={index}>
+                {allTaskList.map((i: any) => (
+                  <MenuItem value={i.name} key={i.name}>
                     {i.name}
                   </MenuItem>
                 ))}

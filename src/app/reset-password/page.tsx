@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
-import Link from "next/link";
 import { Button, Typography, Password, Toast, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import Footer from "@/components/common/Footer";
@@ -8,7 +7,8 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import Pabs from "@/assets/icons/Pabs";
-const page = () => {
+
+const Page = () => {
   const getToken = useSearchParams();
   const token = getToken.get("token");
   const router = useRouter();
@@ -139,4 +139,4 @@ const page = () => {
     </div>
   );
 };
-export default page;
+export default Page;

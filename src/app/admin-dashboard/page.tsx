@@ -45,7 +45,6 @@ import Dialog_BillingType from "@/components/admin-dashboard/dialog/Dialog_Billi
 import Dialog_ProjectStatus from "@/components/admin-dashboard/dialog/Dialog_ProjectStatus";
 import Dialog_DashboardSummaryList from "@/components/admin-dashboard/dialog/Dialog_DashboardSummaryList";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import DrawerOverlay from "@/components/settings/drawer/DrawerOverlay";
 import MUIDataTable from "mui-datatables";
 import TablePagination from "@mui/material/TablePagination";
 import { getClientDropdownData } from "@/utils/commonDropdownApiCall";
@@ -84,7 +83,7 @@ const initialFilter = {
   Clients: null,
 };
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const [isBillingTypeDialogOpen, setIsBillingTypeDialogOpen] =
     useState<boolean>(false);
@@ -99,8 +98,6 @@ const page = () => {
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [clickedBillingTypeName, setClickedBillingTypeName] =
     useState<string>("");
-  const [workType, setWorkType] = useState<any | null>(0);
-  const [workTypeData, setWorkTypeData] = useState<any[] | any>([]);
   const [dashboardSummary, setDashboardSummary] = useState<any | any[]>([]);
   const [clickedCardName, setClickedCardName] = useState<string>("");
   const [isDashboardClicked, setIsDashboardClicked] = useState(true);
@@ -161,52 +158,9 @@ const page = () => {
 
   // API for Worktype data
   useEffect(() => {
-    const getWorkTypes = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      // const ClientId = await localStorage.getItem("clientId");
-      try {
-        const response = await axios.post(
-          `${process.env.pms_api_url}/WorkType/GetDropdown`,
-          {
-            clientId: 0,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setWorkTypeData(response.data.ResponseData);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
     const getReportData = async () => {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
-      // const ClientId = await localStorage.getItem("clientId");
       try {
         const response = await axios.post(
           `${process.env.report_api_url}/dashboard/dashboardclientsummary`,
@@ -248,7 +202,6 @@ const page = () => {
       setClientDropdownData(await getClientDropdownData());
     };
 
-    isDashboardClicked && getWorkTypes();
     isReportClicked && getReportData();
     isReportClicked && getData();
   }, [isDashboardClicked, isReportClicked, filteredObject]);
@@ -262,7 +215,7 @@ const page = () => {
         const response = await axios.post(
           `${process.env.report_api_url}/dashboard/summary`,
           {
-            WorkTypeId: workType === 0 ? null : workType,
+            WorkTypeId: null,
           },
           {
             headers: {
@@ -297,7 +250,7 @@ const page = () => {
     };
 
     getProjectSummary();
-  }, [workType]);
+  }, []);
 
   const statusIconMapping: any = {
     Accepted: <CheckCircleOutlineOutlinedIcon />,
@@ -662,8 +615,8 @@ const page = () => {
                       <div
                         className="flex p-[20px] items-center"
                         onClick={() => {
-                          setClickedCardName(item.Key),
-                            setIsSummaryDialogOpen(true);
+                          setClickedCardName(item.Key);
+                          setIsSummaryDialogOpen(true);
                         }}
                       >
                         <span
@@ -701,8 +654,8 @@ const page = () => {
                       <div
                         className="flex p-[20px] items-center"
                         onClick={() => {
-                          setClickedCardName(item.Key),
-                            setIsSummaryDialogOpen(true);
+                          setClickedCardName(item.Key);
+                          setIsSummaryDialogOpen(true);
                         }}
                       >
                         <span
@@ -740,8 +693,8 @@ const page = () => {
                       <div
                         className="flex p-[20px] items-center"
                         onClick={() => {
-                          setClickedCardName(item.Key),
-                            setIsSummaryDialogOpen(true);
+                          setClickedCardName(item.Key);
+                          setIsSummaryDialogOpen(true);
                         }}
                       >
                         <span
@@ -801,7 +754,7 @@ const page = () => {
           <Dialog_DashboardSummaryList
             onOpen={isSummaryDialogOpen}
             onClose={() => setIsSummaryDialogOpen(false)}
-            onSelectedWorkType={workType}
+            onSelectedWorkType={0}
             onClickedSummaryTitle={clickedCardName}
           />
         )}
@@ -811,7 +764,7 @@ const page = () => {
           <Dialog_TaskStatus
             onOpen={isTaskStatusDialogOpen}
             onClose={() => setIsTaskStatusDialogOpen(false)}
-            onSelectedWorkType={workType}
+            onSelectedWorkType={0}
             onSelectedStatusName={clickedStatusName}
           />
         )}
@@ -821,7 +774,7 @@ const page = () => {
           <Dialog_BillingType
             onOpen={isBillingTypeDialogOpen}
             onClose={() => setIsBillingTypeDialogOpen(false)}
-            onSelectedWorkType={workType}
+            onSelectedWorkType={0}
             onSelectedStatusName={clickedBillingTypeName}
           />
         )}
@@ -831,7 +784,7 @@ const page = () => {
           <Dialog_ProjectStatus
             onOpen={isProjectStatusDialogOpen}
             onClose={() => setIsProjectStatusDialogOpen(false)}
-            onSelectedWorkType={workType}
+            onSelectedWorkType={0}
             onSelectedProjectStatus={clickedProjectStatusName}
             onSelectedProjectIds={[]}
           />
@@ -874,4 +827,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

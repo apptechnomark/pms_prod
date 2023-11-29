@@ -56,7 +56,6 @@ import {
   getReviewerDropdownData,
   getStatusDropdownData,
   getSubProcessDropdownData,
-  getTypeOfReturnDropdownData,
   getTypeOfWorkDropdownData,
   hours,
   months,
@@ -72,10 +71,8 @@ const EditDrawer = ({
   onDataFetch,
   onRecurring,
   onComment,
-  onHasId,
 }: any) => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState(0);
   const [inputTypeReview, setInputTypeReview] = useState("text");
   const [inputTypePreperation, setInputTypePreperation] = useState("text");
   const [isCreatedByClient, setIsCreatedByClient] = useState(false);
@@ -88,7 +85,6 @@ const EditDrawer = ({
   const [reminderDrawer, setReminderDrawer] = useState(true);
   const [checkListDrawer, setCheckListDrawer] = useState(true);
   const [commentsDrawer, setCommentsDrawer] = useState(true);
-  const [logsDrawer, setLogsDrawer] = useState(true);
   const [reasonDrawer, setReasonDrawer] = useState(true);
   const [reviewerErrDrawer, setReviewerErrDrawer] = useState(true);
 
@@ -111,7 +107,6 @@ const EditDrawer = ({
   const [editStatus, setEditStatus] = useState<any>(0);
   const [statusErr, setStatusErr] = useState(false);
   const [description, setDescription] = useState<string>("");
-  const [descriptionErr, setDescriptionErr] = useState(false);
   const [priority, setPriority] = useState<string | number>(0);
   const [quantity, setQuantity] = useState<any>(1);
   const [quantityErr, setQuantityErr] = useState(false);
@@ -158,8 +153,8 @@ const EditDrawer = ({
         Description: "",
       },
     ]);
-    setTaskNameErr([...taskNameErr, false]),
-      setSubTaskDescriptionErr([...subTaskDescriptionErr, false]);
+    setTaskNameErr([...taskNameErr, false]);
+    setSubTaskDescriptionErr([...subTaskDescriptionErr, false]);
   };
 
   const removeTaskField = (index: number) => {
@@ -213,9 +208,6 @@ const EditDrawer = ({
   const [manualSwitch, setManualSwitch] = useState(false);
   const [deletedManualTime, setDeletedManualTime] = useState<any>([]);
 
-  // ErrorLog
-  const [errorLogData, setErrorLogData] = useState([]);
-
   const [isManual, setIsManual] = useState<any>(null);
 
   // Reminder
@@ -230,7 +222,6 @@ const EditDrawer = ({
   const [reminderId, setReminderId] = useState(0);
 
   // CheclkList
-  const [addChecklistField, setAddChecklistField] = useState(false);
   const [checkListName, setCheckListName] = useState("");
   const [checkListNameError, setCheckListNameError] = useState(false);
   const [checkListData, setCheckListData] = useState([]);
@@ -251,9 +242,6 @@ const EditDrawer = ({
   const [assigneeDropdownData, setAssigneeDropdownData] = useState<any>([]);
   const [reviewerDropdownData, setReviewerDropdownData] = useState([]);
   const [cCDropdownData, setCCDropdownData] = useState<any>([]);
-  const [typeOfReturnDropdownData, setTypeOfReturnDropdownData] = useState<any>(
-    []
-  );
 
   const [selectedDays, setSelectedDays] = useState<any>([]);
 
@@ -306,7 +294,6 @@ const EditDrawer = ({
   }
 
   const handleTabClick = (index: number) => {
-    setActiveTab(index);
     scrollToPanel(index);
   };
 
@@ -341,7 +328,6 @@ const EditDrawer = ({
   const [inputTypeStartTime, setInputTypeStartTime] = useState(["text"]);
   const [inputTypeEndTime, setInputTypeEndTime] = useState(["text"]);
   const [manualSubmitDisable, setManualSubmitDisable] = useState(true);
-  const [manualDataLength, setManualDataLength] = useState(0);
 
   const setManualDisableData = (manualField: any) => {
     setManualSubmitDisable(
@@ -367,8 +353,8 @@ const EditDrawer = ({
         IsApproved: false,
       },
     ]);
-    setInputDateErrors([...inputDateErrors, false]),
-      setStartTimeErrors([...startTimeErrors, false]);
+    setInputDateErrors([...inputDateErrors, false]);
+    setStartTimeErrors([...startTimeErrors, false]);
     setEndTimeErrors([...endTimeErrors, false]);
     setManualDescErrors([...manualDescErrors, false]);
     setInputTypeDate([...inputTypeDate, "text"]);
@@ -592,8 +578,6 @@ const EditDrawer = ({
   const [errorLogPriorityErr, setErrorLogPriorityErr] = useState([false]);
   const [errorCountErr, setErrorCountErr] = useState([false]);
   const [natureOfErr, setNatureOfErr] = useState([false]);
-  const [remarkErr, setRemarkErr] = useState([false]);
-  const [deletedErrorLog, setDeletedErrorLog] = useState<any>([]);
 
   const handleRootCauseChange = (e: any, index: number) => {
     const newFields = [...errorLogFields];
@@ -670,20 +654,13 @@ const EditDrawer = ({
         (field.ErrorCount <= 0 || field.ErrorCount > 9999) && i === index
     );
     setErrorCountErr(newErrorCountErrors);
-    const newRemarkErrors = errorLogFields.map(
-      (field, i) =>
-        (field.Remark.trim().length < 5 || field.Remark.trim().length > 500) &&
-        i === index
-    );
-    setRemarkErr(newRemarkErrors);
 
     hasErrorLogErrors =
       newErrorTypeErrors.some((error) => error) ||
       newRootCauseErrors.some((error) => error) ||
       newNatureOfErrors.some((error) => error) ||
       newPriorityErrors.some((error) => error) ||
-      newErrorCountErrors.some((error) => error) ||
-      newRemarkErrors.some((error) => error);
+      newErrorCountErrors.some((error) => error);
 
     if (hasErrorLogErrors === false) {
       if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
@@ -1250,8 +1227,6 @@ const EditDrawer = ({
     }
   };
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   // OnEdit
   const getWorklogData = async () => {
     const token = await localStorage.getItem("token");
@@ -1403,7 +1378,6 @@ const EditDrawer = ({
               d % 60
             ).padStart(2, "0")}:${(e_sec - s_sec).toString().padStart(2, "0")}`;
           };
-          setManualDataLength(data.length);
           setManualSwitch(data.length <= 0 ? false : true);
           setManualSubmitDisable(
             data
@@ -1795,42 +1769,29 @@ const EditDrawer = ({
           setEditStatus(data.StatusId);
           setStatus(data.StatusId);
           setAllInfoDate(data.AllInfoDate === null ? "" : data.AllInfoDate);
-          data.StatusId === 2 && data.IsManual === true
-            ? setStatusDropdownDataUse(
-                statusDropdownData
-                  .map((i: any) =>
-                    i.Type === "OnHoldFromClient" ||
-                    i.Type === "WithDraw" ||
-                    i.Type === "Stop" ||
-                    i.value === data.StatusId
-                      ? i
-                      : ""
-                  )
-                  .filter((i: any) => i !== "")
+          const filterStatusDropdown = (
+            statusId: number,
+            isManual: boolean
+          ) => {
+            const filteredData = statusDropdownData
+              .map((i: any) =>
+                (i.Type === "OnHoldFromClient" ||
+                  i.Type === "WithDraw" ||
+                  i.value === statusId) &&
+                (!isManual || i.Type === "Stop")
+                  ? i
+                  : ""
               )
-            : data.StatusId === 2
-            ? setStatusDropdownDataUse(
-                statusDropdownData
-                  .map((i: any) =>
-                    i.Type === "OnHoldFromClient" ||
-                    i.Type === "WithDraw" ||
-                    i.value === data.StatusId
-                      ? i
-                      : ""
-                  )
-                  .filter((i: any) => i !== "")
-              )
-            : setStatusDropdownDataUse(
-                statusDropdownData
-                  .map((i: any) =>
-                    i.Type === "OnHoldFromClient" ||
-                    i.Type === "WithDraw" ||
-                    i.value === data.StatusId
-                      ? i
-                      : ""
-                  )
-                  .filter((i: any) => i !== "")
-              );
+              .filter((i: any) => i !== "");
+
+            setStatusDropdownDataUse(filteredData);
+          };
+
+          if (data.StatusId === 2) {
+            filterStatusDropdown(data.StatusId, data.IsManual === true);
+          } else {
+            filterStatusDropdown(data.StatusId, false);
+          }
           setPriority(data.Priority === null ? 0 : data.Priority);
           setQuantity(data.Quantity);
           setDescription(data.Description === null ? "" : data.Description);
@@ -2406,12 +2367,7 @@ const EditDrawer = ({
         setReviewer(!reviwerId ? 0 : reviwerId);
     };
 
-    const getTypeOfReturn = async () => {
-      setTypeOfReturnDropdownData(await getTypeOfReturnDropdownData());
-    };
-
     typeOfWork !== 0 && getData();
-    typeOfWork === 3 && getTypeOfReturn();
   }, [typeOfWork, clientName]);
 
   // Add Checklist
@@ -2943,14 +2899,12 @@ const EditDrawer = ({
     setReminderId(0);
 
     // checklist
-    setAddChecklistField(false);
     setCheckListName("");
     setCheckListNameError(false);
     setCheckListData([]);
     setItemStates({});
 
     // Error Logs
-    setErrorLogData([]);
     setErrorLogFields([
       {
         SubmitedBy: "",
@@ -2980,8 +2934,6 @@ const EditDrawer = ({
     setErrorLogPriorityErr([false]);
     setErrorCountErr([false]);
     setNatureOfErr([false]);
-    setRemarkErr([false]);
-    setDeletedErrorLog([]);
 
     // Comments
     setCommentData([]);
@@ -4301,8 +4253,8 @@ const EditDrawer = ({
                           id="demo-simple-select-standard"
                           value={commentSelect}
                           onChange={(e) => {
-                            setCommentSelect(e.target.value),
-                              getCommentData(e.target.value);
+                            setCommentSelect(e.target.value);
+                            getCommentData(e.target.value);
                           }}
                         >
                           <MenuItem value={1}>Internal</MenuItem>
@@ -4942,6 +4894,30 @@ const EditDrawer = ({
                             IsApproved: false,
                           },
                         ]);
+                        // e.target.checked === true
+                        //   ? setStatusDropdownDataUse(
+                        //       statusDropdownData
+                        //         .map((i: any) =>
+                        //           i.Type === "OnHoldFromClient" ||
+                        //           i.Type === "WithDraw" ||
+                        //           i.Type === "Stop" ||
+                        //           i.value === "InProgress"
+                        //             ? i
+                        //             : ""
+                        //         )
+                        //         .filter((i: any) => i !== "")
+                        //     )
+                        //   : setStatusDropdownDataUse(
+                        //       statusDropdownData
+                        //         .map((i: any) =>
+                        //           i.Type === "OnHoldFromClient" ||
+                        //           i.Type === "WithDraw" ||
+                        //           i.Type === "Stop"
+                        //             ? i
+                        //             : ""
+                        //         )
+                        //         .filter((i: any) => i !== "")
+                        //     );
                         e.target.checked === true
                           ? setStatus(
                               statusDropdownData

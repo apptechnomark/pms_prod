@@ -1,17 +1,13 @@
 "use client";
-
-import Image from "next/image";
 import Link from "next/link";
 import { Typography } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
-import { useRouter, useSearchParams } from "next/navigation";
-import Footer from "@/components/common/Footer";
+import { useSearchParams } from "next/navigation";
 import Pabs from "@/assets/icons/Pabs";
-export default function Forgetconfirm() {
-  const router = useRouter();
+
+const Forgetconfirm = () => {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
-
   return (
     <div className="flex flex-col justify-between min-h-screen">
       <div className="forgetWrapper flex items-center flex-col pt-10">
@@ -44,7 +40,8 @@ export default function Forgetconfirm() {
           </Link>
         </div>
       </div>
-      {/* <Footer /> */}
     </div>
   );
-}
+};
+
+export default Forgetconfirm;

@@ -237,7 +237,7 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
         customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
           return (
             <div className="ml-2">
-              {value === null || "" ? "-" : value}&nbsp;
+              {value === null || value === "" ? "-" : value}&nbsp;
               {value > 1 ? "days" : "day"}
             </div>
           );

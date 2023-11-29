@@ -2,14 +2,11 @@
 "use client";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-// Library Components
 import { Button, Select, Text, Toast, Tooltip, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
-// Icons
 import ImportIcon from "@/assets/icons/ImportIcon";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
-// Setting's Components
 import User from "@/components/settings/tables/User";
 import Group from "@/components/settings/tables/Group";
 import Client from "@/components/settings/tables/Client";
@@ -17,7 +14,6 @@ import Project from "@/components/settings/tables/Project";
 import Process from "@/components/settings/tables/Process";
 import Status from "@/components/settings/tables/Status";
 import Permissions from "@/components/settings/tables/Permissions";
-// Import Layout Component
 import Drawer from "@/components/settings/drawer/Drawer";
 import DrawerOverlay from "@/components/settings/drawer/DrawerOverlay";
 import Wrapper from "@/components/common/Wrapper";
@@ -50,7 +46,7 @@ const initialTabs = [
   { id: "Organization", label: "Organization", canView: true },
 ];
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [tabs, setTabs] = useState<Tabs[]>(initialTabs);
@@ -1123,7 +1119,7 @@ const page = () => {
                     </div>
                   )}
 
-                  <div
+                  {/* <div
                     className={`${
                       hasPermissionWorklog(tab, "import", "settings")
                         ? ""
@@ -1133,7 +1129,7 @@ const page = () => {
                     <Tooltip position={"top"} content="Import">
                       <ImportIcon />
                     </Tooltip>
-                  </div>
+                  </div> */}
                   <div
                     className={`${
                       hasPermissionWorklog(tab, "export", "settings")
@@ -1452,4 +1448,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

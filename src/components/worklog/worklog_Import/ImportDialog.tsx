@@ -200,7 +200,8 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
                   }`}
                   value={importText}
                   onChange={(e) => {
-                    setImportText(e.target.value), setError("");
+                    setImportText(e.target.value);
+                    setError("");
                   }}
                 />
                 {Boolean(error) && (

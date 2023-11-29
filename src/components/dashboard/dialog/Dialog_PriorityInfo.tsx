@@ -117,8 +117,8 @@ const Dialog_PriorityInfo: React.FC<DialogProps> = ({
                 sx={{ height: "36px" }}
               >
                 <MenuItem value={0}>All</MenuItem>
-                {priority_Data.map((i: any, index: number) => (
-                  <MenuItem value={i.value} key={index}>
+                {priority_Data.map((i: any) => (
+                  <MenuItem value={i.value} key={i.value}>
                     {i.label}
                   </MenuItem>
                 ))}

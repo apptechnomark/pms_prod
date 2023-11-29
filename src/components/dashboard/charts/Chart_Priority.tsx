@@ -28,7 +28,6 @@ const Chart_Priority: React.FC<PriorityProps> = ({
 
   // API call
   useEffect(() => {
-    // if (onSelectedProjectIds.length > 0) {
     const getData = async () => {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -77,7 +76,6 @@ const Chart_Priority: React.FC<PriorityProps> = ({
 
     // Fetch data when component mounts
     getData();
-    // }onSelectedProjectIds.length > 0
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
   // Define the chart options

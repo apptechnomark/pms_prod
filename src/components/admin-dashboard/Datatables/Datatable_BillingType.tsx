@@ -176,7 +176,7 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
         customBodyRender: (value: any) => {
           return (
             <div className="ml-2">
-              {value === null || ""
+              {value === null || value === ""
                 ? "-"
                 : value === true
                 ? "Active"

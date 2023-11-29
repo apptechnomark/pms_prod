@@ -67,7 +67,6 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
   };
 
   useEffect(() => {
-    // if (onSelectedProjectIds.length > 0) {
     const getData = async () => {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -110,7 +109,6 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
 
     // Fetch data when component mounts
     getData();
-    // }
   }, [
     onSelectedProjectIds,
     onSelectedWorkType,

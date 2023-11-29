@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import FilterDialog_Approval from "@/components/approvals/FilterDialog_Approval";
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEditId, setHasEditId] = useState(0);
@@ -177,4 +177,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

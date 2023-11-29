@@ -66,7 +66,6 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
 
   // API Call
   useEffect(() => {
-    // if (onSelectedProjectIds.length > 0) {
     const getData = async () => {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -107,7 +106,6 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
 
     // Fetch data when component mounts
     getData();
-    // }
   }, [onSelectedProjectIds, onSelectedWorkType, page, rowsPerPage]);
 
   // extracting data

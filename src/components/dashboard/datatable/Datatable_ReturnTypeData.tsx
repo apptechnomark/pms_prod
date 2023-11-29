@@ -67,7 +67,6 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
   };
 
   useEffect(() => {
-    // if (onSelectedProjectIds.length > 0) {
     const getData = async () => {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -112,7 +111,6 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
 
     // Fetch data when component mounts
     getData();
-    // }
   }, [
     onSelectedProjectIds,
     onSelectedReturnTypeValue,

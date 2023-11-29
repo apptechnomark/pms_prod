@@ -3,12 +3,8 @@
 "use client";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-
-//custom common components
 import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
-
-//mui components
 import {
   Button,
   InputBase,
@@ -17,20 +13,14 @@ import {
   tooltipClasses,
 } from "@mui/material";
 import React, { Fragment, useEffect, useRef, useState } from "react";
-
-//toast
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
-
-//icons
 import LineIcon from "@/assets/icons/reports/LineIcon";
 import MoreIcon from "@/assets/icons/reports/MoreIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import SearchIcon from "@/assets/icons/SearchIcon";
-
-//Tabs components
 import Client from "@/components/reports/tables/Client";
 import Project from "@/components/reports/tables/Project";
 import User from "@/components/reports/tables/User";
@@ -40,17 +30,12 @@ import UserLogs from "@/components/reports/tables/UserLogs";
 import Audit from "@/components/reports/tables/Audit";
 import BillingReport from "@/components/reports/tables/BillingReport";
 import CustomReport from "@/components/reports/tables/CustomReport";
-
-//common functions
-//filter body for reports
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { haveSameData } from "@/utils/reports/commonFunctions";
 import {
   customreport_InitialFilter,
   getCurrentTabDetails,
 } from "@/utils/reports/getFilters";
-
-//filter components
 import ClientFilter from "@/components/reports/Filter/ClientFilter";
 import ProjectFilter from "@/components/reports/Filter/ProjectFilter";
 import UserFilter from "@/components/reports/Filter/UserFilter";
@@ -79,7 +64,7 @@ const secondaryTabs = [
   { label: "rating", value: 9 },
 ];
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const moreTabsRef = useRef<HTMLDivElement>(null);
   const [activeTabs, setActiveTabs] = useState<any[]>(primaryTabs);
@@ -576,4 +561,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

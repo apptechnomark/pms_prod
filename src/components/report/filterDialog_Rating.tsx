@@ -42,7 +42,7 @@ const initialFilter = {
   Ratings: null,
 };
 
-const filterDialog_Rating: React.FC<FilterModalProps> = ({
+const FilterDialog_Rating: React.FC<FilterModalProps> = ({
   onOpen,
   onClose,
   currentFilterData,
@@ -280,4 +280,4 @@ const filterDialog_Rating: React.FC<FilterModalProps> = ({
   );
 };
 
-export default filterDialog_Rating;
+export default FilterDialog_Rating;

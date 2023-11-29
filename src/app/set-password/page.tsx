@@ -7,7 +7,8 @@ import Footer from "@/components/common/Footer";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
-const page = () => {
+
+const Page = () => {
   const getToken = useSearchParams();
   const token = getToken.get("token");
   const router = useRouter();
@@ -143,4 +144,4 @@ const page = () => {
     </div>
   );
 };
-export default page;
+export default Page;

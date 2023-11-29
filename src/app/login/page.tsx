@@ -10,13 +10,13 @@ import {
   Email,
 } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { hasToken } from "@/utils/commonFunction";
 import Pabs from "@/assets/icons/Pabs";
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
@@ -173,4 +173,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

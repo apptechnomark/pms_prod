@@ -1016,7 +1016,8 @@ const CustomReportFilter = ({
                     variant="standard"
                     value={filterName}
                     onChange={(e) => {
-                      setFilterName(e.target.value), setError("");
+                      setFilterName(e.target.value);
+                      setError("");
                     }}
                     error={Boolean(error)}
                     helperText={error}

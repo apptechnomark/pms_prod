@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 // material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
@@ -14,14 +14,6 @@ import {
 import { Close } from "@mui/icons-material";
 // Internal Components
 import Datatable_ReturnTypeData from "../datatable/Datatable_ReturnTypeData";
-import axios from "axios";
-import { toast } from "react-toastify";
-
-interface Priority {
-  Type: string;
-  label: string;
-  value: number;
-}
 
 interface DialogProps {
   onOpen: boolean;
@@ -46,58 +38,11 @@ const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
   onSelectedReturnTypeValue,
 }) => {
   const [returnType, setReturnType] = useState<number | any>(0);
-  const [data, setData] = useState<any | any[]>([]);
 
   const handleClose = () => {
     onClose();
     setReturnType(0);
   };
-
-  useEffect(() => {
-    // if (onSelectedProjectIds.length > 0) {
-    const getData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/clientdashboard/taskstatusandprioritylist`,
-          {
-            PageNo: 1,
-            PageSize: 1000,
-            SortColumn: null,
-            IsDesc: true,
-            projectIds: onSelectedProjectIds,
-            typeOfWork: null,
-            priorityId: null,
-            statusId: null,
-            ReturnTypeId: returnType ? returnType : onSelectedReturnTypeValue,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (
-          response.status === 200 &&
-          response.data.ResponseStatus === "Success"
-        ) {
-          setData(response.data.ResponseData.List);
-        } else {
-          const errorMessage = response.data.Message || "Something went wrong.";
-          toast.error(errorMessage);
-        }
-      } catch (error) {
-        toast.error("Error fetching data. Please try again later.");
-      }
-    };
-
-    // Fetch data when component mounts
-    getData();
-    // }
-  }, [onSelectedProjectIds, onSelectedReturnTypeValue, returnType]);
 
   return (
     <div>

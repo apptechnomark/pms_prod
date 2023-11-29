@@ -101,10 +101,25 @@ const Chart_ProjectStatus: React.FC<Chart_ProjectStatusProps> = ({
     },
     tooltip: {
       headerFormat: "",
-      pointFormat:
-        '<span style="color:{point.color}">\u25CF</span> <b> {point.name}</b><br/>' +
-        "Count: <b>{point.y}</b><br/>" +
-        "Percentage: <b>{point.percentage}</b><br/>",
+      formatter(this: Highcharts.TooltipFormatterContextObject) {
+        const count = this.point.y !== undefined ? this.point.y : 0;
+        const percentage =
+          this.point.percentage !== undefined ? this.point.percentage : 0;
+
+        return (
+          '<span style="color:' +
+          this.point.color +
+          '">\u25CF</span> <b>' +
+          this.point.name +
+          "</b><br/>" +
+          "Count: <b>" +
+          count +
+          "</b><br/>" +
+          "Percentage: <b>" +
+          Highcharts.numberFormat(percentage, 2, ".") +
+          "%</b>"
+        );
+      },
     },
     plotOptions: {
       variablepie: {

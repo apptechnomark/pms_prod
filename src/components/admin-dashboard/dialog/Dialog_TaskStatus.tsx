@@ -116,9 +116,7 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
       }
     };
 
-    // if (onOpen) {
     getAllStatus();
-    // }
   }, []);
 
   return (
@@ -167,8 +165,8 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
                 sx={{ height: "36px" }}
               >
                 <MenuItem value={0}>All</MenuItem>
-                {allStatus.map((i: any, index: number) => (
-                  <MenuItem value={i.value} key={index}>
+                {allStatus.map((i: any) => (
+                  <MenuItem value={i.value} key={i.value}>
                     {i.label}
                   </MenuItem>
                 ))}

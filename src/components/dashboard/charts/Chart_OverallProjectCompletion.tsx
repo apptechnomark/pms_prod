@@ -24,7 +24,6 @@ const Chart_OverallProjectCompletion: React.FC<
   const [totalCount, setTotalCount] = useState<number>(0);
 
   useEffect(() => {
-    // if (onSelectedProjectIds.length > 0) {
     const getData = async () => {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -60,7 +59,6 @@ const Chart_OverallProjectCompletion: React.FC<
 
     // Fetch data when component mounts
     getData();
-    // }
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
   // Define the chart options
@@ -76,10 +74,25 @@ const Chart_OverallProjectCompletion: React.FC<
     },
     tooltip: {
       headerFormat: "",
-      pointFormat:
-        '<span style="color:{point.color}">\u25CF</span> <b> {point.key}</b><br/>' +
-        "Count: <b>{point.y}</b><br/>" +
-        "Percentage: <b>{point.z}</b><br/>",
+      formatter(this: Highcharts.TooltipFormatterContextObject) {
+        const count = this.point.y !== undefined ? this.point.y : 0;
+        const percentage =
+          this.point.percentage !== undefined ? this.point.percentage : 0;
+
+        return (
+          '<span style="color:' +
+          this.point.color +
+          '">\u25CF</span> <b>' +
+          this.point.name +
+          "</b><br/>" +
+          "Count: <b>" +
+          count +
+          "</b><br/>" +
+          "Percentage: <b>" +
+          Highcharts.numberFormat(percentage, 2, ".") +
+          "%</b>"
+        );
+      },
     },
     plotOptions: {
       variablepie: {

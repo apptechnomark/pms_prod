@@ -73,7 +73,6 @@ const Dialog_TotalHoursInfo: React.FC<TotalHoursInfoDialogProps> = ({
     <div>
       <Dialog
         fullWidth
-        // fullScreen
         open={onOpen}
         TransitionComponent={Transition}
         keepMounted
@@ -98,8 +97,8 @@ const Dialog_TotalHoursInfo: React.FC<TotalHoursInfoDialogProps> = ({
                 sx={{ height: "36px" }}
               >
                 <MenuItem value={0}>All</MenuItem>
-                {onWorkTypeData.map((i: any, index: number) => (
-                  <MenuItem value={i.value} key={index}>
+                {onWorkTypeData.map((i: any) => (
+                  <MenuItem value={i.value} key={i.value}>
                     {i.label}
                   </MenuItem>
                 ))}

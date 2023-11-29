@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 // material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
@@ -12,8 +12,6 @@ import {
   Select,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
-import axios from "axios";
-import { toast } from "react-toastify";
 import Datatable_SummaryList from "../datatable/Datatable_SummaryList";
 
 interface SummaryListProps {
@@ -78,8 +76,8 @@ const Dialog_SummaryList: React.FC<SummaryListProps> = ({
                 onChange={(e) => setTaskStatusName(e.target.value)}
                 sx={{ height: "36px" }}
               >
-                {onCurrProjectSummary.map((i: any, index: number) => (
-                  <MenuItem value={i.Key} key={index}>
+                {onCurrProjectSummary.map((i: any) => (
+                  <MenuItem value={i.Key} key={i.Key}>
                     {i.Key}
                   </MenuItem>
                 ))}

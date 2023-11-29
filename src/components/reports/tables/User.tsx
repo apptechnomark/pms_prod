@@ -225,9 +225,6 @@ const User = ({ filteredData, searchValue }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => genrateCustomHeaderName("Present Day"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
       },
     },
     {
