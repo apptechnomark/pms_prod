@@ -284,9 +284,10 @@ const Datatable = ({
   useEffect(() => {
     if (
       selectedRowClientId.length > 0 &&
-      selectedRowWorkTypeId.length > 0 &&
-      areAllValuesSame(selectedRowClientId) &&
-      areAllValuesSame(selectedRowWorkTypeId)
+      selectedRowWorkTypeId.length > 0 
+      // &&
+      // areAllValuesSame(selectedRowClientId) &&
+      // areAllValuesSame(selectedRowWorkTypeId)
     ) {
       const getAssignee = async () => {
         const token = await localStorage.getItem("token");
@@ -388,9 +389,10 @@ const Datatable = ({
   useEffect(() => {
     if (
       selectedRowClientId.length > 0 &&
-      selectedRowWorkTypeId.length > 0 &&
-      areAllValuesSame(selectedRowClientId) &&
-      areAllValuesSame(selectedRowWorkTypeId)
+      selectedRowWorkTypeId.length > 0 
+      // &&
+      // areAllValuesSame(selectedRowClientId) &&
+      // areAllValuesSame(selectedRowWorkTypeId)
     ) {
       const getAssignee = async () => {
         const token = await localStorage.getItem("token");
