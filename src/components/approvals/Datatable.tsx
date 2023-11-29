@@ -219,11 +219,6 @@ const Datatable = ({
     setSearchQueryRW(event.target.value);
   };
 
-  // Function for checking that All vlaues in the arrar are same or not
-  function areAllValuesSame(arr: any[]) {
-    return arr.every(({ value, array }: any) => value === array[0]);
-  }
-
   const filteredAssignees = assignee.filter((assignee: any) =>
     assignee.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -282,13 +277,7 @@ const Datatable = ({
 
   // API for get Assignee with all conditions
   useEffect(() => {
-    if (
-      selectedRowClientId.length > 0 &&
-      selectedRowWorkTypeId.length > 0 
-      // &&
-      // areAllValuesSame(selectedRowClientId) &&
-      // areAllValuesSame(selectedRowWorkTypeId)
-    ) {
+    if (selectedRowClientId.length > 0 && selectedRowWorkTypeId.length > 0) {
       const getAssignee = async () => {
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
@@ -387,13 +376,7 @@ const Datatable = ({
 
   // API for get Assignee with all conditions
   useEffect(() => {
-    if (
-      selectedRowClientId.length > 0 &&
-      selectedRowWorkTypeId.length > 0 
-      // &&
-      // areAllValuesSame(selectedRowClientId) &&
-      // areAllValuesSame(selectedRowWorkTypeId)
-    ) {
+    if (selectedRowClientId.length > 0 && selectedRowWorkTypeId.length > 0) {
       const getAssignee = async () => {
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");

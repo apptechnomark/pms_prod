@@ -1769,29 +1769,42 @@ const EditDrawer = ({
           setEditStatus(data.StatusId);
           setStatus(data.StatusId);
           setAllInfoDate(data.AllInfoDate === null ? "" : data.AllInfoDate);
-          const filterStatusDropdown = (
-            statusId: number,
-            isManual: boolean
-          ) => {
-            const filteredData = statusDropdownData
-              .map((i: any) =>
-                (i.Type === "OnHoldFromClient" ||
-                  i.Type === "WithDraw" ||
-                  i.value === statusId) &&
-                (!isManual || i.Type === "Stop")
-                  ? i
-                  : ""
+          data.StatusId === 2 && data.IsManual === true
+            ? setStatusDropdownDataUse(
+                statusDropdownData
+                  .map((i: any) =>
+                    i.Type === "OnHoldFromClient" ||
+                    i.Type === "WithDraw" ||
+                    i.Type === "Stop" ||
+                    i.value === data.StatusId
+                      ? i
+                      : ""
+                  )
+                  .filter((i: any) => i !== "")
               )
-              .filter((i: any) => i !== "");
-
-            setStatusDropdownDataUse(filteredData);
-          };
-
-          if (data.StatusId === 2) {
-            filterStatusDropdown(data.StatusId, data.IsManual === true);
-          } else {
-            filterStatusDropdown(data.StatusId, false);
-          }
+            : data.StatusId === 2
+            ? setStatusDropdownDataUse(
+                statusDropdownData
+                  .map((i: any) =>
+                    i.Type === "OnHoldFromClient" ||
+                    i.Type === "WithDraw" ||
+                    i.value === data.StatusId
+                      ? i
+                      : ""
+                  )
+                  .filter((i: any) => i !== "")
+              )
+            : setStatusDropdownDataUse(
+                statusDropdownData
+                  .map((i: any) =>
+                    i.Type === "OnHoldFromClient" ||
+                    i.Type === "WithDraw" ||
+                    i.value === data.StatusId
+                      ? i
+                      : ""
+                  )
+                  .filter((i: any) => i !== "")
+              );
           setPriority(data.Priority === null ? 0 : data.Priority);
           setQuantity(data.Quantity);
           setDescription(data.Description === null ? "" : data.Description);
@@ -4894,30 +4907,6 @@ const EditDrawer = ({
                             IsApproved: false,
                           },
                         ]);
-                        // e.target.checked === true
-                        //   ? setStatusDropdownDataUse(
-                        //       statusDropdownData
-                        //         .map((i: any) =>
-                        //           i.Type === "OnHoldFromClient" ||
-                        //           i.Type === "WithDraw" ||
-                        //           i.Type === "Stop" ||
-                        //           i.value === "InProgress"
-                        //             ? i
-                        //             : ""
-                        //         )
-                        //         .filter((i: any) => i !== "")
-                        //     )
-                        //   : setStatusDropdownDataUse(
-                        //       statusDropdownData
-                        //         .map((i: any) =>
-                        //           i.Type === "OnHoldFromClient" ||
-                        //           i.Type === "WithDraw" ||
-                        //           i.Type === "Stop"
-                        //             ? i
-                        //             : ""
-                        //         )
-                        //         .filter((i: any) => i !== "")
-                        //     );
                         e.target.checked === true
                           ? setStatus(
                               statusDropdownData
