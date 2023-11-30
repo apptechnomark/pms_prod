@@ -1782,18 +1782,6 @@ const EditDrawer = ({
                   )
                   .filter((i: any) => i !== "")
               )
-            : data.StatusId === 2
-            ? setStatusDropdownDataUse(
-                statusDropdownData
-                  .map((i: any) =>
-                    i.Type === "OnHoldFromClient" ||
-                    i.Type === "WithDraw" ||
-                    i.value === data.StatusId
-                      ? i
-                      : ""
-                  )
-                  .filter((i: any) => i !== "")
-              )
             : setStatusDropdownDataUse(
                 statusDropdownData
                   .map((i: any) =>
