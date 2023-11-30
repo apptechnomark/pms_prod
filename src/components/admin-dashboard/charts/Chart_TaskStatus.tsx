@@ -17,56 +17,56 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
   const [data, setData] = useState<any[]>([]);
 
   // API for Dashboard Summary
-  useEffect(() => {
-    const getTaskStatusData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/dashboard/taskstatusgraph`,
-          {
-            WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+  const getTaskStatusData = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/dashboard/taskstatusgraph`,
+        {
+          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        }
+      );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            const chartData = response.data.ResponseData.map(
-              (item: { ColorCode: any; Key: any; Value: any }) => ({
-                name: item.Key,
-                y: item.Value,
-                color: item.ColorCode,
-              })
-            );
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          const chartData = response.data.ResponseData.map(
+            (item: { ColorCode: any; Key: any; Value: any }) => ({
+              name: item.Key,
+              y: item.Value,
+              color: item.ColorCode,
+            })
+          );
 
-            setData(chartData);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
+          setData(chartData);
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Please try again.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
       }
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
     getTaskStatusData();
   }, [onSelectedWorkType]);
 

@@ -62,9 +62,7 @@ const ClientFilter = ({
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [error, setError] = useState("");
 
-  const [anchorElFilter, setAnchorElFilter] =
-    useState<HTMLButtonElement | null>(null);
-
+  const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
 
@@ -192,7 +190,6 @@ const ClientFilter = ({
   }, [dept, typeOfWork, billingType]);
 
   useEffect(() => {
-    // handleFilterApply();
     const clientDropdowns = async () => {
       setWorkTypeDropdown(await getWorkTypeData(0));
       setBillingTypeDropdown(await getBillingTypeData());
@@ -342,7 +339,7 @@ const ClientFilter = ({
               return (
                 <>
                   <div
-                    key={index}
+                    key={i.FilterId}
                     className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
                   >
                     <span
@@ -351,7 +348,6 @@ const ClientFilter = ({
                         setCurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleSavedFilterApply(index);
-                        // setFilterApplied(true);
                       }}
                     >
                       {i.Name}
@@ -412,7 +408,7 @@ const ClientFilter = ({
                     onChange={(e) => setTypeOfWork(e.target.value)}
                   >
                     {workTypeDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -430,7 +426,7 @@ const ClientFilter = ({
                     onChange={(e) => setBillingType(e.target.value)}
                   >
                     {billingTypeDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -448,7 +444,7 @@ const ClientFilter = ({
                     onChange={(e) => setDept(e.target.value)}
                   >
                     {deptDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}

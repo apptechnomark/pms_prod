@@ -187,7 +187,7 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
                   onChange={(e: any) => setProject(e.target.value)}
                 >
                   {projectDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}

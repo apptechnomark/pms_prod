@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider, TimeField } from "@mui/x-date-pickers";
 import {
+  CircularProgress,
   TablePagination,
   TextField,
   ThemeProvider,
@@ -21,7 +22,7 @@ import { toSeconds } from "@/utils/timerFunctions";
 
 // common functions for datatable
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateInitialTimer,
   generateDateWithTime,
@@ -50,6 +51,68 @@ const getMuiTheme = () =>
     },
   });
 
+const BTCField = ({
+  billingReportData,
+  setBiliingReportData,
+  handleBTCData,
+  value,
+  tableMeta,
+}: any) => {
+  const getFormattedTime = (newValue: any) => {
+    if (newValue !== null) {
+      const hours = isNaN(newValue.$H) ? "00" : newValue.$H;
+      const minutes = isNaN(newValue.$m) ? "00" : newValue.$m;
+      const seconds = isNaN(newValue.$s) ? "00" : newValue.$s;
+
+      return `${hours}:${minutes}:${seconds}`;
+    }
+    return "00:00:00";
+  };
+
+  return (
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      {!billingReportData[tableMeta.rowIndex].IsBTC ? (
+        <TimeField
+          label="BTC Time"
+          value={
+            billingReportData[tableMeta.rowIndex].BTC === null ||
+            billingReportData[tableMeta.rowIndex].BTC === 0
+              ? dayjs("0000-00-00T00:00:00")
+              : dayjs(`0000-00-00T${value}`)
+          }
+          onChange={(newValue: any) => {
+            setBiliingReportData((prevData: any) =>
+              prevData.map((data: any, index: number) =>
+                index === tableMeta.rowIndex
+                  ? {
+                      ...data,
+                      BTC: getFormattedTime(newValue),
+                    }
+                  : { ...data }
+              )
+            );
+            handleBTCData(
+              newValue,
+              billingReportData[tableMeta.rowIndex].WorkItemId
+            );
+          }}
+          format="HH:mm:ss"
+          variant="standard"
+        />
+      ) : (
+        <TextField
+          disabled
+          label="BTC Time"
+          placeholder="00:00:00"
+          variant="standard"
+          fullWidth
+          value={value === null || value === 0 ? "00:00:00" : value}
+        />
+      )}
+    </LocalizationProvider>
+  );
+};
+
 const BillingReport = ({
   filteredData,
   hasBTCData,
@@ -58,6 +121,7 @@ const BillingReport = ({
   onSaveBTCDataComplete,
   searchValue,
 }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [btcData, setBTCData] = useState<any>([]);
   const [raisedInvoice, setRaisedInvoice] = useState<any>([]);
@@ -84,19 +148,15 @@ const BillingReport = ({
           },
         }
       );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setBiliingReportData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+      if (
+        response.status === 200 &&
+        response.data.ResponseStatus === "Success"
+      ) {
+        setLoaded(true);
+        setBiliingReportData(response.data.ResponseData.List);
+        setTableDataCount(response.data.ResponseData.TotalCount);
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
@@ -105,6 +165,7 @@ const BillingReport = ({
         }
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -281,7 +342,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task ID"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -292,7 +353,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Client Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -303,7 +364,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -314,7 +375,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -325,7 +386,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Process Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Process Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -337,7 +398,7 @@ const BillingReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () =>
-          genrateCustomHeaderName("Prepared/Assignee"),
+          generateCustomHeaderName("Prepared/Assignee"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -348,7 +409,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Reviewer"),
+        customHeadLabelRender: () => generateCustomHeaderName("Reviewer"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -360,7 +421,7 @@ const BillingReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () =>
-          genrateCustomHeaderName("Preparation Date"),
+          generateCustomHeaderName("Preparation Date"),
         customBodyRender: (value: any) => {
           return generateDateWithTime(value);
         },
@@ -371,7 +432,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Reviewer Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Reviewer Date"),
         customBodyRender: (value: any) => {
           return generateDateWithTime(value);
         },
@@ -382,7 +443,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("No. of Pages"),
+        customHeadLabelRender: () => generateCustomHeaderName("No. of Pages"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -393,7 +454,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Est. Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Est. Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -404,7 +465,7 @@ const BillingReport = ({
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Qty."),
+        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -415,7 +476,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Std. Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -427,7 +488,7 @@ const BillingReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () =>
-          genrateCustomHeaderName("Preparation Time"),
+          generateCustomHeaderName("Preparation Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -438,7 +499,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Reviewer Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Reviewer Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -449,7 +510,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Total Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -460,7 +521,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Edited Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Edited Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -471,13 +532,9 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Invoice Status"),
+        customHeadLabelRender: () => generateCustomHeaderName("Invoice Status"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="capitalize">
-              {value === 0 ? "invoice pending" : "invoice raised"}
-            </div>
-          );
+          return value === 0 ? "Invoice Pending" : "Invoice Raised";
         },
       },
     },
@@ -486,126 +543,23 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("BTC Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("BTC Time"),
         customBodyRender: (value: any, tableMeta: any) => {
           return (
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              {!billingReportData[tableMeta.rowIndex].IsBTC ? (
-                // <TextField
-                //   label="BTC Time"
-                //   placeholder="00:00:00"
-                //   variant="standard"
-                //   fullWidth
-                //   value={
-                //     billingReportData[tableMeta.rowIndex].BTC === null ||
-                //     billingReportData[tableMeta.rowIndex].BTC === 0
-                //       ? "00:00:00"
-                //       : value
-                //   }
-                //   onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                //     let newValue = event.target.value;
-                //     newValue = newValue.replace(/[^0-9]/g, "");
-                //     // if (newValue.length > 8) {
-                //     //   return;
-                //     // }
-
-                //     let formattedValue = "";
-                //     if (newValue.length >= 1) {
-                //       const hours = parseInt(newValue.slice(0, 2));
-                //       if (hours >= 0 && hours <= 23) {
-                //         formattedValue = newValue.slice(0, 2);
-                //       } else {
-                //         formattedValue = "23";
-                //       }
-                //     }
-
-                //     if (newValue.length >= 3) {
-                //       const minutes = parseInt(newValue.slice(2, 4));
-                //       if (minutes >= 0 && minutes <= 59) {
-                //         formattedValue += ":" + newValue.slice(2, 4);
-                //       } else {
-                //         formattedValue += ":59";
-                //       }
-                //     }
-
-                //     if (newValue.length >= 5) {
-                //       const seconds = parseInt(newValue.slice(4, 6));
-                //       if (seconds >= 0 && seconds <= 59) {
-                //         formattedValue += ":" + newValue.slice(4, 6);
-                //       } else {
-                //         formattedValue += ":59";
-                //       }
-                //     }
-
-                //     // Convert formattedValue to seconds
-                //     let totalSeconds = 0;
-
-                //     if (formattedValue) {
-                //       const timeComponents = formattedValue.split(":");
-                //       const hours = parseInt(timeComponents[0]);
-                //       const minutes = parseInt(timeComponents[1]);
-                //       const seconds = parseInt(timeComponents[2]);
-                //       totalSeconds = hours * 3600 + minutes * 60 + seconds;
-                //     }
-
-                //     console.log(formattedValue);
-                //   }}
-                // />
-                <TimeField
-                  label="BTC Time"
-                  value={
-                    billingReportData[tableMeta.rowIndex].BTC === null ||
-                    billingReportData[tableMeta.rowIndex].BTC === 0
-                      ? dayjs("0000-00-00T00:00:00")
-                      : dayjs(`0000-00-00T${value}`)
-                  }
-                  onChange={(newValue: any) => {
-                    setBiliingReportData((prevData: any) =>
-                      prevData.map((data: any, index: number) =>
-                        index === tableMeta.rowIndex
-                          ? {
-                              ...data,
-                              BTC:
-                                newValue !== null
-                                  ? `${
-                                      isNaN(newValue.$H) ? "00" : newValue.$H
-                                    }:${
-                                      isNaN(newValue.$m) ? "00" : newValue.$m
-                                    }:${
-                                      isNaN(newValue.$s) ? "00" : newValue.$s
-                                    }`
-                                  : // `${newValue.$H}:${newValue.$m}:${newValue.$s}`
-                                    "00:00:00",
-                            }
-                          : { ...data }
-                      )
-                    );
-                    handleBTCData(
-                      newValue,
-                      billingReportData[tableMeta.rowIndex].WorkItemId
-                    );
-                  }}
-                  format="HH:mm:ss"
-                  variant="standard"
-                />
-              ) : (
-                <TextField
-                  disabled
-                  label="BTC Time"
-                  placeholder="00:00:00"
-                  variant="standard"
-                  fullWidth
-                  value={value === null || value === 0 ? "00:00:00" : value}
-                />
-              )}
-            </LocalizationProvider>
+            <BTCField
+              billingReportData={billingReportData}
+              setBiliingReportData={setBiliingReportData}
+              handleBTCData={handleBTCData}
+              value={value}
+              tableMeta={tableMeta}
+            />
           );
         },
       },
     },
   ];
 
-  return (
+  return loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={columns}
@@ -645,6 +599,10 @@ const BillingReport = ({
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
+  ) : (
+    <div className="h-screen w-full flex justify-center my-[20%]">
+      <CircularProgress />
+    </div>
   );
 };
 

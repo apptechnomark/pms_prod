@@ -5,7 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateCustomFormatDate,
   generatePriorityWithColor,
@@ -139,7 +139,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -150,7 +150,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -161,7 +161,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Type of Work"),
+        customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -172,7 +172,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Type of Return"),
+        customHeadLabelRender: () => generateCustomHeaderName("Type of Return"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -183,7 +183,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Return Type"),
+        customHeadLabelRender: () => generateCustomHeaderName("Return Type"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -195,7 +195,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Status"),
+        customHeadLabelRender: () => generateCustomHeaderName("Status"),
         customBodyRender: (value: any, tableMeta: any) =>
           generateStatusWithColor(value, tableMeta.rowData[11]),
       },
@@ -205,7 +205,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Priority"),
+        customHeadLabelRender: () => generateCustomHeaderName("Priority"),
         customBodyRender: (value: any) => generatePriorityWithColor(value),
       },
     },
@@ -214,7 +214,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -225,7 +225,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("End Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("End Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -236,7 +236,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Due Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -248,7 +248,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Assigned To"),
+        customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },

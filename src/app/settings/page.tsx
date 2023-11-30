@@ -4,7 +4,6 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Button, Select, Text, Toast, Tooltip, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
-import ImportIcon from "@/assets/icons/ImportIcon";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
 import User from "@/components/settings/tables/User";
@@ -362,50 +361,51 @@ const Page = () => {
     }
   };
 
+  const saveRole = async (e: any) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.pms_api_url}/Role/Delete`,
+        {
+          RoleId: e,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          getPermissionDropdown();
+          Toast.success(`Role has been deleted successfully!`);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            Toast.error("Please try again later.");
+          } else {
+            Toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          Toast.error("Failed Please try again.");
+        } else {
+          Toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleProjectDelete = (e: any) => {
     if (e > 0) {
-      const saveRole = async () => {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.pms_api_url}/Role/Delete`,
-            {
-              RoleId: e,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              getPermissionDropdown();
-              Toast.success(`Role has been deleted successfully!`);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                Toast.error("Please try again later.");
-              } else {
-                Toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              Toast.error("Failed Please try again.");
-            } else {
-              Toast.error(data);
-            }
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
-      saveRole();
+      saveRole(e);
     }
   };
 

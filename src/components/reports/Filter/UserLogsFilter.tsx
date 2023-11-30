@@ -100,14 +100,23 @@ const UserLogsFilter = ({
 
   const getFormattedDate = (newValue: any) => {
     if (newValue !== "") {
-      const formattedDate = `${newValue.$y}-${
+      const year = newValue.$y;
+      const month =
         (newValue.$M + 1).toString().length > 1
           ? newValue.$M + 1
-          : `0${newValue.$M + 1}`
-      }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+          : `0${newValue.$M + 1}`;
+      const date =
+        newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`;
+      const formattedDate = year + "-" + month + "-" + date;
 
       return formattedDate;
     }
+  };
+
+  const getLoggedInFilterValue = () => {
+    if (isloggedIn === isLoggedIn) return 1;
+    if (isloggedIn === isLoggedOut) return 0;
+    return null;
   };
 
   const handleFilterApply = () => {
@@ -120,8 +129,7 @@ const UserLogsFilter = ({
         dateFilter === null || dateFilter.toString().trim().length <= 0
           ? null
           : getFormattedDate(dateFilter),
-      isLoggedInFilter:
-        isloggedIn === isLoggedIn ? 1 : isloggedIn === isLoggedOut ? 0 : null,
+      isLoggedInFilter: getLoggedInFilterValue(),
     });
 
     onDialogClose(false);
@@ -163,12 +171,7 @@ const UserLogsFilter = ({
               Department: dept === 0 ? null : dept,
               dateFilter:
                 dateFilter === null || dateFilter === "" ? null : dateFilter,
-              isLoggedInFilter:
-                isloggedIn === isLoggedIn
-                  ? 1
-                  : isloggedIn === isLoggedOut
-                  ? 0
-                  : null,
+              isLoggedInFilter: getLoggedInFilterValue(),
             },
             type: user,
           },
@@ -226,7 +229,6 @@ const UserLogsFilter = ({
   }, [dept, userNames, dateFilter, isloggedIn]);
 
   useEffect(() => {
-    // handleFilterApply();
     const userDropdowns = async () => {
       setDeptDropdown(await getDeptData());
       setUserDropdown(await getUserData());
@@ -392,7 +394,7 @@ const UserLogsFilter = ({
               return (
                 <>
                   <div
-                    key={index}
+                    key={i.FilterId}
                     className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
                   >
                     <span
@@ -401,7 +403,6 @@ const UserLogsFilter = ({
                         setCurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleSavedFilterApply(index);
-                        // setFilterApplied(true);
                       }}
                     >
                       {i.Name}
@@ -450,24 +451,6 @@ const UserLogsFilter = ({
           <DialogContent>
             <div className="flex flex-col gap-[20px] pt-[15px]">
               <div className="flex gap-[20px]">
-                {/* <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
-                >
-                  <Autocomplete
-                    multiple
-                    labelId="billingType"
-                    id="billingType"
-                    value={userNames}
-                    onChange={handleUserNames}
-                  >
-                    {userDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl> */}
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, mt: 0.5, minWidth: 210 }}
@@ -503,7 +486,7 @@ const UserLogsFilter = ({
                     onChange={(e) => setDept(e.target.value)}
                   >
                     {deptDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}

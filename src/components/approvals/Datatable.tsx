@@ -46,11 +46,12 @@ import ClockIcon from "@/assets/icons/ClockIcon";
 import Comments from "@/assets/icons/worklogs/Comments";
 import Assignee from "@/assets/icons/worklogs/Assignee";
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateCustomFormatDate,
   generatePriorityWithColor,
   generateStatusWithColor,
+  generateParentProcessBodyRender,
 } from "@/utils/datatable/CommonFunction";
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
@@ -109,6 +110,7 @@ const initialFilter = {
   endDate: null,
   StatusId: 6,
   ProcessId: null,
+  IsDownload: false,
 };
 
 const Datatable = ({
@@ -276,52 +278,51 @@ const Datatable = ({
   };
 
   // API for get Assignee with all conditions
+  const getAssignee = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.api_url}/user/GetAssigneeUserDropdown`,
+        {
+          ClientIds: selectedRowClientId,
+          WorktypeId: selectedRowWorkTypeId[0],
+          IsAll: selectedRowClientId.length > 0 ? true : false,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setAssignee(response.data.ResponseData);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Error duplicating task.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Error duplicating task.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     if (selectedRowClientId.length > 0 && selectedRowWorkTypeId.length > 0) {
-      const getAssignee = async () => {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.api_url}/user/GetAssigneeUserDropdown`,
-            {
-              ClientIds: selectedRowClientId,
-              WorktypeId: selectedRowWorkTypeId[0],
-              IsAll: selectedRowClientId.length > 0 ? true : false,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              setAssignee(response.data.ResponseData);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Error duplicating task.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Error duplicating task.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
-
-      // calling function
       getAssignee();
     }
   }, [selectedRowClientId, selectedRowWorkTypeId]);
@@ -373,57 +374,6 @@ const Datatable = ({
       console.error(error);
     }
   };
-
-  // API for get Assignee with all conditions
-  useEffect(() => {
-    if (selectedRowClientId.length > 0 && selectedRowWorkTypeId.length > 0) {
-      const getAssignee = async () => {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.api_url}/user/GetReviewerDropdown`,
-            {
-              ClientIds: selectedRowClientId,
-              WorktypeId: selectedRowWorkTypeId[0],
-              IsAll: selectedRowClientId.length > 0 ? true : false,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              setReviewer(response.data.ResponseData);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Error duplicating task.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Error duplicating task.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
-
-      // calling function
-      getAssignee();
-    }
-  }, [selectedRowClientId, selectedRowWorkTypeId]);
 
   // API for update Assignee
   const updateReviewer = async (id: number[], reviewerId: number) => {
@@ -1065,6 +1015,14 @@ const Datatable = ({
     getAllStatus();
   }, []);
 
+  const generateManualTimeBodyRender = (bodyValue: any) => {
+    return <div>{bodyValue ? formatTime(bodyValue) : "00:00:00"}</div>;
+  };
+
+  const generateIsManualBodyRender = (bodyValue: any) => {
+    return <div>{bodyValue === true ? "Yes" : "No"}</div>;
+  };
+
   // Table columns
   const columns = [
     {
@@ -1072,7 +1030,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task ID"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1083,7 +1041,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Employees"),
+        customHeadLabelRender: () => generateCustomHeaderName("Employees"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1095,7 +1053,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         // display: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1106,7 +1064,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Designation"),
+        customHeadLabelRender: () => generateCustomHeaderName("Designation"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1117,7 +1075,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Est. Hours"),
+        customHeadLabelRender: () => generateCustomHeaderName("Est. Hours"),
         // converting time (Seconnds) into HH:MM:SS
         customBodyRender: (value: any) => {
           return <div>{value ? formatTime(value) : "00:00:00"}</div>;
@@ -1129,7 +1087,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Total Hrs"),
+        customHeadLabelRender: () => generateCustomHeaderName("Total Hrs"),
         // converting time (Seconnds) into HH:MM:SS
         customBodyRender: (value: any) => {
           return <div>{value ? formatTime(value) : "00:00:00"}</div>;
@@ -1142,7 +1100,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Review Timer"),
+        customHeadLabelRender: () => generateCustomHeaderName("Review Timer"),
         customBodyRender: (value: any, tableMeta: any) => {
           const timerValue =
             value === 0 ? "00:00:00" : toHoursAndMinutes(value);
@@ -1263,7 +1221,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Assigned To"),
+        customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1275,7 +1233,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Priority"),
+        customHeadLabelRender: () => generateCustomHeaderName("Priority"),
         customBodyRender: (value: any) => generatePriorityWithColor(value),
       },
     },
@@ -1294,7 +1252,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Status"),
+        customHeadLabelRender: () => generateCustomHeaderName("Status"),
         customBodyRender: (value: any, tableMeta: any) =>
           generateStatusWithColor(value, tableMeta.rowData[9]),
       },
@@ -1304,7 +1262,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Client"),
+        customHeadLabelRender: () => generateCustomHeaderName("Client"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1315,7 +1273,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1326,20 +1284,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Process"),
+        customHeadLabelRender: () => generateCustomHeaderName("Process"),
         customBodyRender: (value: any) => {
-          const shortProcessName = value && value.split(" ");
-          return (
-            <div className="font-semibold">
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <ColorToolTip title={value} placement="top">
-                  {shortProcessName[0]}
-                </ColorToolTip>
-              )}
-            </div>
-          );
+          return generateParentProcessBodyRender(value);
         },
       },
     },
@@ -1348,7 +1295,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Sub-Process"),
+        customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1359,7 +1306,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -1370,7 +1317,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("End Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("End Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -1381,7 +1328,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Qty."),
+        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1392,9 +1339,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Edited Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Edited Time"),
         customBodyRender: (value: any) => {
-          return <div>{value ? formatTime(value) : "00:00:00"}</div>;
+          return generateManualTimeBodyRender(value);
         },
       },
     },
@@ -1403,9 +1350,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Is Manual"),
+        customHeadLabelRender: () => generateCustomHeaderName("Is Manual"),
         customBodyRender: (value: any) => {
-          return <div>{value === true ? "Yes" : "No"}</div>;
+          return generateIsManualBodyRender(value);
         },
       },
     },
@@ -1415,7 +1362,7 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Manager"),
+        customHeadLabelRender: () => generateCustomHeaderName("Manager"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },

@@ -1,6 +1,19 @@
+import styled from "@emotion/styled";
+import { Tooltip, TooltipProps, tooltipClasses } from "@mui/material";
 import React from "react";
 
-export const genrateCustomHeaderName = (headerName: string) => {
+const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} arrow classes={{ popper: className }} />
+))(() => ({
+  [`& .${tooltipClasses.arrow}`]: {
+    color: "#0281B9",
+  },
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: "#0281B9",
+  },
+}));
+
+export const generateCustomHeaderName = (headerName: string) => {
   return <span className="font-extrabold capitalize">{headerName}</span>;
 };
 
@@ -10,6 +23,10 @@ export const generateCommonBodyRender = (bodyValue: any) => {
       {!bodyValue || bodyValue === "0" ? "-" : bodyValue}
     </div>
   );
+};
+
+export const generateDashboardReportBodyRender = (bodyValue: any) => {
+  return <div className="ml-2">{bodyValue === "" ? "-" : bodyValue}</div>;
 };
 
 export const generateCustomFormatDate = (
@@ -114,6 +131,42 @@ export const generateDateWithTime = (value: any) => {
           {value.split("T")[1]}
         </>
       )}
+    </div>
+  );
+};
+
+export const generateBillingStatusBodyRender = (bodyValue: any) => {
+  return (
+    <div className="ml-2">
+      {bodyValue === null || bodyValue === ""
+        ? "-"
+        : bodyValue === true
+        ? "Active"
+        : "Inactive"}
+    </div>
+  );
+};
+
+export const generateParentProcessBodyRender = (bodyValue: any) => {
+  const shortProcessName = bodyValue && bodyValue.split(" ");
+  return (
+    <div className="font-semibold">
+      {bodyValue === null || bodyValue === "" ? (
+        "-"
+      ) : (
+        <ColorToolTip title={bodyValue} placement="top">
+          {shortProcessName[0]}
+        </ColorToolTip>
+      )}
+    </div>
+  );
+};
+
+export const generateDaysBodyRender = (bodyValue: any) => {
+  return (
+    <div className="ml-2">
+      {bodyValue === null || bodyValue === "" ? "-" : bodyValue}&nbsp;
+      {bodyValue > 1 ? "days" : "day"}
     </div>
   );
 };

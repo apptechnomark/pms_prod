@@ -177,37 +177,28 @@ const Page = () => {
     }
   }, [router]);
 
-  useEffect(() => {
-    const getProjects = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      const ClientId = await localStorage.getItem("clientId");
-      try {
-        const response = await axios.post(
-          `${process.env.pms_api_url}/project/getdropdown`,
-          {
-            clientId: ClientId,
-            isAll: true,
+  const getProjects = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    const ClientId = await localStorage.getItem("clientId");
+    try {
+      const response = await axios.post(
+        `${process.env.pms_api_url}/project/getdropdown`,
+        {
+          clientId: ClientId,
+          isAll: true,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        }
+      );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setProjects(response.data.ResponseData.List);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setProjects(response.data.ResponseData.List);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -216,104 +207,109 @@ const Page = () => {
             toast.error(data);
           }
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
       }
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    // calling function
-    getProjects();
-  }, []);
-
-  useEffect(() => {
-    const getWorkTypes = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      const ClientId = await localStorage.getItem("clientId");
-      try {
-        const response = await axios.post(
-          `${process.env.pms_api_url}/WorkType/GetDropdown`,
-          {
-            clientId: ClientId,
+  const getWorkTypes = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    const ClientId = await localStorage.getItem("clientId");
+    try {
+      const response = await axios.post(
+        `${process.env.pms_api_url}/WorkType/GetDropdown`,
+        {
+          clientId: ClientId,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        }
+      );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setWorkTypeData(response.data.ResponseData);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setWorkTypeData(response.data.ResponseData);
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Please try again.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
       }
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
+    getProjects();
     getWorkTypes();
   }, []);
 
-  useEffect(() => {
-    const getProjectSummary = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/clientdashboard/summarybyproject`,
-          {
-            projectIds: currentProjectId,
-            typeOfWork: workType === 0 ? null : workType,
+  const getProjectSummary = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/clientdashboard/summarybyproject`,
+        {
+          projectIds: currentProjectId,
+          typeOfWork: workType === 0 ? null : workType,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        }
+      );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setProjectSummary(response.data.ResponseData);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setProjectSummary(response.data.ResponseData);
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Please try again.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
       }
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
     getProjectSummary();
   }, [currentProjectId, workType]);
 

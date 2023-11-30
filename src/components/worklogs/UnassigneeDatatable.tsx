@@ -23,7 +23,7 @@ import RecurringIcon from "@/assets/icons/worklogs/RecurringIcon";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateCustomFormatDate,
   generatePriorityWithColor,
@@ -32,6 +32,7 @@ import {
 import {
   getClientDropdownData,
   getManagerDropdownData,
+  getProjectDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import ClientIcon from "@/assets/icons/worklogs/ClientIcon";
 import ProjectIcon from "@/assets/icons/worklogs/ProjectIcon";
@@ -41,6 +42,7 @@ import DateIcon from "@/assets/icons/worklogs/DateIcon";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import ProcessIcon from "@/assets/icons/worklogs/ProcessIcon";
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -118,11 +120,13 @@ const UnassigneeDatatable = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [clientSearchQuery, setClientSearchQuery] = useState("");
   const [managerSearchQuery, setManagerSearchQuery] = useState("");
+  const [projectSearchQuery, setprojectSearchQuery] = useState("");
   const [processSearchQuery, setprocessSearchQuery] = useState("");
   const [workItemData, setWorkItemData] = useState<any | any[]>([]);
   const [selectedRowIds, setSelectedRowIds] = useState<any | number[]>([]);
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [managerDropdownData, setManagerDropdownData] = useState([]);
+  const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [processDropdownData, setProcessDropdownData] = useState([]);
   const [selectedRowStatusName, setSelectedRowStatusName] = useState<
     any | string[]
@@ -178,6 +182,8 @@ const UnassigneeDatatable = ({
     React.useState<HTMLButtonElement | null>(null);
   const [anchorElClient, setAnchorElClient] =
     React.useState<HTMLButtonElement | null>(null);
+  const [anchorElProject, setAnchorElProject] =
+    React.useState<HTMLButtonElement | null>(null);
   const [anchorElProcess, setAnchorElProcess] =
     React.useState<HTMLButtonElement | null>(null);
   const [anchorElReturnYear, setAnchorElReturnYear] =
@@ -218,6 +224,14 @@ const UnassigneeDatatable = ({
 
   const handleCloseClient = () => {
     setAnchorElClient(null);
+  };
+
+  const handleClickProject = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElProject(event.currentTarget);
+  };
+
+  const handleCloseProject = () => {
+    setAnchorElProject(null);
   };
 
   const handleClickProcess = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -269,6 +283,9 @@ const UnassigneeDatatable = ({
   const openClient = Boolean(anchorElClient);
   const idClient = openClient ? "simple-popover" : undefined;
 
+  const openProject = Boolean(anchorElProject);
+  const idProject = openProject ? "simple-popover" : undefined;
+
   const openProcess = Boolean(anchorElProcess);
   const idProcess = openProcess ? "simple-popover" : undefined;
 
@@ -297,6 +314,10 @@ const UnassigneeDatatable = ({
     setManagerSearchQuery(event.target.value);
   };
 
+  const handleProjectSearchChange = (event: any) => {
+    setprojectSearchQuery(event.target.value);
+  };
+
   const handleProcessSearchChange = (event: any) => {
     setprocessSearchQuery(event.target.value);
   };
@@ -307,6 +328,10 @@ const UnassigneeDatatable = ({
 
   const filteredManager = managerDropdownData?.filter((manager: any) =>
     manager.label.toLowerCase().includes(managerSearchQuery.toLowerCase())
+  );
+
+  const filteredProject = projectDropdownData?.filter((project: any) =>
+    project.label.toLowerCase().includes(projectSearchQuery.toLowerCase())
   );
 
   const filteredProcess = processDropdownData?.filter((process: any) =>
@@ -341,6 +366,11 @@ const UnassigneeDatatable = ({
   const handleOptionClient = (id: any) => {
     updateClient(selectedRowIds, id);
     handleCloseClient();
+  };
+
+  const handleOptionProject = (id: any) => {
+    updateProject(selectedRowIds, id);
+    handleCloseProject();
   };
 
   const handleOptionProcess = (id: any) => {
@@ -909,7 +939,43 @@ const UnassigneeDatatable = ({
       console.error(error);
     }
   };
+
   useEffect(() => {
+    const getData = async (clientName: any) => {
+      clientName > 0 &&
+        setProjectDropdownData(await getProjectDropdownData(clientName));
+    };
+    if (
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId > 0 &&
+          i.ProjectId === 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length > 0 &&
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length <= 0 &&
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId > 0 &&
+          i.ProjectId !== 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length <= 0 &&
+      Array.from(new Set(selectedRowClientId)).length === 1
+    ) {
+      getData(Array.from(new Set(selectedRowClientId))[0]);
+    }
+
     if (
       workItemData
         .map((i: any) =>
@@ -940,6 +1006,51 @@ const UnassigneeDatatable = ({
       getProcessData(selectedRowClientId);
     }
   }, [selectedRowClientId]);
+
+  // API for update Process
+  const updateProject = async (id: number[], processId: number) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/bulkupdateworkitemproject`,
+        {
+          workitemIds: id,
+          ProjectId: processId,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Project has been updated successfully.");
+          handleClearSelection();
+          getWorkItemList();
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Something went wrong, Please try again later..");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Something went wrong, Please try again later..");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // API for update Process
   const updateProcess = async (id: number[], processId: number) => {
@@ -1163,7 +1274,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task ID"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1174,7 +1285,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Client"),
+        customHeadLabelRender: () => generateCustomHeaderName("Client"),
         customBodyRender: (value: any, tableMeta: any) => {
           const IsHasErrorlog = tableMeta.rowData[18];
           return (
@@ -1197,7 +1308,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
           return (
             <div className="flex items-center gap-2">
@@ -1213,7 +1324,7 @@ const UnassigneeDatatable = ({
         filter: true,
         sort: true,
         // viewColumns: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task"),
         customBodyRender: (value: any, tableMeta: any) => {
           const IsRecurring = tableMeta.rowData[19];
           return (
@@ -1240,7 +1351,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Process"),
+        customHeadLabelRender: () => generateCustomHeaderName("Process"),
         customBodyRender: (value: any) => {
           const shortProcessName = value.split(" ");
           return (
@@ -1258,7 +1369,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Sub-Process"),
+        customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1275,7 +1386,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Assigned To"),
+        customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
         customBodyRender: (value: any) => {
           return (
             <div>
@@ -1292,7 +1403,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Priority"),
+        customHeadLabelRender: () => generateCustomHeaderName("Priority"),
         customBodyRender: (value: any) => generatePriorityWithColor(value),
       },
     },
@@ -1309,7 +1420,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Status"),
+        customHeadLabelRender: () => generateCustomHeaderName("Status"),
         customBodyRender: (value: any, tableMeta: any) =>
           generateStatusWithColor(value, tableMeta.rowData[9]),
       },
@@ -1320,7 +1431,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Est. Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Est. Time"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1331,7 +1442,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Qty."),
+        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1342,7 +1453,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Actual Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Actual Time"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1353,7 +1464,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Total Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1364,7 +1475,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -1375,7 +1486,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("End Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("End Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -1386,7 +1497,7 @@ const UnassigneeDatatable = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Assigned By"),
+        customHeadLabelRender: () => generateCustomHeaderName("Assigned By"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1841,6 +1952,112 @@ const UnassigneeDatatable = ({
                   </nav>
                 </Popover>
 
+                {/* Change Project */}
+                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      i.ClientId > 0 &&
+                      i.ProjectId === 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length > 0 &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length <= 0 &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      i.ClientId > 0 &&
+                      i.ProjectId !== 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length <= 0 &&
+                  Array.from(new Set(selectedRowClientId)).length === 1 && (
+                    <ColorToolTip title="Project" arrow>
+                      <span
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                        aria-describedby={idProject}
+                        onClick={handleClickProject}
+                      >
+                        <ProjectIcon />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
+                {/* Process Popover */}
+                <Popover
+                  id={idProject}
+                  open={openProject}
+                  anchorEl={anchorElProject}
+                  onClose={handleCloseProject}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                >
+                  <nav className="!w-52">
+                    <div className="mr-4 ml-4 mt-4">
+                      <div
+                        className="flex items-center h-10 rounded-md pl-2 flex-row"
+                        style={{
+                          border: "1px solid lightgray",
+                        }}
+                      >
+                        <span className="mr-2">
+                          <SearchIcon />
+                        </span>
+                        <span>
+                          <InputBase
+                            placeholder="Search"
+                            inputProps={{ "aria-label": "search" }}
+                            value={projectSearchQuery}
+                            onChange={handleProjectSearchChange}
+                            style={{ fontSize: "13px" }}
+                          />
+                        </span>
+                      </div>
+                    </div>
+                    <List>
+                      {projectDropdownData.length === 0 ? (
+                        <span className="flex flex-col py-2 px-4  text-sm">
+                          No Data Available
+                        </span>
+                      ) : (
+                        filteredProject.map((project: any, index: any) => {
+                          return (
+                            <span
+                              key={index}
+                              className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                            >
+                              <span
+                                className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
+                                onClick={() =>
+                                  handleOptionProject(project.value)
+                                }
+                              >
+                                <span className="pt-[0.8px]">
+                                  {project.label}
+                                </span>
+                              </span>
+                            </span>
+                          );
+                        })
+                      )}
+                    </List>
+                  </nav>
+                </Popover>
+
                 {/* Change Process */}
                 {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
                   workItemData
@@ -1874,7 +2091,7 @@ const UnassigneeDatatable = ({
                         aria-describedby={idProcess}
                         onClick={handleClickProcess}
                       >
-                        <ProjectIcon />
+                        <ProcessIcon />
                       </span>
                     </ColorToolTip>
                   )}

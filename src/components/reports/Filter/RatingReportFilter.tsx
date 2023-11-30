@@ -435,7 +435,7 @@ const RatingReportFilter = ({
               return (
                 <>
                   <div
-                    key={index}
+                    key={i.FilterId}
                     className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
                   >
                     <span
@@ -496,20 +496,6 @@ const RatingReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  {/* <InputLabel id="client_Name">Client Name</InputLabel>
-                  <Select
-                    // multiple
-                    labelId="client_Name"
-                    id="client_Name"
-                    value={clientName === 0 ? "" : clientName}
-                    onChange={(e) => setClientName(e.target.value)}
-                  >
-                    {clientDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select> */}
                   <Autocomplete
                     multiple
                     id="tags-standard"
@@ -546,7 +532,7 @@ const RatingReportFilter = ({
                     disabled={clientName.length > 1}
                   >
                     {projectDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}

@@ -31,50 +31,51 @@ const Page = () => {
     }
   }, [router]);
 
-  useEffect(() => {
-    const checkToken = async () => {
-      setShowPass(true);
-      const token = await Token.get("token");
-      try {
-        const response = await axios.post(
-          `${process.env.api_url}/auth/validatetoken`,
-          {
-            Token: `${token}`,
-            TokenType: 3,
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setShowPass(false);
-          } else {
-            setMessage(false);
-            const data = response.data.Message;
-            if (data === null && response.data.ErrorData.ErrorCode === "1003") {
-              Toast.error("Invalid link.");
-              router.push("/login");
-            } else if (
-              data === null &&
-              response.data.ErrorData.ErrorCode === "1004"
-            ) {
-              Toast.error("Link has been Expired.");
-              router.push("/login");
-            } else {
-              router.push("/login");
-            }
-            setShowPass(true);
-          }
-        } else {
-          setShowPass(true);
-          setMessage(true);
-          Toast.error("Please try again.");
+  const checkToken = async () => {
+    setShowPass(true);
+    const token = await Token.get("token");
+    try {
+      const response = await axios.post(
+        `${process.env.api_url}/auth/validatetoken`,
+        {
+          Token: `${token}`,
+          TokenType: 3,
         }
-      } catch (error) {
-        setMessage(true);
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setShowPass(false);
+        } else {
+          setMessage(false);
+          const data = response.data.Message;
+          if (data === null && response.data.ErrorData.ErrorCode === "1003") {
+            Toast.error("Invalid link.");
+            router.push("/login");
+          } else if (
+            data === null &&
+            response.data.ErrorData.ErrorCode === "1004"
+          ) {
+            Toast.error("Link has been Expired.");
+            router.push("/login");
+          } else {
+            router.push("/login");
+          }
+          setShowPass(true);
+        }
+      } else {
         setShowPass(true);
-        console.error(error);
+        setMessage(true);
+        Toast.error("Please try again.");
       }
-    };
+    } catch (error) {
+      setMessage(true);
+      setShowPass(true);
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
     checkToken();
   }, [Token]);
 

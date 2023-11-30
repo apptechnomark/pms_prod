@@ -5,9 +5,10 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateCustomFormatDate,
+  generateDaysBodyRender,
 } from "@/utils/datatable/CommonFunction";
 
 interface OnHoldProps {
@@ -114,42 +115,33 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
     };
   }, []);
 
-  useEffect(() => {
-    const getData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/clientdashboard/tasklistbyproject`,
-          {
-            PageNo: page + 1,
-            PageSize: rowsPerPage,
-            SortColumn: null,
-            IsDesc: true,
-            projectIds: onSelectedProjectIds,
-            typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-            onHold: true,
+  const getData = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/clientdashboard/tasklistbyproject`,
+        {
+          PageNo: page + 1,
+          PageSize: rowsPerPage,
+          SortColumn: null,
+          IsDesc: true,
+          projectIds: onSelectedProjectIds,
+          typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+          onHold: true,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        }
+      );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setData(response.data.ResponseData.List);
-            setTableDataCount(response.data.ResponseData.TotalCount);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setData(response.data.ResponseData.List);
+          setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -158,12 +150,20 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
             toast.error(data);
           }
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
       }
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    // calling function
+  useEffect(() => {
     getData();
   }, [onSelectedProjectIds, onSelectedWorkType, page, rowsPerPage]);
 
@@ -174,7 +174,7 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -185,7 +185,7 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -196,7 +196,7 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -207,7 +207,7 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Due Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -218,14 +218,9 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Due From"),
+        customHeadLabelRender: () => generateCustomHeaderName("Due From"),
         customBodyRender: (value: any) => {
-          return (
-            <div className="ml-2">
-              {value === null || value === "" ? "-" : value}&nbsp;
-              {value > 1 ? "days" : "day"}
-            </div>
-          );
+          return generateDaysBodyRender(value);
         },
       },
     },

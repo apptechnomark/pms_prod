@@ -48,6 +48,10 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import MUIDataTable from "mui-datatables";
 import TablePagination from "@mui/material/TablePagination";
 import { getClientDropdownData } from "@/utils/commonDropdownApiCall";
+import {
+  generateCustomHeaderName,
+  generateDashboardReportBodyRender,
+} from "@/utils/datatable/CommonFunction";
 
 const getMuiTheme = () =>
   createTheme({
@@ -156,48 +160,48 @@ const Page = () => {
     }
   }, [router]);
 
-  // API for Worktype data
-  useEffect(() => {
-    const getReportData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/dashboard/dashboardclientsummary`,
-          filteredObject,
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+  const getReportData = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/dashboard/dashboardclientsummary`,
+        filteredObject,
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setReportData(response.data.ResponseData.ClientSummary);
-            setTableDataCount(response.data.ResponseData.TotalCount);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setReportData(response.data.ResponseData.ClientSummary);
+          setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Please try again.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
       }
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  // API for Report data
+  useEffect(() => {
     const getData = async () => {
       setClientDropdownData(await getClientDropdownData());
     };
@@ -206,49 +210,49 @@ const Page = () => {
     isReportClicked && getData();
   }, [isDashboardClicked, isReportClicked, filteredObject]);
 
-  // API for Dashboard Summary
-  useEffect(() => {
-    const getProjectSummary = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/dashboard/summary`,
-          {
-            WorkTypeId: null,
+  const getProjectSummary = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/dashboard/summary`,
+        {
+          WorkTypeId: null,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        }
+      );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setDashboardSummary(response.data.ResponseData);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setDashboardSummary(response.data.ResponseData);
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Please try again.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
       }
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  // API for Dashboard Summary
+  useEffect(() => {
     getProjectSummary();
   }, []);
 
@@ -289,18 +293,16 @@ const Page = () => {
   };
 
   // Report Table Columns
-  const columns = [
+  const columns: any = [
     {
       name: "ClientName",
       options: {
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Client Name</span>
-        ),
+        customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateDashboardReportBodyRender(value);
         },
       },
     },
@@ -310,11 +312,9 @@ const Page = () => {
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Accept</span>
-        ),
+        customHeadLabelRender: () => generateCustomHeaderName("Accept"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateDashboardReportBodyRender(value);
         },
       },
     },
@@ -324,11 +324,10 @@ const Page = () => {
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Accept With Notes</span>
-        ),
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Accept With Notes"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateDashboardReportBodyRender(value);
         },
       },
     },
@@ -338,11 +337,9 @@ const Page = () => {
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Errorlogs</span>
-        ),
+        customHeadLabelRender: () => generateCustomHeaderName("Errorlogs"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateDashboardReportBodyRender(value);
         },
       },
     },
@@ -352,11 +349,9 @@ const Page = () => {
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">In Progress</span>
-        ),
+        customHeadLabelRender: () => generateCustomHeaderName("In Progress"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateDashboardReportBodyRender(value);
         },
       },
     },
@@ -366,11 +361,9 @@ const Page = () => {
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">In Review</span>
-        ),
+        customHeadLabelRender: () => generateCustomHeaderName("In Review"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateDashboardReportBodyRender(value);
         },
       },
     },
@@ -380,11 +373,9 @@ const Page = () => {
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Not Started</span>
-        ),
+        customHeadLabelRender: () => generateCustomHeaderName("Not Started"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateDashboardReportBodyRender(value);
         },
       },
     },
@@ -394,11 +385,10 @@ const Page = () => {
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">On Hold From Client</span>
-        ),
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("On Hold From Client"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateDashboardReportBodyRender(value);
         },
       },
     },
@@ -408,11 +398,10 @@ const Page = () => {
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Partial Submitted</span>
-        ),
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Partial Submitted"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateDashboardReportBodyRender(value);
         },
       },
     },
@@ -422,11 +411,9 @@ const Page = () => {
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Rework</span>
-        ),
+        customHeadLabelRender: () => generateCustomHeaderName("Rework"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateDashboardReportBodyRender(value);
         },
       },
     },
@@ -436,11 +423,9 @@ const Page = () => {
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Signed Off</span>
-        ),
+        customHeadLabelRender: () => generateCustomHeaderName("Signed Off"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateDashboardReportBodyRender(value);
         },
       },
     },
@@ -450,11 +435,9 @@ const Page = () => {
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Stop</span>
-        ),
+        customHeadLabelRender: () => generateCustomHeaderName("Stop"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateDashboardReportBodyRender(value);
         },
       },
     },
@@ -464,11 +447,9 @@ const Page = () => {
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">WithDraw</span>
-        ),
+        customHeadLabelRender: () => generateCustomHeaderName("WithDraw"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateDashboardReportBodyRender(value);
         },
       },
     },
@@ -478,11 +459,9 @@ const Page = () => {
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm">Total</span>
-        ),
+        customHeadLabelRender: () => generateCustomHeaderName("Total"),
         customBodyRender: (value: any) => {
-          return <div>{value === null || value === "" ? "-" : value}</div>;
+          return generateDashboardReportBodyRender(value);
         },
       },
     },

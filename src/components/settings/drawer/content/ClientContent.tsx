@@ -76,59 +76,59 @@ const ClientContent = forwardRef<
 
   const [accBillingType, setAccBillingType] = useState(0);
   const [accBillingErr, setAccBillingErr] = useState(false);
-  const [accBillingHasErr, setAccBillingHasErr] = useState(false);
+  const [accBillingHasErr, setAccBillingHasErr] = useState(true);
   const [accGroup, setAccGroup] = useState([]);
   const [accGroupErr, setAccGroupErr] = useState(false);
-  const [accGroupHasErr, setAccGroupHasErr] = useState(false);
+  const [accGroupHasErr, setAccGroupHasErr] = useState(true);
   const [accLayout, setAccLayout] = useState(0);
   const [accLayoutErr, setAccLayoutErr] = useState(false);
-  const [accLayoutHasErr, setAccLayoutHasErr] = useState(false);
+  const [accLayoutHasErr, setAccLayoutHasErr] = useState(true);
   const [accContHrs, setAccContHrs] = useState<any>(0);
   const [accContHrsErr, setAccContHrsErr] = useState(false);
-  const [accContHrsHasErr, setAccContHrsHasErr] = useState(false);
+  const [accContHrsHasErr, setAccContHrsHasErr] = useState(true);
   const [accContHrsErrMsg, setAccContHrsErrMsg] = useState("");
   const [accActualHrs, setAccActHrs] = useState<any>(0);
   const [accActualHrsErr, setAccActHrsErr] = useState(false);
-  const [accActualHrsHasErr, setAccActHrsHasErr] = useState(false);
+  const [accActualHrsHasErr, setAccActHrsHasErr] = useState(true);
   const [accActualHrsErrMsg, setAccActualHrsErrMsg] = useState("");
   const [accHasError, setAccHasError] = useState(false);
 
   const [auditBillingType, setAuditBillingType] = useState(0);
   const [auditBillingErr, setAuditBillingErr] = useState(false);
-  const [auditBillingHasErr, setAuditBillingHasErr] = useState(false);
+  const [auditBillingHasErr, setAuditBillingHasErr] = useState(true);
   const [auditGroup, setAuditGroup] = useState([]);
   const [auditGroupErr, setAuditGroupErr] = useState(false);
-  const [auditGroupHasErr, setAuditGroupHasErr] = useState(false);
+  const [auditGroupHasErr, setAuditGroupHasErr] = useState(true);
   const [auditLayout, setAuditLayout] = useState(0);
   const [auditLayoutErr, setAuditLayoutErr] = useState(false);
-  const [auditLayoutHasErr, setAuditLayoutHasErr] = useState(false);
+  const [auditLayoutHasErr, setAuditLayoutHasErr] = useState(true);
   const [auditContHrs, setAuditContHrs] = useState<any>(0);
   const [auditContHrsErr, setAuditContHrsErr] = useState(false);
-  const [auditContHrsHasErr, setAuditContHrsHasErr] = useState(false);
+  const [auditContHrsHasErr, setAuditContHrsHasErr] = useState(true);
   const [auditContHrsErrMsg, setAuditContHrsErrMsg] = useState("");
   const [auditActualHrs, setAuditActHrs] = useState<any>(0);
   const [auditActualHrsErr, setAuditActHrsErr] = useState(false);
   const [auditActualHrsErrMsg, setAuditActualHrsErrMsg] = useState("");
-  const [auditActualHrsHasErr, setAuditActHrsHasErr] = useState(false);
+  const [auditActualHrsHasErr, setAuditActHrsHasErr] = useState(true);
   const [auditHasError, setAuditHasError] = useState(false);
 
   const [taxBillingType, setTaxBillingType] = useState(0);
   const [taxBillingErr, setTaxBillingErr] = useState(false);
-  const [taxBillingHasErr, setTaxBillingHasErr] = useState(false);
+  const [taxBillingHasErr, setTaxBillingHasErr] = useState(true);
   const [taxGroup, setTaxGroup] = useState([]);
   const [taxGroupErr, setTaxGroupErr] = useState(false);
-  const [taxGroupHasErr, setTaxGroupHasErr] = useState(false);
+  const [taxGroupHasErr, setTaxGroupHasErr] = useState(true);
   const [taxLayout, setTaxLayout] = useState(0);
   const [taxLayoutErr, setTaxLayoutErr] = useState(false);
-  const [taxLayoutHasErr, setTaxLayoutHasErr] = useState(false);
+  const [taxLayoutHasErr, setTaxLayoutHasErr] = useState(true);
   const [taxContHrs, setTaxContHrs] = useState<any>(0);
   const [taxContHrsErr, setTaxContHrsErr] = useState(false);
-  const [taxContHrsHasErr, setTaxContHrsHasErr] = useState(false);
+  const [taxContHrsHasErr, setTaxContHrsHasErr] = useState(true);
   const [taxContHrsErrMsg, setTaxContHrsErrMsg] = useState("");
   const [taxActualHrs, setTaxActHrs] = useState<any>(0);
   const [taxActualHrsErr, setTaxActHrsErr] = useState(false);
   const [taxActualHrsErrMsg, setTaxActualHrsErrMsg] = useState("");
-  const [taxActualHrsHasErr, setTaxActHrsHasErr] = useState(false);
+  const [taxActualHrsHasErr, setTaxActHrsHasErr] = useState(true);
   const [taxHasError, setTaxHasError] = useState(false);
 
   // Additional Field's State
@@ -207,6 +207,15 @@ const ClientContent = forwardRef<
   ) => {
     setIsAccountingOpen((prevIsOpen) => !prevIsOpen);
     setAccounting(e.target.checked);
+    e.target.checked
+      ? (setAccBillingHasErr(false),
+        setAccGroupHasErr(false),
+        setAccContHrsHasErr(false),
+        setAccActHrsHasErr(false))
+      : (setAccBillingHasErr(true),
+        setAccGroupHasErr(true),
+        setAccContHrsHasErr(true),
+        setAccActHrsHasErr(true));
     // setIsAuditOpen(false);
     // setIsTaxationOpen(false);
   };
@@ -214,6 +223,15 @@ const ClientContent = forwardRef<
   const toggleAuditAccordion = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsAuditOpen((prevIsOpen) => !prevIsOpen);
     setAudit(e.target.checked);
+    e.target.checked
+      ? (setAuditBillingHasErr(false),
+        setAuditGroupHasErr(false),
+        setAuditContHrsHasErr(false),
+        setAuditActHrsHasErr(false))
+      : (setAuditBillingHasErr(true),
+        setAuditGroupHasErr(true),
+        setAuditContHrsHasErr(true),
+        setAuditActHrsHasErr(true));
     // setIsAccountingOpen(false);
     // setIsTaxationOpen(false);
   };
@@ -221,6 +239,15 @@ const ClientContent = forwardRef<
   const toggleTaxAccordion = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsTaxOpen((prevIsOpen) => !prevIsOpen);
     setTax(e.target.checked);
+    e.target.checked
+      ? (setTaxBillingHasErr(false),
+        setTaxGroupHasErr(false),
+        setTaxContHrsHasErr(false),
+        setTaxActHrsHasErr(false))
+      : (setTaxBillingHasErr(true),
+        setTaxGroupHasErr(true),
+        setTaxContHrsHasErr(true),
+        setTaxActHrsHasErr(true));
     // setIsAccountingOpen(false);
     // setIsAuditOpen(false);
   };
@@ -747,25 +774,22 @@ const ClientContent = forwardRef<
         return false;
       }
     }
-
     const accHasError =
-      accounting &&
+      // accounting &&
       accContHrsHasErr &&
       accActualHrsHasErr &&
       accBillingHasErr &&
       accGroupHasErr;
     // && accLayoutHasErr;
-
     const auditHasError =
-      audit &&
+      // audit &&
       auditActualHrsHasErr &&
       auditContHrsHasErr &&
       auditBillingHasErr &&
       auditGroupHasErr;
     // && auditLayoutHasErr;
-
     const taxHasError =
-      tax &&
+      // tax &&
       taxActualHrsHasErr &&
       taxContHrsHasErr &&
       taxBillingHasErr &&
@@ -812,7 +836,10 @@ const ClientContent = forwardRef<
       emailHasError &&
       clientNameHasError &&
       addressHasError &&
-      (accHasError || auditHasError || taxHasError)
+      (tax || accounting || audit) &&
+      accHasError &&
+      auditHasError &&
+      taxHasError
     ) {
       saveClient();
     } else if (
@@ -877,63 +904,63 @@ const ClientContent = forwardRef<
     setIsAccountingOpen(false);
     setAccBillingType(0);
     setAccBillingErr(false);
-    setAccBillingHasErr(false);
+    // setAccBillingHasErr(false);
     setAccGroup([]);
     setAccGroupErr(false);
-    setAccGroupHasErr(false);
+    // setAccGroupHasErr(false);
     // setAccLayout(0);
     // setAccLayoutErr(false);
     // setAccLayoutHasErr(false);
     setAccContHrs(0);
     setAccContHrsErr(false);
-    setAccContHrsHasErr(false);
+    // setAccContHrsHasErr(false);
     setAccActHrs(0);
     setAccActHrsErr(false);
     setAccActualHrsErrMsg("");
     setAccContHrsErrMsg("");
-    setAccActHrsHasErr(false);
+    // setAccActHrsHasErr(false);
 
     setAuditId(0);
     setAudit(false);
     setIsAuditOpen(false);
     setAuditBillingType(0);
     setAuditBillingErr(false);
-    setAuditBillingHasErr(false);
+    // setAuditBillingHasErr(false);
     setAuditGroup([]);
     setAuditGroupErr(false);
-    setAuditGroupHasErr(false);
+    // setAuditGroupHasErr(false);
     // setAuditLayout(0);
     // setAuditLayoutErr(false);
     // setAuditLayoutHasErr(false);
     setAuditContHrs(0);
     setAuditContHrsErr(false);
-    setAuditContHrsHasErr(false);
+    // setAuditContHrsHasErr(false);
     setAuditActHrs(0);
     setAuditActHrsErr(false);
     setAuditActualHrsErrMsg("");
     setAuditContHrsErrMsg("");
-    setAuditActHrsHasErr(false);
+    // setAuditActHrsHasErr(false);
 
     setTaxId(0);
     setTax(false);
     setIsTaxOpen(false);
     setTaxBillingType(0);
     setTaxBillingErr(false);
-    setTaxBillingHasErr(false);
+    // setTaxBillingHasErr(false);
     setTaxGroup([]);
     setTaxGroupErr(false);
-    setTaxGroupHasErr(false);
+    // setTaxGroupHasErr(false);
     // setTaxLayout(0);
     // setTaxLayoutErr(false);
     // setTaxLayoutHasErr(false);
     setTaxContHrs(0);
     setTaxContHrsErr(false);
-    setTaxContHrsHasErr(false);
+    // setTaxContHrsHasErr(false);
     setTaxActHrs(0);
     setTaxActHrsErr(false);
     setTaxActualHrsErrMsg("");
     setTaxContHrsErrMsg("");
-    setTaxActHrsHasErr(false);
+    // setTaxActHrsHasErr(false);
 
     setPocFields([
       {

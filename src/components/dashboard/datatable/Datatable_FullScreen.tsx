@@ -7,13 +7,13 @@ import Datatable_OnHold from "./Datatable_OnHold";
 import Datatable_Overdue from "./Datatable_Overdue";
 import Btn_ExitFullScreen from "@/assets/icons/dashboard_Client/Btn_ExitFullScreen";
 
-interface Datatable_FullScreenProps {
+interface DatatableFullScreenProps {
   onClose: () => void;
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
 }
 
-const Datatable_FullScreen: React.FC<Datatable_FullScreenProps> = ({
+const Datatable_FullScreen: React.FC<DatatableFullScreenProps> = ({
   onClose,
   onSelectedProjectIds,
   onSelectedWorkType,

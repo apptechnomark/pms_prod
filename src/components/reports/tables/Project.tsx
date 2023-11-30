@@ -1,7 +1,12 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
-import { TablePagination, ThemeProvider, createTheme } from "@mui/material";
+import {
+  CircularProgress,
+  TablePagination,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
@@ -12,7 +17,7 @@ import { client_project_InitialFilter } from "@/utils/reports/getFilters";
 
 // common functions for datatable
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
@@ -46,6 +51,7 @@ const project_InitialFilter = {
 };
 
 const Project = ({ filteredData, searchValue }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [projectData, setProjectData] = useState<any>([]);
@@ -68,9 +74,11 @@ const Project = ({ filteredData, searchValue }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoaded(true);
           setProjectData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later.");
@@ -79,6 +87,7 @@ const Project = ({ filteredData, searchValue }: any) => {
           }
         }
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
@@ -87,6 +96,7 @@ const Project = ({ filteredData, searchValue }: any) => {
         }
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -144,7 +154,7 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -155,7 +165,7 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Client Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -166,7 +176,7 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Type of Work"),
+        customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -177,7 +187,7 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Billing Type"),
+        customHeadLabelRender: () => generateCustomHeaderName("Billing Type"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -188,7 +198,7 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Internal Hours"),
+        customHeadLabelRender: () => generateCustomHeaderName("Internal Hours"),
         customBodyRender: (value: any, tableMeta: any) => {
           return generateInitialTimer(value);
         },
@@ -199,7 +209,7 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Std. Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
         customBodyRender: (value: any, tableMeta: any) => {
           return generateInitialTimer(value);
         },
@@ -210,7 +220,7 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Edited Hours"),
+        customHeadLabelRender: () => generateCustomHeaderName("Edited Hours"),
         customBodyRender: (value: any, tableMeta: any) => {
           return generateInitialTimer(value);
         },
@@ -221,7 +231,7 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Total Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
         customBodyRender: (value: any, tableMeta: any) => {
           return generateInitialTimer(value);
         },
@@ -232,7 +242,7 @@ const Project = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Difference"),
+        customHeadLabelRender: () => generateCustomHeaderName("Difference"),
         customBodyRender: (value: any, tableMeta: any) => {
           return generateInitialTimer(value);
         },
@@ -240,7 +250,7 @@ const Project = ({ filteredData, searchValue }: any) => {
     },
   ];
 
-  return (
+  return loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={columns}
@@ -257,6 +267,10 @@ const Project = ({ filteredData, searchValue }: any) => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
+  ) : (
+    <div className="h-screen w-full flex justify-center my-[20%]">
+      <CircularProgress />
+    </div>
   );
 };
 

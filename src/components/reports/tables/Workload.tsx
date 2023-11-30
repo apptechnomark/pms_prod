@@ -2,6 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
+  CircularProgress,
   Popover,
   TablePagination,
   ThemeProvider,
@@ -24,7 +25,7 @@ import CloseIcon from "@/assets/icons/reports/CloseIcon";
 
 // common functions for datatable
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateInitialTimer,
   generateDateWithTime,
@@ -55,6 +56,7 @@ const getMuiTheme = () =>
   });
 
 const Workload = ({ filteredData, searchValue }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [workloadData, setWorkloadData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -79,21 +81,25 @@ const Workload = ({ filteredData, searchValue }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
+          setLoaded(true);
           setWorkloadData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later");
           } else toast.error(data);
         }
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later");
         } else toast.error(data);
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -122,7 +128,6 @@ const Workload = ({ filteredData, searchValue }: any) => {
   useEffect(() => {
     getData(workLoad_InitialFilter);
   }, []);
-  console.log(searchValue);
 
   useEffect(() => {
     if (filteredData !== null) {
@@ -140,7 +145,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("User Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("User Name"),
         customBodyRender: (value: any, tableMeta: any) => {
           return (
             <div
@@ -174,7 +179,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Designation"),
+        customHeadLabelRender: () => generateCustomHeaderName("Designation"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -185,7 +190,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Std. Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -196,7 +201,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Total Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -207,7 +212,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Qty."),
+        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
       },
     },
   ];
@@ -218,7 +223,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Created Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Created Date"),
         customBodyRender: (value: any) => {
           return generateDateWithoutTime(value);
         },
@@ -229,7 +234,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Client Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -240,7 +245,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -251,7 +256,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task/Process"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task/Process"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -262,7 +267,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Est. Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Est. Time"),
         customBodyRender: (value: any) => {
           return (
             <div>{value === null || value === "" ? "00:00:00" : value}</div>
@@ -272,7 +277,7 @@ const Workload = ({ filteredData, searchValue }: any) => {
     },
   ];
 
-  return (
+  return loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title={undefined}
@@ -358,6 +363,10 @@ const Workload = ({ filteredData, searchValue }: any) => {
         />
       </Popover>
     </ThemeProvider>
+  ) : (
+    <div className="h-screen w-full flex justify-center my-[20%]">
+      <CircularProgress />
+    </div>
   );
 };
 

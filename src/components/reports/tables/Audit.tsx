@@ -1,7 +1,12 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
-import { TablePagination, ThemeProvider, createTheme } from "@mui/material";
+import {
+  CircularProgress,
+  TablePagination,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
@@ -12,7 +17,7 @@ import { audit_InitialFilter } from "@/utils/reports/getFilters";
 
 // common functions for datatable
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateInitialTimer,
   generateDateWithoutTime,
@@ -43,6 +48,7 @@ const getMuiTheme = () =>
   });
 
 const Audit = ({ filteredData, searchValue }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [auditData, setAuditData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -60,21 +66,25 @@ const Audit = ({ filteredData, searchValue }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
+          setLoaded(true);
           setAuditData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later.");
           } else toast.error(data);
         }
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
         } else toast.error(data);
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -124,7 +134,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("User Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("User Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -135,7 +145,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Department"),
+        customHeadLabelRender: () => generateCustomHeaderName("Department"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -147,7 +157,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () =>
-          genrateCustomHeaderName("Task Created Date"),
+          generateCustomHeaderName("Task Created Date"),
         customBodyRender: (value: any) => {
           return generateDateWithoutTime(value);
         },
@@ -158,7 +168,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Login Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Login Time"),
         customBodyRender: (value: any, tableMeta: any) => {
           return generateDateWithTime(value);
         },
@@ -169,7 +179,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Logout Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Logout Time"),
         customBodyRender: (value: any) => {
           return generateDateWithTime(value);
         },
@@ -180,7 +190,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Client"),
+        customHeadLabelRender: () => generateCustomHeaderName("Client"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -191,7 +201,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -202,7 +212,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Process"),
+        customHeadLabelRender: () => generateCustomHeaderName("Process"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -213,8 +223,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () =>
-          genrateCustomHeaderName("Sub-Process"),
+        customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -225,7 +234,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Std. Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
       },
       customBodyRender: (value: any) => {
         return generateInitialTimer(value);
@@ -236,7 +245,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Total Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -247,7 +256,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Break Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Break Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -258,7 +267,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Idle Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Idle Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -266,7 +275,7 @@ const Audit = ({ filteredData, searchValue }: any) => {
     },
   ];
 
-  return (
+  return loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title={undefined}
@@ -283,6 +292,10 @@ const Audit = ({ filteredData, searchValue }: any) => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
+  ) : (
+    <div className="h-screen w-full flex justify-center my-[20%]">
+      <CircularProgress />
+    </div>
   );
 };
 

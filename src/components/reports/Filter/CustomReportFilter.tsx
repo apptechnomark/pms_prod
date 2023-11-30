@@ -38,7 +38,6 @@ import {
   getClientDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
-  getTypeOfReturnDropdownData,
 } from "@/utils/commonDropdownApiCall";
 
 //icons
@@ -99,11 +98,14 @@ const getYears = () => {
 
 const getFormattedDate = (newValue: any) => {
   if (newValue !== "") {
-    const formattedDate = `${newValue.$y}-${
+    const year = newValue.$y;
+    const month =
       (newValue.$M + 1).toString().length > 1
         ? newValue.$M + 1
-        : `0${newValue.$M + 1}`
-    }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+        : `0${newValue.$M + 1}`;
+    const date =
+      newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`;
+    const formattedDate = year + "-" + month + "-" + date;
 
     return formattedDate;
   }
@@ -114,6 +116,8 @@ const CustomReportFilter = ({
   onDialogClose,
   sendFilterToPage,
 }: FilterType) => {
+  const yearDropdown = getYears();
+
   const [clients, setClients] = useState<any[]>([]);
   const [clientName, setClientName] = useState<any[]>([]);
   const [projectName, setProjectName] = useState<number | string>(0);
@@ -138,7 +142,6 @@ const CustomReportFilter = ({
   const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
   const [processDropdown, setProcessDropdown] = useState<any[]>([]);
   const [userDropdown, setUserDropdown] = useState<any[]>([]);
-  const [yearDropdown, setYearDropdown] = useState<any[]>(getYears());
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [savedFilters, setSavedFilters] = useState<any[]>([]);
@@ -178,6 +181,7 @@ const CustomReportFilter = ({
     setDueDate("");
     setAllInfoDate("");
     setError("");
+    setResetting(true);
 
     sendFilterToPage({
       ...customreport_InitialFilter,
@@ -206,6 +210,7 @@ const CustomReportFilter = ({
     setDueDate("");
     setAllInfoDate("");
     setError("");
+    setResetting(false);
   };
 
   const handleFilterApply = () => {
@@ -390,6 +395,7 @@ const CustomReportFilter = ({
 
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
+    setResetting(false);
   }, [
     clientName,
     projectName,
@@ -409,7 +415,6 @@ const CustomReportFilter = ({
   ]);
 
   useEffect(() => {
-    // handleFilterApply();
     const customDropdowns = async () => {
       setClientDropdown(await getClientDropdownData());
       setProjectDropdown(
@@ -601,7 +606,7 @@ const CustomReportFilter = ({
               return (
                 <>
                   <div
-                    key={index}
+                    key={i.FilterId}
                     className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
                   >
                     <span
@@ -610,7 +615,6 @@ const CustomReportFilter = ({
                         setCurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleSavedFilterApply(index);
-                        // setFilterApplied(true);
                       }}
                     >
                       {i.Name}
@@ -700,7 +704,7 @@ const CustomReportFilter = ({
                     disabled={clients.length > 1}
                   >
                     {projectDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -719,7 +723,7 @@ const CustomReportFilter = ({
                     disabled={clients.length > 1}
                   >
                     {processDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.Id} key={index}>
+                      <MenuItem value={i.Id} key={i.Id}>
                         {i.Name}
                       </MenuItem>
                     ))}
@@ -739,7 +743,7 @@ const CustomReportFilter = ({
                     onChange={(e) => setAssignByName(e.target.value)}
                   >
                     {userDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -757,7 +761,7 @@ const CustomReportFilter = ({
                     onChange={(e) => setAssigneeName(e.target.value)}
                   >
                     {userDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -775,7 +779,7 @@ const CustomReportFilter = ({
                     onChange={(e) => setReviewerName(e.target.value)}
                   >
                     {userDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -795,7 +799,7 @@ const CustomReportFilter = ({
                     onChange={(e) => setReturnTypeName(e.target.value)}
                   >
                     {returnTypeDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -825,7 +829,7 @@ const CustomReportFilter = ({
                     onChange={(e) => setReturnYear(e.target.value)}
                   >
                     {yearDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -845,7 +849,7 @@ const CustomReportFilter = ({
                     onChange={(e) => setCurrentYear(e.target.value)}
                   >
                     {yearDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -863,7 +867,7 @@ const CustomReportFilter = ({
                     onChange={(e) => setComplexity(e.target.value)}
                   >
                     {complexityDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -881,7 +885,7 @@ const CustomReportFilter = ({
                     onChange={(e) => setPriority(e.target.value)}
                   >
                     {priorityDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}

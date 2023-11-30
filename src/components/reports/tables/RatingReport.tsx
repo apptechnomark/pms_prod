@@ -2,6 +2,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
+  CircularProgress,
   Rating,
   TablePagination,
   ThemeProvider,
@@ -17,7 +18,7 @@ import { rating_InitialFilter } from "@/utils/reports/getFilters";
 
 // common functions for datatable
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateCustomFormatDate,
 } from "@/utils/datatable/CommonFunction";
@@ -46,6 +47,7 @@ const getMuiTheme = () =>
   });
 
 const RatingReport = ({ filteredData, searchValue }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [ratingData, setRatingData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -63,21 +65,25 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
+          setLoaded(true);
           setRatingData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later.");
           } else toast.error(data);
         }
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
         } else toast.error(data);
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -136,7 +142,7 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task ID"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
 
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
@@ -148,7 +154,7 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Client"),
+        customHeadLabelRender: () => generateCustomHeaderName("Client"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -159,7 +165,7 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -170,7 +176,7 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -181,7 +187,7 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Return Type"),
+        customHeadLabelRender: () => generateCustomHeaderName("Return Type"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -192,7 +198,7 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Rating Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Rating Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -203,7 +209,7 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Date Submitted"),
+        customHeadLabelRender: () => generateCustomHeaderName("Date Submitted"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -214,7 +220,7 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Hours Logged"),
+        customHeadLabelRender: () => generateCustomHeaderName("Hours Logged"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -225,7 +231,7 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Ratings"),
+        customHeadLabelRender: () => generateCustomHeaderName("Ratings"),
         customBodyRender: (value: any) => {
           return <Rating name="read-only" value={value} readOnly />;
         },
@@ -236,7 +242,7 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Comments"),
+        customHeadLabelRender: () => generateCustomHeaderName("Comments"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -244,7 +250,7 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
     },
   ];
 
-  return (
+  return loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title={undefined}
@@ -261,6 +267,10 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
+  ) : (
+    <div className="h-screen w-full flex justify-center my-[20%]">
+      <CircularProgress />
+    </div>
   );
 };
 

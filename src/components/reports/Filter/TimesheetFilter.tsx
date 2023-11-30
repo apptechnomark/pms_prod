@@ -70,11 +70,14 @@ const TimesheetFilter = ({
 
   const getFormattedDate = (newValue: any) => {
     if (newValue !== "") {
-      const formattedDate = `${newValue.$y}-${
+      const year = newValue.$y;
+      const month =
         (newValue.$M + 1).toString().length > 1
           ? newValue.$M + 1
-          : `0${newValue.$M + 1}`
-      }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+          : `0${newValue.$M + 1}`;
+      const date =
+        newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`;
+      const formattedDate = year + "-" + month + "-" + date;
 
       return formattedDate;
     }
@@ -226,7 +229,6 @@ const TimesheetFilter = ({
   }, [dept, userNames, startDate, endDate]);
 
   useEffect(() => {
-    // handleFilterApply();
     const userDropdowns = async () => {
       setDeptDropdown(await getDeptData());
       setUserDropdown(await getUserData());
@@ -404,7 +406,7 @@ const TimesheetFilter = ({
               return (
                 <>
                   <div
-                    key={index}
+                    key={i.FilterId}
                     className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
                   >
                     <span
@@ -413,7 +415,6 @@ const TimesheetFilter = ({
                         setCurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleSavedFilterApply(index);
-                        // setFilterApplied(true);
                       }}
                     >
                       {i.Name}
@@ -497,7 +498,7 @@ const TimesheetFilter = ({
                     onChange={(e) => setDept(e.target.value)}
                   >
                     {deptDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}

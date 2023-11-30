@@ -11,13 +11,13 @@ import HighchartsVariablePie from "highcharts/modules/variable-pie";
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
-interface Chart_ProjectStatusProps {
+interface ChartProjectStatusProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
   sendData: any;
 }
 
-const Chart_ProjectStatus: React.FC<Chart_ProjectStatusProps> = ({
+const Chart_ProjectStatus: React.FC<ChartProjectStatusProps> = ({
   onSelectedProjectIds,
   onSelectedWorkType,
   sendData,
@@ -26,65 +26,65 @@ const Chart_ProjectStatus: React.FC<Chart_ProjectStatusProps> = ({
   const [totalCount, setTotalCount] = useState<number>(0);
 
   // API for Project Status
-  useEffect(() => {
-    const getProjectStatusData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/dashboard/projectstatusgraph`,
-          {
-            WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-            ProjectId:
-              onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
+  const getProjectStatusData = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/dashboard/projectstatusgraph`,
+        {
+          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+          ProjectId:
+            onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        }
+      );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            const chartData = response.data.ResponseData.List.map(
-              (item: {
-                Percentage: any;
-                Key: any;
-                Value: any;
-                ColorCode: any;
-              }) => ({
-                name: item.Key,
-                y: item.Value,
-                percentage: item.Percentage,
-                ColorCode: item.ColorCode,
-              })
-            );
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          const chartData = response.data.ResponseData.List.map(
+            (item: {
+              Percentage: any;
+              Key: any;
+              Value: any;
+              ColorCode: any;
+            }) => ({
+              name: item.Key,
+              y: item.Value,
+              percentage: item.Percentage,
+              ColorCode: item.ColorCode,
+            })
+          );
 
-            setData(chartData);
-            setTotalCount(response.data.ResponseData.TotalCount);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
+          setData(chartData);
+          setTotalCount(response.data.ResponseData.TotalCount);
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Please try again.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
       }
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
     getProjectStatusData();
   }, [onSelectedWorkType]);
 

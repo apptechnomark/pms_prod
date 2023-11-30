@@ -1,7 +1,12 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
-import { TablePagination, ThemeProvider, createTheme } from "@mui/material";
+import {
+  CircularProgress,
+  TablePagination,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
@@ -12,7 +17,7 @@ import { client_project_InitialFilter } from "@/utils/reports/getFilters";
 
 // common functions for datatable
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
@@ -41,6 +46,7 @@ const getMuiTheme = () =>
   });
 
 const Client = ({ filteredData }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [clientData, setClientData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -63,9 +69,11 @@ const Client = ({ filteredData }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoaded(true);
           setClientData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later.");
@@ -74,6 +82,7 @@ const Client = ({ filteredData }: any) => {
           }
         }
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
@@ -82,6 +91,7 @@ const Client = ({ filteredData }: any) => {
         }
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -123,7 +133,7 @@ const Client = ({ filteredData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Client Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -134,7 +144,7 @@ const Client = ({ filteredData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Type of Work"),
+        customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -145,7 +155,7 @@ const Client = ({ filteredData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Billing Type"),
+        customHeadLabelRender: () => generateCustomHeaderName("Billing Type"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -156,7 +166,7 @@ const Client = ({ filteredData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Internal Hours"),
+        customHeadLabelRender: () => generateCustomHeaderName("Internal Hours"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -167,7 +177,7 @@ const Client = ({ filteredData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Cont. Hours"),
+        customHeadLabelRender: () => generateCustomHeaderName("Cont. Hours"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -178,7 +188,7 @@ const Client = ({ filteredData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Std. Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -189,7 +199,7 @@ const Client = ({ filteredData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Edited Hours"),
+        customHeadLabelRender: () => generateCustomHeaderName("Edited Hours"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -200,7 +210,7 @@ const Client = ({ filteredData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Total Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -211,7 +221,7 @@ const Client = ({ filteredData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Differences"),
+        customHeadLabelRender: () => generateCustomHeaderName("Differences"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -222,7 +232,7 @@ const Client = ({ filteredData }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Cont. Diff"),
+        customHeadLabelRender: () => generateCustomHeaderName("Cont. Diff"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -230,7 +240,7 @@ const Client = ({ filteredData }: any) => {
     },
   ];
 
-  return (
+  return loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={columns}
@@ -247,6 +257,10 @@ const Client = ({ filteredData }: any) => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
+  ) : (
+    <div className="h-screen w-full flex justify-center my-[20%]">
+      <CircularProgress />
+    </div>
   );
 };
 

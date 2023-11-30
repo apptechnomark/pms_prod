@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import NotificationIcon from "@/assets/icons/NotificationIcon";
-import Btn_Help from "@/assets/icons/dashboard_Client/Btn_Help";
 import LogoutIcon from "@/assets/icons/LogoutIcon";
 import { Avatar } from "@mui/material";
 import axios from "axios";

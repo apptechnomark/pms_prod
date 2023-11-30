@@ -11,13 +11,13 @@ import HighchartsVariablePie from "highcharts/modules/variable-pie";
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
-interface Chart_BillingTypeProps {
+interface ChartBillingTypeProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
   sendData: any;
 }
 
-const Chart_BillingType: React.FC<Chart_BillingTypeProps> = ({
+const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
   onSelectedProjectIds,
   onSelectedWorkType,
   sendData,
@@ -26,57 +26,57 @@ const Chart_BillingType: React.FC<Chart_BillingTypeProps> = ({
   const [totalCount, setTotalCount] = useState<number>(0);
 
   // API for Dashboard Summary
-  useEffect(() => {
-    const getBillingTypeData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/dashboard/billingstatusgraph`,
-          {
-            WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+  const getBillingTypeData = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/dashboard/billingstatusgraph`,
+        {
+          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        }
+      );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            const chartData = response.data.ResponseData.List.map(
-              (item: { Percentage: any; Key: any; Value: any }) => ({
-                name: item.Key,
-                y: item.Value,
-                percentage: item.Percentage,
-              })
-            );
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          const chartData = response.data.ResponseData.List.map(
+            (item: { Percentage: any; Key: any; Value: any }) => ({
+              name: item.Key,
+              y: item.Value,
+              percentage: item.Percentage,
+            })
+          );
 
-            setData(chartData);
-            setTotalCount(response.data.ResponseData.TotalCount);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
+          setData(chartData);
+          setTotalCount(response.data.ResponseData.TotalCount);
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Please try again.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
       }
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
     getBillingTypeData();
   }, [onSelectedWorkType]);
 

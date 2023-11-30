@@ -57,7 +57,6 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
   const SaveFieldByClient = async (fieldId: number, isChecked: boolean) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
-
     try {
       const response = await axios.post(
         `${process.env.pms_api_url}/client/SaveFields`,
@@ -76,7 +75,7 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          // Toast.success("Success");
+          getFieldsByClient();
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -135,6 +134,16 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
               <span
                 onClick={() => {
                   const toggledChecked = !field.IsChecked;
+                  const isSubProcess = fieldsData
+                    .map((i: any) =>
+                      i.Type === "SubProcessName" ? i.FieldId : 0
+                    )
+                    .filter((j: any) => j !== 0);
+                  const isProcess =
+                    field.Type === "ProcessName" &&
+                    field.IsChecked === true &&
+                    isSubProcess.length > 0;
+                  isProcess && SaveFieldByClient(isSubProcess[0], false);
                   SaveFieldByClient(field.FieldId, toggledChecked);
                 }}
               >

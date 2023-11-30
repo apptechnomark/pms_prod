@@ -86,11 +86,14 @@ const ProjectFilter = ({
 
   const getFormattedDate = (newValue: any) => {
     if (newValue !== "") {
-      const formattedDate = `${newValue.$y}-${
+      const year = newValue.$y;
+      const month =
         (newValue.$M + 1).toString().length > 1
           ? newValue.$M + 1
-          : `0${newValue.$M + 1}`
-      }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+          : `0${newValue.$M + 1}`;
+      const date =
+        newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`;
+      const formattedDate = year + "-" + month + "-" + date;
 
       return formattedDate;
     }
@@ -259,7 +262,6 @@ const ProjectFilter = ({
   }, [typeOfWork, billingType, clientName, projectName, startDate, endDate]);
 
   useEffect(() => {
-    // handleFilterApply();
     const filterDropdowns = async () => {
       setClientDropdown(await getClientData());
       setProjectDropdown(
@@ -458,7 +460,7 @@ const ProjectFilter = ({
               return (
                 <>
                   <div
-                    key={index}
+                    key={i.FilterId}
                     className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
                   >
                     <span
@@ -467,7 +469,6 @@ const ProjectFilter = ({
                         setCurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleSavedFilterApply(index);
-                        // setFilterApplied(true);
                       }}
                     >
                       {i.Name}
@@ -557,7 +558,7 @@ const ProjectFilter = ({
                     onChange={(e) => setProjectName(e.target.value)}
                   >
                     {projectDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -575,7 +576,7 @@ const ProjectFilter = ({
                     onChange={(e) => setTypeOfWork(e.target.value)}
                   >
                     {workTypeDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}
@@ -595,7 +596,7 @@ const ProjectFilter = ({
                     onChange={(e) => setBillingType(e.target.value)}
                   >
                     {billingTypeDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}

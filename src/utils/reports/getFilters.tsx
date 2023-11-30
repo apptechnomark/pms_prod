@@ -98,6 +98,7 @@ export const billingreport_InitialFilter = {
   IsBTC: false,
   projects: [],
   returnTypeId: null,
+  typeofReturnId: null,
   assigneeId: null,
   reviewerId: null,
   numberOfPages: null,

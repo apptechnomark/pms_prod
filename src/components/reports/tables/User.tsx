@@ -1,7 +1,12 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
-import { TablePagination, ThemeProvider, createTheme } from "@mui/material";
+import {
+  CircularProgress,
+  TablePagination,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
@@ -17,7 +22,7 @@ import dayjs from "dayjs";
 
 // common functions for datatable
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
@@ -46,6 +51,7 @@ const getMuiTheme = () =>
   });
 
 const User = ({ filteredData, searchValue }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [dates, setDates] = useState<any>([]);
   const [page, setPage] = useState<number>(0);
   const [userData, setUserData] = useState<any>([]);
@@ -69,9 +75,11 @@ const User = ({ filteredData, searchValue }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoaded(true);
           setUserData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later.");
@@ -80,6 +88,7 @@ const User = ({ filteredData, searchValue }: any) => {
           }
         }
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
@@ -88,6 +97,7 @@ const User = ({ filteredData, searchValue }: any) => {
         }
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -145,7 +155,7 @@ const User = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("User Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("User Name"),
         customBodyRender: (value: any, tableMeta: any) => {
           return (
             <div className="flex flex-col">
@@ -167,7 +177,7 @@ const User = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Destination"),
+        customHeadLabelRender: () => generateCustomHeaderName("Destination"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -224,7 +234,7 @@ const User = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Present Day"),
+        customHeadLabelRender: () => generateCustomHeaderName("Present Day"),
       },
     },
     {
@@ -232,7 +242,7 @@ const User = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("STd. Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("STd. Time"),
         customBodyRender: (value: any, tableMeta: any) => {
           return generateInitialTimer(value);
         },
@@ -243,7 +253,7 @@ const User = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Total Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
         customBodyRender: (value: any, tableMeta: any) => {
           return generateInitialTimer(value);
         },
@@ -255,7 +265,7 @@ const User = ({ filteredData, searchValue }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () =>
-          genrateCustomHeaderName("Total Break Time"),
+          generateCustomHeaderName("Total Break Time"),
         customBodyRender: (value: any, tableMeta: any) => {
           return generateInitialTimer(value);
         },
@@ -266,7 +276,8 @@ const User = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Total Idle Time"),
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Total Idle Time"),
         customBodyRender: (value: any, tableMeta: any) => {
           return generateInitialTimer(value);
         },
@@ -274,7 +285,7 @@ const User = ({ filteredData, searchValue }: any) => {
     },
   ];
 
-  return (
+  return loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={columns}
@@ -314,6 +325,10 @@ const User = ({ filteredData, searchValue }: any) => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
+  ) : (
+    <div className="h-screen w-full flex justify-center my-[20%]">
+      <CircularProgress />
+    </div>
   );
 };
 

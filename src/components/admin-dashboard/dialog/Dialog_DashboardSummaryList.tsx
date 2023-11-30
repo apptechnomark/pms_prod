@@ -10,12 +10,10 @@ import {
   IconButton,
   MenuItem,
   Select,
-  TextField,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import axios from "axios";
 import { toast } from "react-toastify";
-import SearchIcon from "@/assets/icons/SearchIcon";
 import Datatable_DashboardSummaryList from "../Datatables/Datatable_DashboardSummaryList";
 
 interface Status {
@@ -55,48 +53,48 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
   };
 
   // API for Dashboard Summary list
-  useEffect(() => {
-    const getProjectSummary = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/dashboard/summary`,
-          {
-            WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+  const getProjectSummary = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/dashboard/summary`,
+        {
+          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        }
+      );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setSummaryList(response.data.ResponseData);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setSummaryList(response.data.ResponseData);
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Please try again.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
       }
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
     getProjectSummary();
   }, [onSelectedWorkType]);
 

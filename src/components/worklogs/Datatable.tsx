@@ -39,6 +39,7 @@ import EditIcon from "@/assets/icons/worklogs/EditIcon";
 import RecurringIcon from "@/assets/icons/worklogs/RecurringIcon";
 import ClientIcon from "@/assets/icons/worklogs/ClientIcon";
 import ProjectIcon from "@/assets/icons/worklogs/ProjectIcon";
+import ProcessIcon from "@/assets/icons/worklogs/ProcessIcon";
 import ReturnYearIcon from "@/assets/icons/worklogs/ReturnYearIcon";
 import ManagerIcon from "@/assets/icons/worklogs/ManagerIcon";
 import DateIcon from "@/assets/icons/worklogs/DateIcon";
@@ -47,7 +48,7 @@ import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { toHoursAndMinutes, toSeconds } from "@/utils/timerFunctions";
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateCustomFormatDate,
   generatePriorityWithColor,
@@ -56,6 +57,7 @@ import {
 import {
   getClientDropdownData,
   getManagerDropdownData,
+  getProjectDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -144,11 +146,13 @@ const Datatable = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [clientSearchQuery, setClientSearchQuery] = useState("");
   const [managerSearchQuery, setManagerSearchQuery] = useState("");
+  const [projectSearchQuery, setprojectSearchQuery] = useState("");
   const [processSearchQuery, setprocessSearchQuery] = useState("");
   const [workItemData, setWorkItemData] = useState<any | any[]>([]);
   const [selectedRowIds, setSelectedRowIds] = useState<any | number[]>([]);
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [managerDropdownData, setManagerDropdownData] = useState([]);
+  const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [processDropdownData, setProcessDropdownData] = useState([]);
   const [selectedRowStatusName, setSelectedRowStatusName] = useState<
     any | string[]
@@ -208,6 +212,8 @@ const Datatable = ({
     React.useState<HTMLButtonElement | null>(null);
   const [anchorElClient, setAnchorElClient] =
     React.useState<HTMLButtonElement | null>(null);
+  const [anchorElProject, setAnchorElProject] =
+    React.useState<HTMLButtonElement | null>(null);
   const [anchorElProcess, setAnchorElProcess] =
     React.useState<HTMLButtonElement | null>(null);
   const [anchorElReturnYear, setAnchorElReturnYear] =
@@ -248,6 +254,14 @@ const Datatable = ({
 
   const handleCloseClient = () => {
     setAnchorElClient(null);
+  };
+
+  const handleClickProject = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorElProject(event.currentTarget);
+  };
+
+  const handleCloseProject = () => {
+    setAnchorElProject(null);
   };
 
   const handleClickProcess = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -299,6 +313,9 @@ const Datatable = ({
   const openClient = Boolean(anchorElClient);
   const idClient = openClient ? "simple-popover" : undefined;
 
+  const openProject = Boolean(anchorElProject);
+  const idProject = openProject ? "simple-popover" : undefined;
+
   const openProcess = Boolean(anchorElProcess);
   const idProcess = openProcess ? "simple-popover" : undefined;
 
@@ -327,6 +344,10 @@ const Datatable = ({
     setManagerSearchQuery(event.target.value);
   };
 
+  const handleProjectSearchChange = (event: any) => {
+    setprojectSearchQuery(event.target.value);
+  };
+
   const handleProcessSearchChange = (event: any) => {
     setprocessSearchQuery(event.target.value);
   };
@@ -337,6 +358,10 @@ const Datatable = ({
 
   const filteredManager = managerDropdownData?.filter((manager: any) =>
     manager.label.toLowerCase().includes(managerSearchQuery.toLowerCase())
+  );
+
+  const filteredProject = projectDropdownData?.filter((project: any) =>
+    project.label.toLowerCase().includes(projectSearchQuery.toLowerCase())
   );
 
   const filteredProcess = processDropdownData?.filter((process: any) =>
@@ -372,6 +397,11 @@ const Datatable = ({
   const handleOptionClient = (id: any) => {
     updateClient(selectedRowIds, id);
     handleCloseClient();
+  };
+
+  const handleOptionProject = (id: any) => {
+    updateProject(selectedRowIds, id);
+    handleCloseProject();
   };
 
   const handleOptionProcess = (id: any) => {
@@ -1218,7 +1248,43 @@ const Datatable = ({
       console.error(error);
     }
   };
+
   useEffect(() => {
+    const getData = async (clientName: any) => {
+      clientName > 0 &&
+        setProjectDropdownData(await getProjectDropdownData(clientName));
+    };
+    if (
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId > 0 &&
+          i.ProjectId === 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length > 0 &&
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length <= 0 &&
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId > 0 &&
+          i.ProjectId !== 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length <= 0 &&
+      Array.from(new Set(selectedRowClientId)).length === 1
+    ) {
+      getData(Array.from(new Set(selectedRowClientId))[0]);
+    }
+
     if (
       workItemData
         .map((i: any) =>
@@ -1616,6 +1682,51 @@ const Datatable = ({
   };
 
   // API for update Process
+  const updateProject = async (id: number[], processId: number) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/bulkupdateworkitemproject`,
+        {
+          workitemIds: id,
+          ProjectId: processId,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Project has been updated successfully.");
+          handleClearSelection();
+          getWorkItemList();
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Something went wrong, Please try again later..");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Something went wrong, Please try again later..");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // API for update Process
   const updateProcess = async (id: number[], processId: number) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -1680,16 +1791,6 @@ const Datatable = ({
     getWorkItemList();
   }, [onCurrentFilterId, filteredObject]);
 
-  // useEffect(() => {
-  //   if (isOnBreak !== 0 && isRunning > -1) {
-  //     handleTimer(
-  //       2,
-  //       isRunning,
-  //       workitemTimeId !== -1 ? workitemTimeId : undefined
-  //     );
-  //   }
-  // }, [isOnBreak]);
-
   useEffect(() => {
     getWorkItemList();
   }, [isOnBreak]);
@@ -1715,7 +1816,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task ID"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1727,7 +1828,7 @@ const Datatable = ({
         filter: true,
         viewColumns: false,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Client"),
+        customHeadLabelRender: () => generateCustomHeaderName("Client"),
         customBodyRender: (value: any, tableMeta: any) => {
           const IsHasErrorlog = tableMeta.rowData[18];
           return (
@@ -1751,7 +1852,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         // display: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1763,7 +1864,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         // viewColumns: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task"),
         customBodyRender: (value: any, tableMeta: any) => {
           const IsRecurring = tableMeta.rowData[19];
           return (
@@ -1791,7 +1892,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         // display: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Process"),
+        customHeadLabelRender: () => generateCustomHeaderName("Process"),
         customBodyRender: (value: any) => {
           const shortProcessName = value && value.split(" ");
           return (
@@ -1814,7 +1915,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         // display: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Sub-Process"),
+        customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1834,7 +1935,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Timer"),
+        customHeadLabelRender: () => generateCustomHeaderName("Timer"),
         customBodyRender: (value: any, tableMeta: any) => {
           const estimatedTime = tableMeta.rowData[14].includes(":")
             ? tableMeta.rowData[14].split(":")
@@ -1982,7 +2083,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Assigned To"),
+        customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1994,7 +2095,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Priority"),
+        customHeadLabelRender: () => generateCustomHeaderName("Priority"),
         customBodyRender: (value: any) => generatePriorityWithColor(value),
       },
     },
@@ -2013,7 +2114,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Status"),
+        customHeadLabelRender: () => generateCustomHeaderName("Status"),
         customBodyRender: (value: any, tableMeta: any) =>
           generateStatusWithColor(value, tableMeta.rowData[10]),
       },
@@ -2024,7 +2125,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Est. Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Est. Time"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -2036,7 +2137,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Qty."),
+        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -2062,7 +2163,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Total Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -2074,7 +2175,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -2086,7 +2187,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("End Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("End Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -2098,7 +2199,7 @@ const Datatable = ({
         filter: true,
         sort: true,
         viewColumns: false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Assigned By"),
+        customHeadLabelRender: () => generateCustomHeaderName("Assigned By"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -2331,14 +2432,14 @@ const Datatable = ({
 
       {/* Popup Filter */}
       {selectedRowsCount > 0 && (
-        <div className="flex items-center justify-start ml-12">
+        <div className="flex items-center justify-start mx-8">
           <Card
             className={`rounded-full flex border p-2 border-[#1976d2] absolute shadow-lg  ${
-              selectedRowsCount === 1 ? "w-[81%]" : "w-[70%]"
+              selectedRowsCount === 1 ? "w-[80%]" : "w-[71%]"
             } bottom-12 -translate-y-1/2`}
           >
             <div className="flex flex-row w-full">
-              <div className="pt-1 pl-2 flex w-[30%]">
+              <div className="pt-1 pl-2 flex w-[25%]">
                 <span className="cursor-pointer" onClick={handleClearSelection}>
                   <Minus />
                 </span>
@@ -2688,6 +2789,112 @@ const Datatable = ({
                   </nav>
                 </Popover>
 
+                {/* Change Project */}
+                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      i.ClientId > 0 &&
+                      i.ProjectId === 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length > 0 &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length <= 0 &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      i.ClientId > 0 &&
+                      i.ProjectId !== 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length <= 0 &&
+                  Array.from(new Set(selectedRowClientId)).length === 1 && (
+                    <ColorToolTip title="Project" arrow>
+                      <span
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                        aria-describedby={idProject}
+                        onClick={handleClickProject}
+                      >
+                        <ProjectIcon />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
+                {/* Process Popover */}
+                <Popover
+                  id={idProject}
+                  open={openProject}
+                  anchorEl={anchorElProject}
+                  onClose={handleCloseProject}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                >
+                  <nav className="!w-52">
+                    <div className="mr-4 ml-4 mt-4">
+                      <div
+                        className="flex items-center h-10 rounded-md pl-2 flex-row"
+                        style={{
+                          border: "1px solid lightgray",
+                        }}
+                      >
+                        <span className="mr-2">
+                          <SearchIcon />
+                        </span>
+                        <span>
+                          <InputBase
+                            placeholder="Search"
+                            inputProps={{ "aria-label": "search" }}
+                            value={projectSearchQuery}
+                            onChange={handleProjectSearchChange}
+                            style={{ fontSize: "13px" }}
+                          />
+                        </span>
+                      </div>
+                    </div>
+                    <List>
+                      {projectDropdownData.length === 0 ? (
+                        <span className="flex flex-col py-2 px-4  text-sm">
+                          No Data Available
+                        </span>
+                      ) : (
+                        filteredProject.map((project: any, index: any) => {
+                          return (
+                            <span
+                              key={index}
+                              className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                            >
+                              <span
+                                className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
+                                onClick={() =>
+                                  handleOptionProject(project.value)
+                                }
+                              >
+                                <span className="pt-[0.8px]">
+                                  {project.label}
+                                </span>
+                              </span>
+                            </span>
+                          );
+                        })
+                      )}
+                    </List>
+                  </nav>
+                </Popover>
+
                 {/* Change Process */}
                 {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
                   workItemData
@@ -2721,7 +2928,7 @@ const Datatable = ({
                         aria-describedby={idProcess}
                         onClick={handleClickProcess}
                       >
-                        <ProjectIcon />
+                        <ProcessIcon />
                       </span>
                     </ColorToolTip>
                   )}
@@ -3046,7 +3253,7 @@ const Datatable = ({
                 </span>
               </div>
 
-              <div className="flex right-0 justify-end pr-3 pt-1 w-[50%]">
+              <div className="flex right-0 justify-end pr-3 pt-1 w-[40%]">
                 <span className="text-gray-400 italic text-[14px] pl-2">
                   shift+click to select, esc to deselect all
                 </span>

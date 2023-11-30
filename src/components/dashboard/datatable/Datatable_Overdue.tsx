@@ -7,7 +7,8 @@ import TablePagination from "@mui/material/TablePagination";
 import {
   generateCommonBodyRender,
   generateCustomFormatDate,
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
+  generateDaysBodyRender,
 } from "@/utils/datatable/CommonFunction";
 
 interface OverdueProps {
@@ -176,7 +177,7 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -187,7 +188,7 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -200,7 +201,7 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
         sort: true,
         display: false,
         // display: onSelectedWorkType === 3 ? false : true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Month Close"),
+        customHeadLabelRender: () => generateCustomHeaderName("Month Close"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -211,7 +212,7 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -222,7 +223,7 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Due Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -233,14 +234,9 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Due From"),
-        customBodyRender: (value: any, tableMeta: any, updateValue: any) => {
-          return (
-            <div className="ml-2">
-              {value === null || value === "" ? "-" : value}&nbsp;
-              {value > 1 ? "days" : "day"}
-            </div>
-          );
+        customHeadLabelRender: () => generateCustomHeaderName("Due From"),
+        customBodyRender: (value: any) => {
+          return generateDaysBodyRender(value);
         },
       },
     },

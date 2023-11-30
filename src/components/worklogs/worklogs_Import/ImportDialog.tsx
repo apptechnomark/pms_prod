@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -17,7 +17,6 @@ import MUIDataTable from "mui-datatables";
 // Icons Imports
 import ExcelIcon from "@/assets/icons/Import/ExcelIcon";
 import FileIcon from "@/assets/icons/Import/FileIcon";
-import UploadIcon from "@/assets/icons/Import/UploadIcon";
 import Download from "@/assets/icons/Import/Download";
 
 // Internal components
@@ -48,10 +47,10 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
   const [importFields, setImportFields] = useState<any[]>([]);
   const [isNextCliecked, setIsNextClicked] = useState<boolean>(false);
   const [selectedTasks, setselectedtasks] = useState<any[]>([]);
-  const [isExcelClicked, setIsExcelClicked] = useState<boolean>(false);
   const [isTaskClicked, setIsTaskClicked] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [isUploading, setIsUplaoding] = useState<boolean>(false);
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
 
   const handleClose = () => {
     handleReset();
@@ -63,7 +62,6 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     setImportText("");
     setImportFields([]);
     setIsNextClicked(false);
-    setIsExcelClicked(false);
     setIsTaskClicked(false);
     setselectedtasks([]);
     setSelectedFile(null);
@@ -254,6 +252,54 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     }
   };
 
+  useEffect(() => {
+    if (selectedFile !== null) {
+      handleApplyImportExcel();
+    }
+  }, [selectedFile]);
+
+  // function for downloading sample API
+  const handleDownloadSampleFile = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+
+    try {
+      setIsDownloading(true);
+      const response = await axios.get(
+        `${process.env.worklog_api_url}/workitem/exportexcelfordemo`,
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+          responseType: "blob",
+        }
+      );
+
+      if (response.status === 200) {
+        const blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `SampleExcel.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        toast.success("File has been downloaded successfully.");
+        setIsDownloading(false);
+      } else {
+        setIsDownloading(false);
+        toast.error("Please try again later.");
+      }
+    } catch (error) {
+      setIsDownloading(false);
+      toast.error("Error downloading data.");
+    }
+  };
+
   return (
     <div>
       <Dialog
@@ -285,22 +331,9 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
             >
               Back
             </Button>
-          ) : isExcelClicked ? (
-            <Button
-              color="info"
-              onClick={() => {
-                setIsExcelClicked(false);
-                setSelectedFile(null);
-              }}
-            >
-              Back
-            </Button>
-          ) : (
-            <Button color="error" onClick={handleReset}>
-              Reset
-            </Button>
-          )}
+          ) : null}
         </DialogTitle>
+
         <DialogContent>
           {isTaskClicked ? (
             <div className="pt-6 px-[10px] pb-[10px] h-[235px] w-[40vw]">
@@ -346,43 +379,31 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
                 title={undefined}
               />
             </div>
-          ) : isExcelClicked ? (
-            <div className="pt-6 px-[10px] pb-[10px] h-[235px] w-[40vw]">
-              <input
-                accept=".xls,.xlsx"
-                style={{ display: "none" }}
-                id="raised-button-file"
-                onChange={handleFileChange}
-                type="file"
-              />
-              <label htmlFor="raised-button-file">
-                <Button
-                  component="span"
-                  variant="outlined"
-                  className="w-full h-52 flex-col gap-[15px]"
-                >
-                  <span className="border border-lightSilver rounded p-2">
-                    <UploadIcon />
-                  </span>
-                  <span className="capitalize text-darkCharcoal text-base">
-                    Drag and Drop or{" "}
-                    <span className="text-secondary">Browse</span> to Upload
-                  </span>
-                </Button>
-              </label>
-            </div>
           ) : (
             <div className="pt-6 px-[10px] pb-[10px] h-[235px] w-[40vw]">
               <div className="flex items-center justify-around gap-5">
-                <div
+                <input
+                  accept=".xls,.xlsx"
+                  style={{ display: "none" }}
+                  id="raised-button-file"
+                  onChange={handleFileChange}
+                  type="file"
+                />
+                <label
+                  htmlFor="raised-button-file"
                   className="flex items-center justify-center border border-lightSilver rounded-md w-full h-52 shadow-md hover:shadow-xl hover:bg-[#f5fcff] hover:border-[#a4e3fe] cursor-pointer"
-                  onClick={() => setIsExcelClicked(true)}
                 >
                   <div className="flex flex-col items-center gap-3">
-                    <ExcelIcon />
-                    <span className="text-darkCharcoal">Import Excel</span>
+                    {isUploading ? (
+                      <CircularProgress color="success" />
+                    ) : (
+                      <>
+                        <ExcelIcon />
+                        <span className="text-darkCharcoal">Import Excel</span>
+                      </>
+                    )}
                   </div>
-                </div>
+                </label>
                 <div
                   className="flex items-center justify-center border border-lightSilver rounded-md w-full h-52 shadow-md hover:shadow-xl hover:bg-[#f5fcff] hover:border-[#a4e3fe] cursor-pointer"
                   onClick={() => setIsTaskClicked(true)}
@@ -397,30 +418,15 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
           )}
         </DialogContent>
         <DialogActions
-          className={`border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px] ${
-            isExcelClicked ? "flex justify-between" : ""
+          className={`border-t border-t-lightSilver p-[20px] mx-[15px] gap-[10px] h-[64px] ${
+            isTaskClicked ? "" : "flex justify-between"
           }`}
         >
-          {isExcelClicked && (
-            <div className="text-secondary">
-              <a
-                href="/demo excel/DemoExcel.xlsx"
-                download={"DemoExcel.xlsx"}
-                className="flex items-center gap-2 text-sm"
-              >
-                Download Demo Excel Sheet
-                <span className="text-xl">
-                  <Download />
-                </span>
-              </a>
-            </div>
-          )}
-
-          <div className="flex gap-[10px]">
-            <Button variant="outlined" color="error" onClick={handleClose}>
-              Cancel
-            </Button>
-            {isTaskClicked ? (
+          {isTaskClicked ? (
+            <>
+              <Button variant="outlined" color="error" onClick={handleClose}>
+                Cancel
+              </Button>
               <Button
                 className="!bg-secondary"
                 variant="contained"
@@ -428,34 +434,40 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
               >
                 Next
               </Button>
-            ) : isNextCliecked ? (
-              <Button
-                className={`${
-                  selectedTasks.length <= 0 ? "" : "!bg-secondary"
-                }`}
-                variant="contained"
-                onClick={handleApplyImport}
-                disabled={selectedTasks.length <= 0}
-              >
-                Submit
-              </Button>
-            ) : isExcelClicked ? (
-              isUploading ? (
+            </>
+          ) : isNextCliecked ? (
+            <Button
+              className={`${selectedTasks.length <= 0 ? "" : "!bg-secondary"}`}
+              variant="contained"
+              onClick={handleApplyImport}
+              disabled={selectedTasks.length <= 0}
+            >
+              Submit
+            </Button>
+          ) : (
+            <>
+              {isDownloading ? (
                 <div className="px-8">
-                  <CircularProgress size="1.75rem" />
+                  <CircularProgress color="success" size="1.75rem" />
                 </div>
               ) : (
                 <Button
-                  className={`${!selectedFile ? "" : "!bg-secondary"}`}
+                  color="success"
                   variant="contained"
-                  disabled={!selectedFile}
-                  onClick={handleApplyImportExcel}
+                  className="bg-darkSuccess"
+                  onClick={handleDownloadSampleFile}
                 >
-                  Upload
+                  Sample File&nbsp;
+                  <span className="text-xl">
+                    <Download />
+                  </span>
                 </Button>
-              )
-            ) : null}
-          </div>
+              )}
+              <Button variant="outlined" color="error" onClick={handleClose}>
+                Cancel
+              </Button>
+            </>
+          )}
         </DialogActions>
       </Dialog>
     </div>

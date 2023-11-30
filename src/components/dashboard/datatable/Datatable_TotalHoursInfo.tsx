@@ -5,7 +5,7 @@ import MUIDataTable from "mui-datatables";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import TablePagination from "@mui/material/TablePagination";
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
 } from "@/utils/datatable/CommonFunction";
 
@@ -151,7 +151,7 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -162,7 +162,7 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -174,7 +174,7 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () =>
-          genrateCustomHeaderName("Total Cont. Hours"),
+          generateCustomHeaderName("Total Cont. Hours"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -188,7 +188,7 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
         display:
           onSelectedWorkType === 0 || onSelectedWorkType === 1 ? true : false,
         customHeadLabelRender: () =>
-          genrateCustomHeaderName("Cont. Acc. Hours"),
+          generateCustomHeaderName("Cont. Acc. Hours"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -201,7 +201,7 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
         sort: true,
         display:
           onSelectedWorkType === 0 || onSelectedWorkType === 3 ? true : false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Cont. Tax Hours"),
+        customHeadLabelRender: () => generateCustomHeaderName("Cont. Tax Hours"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -215,7 +215,7 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
         display:
           onSelectedWorkType === 0 || onSelectedWorkType === 2 ? true : false,
         customHeadLabelRender: () =>
-          genrateCustomHeaderName("Cont. Audit Hours"),
+          generateCustomHeaderName("Cont. Audit Hours"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -228,7 +228,7 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
         sort: true,
         display:
           onSelectedWorkType === 0 || onSelectedWorkType === 1 ? true : false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Account Hours"),
+        customHeadLabelRender: () => generateCustomHeaderName("Account Hours"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -241,7 +241,7 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
         sort: true,
         display:
           onSelectedWorkType === 0 || onSelectedWorkType === 3 ? true : false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Tax Hours"),
+        customHeadLabelRender: () => generateCustomHeaderName("Tax Hours"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -254,7 +254,7 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
         sort: true,
         display:
           onSelectedWorkType === 0 || onSelectedWorkType === 2 ? true : false,
-        customHeadLabelRender: () => genrateCustomHeaderName("Audit Hours"),
+        customHeadLabelRender: () => generateCustomHeaderName("Audit Hours"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -265,7 +265,7 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Total Hours"),
+        customHeadLabelRender: () => generateCustomHeaderName("Total Hours"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },

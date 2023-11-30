@@ -1,7 +1,12 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
-import { TablePagination, ThemeProvider, createTheme } from "@mui/material";
+import {
+  CircularProgress,
+  TablePagination,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
@@ -11,7 +16,7 @@ import { haveSameData } from "@/utils/reports/commonFunctions";
 
 // common functions for datatable
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateInitialTimer,
   generateDateWithoutTime,
@@ -41,6 +46,7 @@ const getMuiTheme = () =>
   });
 
 const CustomReport = ({ filteredData, searchValue }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [customReportData, setCustomReportData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -63,9 +69,11 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoaded(true);
           setCustomReportData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later.");
@@ -74,6 +82,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
           }
         }
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
@@ -82,6 +91,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
         }
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -136,7 +146,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Client Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -147,7 +157,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -158,7 +168,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -169,7 +179,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Process Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("Process Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -180,7 +190,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Assigned By"),
+        customHeadLabelRender: () => generateCustomHeaderName("Assigned By"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -191,7 +201,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Assignee"),
+        customHeadLabelRender: () => generateCustomHeaderName("Assignee"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -202,7 +212,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Reviewer"),
+        customHeadLabelRender: () => generateCustomHeaderName("Reviewer"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -213,7 +223,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Return Type"),
+        customHeadLabelRender: () => generateCustomHeaderName("Return Type"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -224,7 +234,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("No. of Pages"),
+        customHeadLabelRender: () => generateCustomHeaderName("No. of Pages"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -235,7 +245,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Return Year"),
+        customHeadLabelRender: () => generateCustomHeaderName("Return Year"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -246,7 +256,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Current Year"),
+        customHeadLabelRender: () => generateCustomHeaderName("Current Year"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -257,21 +267,18 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Complexity"),
+        customHeadLabelRender: () => generateCustomHeaderName("Complexity"),
         customBodyRender: (value: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 || value === ""
-                ? "-"
-                : value === 1
-                ? "Moderate"
-                : value === 2
-                ? "Intermediate"
-                : value === 3
-                ? "Complex"
-                : "-"}
-            </div>
-          );
+          switch (value) {
+            case 1:
+              return "Moderate";
+            case 2:
+              return "Intermediate";
+            case 3:
+              return "Complex";
+            default:
+              return "-";
+          }
         },
       },
     },
@@ -280,7 +287,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Priority"),
+        customHeadLabelRender: () => generateCustomHeaderName("Priority"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -291,7 +298,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Recieved Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Recieved Date"),
         customBodyRender: (value: any) => {
           return generateDateWithoutTime(value);
         },
@@ -302,7 +309,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Due Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
         customBodyRender: (value: any) => {
           return generateDateWithoutTime(value);
         },
@@ -313,7 +320,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("All Info Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("All Info Date"),
         customBodyRender: (value: any) => {
           return generateDateWithoutTime(value);
         },
@@ -324,7 +331,8 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Total Est. Time"),
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Total Est. Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -335,7 +343,8 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Total Std. Time"),
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Total Std. Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -346,7 +355,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Actual Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Actual Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -357,7 +366,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Edited Hours"),
+        customHeadLabelRender: () => generateCustomHeaderName("Edited Hours"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -365,7 +374,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
     },
   ];
 
-  return (
+  return loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={columns}
@@ -398,6 +407,10 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
+  ) : (
+    <div className="h-screen w-full flex justify-center my-[20%]">
+      <CircularProgress />
+    </div>
   );
 };
 

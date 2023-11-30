@@ -10,12 +10,10 @@ import {
   IconButton,
   MenuItem,
   Select,
-  TextField,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import axios from "axios";
 import { toast } from "react-toastify";
-import SearchIcon from "@/assets/icons/SearchIcon";
 import Datatable_ProjectStatus from "../Datatables/Datatable_ProjectStatus";
 
 interface Status {
@@ -57,56 +55,57 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
   };
 
   // API for Project Status
-  useEffect(() => {
-    if (onOpen === true) {
-      const getProjectStatusList = async () => {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.report_api_url}/dashboard/projectstatusgraph`,
-            {
-              WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-              ProjectId:
-                onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
+  const getProjectStatusList = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/dashboard/projectstatusgraph`,
+        {
+          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+          ProjectId:
+            onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          const statusName: any = response.data.ResponseData.List.map(
+            (item: { Key: any }) => ({
+              name: item.Key,
+            })
           );
 
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              const statusName: any = response.data.ResponseData.List.map(
-                (item: { Key: any }) => ({
-                  name: item.Key,
-                })
-              );
-
-              setAllProjectStatus(statusName);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
+          setAllProjectStatus(statusName);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again.");
-            } else {
-              toast.error(data);
-            }
+            toast.error(data);
           }
-        } catch (error) {
-          console.error(error);
         }
-      };
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (onOpen === true) {
       getProjectStatusList();
     }
   }, [onSelectedWorkType, onSelectedProjectIds, onOpen]);

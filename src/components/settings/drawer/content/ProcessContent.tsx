@@ -390,6 +390,7 @@ const ProcessContent = forwardRef<
     setReturnTypeHasError(false);
     setEstTimeError(false);
     setEstTimeHasError(false);
+    setActivity([""]);
     setActivityError(false);
     setActivityHasError(false);
   };

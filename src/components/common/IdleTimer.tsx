@@ -1,20 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const IdleTimer = ({ timeout = 600000, onIdle }: any) => {
-  const [idle, setIdle] = useState(false);
-
   useEffect(() => {
     let timer: any;
     const resetTimer = () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
-        setIdle(true);
         onIdle && onIdle();
       }, timeout);
     };
 
     const handleMouseMove = () => {
-      setIdle(false);
       resetTimer();
     };
 

@@ -16,7 +16,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Comments from "@/assets/icons/worklogs/Comments";
 import ErrorLogs from "@/assets/icons/worklogs/ErrorLogs";
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateCustomFormatDate,
   generatePriorityWithColor,
@@ -423,7 +423,7 @@ const Datatable_CompletedTask = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task ID"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -434,7 +434,7 @@ const Datatable_CompletedTask = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -445,7 +445,7 @@ const Datatable_CompletedTask = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -456,7 +456,7 @@ const Datatable_CompletedTask = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Assigned To"),
+        customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -467,7 +467,7 @@ const Datatable_CompletedTask = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Priority"),
+        customHeadLabelRender: () => generateCustomHeaderName("Priority"),
         customBodyRender: (value: any) => generatePriorityWithColor(value),
       },
     },
@@ -476,7 +476,7 @@ const Datatable_CompletedTask = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Status"),
+        customHeadLabelRender: () => generateCustomHeaderName("Status"),
         customBodyRender: (value: any, tableMeta: any) =>
           generateStatusWithColor(value, tableMeta.rowData[9]),
       },
@@ -486,7 +486,7 @@ const Datatable_CompletedTask = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Qty."),
+        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
       },
       customBodyRender: (value: any) => {
         return generateCommonBodyRender(value);
@@ -497,7 +497,7 @@ const Datatable_CompletedTask = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },
@@ -508,7 +508,7 @@ const Datatable_CompletedTask = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Due Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
         customBodyRender: (value: any) => {
           return generateCustomFormatDate(value);
         },

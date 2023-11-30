@@ -1,7 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
-import { TablePagination, ThemeProvider, createTheme } from "@mui/material";
+import { CircularProgress, TablePagination, ThemeProvider, createTheme } from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
@@ -12,7 +12,7 @@ import { userLogs_InitialFilter } from "@/utils/reports/getFilters";
 
 // common functions for datatable
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateInitialTimer,
   generateDateWithTime,
@@ -42,6 +42,7 @@ const getMuiTheme = () =>
   });
 
 const UserLogs = ({ filteredData, searchValue }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [userlogsData, setUserlogsData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -64,21 +65,25 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
+          setLoaded(true);
           setUserlogsData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later");
           } else toast.error(data);
         }
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later");
         } else toast.error(data);
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -124,7 +129,7 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("User Name"),
+        customHeadLabelRender: () => generateCustomHeaderName("User Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -135,7 +140,7 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Reporting To"),
+        customHeadLabelRender: () => generateCustomHeaderName("Reporting To"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -146,7 +151,7 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Department"),
+        customHeadLabelRender: () => generateCustomHeaderName("Department"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -157,7 +162,7 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Login"),
+        customHeadLabelRender: () => generateCustomHeaderName("Login"),
         customBodyRender: (value: any) => {
           return generateDateWithTime(value);
         },
@@ -168,7 +173,7 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Logout"),
+        customHeadLabelRender: () => generateCustomHeaderName("Logout"),
         customBodyRender: (value: any) => {
           return generateDateWithTime(value);
         },
@@ -179,7 +184,7 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Idle Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Idle Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -190,7 +195,7 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Break Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Break Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -201,7 +206,8 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Productive Time"),
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Productive Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
@@ -212,7 +218,7 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       options: {
         sort: true,
         filter: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Is Logged In"),
+        customHeadLabelRender: () => generateCustomHeaderName("Is Logged In"),
         customBodyRender: (value: any) => {
           return value === 0 ? <div>No</div> : value === 1 && <div>Yes</div>;
         },
@@ -220,7 +226,7 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
     },
   ];
 
-  return (
+  return loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title={undefined}
@@ -237,6 +243,10 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
+  ) : (
+    <div className="h-screen w-full flex justify-center my-[20%]">
+      <CircularProgress />
+    </div>
   );
 };
 

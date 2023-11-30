@@ -1,8 +1,8 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import { styled } from "@mui/material/styles";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  CircularProgress,
   Popover,
   TablePagination,
   ThemeProvider,
@@ -29,7 +29,7 @@ import { Transition } from "../Filter/Transition/Transition";
 
 // common functions for datatable
 import {
-  genrateCustomHeaderName,
+  generateCustomHeaderName,
   generateCommonBodyRender,
   generateDateWithoutTime,
 } from "@/utils/datatable/CommonFunction";
@@ -117,7 +117,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -128,7 +128,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Client"),
+        customHeadLabelRender: () => generateCustomHeaderName("Client"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -139,7 +139,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Project"),
+        customHeadLabelRender: () => generateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -150,7 +150,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Task/Process"),
+        customHeadLabelRender: () => generateCustomHeaderName("Task/Process"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -161,7 +161,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Sub-Process"),
+        customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -172,7 +172,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Is Manual"),
+        customHeadLabelRender: () => generateCustomHeaderName("Is Manual"),
         customBodyRender: (value: any, tableMeta: any) => {
           return <span className="capitalize">{value ? "yes" : "no"}</span>;
         },
@@ -183,7 +183,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Description"),
+        customHeadLabelRender: () => generateCustomHeaderName("Description"),
       },
     },
     {
@@ -191,7 +191,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Est. Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Est. Time"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -202,7 +202,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Status"),
+        customHeadLabelRender: () => generateCustomHeaderName("Status"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -213,7 +213,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Qty."),
+        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -224,7 +224,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Start Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
         customBodyRender: (value: any) => {
           return generateDateWithoutTime(value);
         },
@@ -235,7 +235,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("End Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("End Date"),
         customBodyRender: (value: any) => {
           return generateDateWithoutTime(value);
         },
@@ -246,7 +246,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Std. Time"),
+        customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -280,7 +280,8 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => genrateCustomHeaderName("Reviewer Status"),
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Reviewer Status"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -436,14 +437,14 @@ const getMuiTheme = () =>
   });
 
 const TimeSheet = ({ filteredData, searchValue }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [dates, setDates] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [timesheetData, setTimesheetData] = useState<any>([]);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
 
-  const [anchorElFilter, setAnchorElFilter] =
-    useState<HTMLButtonElement | null>(null);
+  const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
 
@@ -464,21 +465,25 @@ const TimeSheet = ({ filteredData, searchValue }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
+          setLoaded(true);
           setTimesheetData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later.");
           } else toast.error(data);
         }
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
         } else toast.error(data);
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -778,7 +783,7 @@ const TimeSheet = ({ filteredData, searchValue }: any) => {
     },
   ];
 
-  return (
+  return loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={columns}
@@ -812,6 +817,10 @@ const TimeSheet = ({ filteredData, searchValue }: any) => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
+  ) : (
+    <div className="h-screen w-full flex justify-center my-[20%]">
+      <CircularProgress />
+    </div>
   );
 };
 

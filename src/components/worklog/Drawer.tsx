@@ -37,11 +37,15 @@ import {
   getCCDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
+  getSubProcessDropdownData,
   getTypeOfWorkDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import ImageUploader from "../common/ImageUploader";
 import { getFileFromBlob } from "@/utils/downloadFile";
 import styled from "@emotion/styled";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 const Drawer = ({
   onOpen,
@@ -143,8 +147,21 @@ const Drawer = ({
   const [taskDrawer, setTaskDrawer] = useState(true);
   const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState([]);
   const [typeOfWork, setTypeOfWork] = useState<any>(0);
+  const [projectDropdownData, setProjectDropdownData] = useState<any>([]);
+  const [projectName, setProjectName] = useState<any>(0);
   const [processDropdownData, setProcessDropdownData] = useState([]);
   const [processName, setProcessName] = useState<any>(0);
+  const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
+  const [subProcessName, setSubProcessName] = useState<any>(0);
+  const priorityDropdownData = [
+    { label: "High", value: 1 },
+    { label: "Medium", value: 2 },
+    { label: "Low", value: 3 },
+  ];
+  const [priority, setPriority] = useState<any>(0);
+  const [quantity, setQuantity] = useState<any>(1);
+  const [receiverDate, setReceiverDate] = useState<any>("");
+  const [dueDate, setDueDate] = useState<any>("");
   const [clientTaskName, setClientTaskName] = useState<string>("");
   const [clientTaskNameErr, setClientTaskNameErr] = useState(false);
   const [editStatus, setEditStatus] = useState<any>(0);
@@ -828,20 +845,24 @@ const Drawer = ({
             WorkItemId: onEdit > 0 ? onEdit : 0,
             taskName: clientTaskName.length <= 0 ? null : clientTaskName,
             WorkTypeId: typeOfWork === 0 ? null : typeOfWork,
-            ProjectId: null,
+            ProjectId: projectName === 0 ? null : projectName,
             ProcessId: processName === 0 ? null : processName,
-            SubProcessId: null,
-            Priority: null,
-            Quantity: null,
-            ReceiverDate: null,
-            DueDate: null,
+            SubProcessId: subProcessName === 0 ? null : subProcessName,
+            Priority: priority === 0 ? null : priority,
+            Quantity: quantity <= 0 ? null : quantity,
+            ReceiverDate:
+              receiverDate.length === 0
+                ? null
+                : dayjs(receiverDate).format("YYYY/MM/DD"),
+            DueDate:
+              dueDate.length === 0 ? null : dayjs(dueDate).format("YYYY/MM/DD"),
             TaxReturnType: null,
             TypeOfReturnId: null,
             TaxCustomFields:
               typeOfWork !== 3
                 ? null
                 : {
-                    ReturnYear: returnYear,
+                    ReturnYear: returnYear === 0 ? null : returnYear,
                     Complexity: null,
                     CountYear: null,
                     NoOfPages: null,
@@ -1089,11 +1110,22 @@ const Drawer = ({
           setEditData(data);
           setIsCreatedByClient(data.IsCreatedByClient);
           setTypeOfWork(data.WorkTypeId === null ? 0 : data.WorkTypeId);
+          setProjectName(data.ProjectId === null ? 0 : data.ProjectId);
           setProcessName(data.ProcessId === null ? 0 : data.ProcessId);
+          setSubProcessName(data.SubProcessId === null ? 0 : data.SubProcessId);
+          setPriority(
+            data.Priority === null || data.Priority === 0 ? 0 : data.Priority
+          );
+          setQuantity(
+            data.Quantity === null || data.Quantity === 0 ? 0 : data.Quantity
+          );
+          setReceiverDate(data.ReceiverDate === null ? 0 : data.ReceiverDate);
+          setDueDate(data.DueDate === null ? 0 : data.DueDate);
           setClientTaskName(data.TaskName === null ? "" : data.TaskName);
           setStatus(data.StatusId === null ? 0 : data.StatusId);
           setReturnYear(
-            data.TaxCustomFields.ReturnYear === null
+            data.TaxCustomFields.ReturnYear === null ||
+              data.TaxCustomFields.ReturnYear === 0
               ? 0
               : data.TaxCustomFields.ReturnYear
           );
@@ -1126,13 +1158,6 @@ const Drawer = ({
 
   // getDropdownData
   useEffect(() => {
-    if (onEdit > 0) {
-      getEditData();
-      getSubTaskData();
-      getCommentData();
-      getErrorLogData();
-    }
-
     const getData = async () => {
       const clientId: any = await localStorage.getItem("clientId");
       const workTypeData: any =
@@ -1151,16 +1176,35 @@ const Drawer = ({
         );
       const projectData: any =
         clientId > 0 && (await getProjectDropdownData(clientId));
+      projectData.length > 0 && setProjectDropdownData(projectData);
       const processData: any =
         clientId > 0 && (await getProcessDropdownData(clientId));
       setProcessDropdownData(
         processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
       );
+      const subProcessData: any =
+        clientId > 0 &&
+        processName !== 0 &&
+        (await getSubProcessDropdownData(clientId, processName));
+      subProcessData.length > 0 &&
+        setSubProcessDropdownData(
+          subProcessData.map(
+            (i: any) => new Object({ label: i.Name, value: i.Id })
+          )
+        );
       setCCDropdownData(await getCCDropdownData());
     };
 
+    if (onEdit > 0) {
+      getEditData();
+      getSubTaskData();
+      getCommentData();
+      getErrorLogData();
+      getData();
+    }
+
     onOpen && getData();
-  }, [onOpen, onEdit]);
+  }, [onOpen, onEdit, processName]);
 
   useEffect(() => {
     const getData = async () => {
@@ -1218,12 +1262,19 @@ const Drawer = ({
     setActiveTab(0);
     setTaskDrawer(true);
     setTypeOfWork(0);
+    setProjectName(0);
     setProcessName(0);
+    setSubProcessName(0);
+    setPriority(0);
+    setQuantity(0);
+    setReceiverDate("");
+    setDueDate("");
     setClientTaskName("");
     setClientTaskNameErr(false);
     setReturnYear(0);
     setEditStatus(0);
     setStatus(0);
+    setSubProcessDropdownData([]);
 
     // Sub-Task
     setSubTaskDrawer(true);
@@ -1298,6 +1349,11 @@ const Drawer = ({
       backgroundColor: "#0281B9",
     },
   }));
+
+  const isWeekend = (date: any) => {
+    const day = date.day();
+    return day === 6 || day === 0;
+  };
 
   return (
     <div
@@ -1396,6 +1452,38 @@ const Drawer = ({
                             </FormControl>
                           </Grid>
                         )}
+                      {type.Type === "ProjectName" && type.IsChecked && (
+                        <Grid item xs={3} className="pt-4">
+                          <Autocomplete
+                            disablePortal
+                            id="combo-box-demo"
+                            disabled={
+                              !isCreatedByClient ||
+                              (isCompletedTaskClicked &&
+                                onEdit > 0 &&
+                                !isCreatedByClient) ||
+                              status > 1
+                            }
+                            options={projectDropdownData}
+                            value={
+                              projectDropdownData.find(
+                                (i: any) => i.value === projectName
+                              ) || null
+                            }
+                            onChange={(e, value: any) => {
+                              value && setProjectName(value.value);
+                            }}
+                            sx={{ width: 300 }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                variant="standard"
+                                label="Project Name"
+                              />
+                            )}
+                          />
+                        </Grid>
+                      )}
                       {type.Type === "ProcessName" && type.IsChecked && (
                         <Grid item xs={3} className="pt-4">
                           <Autocomplete
@@ -1423,6 +1511,38 @@ const Drawer = ({
                                 {...params}
                                 variant="standard"
                                 label="Process Name"
+                              />
+                            )}
+                          />
+                        </Grid>
+                      )}
+                      {type.Type === "SubProcessName" && type.IsChecked && (
+                        <Grid item xs={3} className="pt-4">
+                          <Autocomplete
+                            disablePortal
+                            id="combo-box-demo"
+                            disabled={
+                              !isCreatedByClient ||
+                              (isCompletedTaskClicked &&
+                                onEdit > 0 &&
+                                !isCreatedByClient) ||
+                              status > 1
+                            }
+                            options={subProcessDropdownData}
+                            value={
+                              subProcessDropdownData.find(
+                                (i: any) => i.value === subProcessName
+                              ) || null
+                            }
+                            onChange={(e, value: any) => {
+                              value && setSubProcessName(value.value);
+                            }}
+                            sx={{ width: 300 }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                variant="standard"
+                                label="Sub-Process"
                               />
                             )}
                           />
@@ -1486,13 +1606,153 @@ const Drawer = ({
                           />
                         </Grid>
                       )}
+                      {type.Type === "Priority" && type.IsChecked && (
+                        <Grid item xs={3} className="pt-4">
+                          <Autocomplete
+                            disablePortal
+                            id="combo-box-demo"
+                            disabled={
+                              !isCreatedByClient ||
+                              (isCompletedTaskClicked &&
+                                onEdit > 0 &&
+                                !isCreatedByClient) ||
+                              status > 1
+                            }
+                            options={priorityDropdownData}
+                            value={
+                              priorityDropdownData.find(
+                                (i: any) => i.value === priority
+                              ) || null
+                            }
+                            onChange={(e, value: any) => {
+                              value && setPriority(value.value);
+                            }}
+                            sx={{ width: 300 }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                variant="standard"
+                                label="Priority"
+                              />
+                            )}
+                          />
+                        </Grid>
+                      )}
+                      {type.Type === "Quantity" && type.IsChecked && (
+                        <Grid item xs={3} className="pt-4">
+                          <TextField
+                            label="Quantity"
+                            onFocus={(e) =>
+                              e.target.addEventListener(
+                                "wheel",
+                                function (e) {
+                                  e.preventDefault();
+                                },
+                                { passive: false }
+                              )
+                            }
+                            disabled={
+                              !isCreatedByClient ||
+                              (isCompletedTaskClicked &&
+                                onEdit > 0 &&
+                                !isCreatedByClient) ||
+                              status > 1
+                            }
+                            type="number"
+                            fullWidth
+                            value={quantity}
+                            onChange={(e) => setQuantity(e.target.value)}
+                            margin="normal"
+                            variant="standard"
+                            sx={{ width: 300, mt: 0 }}
+                          />
+                        </Grid>
+                      )}
+                      {type.Type === "StartDate" && type.IsChecked && (
+                        <Grid item xs={3} className="pt-4">
+                          <div
+                            className={`inline-flex -mt-[4px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                          >
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                              <DatePicker
+                                label="Received Date"
+                                value={
+                                  receiverDate === ""
+                                    ? null
+                                    : dayjs(receiverDate)
+                                }
+                                disabled={
+                                  !isCreatedByClient ||
+                                  (isCompletedTaskClicked &&
+                                    onEdit > 0 &&
+                                    !isCreatedByClient) ||
+                                  status > 1
+                                }
+                                shouldDisableDate={isWeekend}
+                                maxDate={dayjs(Date.now())}
+                                onChange={(newDate: any) => {
+                                  setReceiverDate(newDate.$d);
+                                  const selectedDate = dayjs(newDate.$d);
+                                  let nextDate: any = selectedDate;
+                                  if (
+                                    selectedDate.day() === 4 ||
+                                    selectedDate.day() === 5
+                                  ) {
+                                    nextDate = nextDate.add(4, "day");
+                                  } else {
+                                    nextDate = dayjs(newDate.$d)
+                                      .add(2, "day")
+                                      .toDate();
+                                  }
+                                  setDueDate(nextDate);
+                                }}
+                                slotProps={{
+                                  textField: {
+                                    readOnly: true,
+                                  } as Record<string, any>,
+                                }}
+                              />
+                            </LocalizationProvider>
+                          </div>
+                        </Grid>
+                      )}
+                      {type.Type === "EndDate" && type.IsChecked && (
+                        <Grid item xs={3} className="pt-4">
+                          <div
+                            className={`inline-flex -mt-[4px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                          >
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                              <DatePicker
+                                label={
+                                  <span>
+                                    Due Date
+                                    <span className="!text-defaultRed">
+                                      &nbsp;*
+                                    </span>
+                                  </span>
+                                }
+                                value={dueDate === "" ? null : dayjs(dueDate)}
+                                disabled
+                                onChange={(newDate: any) => {
+                                  setDueDate(newDate.$d);
+                                }}
+                                slotProps={{
+                                  textField: {
+                                    readOnly: true,
+                                  } as Record<string, any>,
+                                }}
+                              />
+                            </LocalizationProvider>
+                          </div>
+                        </Grid>
+                      )}
                       {type.Type === "ReturnYear" &&
                         type.IsChecked &&
                         typeOfWork === 3 && (
                           <Grid item xs={3} className="pt-4">
                             <FormControl
                               variant="standard"
-                              sx={{ width: 300, mt: -0.3, mx: 0.75 }}
+                              sx={{ width: 300, mt: -0.4, mx: 0.75 }}
                               disabled={
                                 !isCreatedByClient ||
                                 (isCompletedTaskClicked &&

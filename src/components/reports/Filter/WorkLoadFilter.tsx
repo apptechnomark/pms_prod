@@ -92,12 +92,15 @@ const WorkLoadFilter = ({
   };
 
   const getFormattedDate = (newValue: any) => {
-    if (!!newValue) {
-      const formattedDate = `${newValue.$y}-${
+    if (newValue !== "") {
+      const year = newValue.$y;
+      const month =
         (newValue.$M + 1).toString().length > 1
           ? newValue.$M + 1
-          : `0${newValue.$M + 1}`
-      }-${newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`}`;
+          : `0${newValue.$M + 1}`;
+      const date =
+        newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`;
+      const formattedDate = year + "-" + month + "-" + date;
 
       return formattedDate;
     }
@@ -146,12 +149,12 @@ const WorkLoadFilter = ({
         const response = await axios.post(
           `${process.env.worklog_api_url}/filter/savefilter`,
           {
-            filterId: !!currentFilterId ? currentFilterId : null,
+            filterId: !currentFilterId ? null : currentFilterId,
             name: filterName,
             AppliedFilter: {
               users: userNames.length > 0 ? userNames : [],
               Department: dept === 0 ? null : dept,
-              dateFilter: !!dateFilter ? null : dateFilter,
+              dateFilter: !dateFilter ? null : dateFilter,
             },
             type: workload,
           },
@@ -201,8 +204,6 @@ const WorkLoadFilter = ({
   }, [dept, dateFilter, userNames]);
 
   useEffect(() => {
-    // handleFilterApply();
-
     const workLoadDropdowns = async () => {
       setDeptDropdown(await getDeptData());
       setUserDropdown(await getUserData());
@@ -376,7 +377,7 @@ const WorkLoadFilter = ({
               return (
                 <>
                   <div
-                    key={index}
+                    key={i.FilterId}
                     className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
                   >
                     <span
@@ -385,7 +386,6 @@ const WorkLoadFilter = ({
                         setCurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleSavedFilterApply(index);
-                        // setFilterApplied(true);
                       }}
                     >
                       {i.Name}
@@ -470,7 +470,7 @@ const WorkLoadFilter = ({
                     onChange={(e) => setDept(e.target.value)}
                   >
                     {deptDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={index}>
+                      <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
                     ))}

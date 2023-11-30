@@ -251,7 +251,7 @@ const Report = () => {
 
       const filteredData = getFilteredData();
 
-      const endpoint = isTaskClicked ? "task" : isRatingClicked ? "rating" : "";
+      const endpoint = isTaskClicked ? "task" : "rating";
 
       const response = await axios.post(
         `${process.env.report_api_url}/report/client/${endpoint}/export`,
@@ -271,11 +271,17 @@ const Report = () => {
     }
   };
 
-  const getFilteredData = () => {
-    return typeof currentFilterData === "object" &&
+  const isCurrentFilterAvailable = () => {
+    return (
+      typeof currentFilterData === "object" &&
       currentFilterData !== null &&
       !Array.isArray(currentFilterData)
-      ? isTaskClicked
+    );
+  };
+
+  const getFilteredData = () => {
+    if (isTaskClicked) {
+      return isCurrentFilterAvailable()
         ? {
             ...task_InitialFilter,
             projectIdsForFilter: currentFilterData.ProjectIdsForFilter,
@@ -284,7 +290,10 @@ const Report = () => {
             startDate: currentFilterData.StartDate,
             endDate: currentFilterData.EndDate,
           }
-        : isRatingClicked
+        : { ...task_InitialFilter };
+    }
+    if (isRatingClicked) {
+      return isCurrentFilterAvailable()
         ? {
             ...rating_InitialFilter,
             projects: currentFilterData.Projects,
@@ -293,12 +302,8 @@ const Report = () => {
             ratings: currentFilterData.Ratings,
             dateSubmitted: currentFilterData.DateSubmitted,
           }
-        : {}
-      : isTaskClicked
-      ? { ...task_InitialFilter }
-      : isRatingClicked
-      ? { ...rating_InitialFilter }
-      : {};
+        : { ...rating_InitialFilter };
+    }
   };
 
   const handleExportResponse = (response: any) => {
@@ -309,9 +314,7 @@ const Report = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${
-        isTaskClicked ? "Task" : isRatingClicked ? "Rating" : ""
-      }_report.xlsx`;
+      a.download = `${isTaskClicked ? "Task" : "Rating"}_report.xlsx`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

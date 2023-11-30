@@ -1,29 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useRef, useCallback } from "react";
 import FileIcon from "@/assets/icons/worklogs/FileIcon";
 import { BlobServiceClient, BlockBlobClient } from "@azure/storage-blob";
-import CloseIcon from "@/assets/icons/reports/CloseIcon";
-import {
-  Button,
-  Popover,
-  Tooltip,
-  TooltipProps,
-  tooltipClasses,
-} from "@mui/material";
-import { Transition } from "../reports/Filter/Transition/Transition";
+import { Tooltip, TooltipProps, tooltipClasses } from "@mui/material";
 import styled from "@emotion/styled";
 
-export default function ImageUploader({
-  getData,
-  onClose,
-  systemFile,
-  originalFile,
-  isOpen,
-  onHandlePopoverClose,
-  isDisable,
-  className,
-}: any) {
+export default function ImageUploader({ getData, isDisable, className }: any) {
   const handleImageChange = async (event: any) => {
     const fileData = event.target.files[0];
     const uuidv4 = () => {
@@ -63,7 +46,7 @@ export default function ImageUploader({
         .uploadData(file, {
           blobHTTPHeaders: { blobContentType: file.type },
         })
-        .then(async (res) => {})
+        .then(async () => {})
         .catch((err) => console.error("err", err));
     },
     []
@@ -73,7 +56,7 @@ export default function ImageUploader({
 
   const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
     <Tooltip {...props} arrow classes={{ popper: className }} />
-  ))(({ theme }) => ({
+  ))(() => ({
     [`& .${tooltipClasses.arrow}`]: {
       color: "#0281B9",
     },

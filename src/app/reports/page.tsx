@@ -64,6 +64,35 @@ const secondaryTabs = [
   { label: "rating", value: 9 },
 ];
 
+const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
+  return (
+    <div
+      style={{
+        boxShadow: "0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)",
+      }}
+      className="absolute w-36 z-50 bg-slate-50 rounded flex flex-col whitespace-nowrap"
+    >
+      {moreTabs
+        .filter((tab: any) => tab !== false)
+        .map((tab: any, index: number) => (
+          <div
+            key={tab.value}
+            className={`py-2 w-full hover:bg-[#0000000e] ${
+              index === 0 ? "rounded-t" : ""
+            } ${index === moreTabs.length - 1 ? "rounded-b" : ""}`}
+            onClick={() => handleMoreTabsClick(tab, index)}
+          >
+            <label
+              className={`mx-4 my-1 flex capitalize cursor-pointer text-base`}
+            >
+              {tab.label}
+            </label>
+          </div>
+        ))}
+    </div>
+  );
+};
+
 const Page = () => {
   const router = useRouter();
   const moreTabsRef = useRef<HTMLDivElement>(null);
@@ -217,9 +246,11 @@ const Page = () => {
         : filteredData;
 
     const response = await axios.post(
-      `${process.env.report_api_url}/report/${getCurrentTabDetails(
-        activeTab
-      )}/export`,
+      getCurrentTabDetails(activeTab).toLowerCase() === "billing"
+        ? `${process.env.report_api_url}/report/billing/exportclientwisezipReport`
+        : `${process.env.report_api_url}/report/${getCurrentTabDetails(
+            activeTab
+          )}/export`,
       {
         ...filtered,
         globalSearch: searchValue.trim().length > 0 ? searchValue : "",
@@ -243,7 +274,11 @@ const Page = () => {
       a.download = `${
         getCurrentTabDetails(activeTab).charAt(0).toUpperCase() +
         getCurrentTabDetails(activeTab).slice(1)
-      }_report.xlsx`;
+      }_report.${
+        getCurrentTabDetails(activeTab).toLowerCase() === "billing"
+          ? "zip"
+          : "xlsx"
+      }`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -253,35 +288,6 @@ const Page = () => {
     } else {
       toast.error("Failed to download, please try again later.");
     }
-  };
-
-  const MoreTabs = () => {
-    return (
-      <div
-        style={{
-          boxShadow: "0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)",
-        }}
-        className="absolute w-36 z-50 bg-slate-50 rounded flex flex-col whitespace-nowrap"
-      >
-        {moreTabs
-          .filter((tab: any) => tab !== false)
-          .map((tab: any, index: number) => (
-            <div
-              key={tab.value}
-              className={`py-2 w-full hover:bg-[#0000000e] ${
-                index === 0 ? "rounded-t" : ""
-              } ${index === moreTabs.length - 1 ? "rounded-b" : ""}`}
-              onClick={() => handleMoreTabsClick(tab, index)}
-            >
-              <label
-                className={`mx-4 my-1 flex capitalize cursor-pointer text-base`}
-              >
-                {tab.label}
-              </label>
-            </div>
-          ))}
-      </div>
-    );
   };
 
   return (
@@ -316,7 +322,12 @@ const Page = () => {
               >
                 <MoreIcon />
               </div>
-              {showMoreTabs && <MoreTabs />}
+              {showMoreTabs && (
+                <MoreTabs
+                  moreTabs={moreTabs}
+                  handleMoreTabsClick={handleMoreTabsClick}
+                />
+              )}
             </div>
           </div>
 

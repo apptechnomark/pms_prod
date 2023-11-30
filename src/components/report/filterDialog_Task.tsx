@@ -240,7 +240,7 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
                   onChange={(e: any) => setProject(e.target.value)}
                 >
                   {projectDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}
@@ -256,7 +256,7 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
                   onChange={(e: any) => setTypeOfWork(e.target.value)}
                 >
                   {typeOfWorkDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}
