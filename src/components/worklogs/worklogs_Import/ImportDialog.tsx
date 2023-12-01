@@ -422,7 +422,11 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
         </DialogContent>
         <DialogActions
           className={`border-t border-t-lightSilver p-[20px] mx-[15px] gap-[10px] h-[64px] ${
-            isTaskClicked ? "" : "flex justify-end"
+            isTaskClicked
+              ? ""
+              : isNextCliecked
+              ? "flex justify-end"
+              : "flex justify-between"
           }`}
         >
           {isTaskClicked ? (

@@ -2319,9 +2319,10 @@ const EditDrawer = ({
       const projectData: any =
         clientName > 0 && (await getProjectDropdownData(clientName));
       projectData.length > 0 && setProjectDropdownData(projectData);
-      // projectData.length > 0 &&
-      //   onEdit === 0 &&
-      //   setProjectName(projectData.map((i: any) => i.value)[0]);
+      projectData.length > 0 &&
+        projectData.length === 1 &&
+        onEdit === 0 &&
+        setProjectName(projectData.map((i: any) => i.value)[0]);
       const processData: any =
         clientName > 0 && (await getProcessDropdownData(clientName));
       setProcessDropdownData(

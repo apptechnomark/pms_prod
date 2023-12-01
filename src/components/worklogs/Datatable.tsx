@@ -675,7 +675,7 @@ const Datatable = ({
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          if (response.data.ResponseStatus !== null) {
+          if (response.data.ResponseData !== null) {
             setWorkItemData((prev: any) =>
               prev.map((data: any, index: number) => {
                 if (data.WorkitemId === selectedRowId) {
