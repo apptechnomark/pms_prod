@@ -51,6 +51,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [isUploading, setIsUplaoding] = useState<boolean>(false);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
+  const [fileInputKey, setFileInputKey] = useState(0);
 
   const handleClose = () => {
     handleReset();
@@ -64,6 +65,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     setIsNextClicked(false);
     setIsTaskClicked(false);
     setselectedtasks([]);
+    setFileInputKey((prevKey) => prevKey + 1);
     setSelectedFile(null);
   };
 
@@ -383,6 +385,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
             <div className="pt-6 px-[10px] pb-[10px] h-[235px] w-[40vw]">
               <div className="flex items-center justify-around gap-5">
                 <input
+                  key={fileInputKey}
                   accept=".xls,.xlsx"
                   style={{ display: "none" }}
                   id="raised-button-file"

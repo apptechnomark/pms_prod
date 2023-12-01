@@ -126,11 +126,11 @@ const Page = () => {
                 <ImportIcon />
               </span>
             </ColorToolTip>
-            <ColorToolTip title="Export" placement="top" arrow>
+            {/* <ColorToolTip title="Export" placement="top" arrow>
               <span className="cursor-pointer">
                 <ExportIcon />
               </span>
-            </ColorToolTip>
+            </ColorToolTip> */}
           </div>
         </div>
         <Datatable
