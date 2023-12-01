@@ -5,7 +5,7 @@ import MUIDataTable from "mui-datatables";
 import { createTheme, styled, ThemeProvider } from "@mui/material/styles";
 import Popover from "@mui/material/Popover";
 import DeleteDialog from "../common/workloags/DeleteDialog";
-import { Card, List } from "@mui/material";
+import { Card, CircularProgress, List } from "@mui/material";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import TablePagination from "@mui/material/TablePagination";
 // icons imports
@@ -99,6 +99,7 @@ const Datatable_Worklog = ({
   onSearchWorkTypeData,
   onCloseDrawer,
 }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -337,9 +338,11 @@ const Datatable_Worklog = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoaded(true);
           setWorkItemData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later.");
@@ -348,6 +351,7 @@ const Datatable_Worklog = ({
           }
         }
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
@@ -356,6 +360,7 @@ const Datatable_Worklog = ({
         }
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -839,7 +844,7 @@ const Datatable_Worklog = ({
     },
   };
 
-  return (
+  return loaded ? (
     <div>
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
@@ -1045,6 +1050,10 @@ const Datatable_Worklog = ({
           </Card>
         </div>
       )}
+    </div>
+  ) : (
+    <div className="h-screen w-full flex justify-center my-[20%]">
+      <CircularProgress />
     </div>
   );
 };

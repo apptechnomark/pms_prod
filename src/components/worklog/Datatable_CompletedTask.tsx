@@ -5,7 +5,7 @@ import MUIDataTable from "mui-datatables";
 import { createTheme, styled, ThemeProvider } from "@mui/material/styles";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import RatingDialog from "./RatingDialog";
-import { Card } from "@mui/material";
+import { Card, CircularProgress } from "@mui/material";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import TablePagination from "@mui/material/TablePagination";
 // icons imports
@@ -90,6 +90,7 @@ const Datatable_CompletedTask = ({
   onSearchWorkTypeData,
   onCloseDrawer,
 }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -276,9 +277,11 @@ const Datatable_CompletedTask = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoaded(true);
           setWorkItemData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later.");
@@ -287,6 +290,7 @@ const Datatable_CompletedTask = ({
           }
         }
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
@@ -295,6 +299,7 @@ const Datatable_CompletedTask = ({
         }
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -565,37 +570,43 @@ const Datatable_CompletedTask = ({
 
   return (
     <div>
-      <ThemeProvider theme={getMuiTheme()}>
-        <MUIDataTable
-          data={workItemData}
-          columns={columns}
-          title={undefined}
-          options={{
-            ...options,
-            onRowSelectionChange: (
-              currentRowsSelected: any,
-              allRowsSelected: any,
-              rowsSelected: any
-            ) =>
-              handleRowSelect(
-                currentRowsSelected,
-                allRowsSelected,
-                rowsSelected
-              ),
-          }}
-          data-tableid="completedTask_Datatable"
-        />
-        <TablePagination
-          className="mt-[10px]"
-          component="div"
-          count={tableDataCount}
-          page={page}
-          // rowsPerPageOptions={[5, 10, 15]}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </ThemeProvider>
+      {loaded ? (
+        <ThemeProvider theme={getMuiTheme()}>
+          <MUIDataTable
+            data={workItemData}
+            columns={columns}
+            title={undefined}
+            options={{
+              ...options,
+              onRowSelectionChange: (
+                currentRowsSelected: any,
+                allRowsSelected: any,
+                rowsSelected: any
+              ) =>
+                handleRowSelect(
+                  currentRowsSelected,
+                  allRowsSelected,
+                  rowsSelected
+                ),
+            }}
+            data-tableid="completedTask_Datatable"
+          />
+          <TablePagination
+            className="mt-[10px]"
+            component="div"
+            count={tableDataCount}
+            page={page}
+            // rowsPerPageOptions={[5, 10, 15]}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </ThemeProvider>
+      ) : (
+        <div className="h-screen w-full flex justify-center my-[20%]">
+          <CircularProgress />
+        </div>
+      )}
 
       {/* Delete Dialog Box */}
       <DeleteDialog

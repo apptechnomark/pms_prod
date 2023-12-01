@@ -13,6 +13,7 @@ import {
   List,
   InputBase,
   Avatar,
+  CircularProgress,
 } from "@mui/material";
 import Popover from "@mui/material/Popover";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
@@ -122,6 +123,7 @@ const Datatable = ({
   onComment,
   onErrorLog,
 }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -877,9 +879,11 @@ const Datatable = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoaded(true);
           setReviewList(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later.");
@@ -888,7 +892,7 @@ const Datatable = ({
           }
         }
       } else {
-        // setLoader(false);
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
@@ -897,6 +901,7 @@ const Datatable = ({
         }
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -1424,39 +1429,45 @@ const Datatable = ({
 
   return (
     <div>
-      <ThemeProvider theme={getMuiTheme()}>
-        <MUIDataTable
-          data={reviewList}
-          columns={columns}
-          title={undefined}
-          data-tableid="approval_Datatable"
-          options={{
-            ...options,
-            onRowSelectionChange: (
-              currentRowsSelected: any,
-              allRowsSelected: any,
-              rowsSelected: any
-            ) =>
-              handleRowSelect(
-                currentRowsSelected,
-                allRowsSelected,
-                rowsSelected
-              ),
-            selectAllRows: isPopupOpen && selectedRowsCount === 0,
-            rowsSelected: selectedRows,
-          }}
-        />
-        <TablePagination
-          className="mt-[10px]"
-          component="div"
-          count={tableDataCount}
-          page={page}
-          // rowsPerPageOptions={[5, 10, 15]}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </ThemeProvider>
+      {loaded ? (
+        <ThemeProvider theme={getMuiTheme()}>
+          <MUIDataTable
+            data={reviewList}
+            columns={columns}
+            title={undefined}
+            data-tableid="approval_Datatable"
+            options={{
+              ...options,
+              onRowSelectionChange: (
+                currentRowsSelected: any,
+                allRowsSelected: any,
+                rowsSelected: any
+              ) =>
+                handleRowSelect(
+                  currentRowsSelected,
+                  allRowsSelected,
+                  rowsSelected
+                ),
+              selectAllRows: isPopupOpen && selectedRowsCount === 0,
+              rowsSelected: selectedRows,
+            }}
+          />
+          <TablePagination
+            className="mt-[10px]"
+            component="div"
+            count={tableDataCount}
+            page={page}
+            // rowsPerPageOptions={[5, 10, 15]}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </ThemeProvider>
+      ) : (
+        <div className="h-screen w-full flex justify-center my-[20%]">
+          <CircularProgress />
+        </div>
+      )}
 
       {/* filter popup box*/}
       {selectedRowsCount > 0 && (

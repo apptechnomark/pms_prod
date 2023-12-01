@@ -124,6 +124,9 @@ const Home = () => {
 
         if (local.length > 2) {
           handlePermissions(response);
+        } else {
+          router.push("/login");
+          localStorage.clear();
         }
       }
     } catch (error: any) {

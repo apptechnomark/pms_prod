@@ -374,7 +374,7 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
     },
   ];
 
-  return loaded ? (
+  return (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={columns}
@@ -407,10 +407,6 @@ const CustomReport = ({ filteredData, searchValue }: any) => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
-  ) : (
-    <div className="h-screen w-full flex justify-center my-[20%]">
-      <CircularProgress />
-    </div>
   );
 };
 

@@ -3,7 +3,7 @@ import axios from "axios";
 import MUIDataTable from "mui-datatables";
 import { createTheme, styled, ThemeProvider } from "@mui/material/styles";
 import Popover from "@mui/material/Popover";
-import { Avatar, Card, InputBase, List } from "@mui/material";
+import { Avatar, Card, CircularProgress, InputBase, List } from "@mui/material";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import TablePagination from "@mui/material/TablePagination";
 import { toast } from "react-toastify";
@@ -111,6 +111,7 @@ const UnassigneeDatatable = ({
   currentFilterData,
   onDrawerClose,
 }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [allStatus, setAllStatus] = useState<any | any[]>([]);
   const [assignee, setAssignee] = useState<any | any[]>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
@@ -703,9 +704,11 @@ const UnassigneeDatatable = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoaded(true);
           setWorkItemData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later.");
@@ -714,6 +717,7 @@ const UnassigneeDatatable = ({
           }
         }
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
@@ -722,6 +726,7 @@ const UnassigneeDatatable = ({
         }
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -1584,36 +1589,42 @@ const UnassigneeDatatable = ({
 
   return (
     <div>
-      <ThemeProvider theme={getMuiTheme()}>
-        <MUIDataTable
-          data={workItemData}
-          columns={columns}
-          title={undefined}
-          options={{
-            ...options,
-            onRowSelectionChange: (
-              currentRowsSelected: any,
-              allRowsSelected: any,
-              rowsSelected: any
-            ) =>
-              handleRowSelect(
-                currentRowsSelected,
-                allRowsSelected,
-                rowsSelected
-              ),
-          }}
-          data-tableid="unassignee_Datatable"
-        />
-        <TablePagination
-          component="div"
-          // rowsPerPageOptions={[5, 10, 15]}
-          count={tableDataCount}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </ThemeProvider>
+      {loaded ? (
+        <ThemeProvider theme={getMuiTheme()}>
+          <MUIDataTable
+            data={workItemData}
+            columns={columns}
+            title={undefined}
+            options={{
+              ...options,
+              onRowSelectionChange: (
+                currentRowsSelected: any,
+                allRowsSelected: any,
+                rowsSelected: any
+              ) =>
+                handleRowSelect(
+                  currentRowsSelected,
+                  allRowsSelected,
+                  rowsSelected
+                ),
+            }}
+            data-tableid="unassignee_Datatable"
+          />
+          <TablePagination
+            component="div"
+            // rowsPerPageOptions={[5, 10, 15]}
+            count={tableDataCount}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </ThemeProvider>
+      ) : (
+        <div className="h-screen w-full flex justify-center my-[20%]">
+          <CircularProgress />
+        </div>
+      )}
 
       {/* Delete Dialog Box */}
       <DeleteDialog

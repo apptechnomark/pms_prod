@@ -7,6 +7,7 @@ import {
   Avatar,
   Button,
   Card,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -137,6 +138,7 @@ const Datatable = ({
   currentFilterData,
   onComment,
 }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [allStatus, setAllStatus] = useState<any | any[]>([]);
   const [assignee, setAssignee] = useState<any | any[]>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
@@ -673,18 +675,22 @@ const Datatable = ({
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          setWorkItemData((prev: any) =>
-            prev.map((data: any, index: number) => {
-              if (data.WorkitemId === selectedRowId) {
-                return new Object({
-                  ...data,
-                  Timer: response.data.ResponseData?.SyncTime,
-                });
-              } else {
-                return data;
-              }
-            })
-          );
+          if (response.data.ResponseStatus !== null) {
+            setWorkItemData((prev: any) =>
+              prev.map((data: any, index: number) => {
+                if (data.WorkitemId === selectedRowId) {
+                  return new Object({
+                    ...data,
+                    Timer: response.data.ResponseData?.SyncTime,
+                  });
+                } else {
+                  return data;
+                }
+              })
+            );
+          } else {
+            getWorkItemList();
+          }
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -848,9 +854,11 @@ const Datatable = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoaded(true);
           setWorkItemData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later.");
@@ -859,6 +867,7 @@ const Datatable = ({
           }
         }
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
@@ -867,6 +876,7 @@ const Datatable = ({
         }
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -2294,36 +2304,42 @@ const Datatable = ({
 
   return (
     <div>
-      <ThemeProvider theme={getMuiTheme()}>
-        <MUIDataTable
-          data={workItemData}
-          columns={columns}
-          title={undefined}
-          options={{
-            ...options,
-            onRowSelectionChange: (
-              currentRowsSelected: any,
-              allRowsSelected: any,
-              rowsSelected: any
-            ) =>
-              handleRowSelect(
-                currentRowsSelected,
-                allRowsSelected,
-                rowsSelected
-              ),
-          }}
-          data-tableid="Datatable"
-        />
-        <TablePagination
-          component="div"
-          // rowsPerPageOptions={[5, 10, 15]}
-          count={tableDataCount}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </ThemeProvider>
+      {loaded ? (
+        <ThemeProvider theme={getMuiTheme()}>
+          <MUIDataTable
+            data={workItemData}
+            columns={columns}
+            title={undefined}
+            options={{
+              ...options,
+              onRowSelectionChange: (
+                currentRowsSelected: any,
+                allRowsSelected: any,
+                rowsSelected: any
+              ) =>
+                handleRowSelect(
+                  currentRowsSelected,
+                  allRowsSelected,
+                  rowsSelected
+                ),
+            }}
+            data-tableid="Datatable"
+          />
+          <TablePagination
+            component="div"
+            // rowsPerPageOptions={[5, 10, 15]}
+            count={tableDataCount}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </ThemeProvider>
+      ) : (
+        <div className="h-screen w-full flex justify-center my-[20%]">
+          <CircularProgress />
+        </div>
+      )}
 
       {/* Timer Stop Dialog */}
       <Dialog open={stopTimerDialog}>

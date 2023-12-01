@@ -1,5 +1,5 @@
 import { ThemeProvider } from "@emotion/react";
-import { createTheme } from "@mui/material";
+import { CircularProgress, createTheme } from "@mui/material";
 import axios from "axios";
 import MUIDataTable from "mui-datatables";
 import React, { useEffect, useState } from "react";
@@ -57,6 +57,7 @@ const initialFilter = {
 };
 
 const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [taskData, setTaskData] = useState<any>([]);
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
   const [page, setPage] = useState(0);
@@ -112,9 +113,11 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setLoaded(true);
           setTaskData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
+          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later.");
@@ -123,6 +126,7 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
           }
         }
       } else {
+        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
@@ -131,6 +135,7 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
         }
       }
     } catch (error) {
+      setLoaded(true);
       console.error(error);
     }
   };
@@ -299,7 +304,7 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
     pagination: false,
   };
 
-  return (
+  return loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         data={taskData}
@@ -320,6 +325,10 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
+  ) : (
+    <div className="h-screen w-full flex justify-center my-[20%]">
+      <CircularProgress />
+    </div>
   );
 };
 
