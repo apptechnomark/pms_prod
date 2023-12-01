@@ -15,7 +15,10 @@ import {
   Grid,
   TextField,
   ThemeProvider,
+  Tooltip,
+  TooltipProps,
   createTheme,
+  tooltipClasses,
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -52,6 +55,9 @@ import {
   generateCustomHeaderName,
   generateDashboardReportBodyRender,
 } from "@/utils/datatable/CommonFunction";
+import ExportIcon from "@/assets/icons/ExportIcon";
+import styled from "@emotion/styled";
+import Loading from "@/assets/icons/reports/Loading";
 
 const getMuiTheme = () =>
   createTheme({
@@ -113,6 +119,7 @@ const Page = () => {
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
   const [clients, setClients] = useState<any[]>([]);
   const [clientDropdownData, setClientDropdownData] = useState<any>([]);
+  const [isExporting, setIsExporting] = useState<boolean>(false);
 
   useEffect(() => {
     if (localStorage.getItem("isClient") === "false") {
@@ -290,6 +297,51 @@ const Page = () => {
       PageNo: 1,
       PageSize: event.target.value,
     });
+  };
+
+  const exportSummaryReport = async () => {
+    try {
+      setIsExporting(true);
+
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+
+      const response = await axios.post(
+        `${process.env.report_api_url}/dashboard/dashboardclientsummary/export`,
+        {
+          ...filteredObject,
+        },
+        {
+          headers: { Authorization: `bearer ${token}`, org_token: Org_Token },
+          responseType: "arraybuffer",
+        }
+      );
+
+      handleExportResponse(response);
+    } catch (error: any) {
+      setIsExporting(false);
+      toast.error(error);
+    }
+  };
+
+  const handleExportResponse = (response: any) => {
+    if (response.status === 200) {
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `DashboardSummary_report.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      setIsExporting(false);
+    } else {
+      setIsExporting(false);
+      toast.error("Login failed. Please try again.");
+    }
   };
 
   // Report Table Columns
@@ -485,6 +537,17 @@ const Page = () => {
     selectableRows: "none",
   };
 
+  const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
+    <Tooltip {...props} arrow classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.arrow}`]: {
+      color: "#0281B9",
+    },
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: "#0281B9",
+    },
+  }));
+
   return (
     <Wrapper className="min-h-screen overflow-y-auto">
       <div>
@@ -525,37 +588,49 @@ const Page = () => {
           </div>
 
           {isReportClicked && (
-            <FormControl
-              variant="standard"
-              sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
-            >
-              <Autocomplete
-                multiple
-                id="tags-standard"
-                options={clientDropdownData.filter(
-                  (option: any) =>
-                    !clients.find(
-                      (client: any) => client.value === option.value
-                    )
-                )}
-                getOptionLabel={(option: any) => option.label}
-                onChange={(e: any, data: any) => {
-                  setFilteredOject({
-                    ...filteredObject,
-                    Clients: data.map((i: any) => i.value),
-                  });
-                  setClients(data);
-                }}
-                value={clients}
-                renderInput={(params: any) => (
-                  <TextField
-                    {...params}
-                    variant="standard"
-                    label="Client Name"
-                  />
-                )}
-              />
-            </FormControl>
+            <div className="flex items-center justify-center gap-2">
+              <FormControl
+                variant="standard"
+                sx={{ mx: 0.75, my: 0.4, minWidth: 210 }}
+              >
+                <Autocomplete
+                  multiple
+                  id="tags-standard"
+                  options={clientDropdownData.filter(
+                    (option: any) =>
+                      !clients.find(
+                        (client: any) => client.value === option.value
+                      )
+                  )}
+                  getOptionLabel={(option: any) => option.label}
+                  onChange={(e: any, data: any) => {
+                    setFilteredOject({
+                      ...filteredObject,
+                      Clients: data.map((i: any) => i.value),
+                    });
+                    setClients(data);
+                  }}
+                  value={clients}
+                  renderInput={(params: any) => (
+                    <TextField
+                      {...params}
+                      variant="standard"
+                      label="Client Name"
+                    />
+                  )}
+                />
+              </FormControl>
+              <ColorToolTip title="Export" placement="top" arrow>
+                <span
+                  className={`${
+                    isExporting ? "cursor-default" : "cursor-pointer"
+                  } mt-7`}
+                  onClick={exportSummaryReport}
+                >
+                  {isExporting ? <Loading /> : <ExportIcon />}
+                </span>
+              </ColorToolTip>
+            </div>
           )}
         </div>
 

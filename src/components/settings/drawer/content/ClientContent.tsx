@@ -205,50 +205,37 @@ const ClientContent = forwardRef<
   const toggleAccountingAccordion = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
+    const checked = e.target.checked;
     setIsAccountingOpen((prevIsOpen) => !prevIsOpen);
-    setAccounting(e.target.checked);
-    e.target.checked
-      ? (setAccBillingHasErr(false),
-        setAccGroupHasErr(false),
-        setAccContHrsHasErr(false),
-        setAccActHrsHasErr(false))
-      : (setAccBillingHasErr(true),
-        setAccGroupHasErr(true),
-        setAccContHrsHasErr(true),
-        setAccActHrsHasErr(true));
+    setAccounting(checked);
+    setAccBillingHasErr(checked);
+    setAccGroupHasErr(checked);
+    setAccContHrsHasErr(checked);
+    setAccActHrsHasErr(checked);
     // setIsAuditOpen(false);
     // setIsTaxationOpen(false);
   };
 
   const toggleAuditAccordion = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
     setIsAuditOpen((prevIsOpen) => !prevIsOpen);
-    setAudit(e.target.checked);
-    e.target.checked
-      ? (setAuditBillingHasErr(false),
-        setAuditGroupHasErr(false),
-        setAuditContHrsHasErr(false),
-        setAuditActHrsHasErr(false))
-      : (setAuditBillingHasErr(true),
-        setAuditGroupHasErr(true),
-        setAuditContHrsHasErr(true),
-        setAuditActHrsHasErr(true));
+    setAudit(checked);
+    setAuditBillingHasErr(checked);
+    setAuditGroupHasErr(checked);
+    setAuditContHrsHasErr(checked);
+    setAuditActHrsHasErr(checked);
     // setIsAccountingOpen(false);
     // setIsTaxationOpen(false);
   };
 
   const toggleTaxAccordion = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = e.target.checked;
     setIsTaxOpen((prevIsOpen) => !prevIsOpen);
-    setTax(e.target.checked);
-    e.target.checked
-      ? (setTaxBillingHasErr(false),
-        setTaxGroupHasErr(false),
-        setTaxContHrsHasErr(false),
-        setTaxActHrsHasErr(false))
-      : (setTaxBillingHasErr(true),
-        setTaxGroupHasErr(true),
-        setTaxContHrsHasErr(true),
-        setTaxActHrsHasErr(true));
-    // setIsAccountingOpen(false);
+    setTax(checked);
+    setTaxBillingHasErr(checked);
+    setTaxGroupHasErr(checked);
+    setTaxContHrsHasErr(checked);
+    setTaxActHrsHasErr(checked);
     // setIsAuditOpen(false);
   };
 
