@@ -19,6 +19,7 @@ function Group({
   canDelete,
   onSearchGroupData,
   onSearchClear,
+  onHandleExport,
 }: any) {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
@@ -80,6 +81,9 @@ function Group({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoader(false);
           setData(response.data.ResponseData.List);
           getOrgDetailsFunction();

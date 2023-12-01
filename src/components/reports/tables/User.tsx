@@ -50,7 +50,7 @@ const getMuiTheme = () =>
     },
   });
 
-const User = ({ filteredData, searchValue }: any) => {
+const User = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [dates, setDates] = useState<any>([]);
   const [page, setPage] = useState<number>(0);
@@ -75,6 +75,9 @@ const User = ({ filteredData, searchValue }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoaded(true);
           setUserData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);

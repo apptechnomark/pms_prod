@@ -50,7 +50,7 @@ const project_InitialFilter = {
   isClientReport: false,
 };
 
-const Project = ({ filteredData, searchValue }: any) => {
+const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -74,6 +74,9 @@ const Project = ({ filteredData, searchValue }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoaded(true);
           setProjectData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);

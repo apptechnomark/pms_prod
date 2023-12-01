@@ -55,7 +55,7 @@ const getMuiTheme = () =>
     },
   });
 
-const Workload = ({ filteredData, searchValue }: any) => {
+const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [workloadData, setWorkloadData] = useState<any>([]);
@@ -81,6 +81,9 @@ const Workload = ({ filteredData, searchValue }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoaded(true);
           setWorkloadData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);

@@ -187,6 +187,7 @@ export const getProcessDropdownData = async (clientId: any) => {
 
     if (response.status === 200) {
       if (response.data.ResponseStatus === "Success") {
+        console.log(response.data.ResponseData)
         return response.data.ResponseData;
       } else {
         toast.error("Please try again later.");

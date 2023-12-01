@@ -58,6 +58,7 @@ const rating_InitialFilter = {
 
 const Report = () => {
   const router = useRouter();
+  const [canExport, setCanExport] = useState<boolean>(false);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const [isTaskClicked, setIsTaskClicked] = useState(true);
   const [isRatingClicked, setIsRatingClicked] = useState(false);
@@ -331,6 +332,11 @@ const Report = () => {
     toast.error(error);
   };
 
+  //handling export on data length
+  const handleCanExport = (arg1: boolean) => {
+    setCanExport(arg1);
+  };
+
   return (
     <Wrapper>
       <Navbar />
@@ -422,8 +428,10 @@ const Report = () => {
           </ColorToolTip>
           <ColorToolTip title="Export" placement="top" arrow>
             <span
-              className={`${isExporting ? "cursor-default" : "cursor-pointer"}`}
-              onClick={exportClientReport}
+              className={`${canExport ? "" : "pointer-events-none opacity-50"}${
+                isExporting ? "cursor-default" : "cursor-pointer"
+              }`}
+              onClick={canExport ? exportClientReport : undefined}
             >
               {isExporting ? <Loading /> : <ExportIcon />}
             </span>
@@ -435,6 +443,7 @@ const Report = () => {
         <Datatable_Task
           currentFilterData={currentFilterData}
           onSearchData={taskData}
+          onHandleExport={handleCanExport}
         />
       )}
 
@@ -450,6 +459,7 @@ const Report = () => {
         <Datatable_Rating
           currentFilterData={currentFilterData}
           onSearchData={ratingData}
+          onHandleExport={handleCanExport}
         />
       )}
 

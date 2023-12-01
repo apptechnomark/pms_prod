@@ -34,6 +34,7 @@ const User = ({
   canPermission,
   onSearchUserData,
   onSearchClear,
+  onHandleExport,
 }: any) => {
   const headers = [
     { header: "User Name", accessor: "FullName", sortable: true },
@@ -429,6 +430,9 @@ const User = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoader(false);
           setData(response.data.ResponseData.List);
           getOrgDetailsFunction();

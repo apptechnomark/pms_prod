@@ -20,6 +20,7 @@ const Permissions = ({
   canView,
   canEdit,
   canDelete,
+  onHandleExport,
 }: any) => {
   const [data, setData] = useState<any>([]);
   const [isAction, setIsAction] = useState<string>("");
@@ -203,6 +204,9 @@ const Permissions = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           const responseData = response.data.ResponseData;
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setData(responseData);
           getOrgDetailsFunction();
           if (Array.isArray(responseData) && responseData.length > 0) {

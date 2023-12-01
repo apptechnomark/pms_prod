@@ -18,6 +18,7 @@ function Organization({
   getOrgDetailsFunction,
   onSearchOrgData,
   onSearchClear,
+  onHandleExport,
 }: any) {
   const [userList, setUserList] = useState([]);
   const [isOpenSwitchModal, setIsOpenSwitchModal] = useState(false);
@@ -92,9 +93,11 @@ function Organization({
       console.error(error);
     }
   };
+
   const closeSwitchModal = async () => {
     await setIsOpenSwitchModal(false);
   };
+
   const SwitchData = ({ id, IsActive }: any) => {
     const activeUser = async () => {
       await setIsOpenSwitchModal(true);
@@ -247,6 +250,9 @@ function Organization({
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoader(false);
           setUserList(response.data.ResponseData);
         } else {

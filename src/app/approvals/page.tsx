@@ -121,11 +121,11 @@ const Page = () => {
                 <FilterIcon />
               </span>
             </ColorToolTip>
-            <ColorToolTip title="Import" placement="top" arrow>
+            {/* <ColorToolTip title="Import" placement="top" arrow>
               <span className="cursor-pointer">
                 <ImportIcon />
               </span>
-            </ColorToolTip>
+            </ColorToolTip> */}
             {/* <ColorToolTip title="Export" placement="top" arrow>
               <span className="cursor-pointer">
                 <ExportIcon />

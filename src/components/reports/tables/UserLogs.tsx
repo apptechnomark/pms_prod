@@ -1,7 +1,12 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
-import { CircularProgress, TablePagination, ThemeProvider, createTheme } from "@mui/material";
+import {
+  CircularProgress,
+  TablePagination,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
@@ -41,7 +46,7 @@ const getMuiTheme = () =>
     },
   });
 
-const UserLogs = ({ filteredData, searchValue }: any) => {
+const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [userlogsData, setUserlogsData] = useState<any>([]);
@@ -65,6 +70,9 @@ const UserLogs = ({ filteredData, searchValue }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoaded(true);
           setUserlogsData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);

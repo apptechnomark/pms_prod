@@ -46,7 +46,7 @@ const getMuiTheme = () =>
     },
   });
 
-const RatingReport = ({ filteredData, searchValue }: any) => {
+const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [ratingData, setRatingData] = useState<any>([]);
@@ -65,6 +65,9 @@ const RatingReport = ({ filteredData, searchValue }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoaded(true);
           setRatingData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);

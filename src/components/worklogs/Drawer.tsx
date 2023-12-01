@@ -2350,13 +2350,29 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
-      setAssigneeDropdownData(
-        await getAssigneeDropdownData(clientName, typeOfWork)
+      const assigneeData = await getAssigneeDropdownData(
+        clientName,
+        typeOfWork
       );
+      assigneeData.length > 0 && setAssigneeDropdownData(assigneeData);
+      const assigneeId =
+        onEdit > 0 &&
+        assignee > 0 &&
+        assigneeData.length > 0 &&
+        assigneeData
+          .map((i: any) => (i.value === assignee ? assignee : false))
+          .filter((j: any) => j !== false)[0];
+
+      onEdit > 0 &&
+        assignee > 0 &&
+        assigneeData.length > 0 &&
+        assigneeId !== undefined &&
+        setAssignee(assigneeId);
       const reviewerData = await getReviewerDropdownData(
         clientName,
         typeOfWork
       );
+
       reviewerData.length > 0 && setReviewerDropdownData(reviewerData);
       const UserId: any = await localStorage.getItem("UserId");
       const reviwerId =
@@ -3131,30 +3147,32 @@ const EditDrawer = ({
                           id="demo-simple-select-standard"
                           value={typeOfWork === 0 ? "" : typeOfWork}
                           onChange={(e) => {
-                            setProjectName(0);
-                            setProjectNameErr(false);
-                            setProcessName(0);
-                            setProcessNameErr(false);
-                            setSubProcess(0);
-                            setSubProcessErr(false);
-                            setDescription("");
-                            setManager(0);
-                            setManagerErr(false);
-                            setPriority(0);
-                            setQuantity(1);
-                            setQuantityErr(false);
-                            setReceiverDate("");
-                            setReceiverDateErr(false);
-                            setDueDate("");
-                            assigneeDisable && setAssignee(0);
-                            assigneeDisable && setAssigneeErr(false);
-                            setReviewer(0);
-                            setReviewerErr(false);
+                            onEdit === 0 && setProjectName(0);
+                            onEdit === 0 && setProjectNameErr(false);
+                            onEdit === 0 && setProcessName(0);
+                            onEdit === 0 && setProcessNameErr(false);
+                            onEdit === 0 && setSubProcess(0);
+                            onEdit === 0 && setSubProcessErr(false);
+                            onEdit === 0 && setDescription("");
+                            onEdit === 0 && setManager(0);
+                            onEdit === 0 && setManagerErr(false);
+                            onEdit === 0 && setPriority(0);
+                            onEdit === 0 && setQuantity(1);
+                            onEdit === 0 && setQuantityErr(false);
+                            onEdit === 0 && setReceiverDate("");
+                            onEdit === 0 && setReceiverDateErr(false);
+                            onEdit === 0 && setDueDate("");
+                            onEdit === 0 && assigneeDisable && setAssignee(0);
+                            onEdit === 0 &&
+                              assigneeDisable &&
+                              setAssigneeErr(false);
+                            onEdit === 0 && setReviewer(0);
+                            onEdit === 0 && setReviewerErr(false);
                             setTypeOfWork(e.target.value);
-                            setDateOfReview("");
-                            setDateOfPreperation("");
+                            onEdit === 0 && setDateOfReview("");
+                            onEdit === 0 && setDateOfPreperation("");
                             // setReturnYear(0);
-                            setNoOfPages(0);
+                            onEdit === 0 && setNoOfPages(0);
                           }}
                           onBlur={(e: any) => {
                             if (e.target.value > 0) {
@@ -4648,6 +4666,7 @@ const EditDrawer = ({
                             }
                             disabled={!recurringSwitch}
                             onError={() => setRecurringStartDateErr(false)}
+                            minDate={dayjs(receiverDate)}
                             maxDate={dayjs(recurringEndDate)}
                             value={
                               recurringStartDate === ""
@@ -4684,7 +4703,7 @@ const EditDrawer = ({
                                 </span>
                               </span>
                             }
-                            minDate={dayjs(recurringStartDate)}
+                            minDate={dayjs(receiverDate)}
                             disabled={!recurringSwitch}
                             onError={() => setRecurringEndDateErr(false)}
                             value={

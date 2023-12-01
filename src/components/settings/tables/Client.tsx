@@ -25,6 +25,7 @@ function Client({
   canProcess,
   onSearchClientData,
   onSearchClear,
+  onHandleExport,
 }: any) {
   const headers = [
     {
@@ -115,6 +116,9 @@ function Client({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoader(false);
           setData(response.data.ResponseData.List);
           getOrgDetailsFunction();

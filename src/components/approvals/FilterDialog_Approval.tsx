@@ -11,6 +11,10 @@ import { FormControl, InputLabel, MenuItem } from "@mui/material";
 import Select from "@mui/material/Select";
 import axios from "axios";
 import { toast } from "react-toastify";
+import {
+  getProcessDropdownData,
+  getProjectDropdownData,
+} from "@/utils/commonDropdownApiCall";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -42,7 +46,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   onClose,
   currentFilterData,
 }) => {
-  const [clientName, setClientName] = useState<number | string>(0);
+  const [clientName, setClientName] = useState<any>(0);
   const [userName, setUser] = useState<number | string>(0);
   const [projectName, setProjectName] = useState<number | string>(0);
   const [status, setStatus] = useState<number | string>(0);
@@ -64,8 +68,10 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     setClientName(0);
     setUser(0);
     setProjectName(0);
+    setProjectDropdownData([]);
     setStatus(0);
     setProcessName(0);
+    setProcessDropdownData([]);
     currentFilterData(initialFilter);
   };
 
@@ -91,47 +97,6 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           setClientDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getProjectData = async (clientName: string | number) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/project/getdropdown`,
-        {
-          clientId: clientName ? clientName : 0,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setProjectDropdownData(response.data.ResponseData.List);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -208,16 +173,17 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           setStatusDropdownData(
-            response.data.ResponseData.filter(
-              (i: any) =>
-                i.Type !== "Errorlogs" &&
-                i.Type !== "InProgress" &&
-                i.Type !== "NotStarted" &&
-                i.Type !== "PartialSubmitted" &&
-                i.Type !== "Reject" &&
-                i.Type !== "Rework" &&
-                i.Type !== "Stop"
-            )
+            response.data.ResponseData
+            // .filter(
+            //   (i: any) =>
+            //     i.Type !== "Errorlogs" &&
+            //     i.Type !== "InProgress" &&
+            //     i.Type !== "NotStarted" &&
+            //     i.Type !== "PartialSubmitted" &&
+            //     i.Type !== "Reject" &&
+            //     i.Type !== "Rework" &&
+            //     i.Type !== "Stop"
+            // )
           );
         } else {
           const data = response.data.Message;
@@ -240,42 +206,9 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     }
   };
 
-  const getAllProcess = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/Process/GetDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setProcessDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Error duplicating task.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Error duplicating task.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  const getAllData = async (clientName: any) => {
+    setProcessDropdownData(await getProcessDropdownData(clientName));
+    setProjectDropdownData(await getProjectDropdownData(clientName));
   };
 
   useEffect(() => {
@@ -283,12 +216,11 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       getClientData();
       getEmployeeData();
       getAllStatus();
-      getAllProcess();
     }
   }, [onOpen]);
 
   useEffect(() => {
-    getProjectData(clientName);
+    clientName > 0 && getAllData(clientName);
   }, [clientName]);
 
   // Check if any field is selected
@@ -384,6 +316,22 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
 
             <div className="flex gap-[20px]">
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
+                <InputLabel id="process_Name">Process Name</InputLabel>
+                <Select
+                  labelId="process_Name"
+                  id="process_Name"
+                  value={processName === 0 ? "" : processName}
+                  onChange={(e) => setProcessName(e.target.value)}
+                >
+                  {processDropdownData.map((i: any) => (
+                    <MenuItem value={i.Id} key={i.Id}>
+                      {i.Name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
                 <InputLabel id="status">Status</InputLabel>
                 <Select
                   labelId="status"
@@ -392,22 +340,6 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   onChange={(e) => setStatus(e.target.value)}
                 >
                   {statusDropdownData.map((i: any) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="processName">Process</InputLabel>
-                <Select
-                  labelId="processName"
-                  id="processName"
-                  value={processName === 0 ? "" : processName}
-                  onChange={(e) => setProcessName(e.target.value)}
-                >
-                  {processDropdownData.map((i: any) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>

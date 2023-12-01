@@ -20,6 +20,7 @@ const Project = ({
   canDelete,
   onSearchProjectData,
   onSearchClear,
+  onHandleExport,
 }: any) => {
   const headers = [
     { header: "Client Name", accessor: "ClientName", sortable: true },
@@ -288,6 +289,9 @@ const Project = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoader(false);
           setData(response.data.ResponseData.List);
           getOrgDetailsFunction();

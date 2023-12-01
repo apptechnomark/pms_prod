@@ -17,6 +17,7 @@ function Status({
   canDelete,
   onSearchStatusData,
   onSearchClear,
+  onHandleExport,
 }: any) {
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
@@ -75,6 +76,9 @@ function Status({
         { headers: headers }
       );
       if (response.status === 200) {
+        onHandleExport(
+          response.data.ResponseData.List.length > 0 ? true : false
+        );
         setLoader(false);
         setStatusList(response.data.ResponseData.List);
         getOrgDetailsFunction();

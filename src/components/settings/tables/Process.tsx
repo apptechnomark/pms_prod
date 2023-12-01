@@ -20,6 +20,7 @@ function Process({
   canDelete,
   onSearchProcessData,
   onSearchClear,
+  onHandleExport,
 }: any) {
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
@@ -79,6 +80,9 @@ function Process({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoader(false);
           setData(response.data.ResponseData.List);
           getOrgDetailsFunction();

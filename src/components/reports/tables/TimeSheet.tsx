@@ -436,7 +436,7 @@ const getMuiTheme = () =>
     },
   });
 
-const TimeSheet = ({ filteredData, searchValue }: any) => {
+const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [dates, setDates] = useState<any>([]);
@@ -465,6 +465,9 @@ const TimeSheet = ({ filteredData, searchValue }: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus.toLowerCase() === "success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoaded(true);
           setTimesheetData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);

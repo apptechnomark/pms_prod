@@ -9,6 +9,7 @@ import Approvals from "../../assets/icons/ApprovalsIcon";
 import Settings from "../../assets/icons/SettingsIcon";
 import Reports from "../../assets/icons/ReportsIcon";
 import MenuIcon from "../../assets/icons/MenuIcon";
+import Help from "@/assets/icons/Help";
 import Pabs from "../../assets/icons/Pabs";
 import PabsCollapse from "../../assets/icons/PabsCollaps";
 import Link from "next/link";
@@ -179,6 +180,11 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
               href: "/settings",
               icon: <Settings />,
             },
+          !isClient && {
+            name: "Help",
+            href: "/help",
+            icon: <Help />,
+          },
           hasPermissionWorklog("", "View", "Dashboard") &&
             isClient && {
               name: "Dashboard",

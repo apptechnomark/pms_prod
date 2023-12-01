@@ -56,7 +56,11 @@ const initialFilter = {
   IsDownload: false,
 };
 
-const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
+const Datatable_Task = ({
+  currentFilterData,
+  onSearchData,
+  onHandleExport,
+}: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [taskData, setTaskData] = useState<any>([]);
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
@@ -113,6 +117,9 @@ const Datatable_Task = ({ currentFilterData, onSearchData }: any) => {
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoaded(true);
           setTaskData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);

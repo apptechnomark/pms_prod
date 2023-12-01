@@ -111,7 +111,6 @@ const initialFilter = {
   endDate: null,
   StatusId: 6,
   ProcessId: null,
-  IsDownload: false,
 };
 
 const Datatable = ({

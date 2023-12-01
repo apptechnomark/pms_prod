@@ -96,6 +96,7 @@ const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
 const Page = () => {
   const router = useRouter();
   const moreTabsRef = useRef<HTMLDivElement>(null);
+  const [canExport, setCanExport] = useState<boolean>(false);
   const [activeTabs, setActiveTabs] = useState<any[]>(primaryTabs);
   const [moreTabs, setMoreTabs] = useState<any[]>(secondaryTabs);
   const [activeTab, setActiveTab] = useState<number>(1);
@@ -194,6 +195,11 @@ const Page = () => {
     setActiveTab(tabId);
     setFilteredData(null);
     setSearchValue("");
+  };
+
+  //handle export on data length
+  const handleCanExport = (arg1: boolean) => {
+    setCanExport(arg1);
   };
 
   //handling more tabs
@@ -359,16 +365,18 @@ const Page = () => {
                 className={`${
                   isExporting ? "cursor-default" : "cursor-pointer"
                 } ${
-                  getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
-                  (filteredData === null ||
-                    haveSameData(customreport_InitialFilter, filteredData))
+                  !canExport ||
+                  (getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
+                    (filteredData === null ||
+                      haveSameData(customreport_InitialFilter, filteredData)))
                     ? "opacity-50 pointer-events-none"
                     : ""
-                }`}
+                } `}
                 onClick={
-                  getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
-                  (filteredData === null ||
-                    haveSameData(customreport_InitialFilter, filteredData))
+                  !canExport ||
+                  (getCurrentTabDetails(activeTab).toLowerCase() === "custom" &&
+                    (filteredData === null ||
+                      haveSameData(customreport_InitialFilter, filteredData)))
                     ? undefined
                     : handleExport
                 }
@@ -412,42 +420,42 @@ const Page = () => {
           <Project
             searchValue={searchValue}
             filteredData={filteredData}
-            // onProjectSearchData={projectSearchData}
+            onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 2 && (
           <User
             searchValue={searchValue}
             filteredData={filteredData}
-            // onUserSearchData={userSearchData}
+            onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 3 && (
           <TimeSheet
             searchValue={searchValue}
             filteredData={filteredData}
-            // onTimesheetSearchData={timesheetSearchData}
+            onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 4 && (
           <Workload
             searchValue={searchValue}
             filteredData={filteredData}
-            // onWorkloadSearchData={workloadSearchData}
+            onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 5 && (
           <UserLogs
             searchValue={searchValue}
             filteredData={filteredData}
-            // onUserLogSearchData={userLogSearchData}
+            onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 6 && (
           <Audit
             searchValue={searchValue}
             filteredData={filteredData}
-            // onAuditSearchData={auditSeachData}
+            onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 7 && (
@@ -458,21 +466,21 @@ const Page = () => {
             hasRaisedInvoiceData={(arg1: any) => setHasRaisedInvoiceData(arg1)}
             isSavingBTCData={saveBTCData}
             onSaveBTCDataComplete={() => setSaveBTCData(false)}
-            // onBillingReportSearchData={billingReportSearchData}
+            onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 8 && (
           <CustomReport
             searchValue={searchValue}
             filteredData={filteredData}
-            // onCustomReportSearchData={customReportSearchData}
+            onHandleExport={handleCanExport}
           />
         )}
         {activeTab === 9 && (
           <RatingReport
             searchValue={searchValue}
             filteredData={filteredData}
-            // onRatingSearchData={ratingSearchData}
+            onHandleExport={handleCanExport}
           />
         )}
       </div>

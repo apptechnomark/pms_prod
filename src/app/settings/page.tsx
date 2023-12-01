@@ -119,7 +119,7 @@ const Page = () => {
   const [groupSearchData, setGroupSearchData] = useState("");
   const [orgSearchValue, setOrgSearchValue] = useState("");
   const [orgSearchData, setOrgSearchData] = useState("");
-
+  const [canExport, setCanExport] = useState<boolean>(false);
   const [orgTokenAvailable, setOrgTokenAvailable] = useState(false);
 
   useEffect(() => {
@@ -152,6 +152,11 @@ const Page = () => {
   useEffect(() => {
     hasNoToken(router);
   }, [router]);
+
+  //handle export on data length
+  const handleCanExport = (arg1: boolean) => {
+    setCanExport(arg1);
+  };
 
   // To Toggle Drawer
   const handleDrawerOpen = () => {
@@ -1140,38 +1145,42 @@ const Page = () => {
                     <Tooltip position={"top"} content="Export">
                       <span
                         className={`${
-                          isExporting ? "cursor-default" : "cursor-pointer"
-                        }`}
-                        onClick={() => {
-                          const tabMappings: any = {
-                            Client: "client",
-                            Group: "group",
-                            Process: "process",
-                            Project: "project",
-                            Status: "status",
-                            User: "user",
-                            Organization: "organization",
-                          };
+                          canExport ? "" : "pointer-events-none opacity-50"
+                        } ${isExporting ? "cursor-default" : "cursor-pointer"}`}
+                        onClick={
+                          canExport
+                            ? () => {
+                                const tabMappings: any = {
+                                  Client: "client",
+                                  Group: "group",
+                                  Process: "process",
+                                  Project: "project",
+                                  Status: "status",
+                                  User: "user",
+                                  Organization: "organization",
+                                };
 
-                          const searchData: any = {
-                            Client: clientSearchValue,
-                            Group: groupSearchValue,
-                            Process: processSearchValue,
-                            Project: projectSearchValue,
-                            Status: statusSearchValue,
-                            User: userSearchValue,
-                          };
+                                const searchData: any = {
+                                  Client: clientSearchValue,
+                                  Group: groupSearchValue,
+                                  Process: processSearchValue,
+                                  Project: projectSearchValue,
+                                  Status: statusSearchValue,
+                                  User: userSearchValue,
+                                };
 
-                          const selectedTab = tabMappings[tab];
+                                const selectedTab = tabMappings[tab];
 
-                          if (selectedTab) {
-                            exportData(
-                              selectedTab,
-                              `${tab}_data`,
-                              searchData[tab]
-                            );
-                          }
-                        }}
+                                if (selectedTab) {
+                                  exportData(
+                                    selectedTab,
+                                    `${tab}_data`,
+                                    searchData[tab]
+                                  );
+                                }
+                              }
+                            : undefined
+                        }
                       >
                         {isExporting ? <Loading /> : <ExportIcon />}
                       </span>
@@ -1315,6 +1324,7 @@ const Page = () => {
             canProcess={hasPermissionWorklog("client", "save", "settings")}
             onSearchClientData={clientSearchData}
             onSearchClear={clearSearchValue}
+            onHandleExport={handleCanExport}
           />
         )}
         {tab === "Project" && (
@@ -1333,6 +1343,7 @@ const Page = () => {
             canDelete={hasPermissionWorklog("project", "delete", "settings")}
             onSearchProjectData={projectSearchData}
             onSearchClear={clearSearchValue}
+            onHandleExport={handleCanExport}
           />
         )}
         {tab === "User" && (
@@ -1355,6 +1366,7 @@ const Page = () => {
               hasPermissionWorklog("permission", "save", "settings")
             }
             onSearchClear={clearSearchValue}
+            onHandleExport={handleCanExport}
           />
         )}
         {tab === "Group" && (
@@ -1373,6 +1385,7 @@ const Page = () => {
             canDelete={hasPermissionWorklog("group", "delete", "settings")}
             onSearchGroupData={groupSearchData}
             onSearchClear={clearSearchValue}
+            onHandleExport={handleCanExport}
           />
         )}
         {tab === "Process" && (
@@ -1391,6 +1404,7 @@ const Page = () => {
             canDelete={hasPermissionWorklog("process", "delete", "settings")}
             onSearchProcessData={processSearchData}
             onSearchClear={clearSearchValue}
+            onHandleExport={handleCanExport}
           />
         )}
         {tab === "Status" && (
@@ -1409,6 +1423,7 @@ const Page = () => {
             canDelete={hasPermissionWorklog("status", "delete", "settings")}
             onSearchStatusData={statusSearchData}
             onSearchClear={clearSearchValue}
+            onHandleExport={handleCanExport}
           />
         )}
         {tab === "Permission" && (
@@ -1427,6 +1442,7 @@ const Page = () => {
             canEdit={hasPermissionWorklog("permission", "save", "settings")}
             canDelete={hasPermissionWorklog("permission", "delete", "settings")}
             onSearchClear={clearSearchValue}
+            onHandleExport={handleCanExport}
           />
         )}
         {tab === "Organization" && (
@@ -1442,6 +1458,7 @@ const Page = () => {
             getOrgDetailsFunction={getOrgDetailsFunction}
             onSearchOrgData={orgSearchData}
             onSearchClear={clearSearchValue}
+            onHandleExport={handleCanExport}
           />
         )}
       </div>

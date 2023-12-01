@@ -55,7 +55,11 @@ const initialFilter = {
   EndDate: Data,
 };
 
-const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
+const Datatable_Rating = ({
+  currentFilterData,
+  onSearchData,
+  onHandleExport,
+}: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [ratingData, setRatingData] = useState<any>([]);
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
@@ -112,6 +116,9 @@ const Datatable_Rating = ({ currentFilterData, onSearchData }: any) => {
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoaded(true);
           setRatingData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);

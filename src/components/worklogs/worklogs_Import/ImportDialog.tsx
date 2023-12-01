@@ -231,21 +231,14 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
             setIsUplaoding(false);
             handleClose();
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
+            toast.error(
+              "The uploaded file is not in the format of the sample file."
+            );
             setIsUplaoding(false);
+            handleClose();
           }
         } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+          toast.error("Please try again later.");
           setIsUplaoding(false);
         }
       } catch (error) {
