@@ -76,7 +76,6 @@ const EditDrawer = ({
   onErrorLog,
 }: any) => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState(0);
   const [inputTypeReview, setInputTypeReview] = useState("text");
   const [inputTypePreperation, setInputTypePreperation] = useState("text");
 
@@ -87,7 +86,6 @@ const EditDrawer = ({
   const [reminderDrawer, setReminderDrawer] = useState(true);
   const [checkListDrawer, setCheckListDrawer] = useState(true);
   const [commentsDrawer, setCommentsDrawer] = useState(true);
-  const [logsDrawer, setLogsDrawer] = useState(true);
   const [reasonDrawer, setReasonDrawer] = useState(true);
   const [reviewerErrDrawer, setReviewerErrDrawer] = useState(true);
   const [editData, setEditData] = useState<any>([]);
@@ -104,9 +102,6 @@ const EditDrawer = ({
   const [assigneeDropdownData, setAssigneeDropdownData] = useState<any>([]);
   const [reviewerDropdownData, setReviewerDropdownData] = useState([]);
   const [cCDropdownData, setCCDropdownData] = useState<any>([]);
-  const [typeOfReturnDropdownData, setTypeOfReturnDropdownData] = useState<any>(
-    []
-  );
   const [managerDropdownData, setManagerDropdownData] = useState<any>([]);
 
   const [selectedDays, setSelectedDays] = useState<any>([]);
@@ -122,9 +117,6 @@ const EditDrawer = ({
   const [inputTypeDate, setInputTypeDate] = useState(["text"]);
   const [inputTypeStartTime, setInputTypeStartTime] = useState(["text"]);
   const [inputTypeEndTime, setInputTypeEndTime] = useState(["text"]);
-
-  // ErrorLog
-  const [errorLogData, setErrorLogData] = useState([]);
 
   // Comments
   const [commentSelect, setCommentSelect] = useState<number | string>(1);
@@ -643,7 +635,6 @@ const EditDrawer = ({
   }, [onEdit, onComment, onErrorLog]);
 
   const handleTabClick = (index: number) => {
-    setActiveTab(index);
     scrollToPanel(index);
   };
 
@@ -2735,12 +2726,7 @@ const EditDrawer = ({
       );
     };
 
-    const getTypeOfReturn = async () => {
-      setTypeOfReturnDropdownData(await getTypeOfReturnDropdownData());
-    };
-
     typeOfWork !== 0 && getData();
-    typeOfWork === 3 && getTypeOfReturn();
   }, [typeOfWork, clientName]);
 
   const handleClose = () => {
@@ -2891,7 +2877,6 @@ const EditDrawer = ({
     setReviewerNoteData([]);
 
     // Error Logs
-    setErrorLogData([]);
     setErrorLogFields([
       {
         SubmitedBy: "",
@@ -4853,7 +4838,7 @@ const EditDrawer = ({
                 id={`${
                   isManual === true || isManual === null
                     ? "tabpanel-6"
-                    : "tabpanel-5"
+                    : isPartiallySubmitted && "tabpanel-5"
                 }`}
               >
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
@@ -5234,7 +5219,17 @@ const EditDrawer = ({
             {hasPermissionWorklog("Reminder", "View", "WorkLogs") && (
               <div
                 className="my-14"
-                id={`${onEdit > 0 ? "tabpanel-6" : "tabpanel-4"}`}
+                id={`${
+                  (isManual === true || isManual === null) &&
+                  isPartiallySubmitted
+                    ? "tabpanel-7"
+                    : (isManual === true || isManual === null) &&
+                      !isPartiallySubmitted
+                    ? "tabpanel-6"
+                    : isManual === false && isPartiallySubmitted
+                    ? "tabpanel-6"
+                    : "tabpanel-5"
+                }`}
               >
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
@@ -5489,7 +5484,12 @@ const EditDrawer = ({
                   (isManual === true || isManual === null) &&
                   isPartiallySubmitted
                     ? "tabpanel-8"
-                    : "tabpanel-7"
+                    : (isManual === true || isManual === null) &&
+                      !isPartiallySubmitted
+                    ? "tabpanel-7"
+                    : isManual === false && isPartiallySubmitted
+                    ? "tabpanel-7"
+                    : "tabpanel-6"
                 }`}
               >
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
@@ -6002,7 +6002,12 @@ const EditDrawer = ({
               id={`${
                 (isManual === true || isManual === null) && isPartiallySubmitted
                   ? "tabpanel-9"
-                  : "tabpanel-8"
+                  : (isManual === true || isManual === null) &&
+                    !isPartiallySubmitted
+                  ? "tabpanel-8"
+                  : isManual === false && isPartiallySubmitted
+                  ? "tabpanel-8"
+                  : "tabpanel-7"
               }`}
             >
               <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">

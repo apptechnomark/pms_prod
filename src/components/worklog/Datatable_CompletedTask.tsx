@@ -94,7 +94,6 @@ const Datatable_CompletedTask = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
-  const [allStatus, setAllStatus] = useState<any | any[]>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -105,20 +104,8 @@ const Datatable_CompletedTask = ({
   const [selectedRowStatusId, setSelectedRowStatusId] = useState<
     any | number[]
   >([]);
-  const [selectedRowClientId, setSelectedRowClientId] = useState<
-    any | number[]
-  >([]);
-  const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
-    any | number[]
-  >([]);
   const [selectedRowId, setSelectedRowId] = useState<any | number>(null);
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
-
-  // States for popup/shortcut filter management using table
-  const [anchorElPriority, setAnchorElPriority] =
-    React.useState<HTMLButtonElement | null>(null);
-  const [anchorElStatus, setAnchorElStatus] =
-    React.useState<HTMLButtonElement | null>(null);
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -190,22 +177,6 @@ const Datatable_CompletedTask = ({
         : [];
 
     setSelectedRowStatusId(selectedWorkItemStatusIds);
-
-    // adding all selected row's Client Ids in an array
-    const selectedWorkItemClientIds =
-      selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.ClientId)
-        : [];
-
-    setSelectedRowClientId(selectedWorkItemClientIds);
-
-    // adding all selected row's WorkType Ids in an array
-    const selectedWorkItemWorkTypeIds =
-      selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.WorkTypeId)
-        : [];
-
-    setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
 
     setIsPopupOpen(allRowsSelected);
   };
@@ -351,7 +322,7 @@ const Datatable_CompletedTask = ({
           toast.success("Task has been deleted successfully.");
           handleClearSelection();
           getWorkItemList();
-          shouldWarn = [];
+          shouldWarn.splice(0, shouldWarn.length);
         } else {
           const data = response.data.Message || "An error occurred.";
           toast.error(data);
@@ -367,58 +338,14 @@ const Datatable_CompletedTask = ({
     }
   };
 
-  // API for status dropdown in Filter Popup
-  const getAllStatus = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/status/GetDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setAllStatus(
-            response.data.ResponseData.map((i: any) =>
-              i.Type === "OnHoldFromClient" || i.Type === "WithDraw" ? i : ""
-            ).filter((i: any) => i !== "")
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Error duplicating task.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Error duplicating task.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   useEffect(() => {
     // refreshing data from Drawer side
     const fetchData = async () => {
-      const fetchedData = await getWorkItemList();
+      await getWorkItemList();
       onDataFetch(() => fetchData());
     };
     fetchData();
     getWorkItemList();
-    getAllStatus();
   }, []);
 
   // Table Columns

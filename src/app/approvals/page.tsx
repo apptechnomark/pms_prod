@@ -127,6 +127,7 @@ const Page = () => {
       `${process.env.worklog_api_url}/workitem/approval/GetReviewExportExcelList`,
       {
         ...exportBody,
+        ...currentFilterData,
         isDownload: true,
       },
       {

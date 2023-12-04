@@ -37,7 +37,7 @@ function Group({
   // setting getData function for sending in parent component
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedData = await getAll();
+      await getAll();
       onDataFetch(() => fetchData());
     };
 

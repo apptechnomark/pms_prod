@@ -47,7 +47,7 @@ function Process({
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedData = await getAll();
+      await getAll();
       onDataFetch(() => fetchData());
     };
     fetchData();

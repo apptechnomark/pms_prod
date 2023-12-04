@@ -115,6 +115,14 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
     return <span className="capitalize">{bodyValue ? "yes" : "no"}</span>;
   };
 
+  const generateIsManualHeaderRender = (headerName: string) => {
+    return (
+      <div className="font-bold text-sm capitalize !w-[100px]">
+        {headerName}
+      </div>
+    );
+  };
+
   const datewiselogsColumn: any = [
     {
       name: "TaskName",
@@ -261,11 +269,9 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize !w-[100px]">
-            total time
-          </div>
-        ),
+        customHeadLabelRender: () => {
+          return generateIsManualHeaderRender("total time");
+        },
         customBodyRender: (value: any, tableMeta: any) => {
           return (
             <span>

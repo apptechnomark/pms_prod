@@ -11,13 +11,21 @@ interface WrapperProps {
 }
 
 const Wrapper = ({ children, className = "" }: WrapperProps): JSX.Element => {
-  const [mobileOpen, setMobileOpen] = useState<boolean>(false);
   const [Collapsed, setCollapsed] = useState<boolean>(false);
   const [drawer, setDrawer] = useState<boolean>(false);
   const [windowSize, setWindowSize] = useState(0);
 
+  let dynamicClassName;
+
+  if (windowSize <= 1023) {
+    dynamicClassName = "w-[100vw]";
+  } else {
+    dynamicClassName = Collapsed
+      ? `w-[94vw] ${className}`
+      : `w-[85vw] ${className}`;
+  }
+
   const isOpen = (arg: any) => {
-    setMobileOpen(arg);
     setDrawer(arg);
   };
   const isCollapsed = (arg: any) => {
@@ -47,15 +55,7 @@ const Wrapper = ({ children, className = "" }: WrapperProps): JSX.Element => {
         setSetting={isCollapsed}
         toggleDrawer={drawer}
       />
-      <main
-        className={`${
-          windowSize <= 1023
-            ? "w-[100vw]"
-            : Collapsed
-            ? "w-[94vw]"
-            : `w-[85vw] ${className}`
-        }`}
-      >
+      <main className={dynamicClassName}>
         <DrawerOverlay
           className="!top-[70px]"
           isOpen={drawer}

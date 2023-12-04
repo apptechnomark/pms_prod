@@ -49,7 +49,6 @@ const RatingDialog: React.FC<RatingModalProps> = ({
   const [ratingValue, setRatingValue] = React.useState<any>(0);
   const [ratingErr, setRatingErr] = React.useState(false);
   const [comment, setComment] = React.useState<string>("");
-  const [hover, setHover] = React.useState(-1);
 
   const handleClose = () => {
     setRatingValue(0);
@@ -141,9 +140,6 @@ const RatingDialog: React.FC<RatingModalProps> = ({
                 value={ratingValue}
                 onChange={(event, newValue) => {
                   setRatingValue(newValue);
-                }}
-                onChangeActive={(event, newHover) => {
-                  setHover(newHover);
                 }}
                 emptyIcon={
                   <StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />

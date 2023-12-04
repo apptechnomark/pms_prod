@@ -38,6 +38,25 @@ import UnassigneeDatatable from "@/components/worklogs/UnassigneeDatatable";
 import UnassigneeFilterDialog from "@/components/worklogs/UnassigneeFilterDialog";
 import ImportDialog from "@/components/worklogs/worklogs_Import/ImportDialog";
 import IdleTimer from "@/components/common/IdleTimer";
+import Loading from "@/assets/icons/reports/Loading";
+
+const exportBody = {
+  PageNo: 1,
+  PageSize: 50000,
+  SortColumn: "",
+  IsDesc: true,
+  GlobalSearch: "",
+  ClientId: null,
+  TypeOfWork: null,
+  ProjectId: null,
+  StatusId: null,
+  AssignedTo: null,
+  AssignedBy: null,
+  DueDate: null,
+  StartDate: null,
+  EndDate: null,
+  ReviewStatus: null,
+};
 
 const Page = () => {
   const router = useRouter();
@@ -60,6 +79,8 @@ const Page = () => {
   const [isUnassigneeClicked, setIsUnassigneeClicked] = useState(false);
   const [hasId, setHasId] = useState("");
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [canExport, setCanExport] = useState<boolean>(false);
 
   const [anchorElFilter, setAnchorElFilter] =
     React.useState<HTMLButtonElement | null>(null);
@@ -351,6 +372,50 @@ const Page = () => {
     getBreakData();
   }, []);
 
+  const handleCanExport = (arg1: boolean) => {
+    setCanExport(arg1);
+  };
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    const token = localStorage.getItem("token");
+    const Org_Token = localStorage.getItem("Org_Token");
+
+    const response = await axios.post(
+      `${process.env.worklog_api_url}/workitem/getexportexcellist`,
+      {
+        ...exportBody,
+        ...currentFilterData,
+        // IsDownload: true,
+      },
+      {
+        headers: {
+          Authorization: `bearer ${token}`,
+          org_token: Org_Token,
+        },
+        responseType: "arraybuffer",
+      }
+    );
+    if (response.status === 200) {
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "worklog_report.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      setIsExporting(false);
+    } else {
+      setIsExporting(false);
+      toast.error("Failed to download, please try again later.");
+    }
+  };
+
   return (
     <Wrapper>
       <IdleTimer onIdle={() => window.location.reload()} />
@@ -525,11 +590,18 @@ const Page = () => {
                     <ImportIcon />
                   </span>
                 </ColorToolTip>
-                {/* <ColorToolTip title="Export" placement="top" arrow>
-                  <span className="cursor-pointer">
-                    <ExportIcon />
+                <ColorToolTip title="Export" placement="top" arrow>
+                  <span
+                    className={
+                      canExport
+                        ? "cursor-pointer"
+                        : "pointer-events-none opacity-50"
+                    }
+                    onClick={canExport ? handleExport : undefined}
+                  >
+                    {isExporting ? <Loading /> : <ExportIcon />}
                   </span>
-                </ColorToolTip> */}
+                </ColorToolTip>
               </>
             ) : (
               <></>
@@ -589,6 +661,7 @@ const Page = () => {
             onDrawerOpen={handleDrawerOpen}
             onDrawerClose={handleDrawerClose}
             onComment={handleSetComments}
+            onHandleExport={handleCanExport}
           />
         )}
         {isUnassigneeClicked && (

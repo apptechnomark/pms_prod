@@ -32,7 +32,7 @@ function Status({
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedData = await getStatusList();
+      getStatusList();
       onDataFetch(() => fetchData());
     };
 

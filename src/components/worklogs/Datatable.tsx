@@ -135,7 +135,7 @@ const Datatable = ({
   onDrawerClose,
   onDataFetch,
   onCurrentFilterId,
-  currentFilterData,
+  currentFilterData,onHandleExport,
   onComment,
 }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
@@ -174,7 +174,6 @@ const Datatable = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
-  const [id, setId] = useState(0);
 
   // functions for handling pagination
   const handleChangePage = (
@@ -393,7 +392,7 @@ const Datatable = ({
 
   const handleOptionManager = (id: any) => {
     updateManager(selectedRowIds, id);
-    handleCloseReturnYear();
+    handleCloseManager();
   };
 
   const handleOptionClient = (id: any) => {
@@ -471,13 +470,6 @@ const Datatable = ({
         : [];
 
     setSelectedRowStatusId(selectedWorkItemStatusIds);
-
-    // adding selected workItem Id
-    const Id =
-      selectedData.length > 0
-        ? selectedData[selectedData.length - 1].SubmissionId
-        : null;
-    setId(Id);
 
     // adding all selected row's Client Ids in an array
     const selectedWorkItemClientIds =
@@ -854,6 +846,9 @@ const Datatable = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          onHandleExport(
+            response.data.ResponseData.List.length > 0 ? true : false
+          );
           setLoaded(true);
           setWorkItemData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
@@ -1784,7 +1779,7 @@ const Datatable = ({
   useEffect(() => {
     // refreshing data from Drawer side
     const fetchData = async () => {
-      const fetchedData = await getWorkItemList();
+      await getWorkItemList();
       onDataFetch(() => fetchData());
     };
     fetchData();
@@ -1818,6 +1813,42 @@ const Datatable = ({
     }
   };
 
+  const generateCustomeClientNameBody = (bodyValue: any, TableMeta: any) => {
+    const IsHasErrorlog = TableMeta.rowData[18];
+    return (
+      <div>
+        {IsHasErrorlog && (
+          <div
+            className={
+              "w-[10px] h-[10px] rounded-full inline-block mr-2 bg-defaultRed"
+            }
+          ></div>
+        )}
+        {bodyValue === null || bodyValue === "" ? "-" : bodyValue}
+      </div>
+    );
+  };
+
+  const generateCustomTaskNameBody = (bodyValue: any, TableMeta: any) => {
+    const IsRecurring = TableMeta.rowData[19];
+    return (
+      <div className="flex items-center gap-2">
+        {bodyValue === null || bodyValue === "" ? (
+          "-"
+        ) : (
+          <>
+            {IsRecurring && (
+              <span className="text-secondary font-semibold">
+                <RecurringIcon />
+              </span>
+            )}
+            {bodyValue}
+          </>
+        )}
+      </div>
+    );
+  };
+
   // Table Columns
   const columns = [
     {
@@ -1840,19 +1871,7 @@ const Datatable = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Client"),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsHasErrorlog = tableMeta.rowData[18];
-          return (
-            <div>
-              {IsHasErrorlog && (
-                <div
-                  className={
-                    "w-[10px] h-[10px] rounded-full inline-block mr-2 bg-defaultRed"
-                  }
-                ></div>
-              )}
-              {value === null || value === "" ? "-" : value}
-            </div>
-          );
+          return generateCustomeClientNameBody(value, tableMeta);
         },
       },
     },
@@ -1876,23 +1895,7 @@ const Datatable = ({
         // viewColumns: true,
         customHeadLabelRender: () => generateCustomHeaderName("Task"),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsRecurring = tableMeta.rowData[19];
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <>
-                  {IsRecurring && (
-                    <span className="text-secondary font-semibold">
-                      <RecurringIcon />
-                    </span>
-                  )}
-                  {value}
-                </>
-              )}
-            </div>
-          );
+          return generateCustomTaskNameBody(value, tableMeta);
         },
       },
     },
@@ -2524,9 +2527,9 @@ const Datatable = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {priorityOptions.map((option, index) => (
+                      {priorityOptions.map((option) => (
                         <span
-                          key={index}
+                          key={option.id}
                           className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                         >
                           <span
@@ -2598,10 +2601,10 @@ const Datatable = ({
                           No Data Available
                         </span>
                       ) : (
-                        filteredAssignees.map((assignee: any, index: any) => {
+                        filteredAssignees.map((assignee: any) => {
                           return (
                             <span
-                              key={index}
+                              key={assignee.value}
                               className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                             >
                               <span
@@ -2660,10 +2663,10 @@ const Datatable = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {allStatus.map((option: any, index: any) => {
+                      {allStatus.map((option: any) => {
                         return (
                           <span
-                            key={index}
+                            key={option.value}
                             className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                           >
                             <span
@@ -2783,10 +2786,10 @@ const Datatable = ({
                           No Data Available
                         </span>
                       ) : (
-                        filteredClient.map((client: any, index: any) => {
+                        filteredClient.map((client: any) => {
                           return (
                             <span
-                              key={index}
+                              key={client.value}
                               className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                             >
                               <span
@@ -2887,10 +2890,10 @@ const Datatable = ({
                           No Data Available
                         </span>
                       ) : (
-                        filteredProject.map((project: any, index: any) => {
+                        filteredProject.map((project: any) => {
                           return (
                             <span
-                              key={index}
+                              key={project.value}
                               className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                             >
                               <span
@@ -2992,10 +2995,10 @@ const Datatable = ({
                           No Data Available
                         </span>
                       ) : (
-                        filteredProcess.map((process: any, index: any) => {
+                        filteredProcess.map((process: any) => {
                           return (
                             <span
-                              key={index}
+                              key={process.value}
                               className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                             >
                               <span
@@ -3067,10 +3070,10 @@ const Datatable = ({
                           No Data Available
                         </span>
                       ) : (
-                        Years.map((yr: any, index: any) => {
+                        Years.map((yr: any) => {
                           return (
                             <span
-                              key={index}
+                              key={yr.value}
                               className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                             >
                               <span
@@ -3159,10 +3162,10 @@ const Datatable = ({
                           No Data Available
                         </span>
                       ) : (
-                        filteredManager.map((manager: any, index: any) => {
+                        filteredManager.map((manager: any) => {
                           return (
                             <span
-                              key={index}
+                              key={manager.value}
                               className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                             >
                               <span

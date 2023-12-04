@@ -332,7 +332,7 @@ const Project = ({
     getData();
 
     const fetchData = async () => {
-      const fetchedData = await getData();
+      await getData();
       onDataFetch(() => fetchData());
     };
 

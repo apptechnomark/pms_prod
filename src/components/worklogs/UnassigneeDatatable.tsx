@@ -1264,7 +1264,7 @@ const UnassigneeDatatable = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedData = await getWorkItemList();
+      await getWorkItemList();
       onDataFetch(() => fetchData());
     };
     fetchData();

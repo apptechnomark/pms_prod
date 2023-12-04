@@ -20,7 +20,6 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import axios from "axios";
-// import { DateRangePicker } from "@mui/x-date-pickers-pro";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -400,8 +399,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   value={project === 0 ? "" : project}
                   onChange={(e: any) => setProject(e.target.value)}
                 >
-                  {projectDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                  {projectDropdownData.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}
@@ -436,15 +435,13 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   }}
                 >
                   {isCompletedTaskClicked
-                    ? statusDropdownCompletedData.map(
-                        (i: any, index: number) => (
-                          <MenuItem value={i.value} key={index}>
-                            {i.label}
-                          </MenuItem>
-                        )
-                      )
-                    : statusDropdownWorklogData.map((i: any, index: number) => (
-                        <MenuItem value={i.value} key={index}>
+                    ? statusDropdownCompletedData.map((i: any) => (
+                        <MenuItem value={i.value} key={i.value}>
+                          {i.label}
+                        </MenuItem>
+                      ))
+                    : statusDropdownWorklogData.map((i: any) => (
+                        <MenuItem value={i.value} key={i.value}>
                           {i.label}
                         </MenuItem>
                       ))}
@@ -460,8 +457,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   value={typeOfWork === 0 ? "" : typeOfWork}
                   onChange={(e: any) => setTypeOfWork(e.target.value)}
                 >
-                  {typeOfWorkDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                  {typeOfWorkDropdownData.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}
@@ -528,8 +525,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   value={assignee === 0 ? "" : assignee}
                   onChange={(e: any) => setAssignee(e.target.value)}
                 >
-                  {assigneeDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                  {assigneeDropdownData.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}

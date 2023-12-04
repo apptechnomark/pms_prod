@@ -174,7 +174,7 @@ function Organization({
   );
 
   const fetchData = async () => {
-    const fetchedData = await getOrganizationList();
+    await getOrganizationList();
     onDataFetch(() => fetchData());
   };
 

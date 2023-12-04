@@ -527,7 +527,7 @@ const User = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedData = await getData();
+      await getData();
       onUserDataFetch(() => fetchData());
     };
 

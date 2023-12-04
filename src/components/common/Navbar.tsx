@@ -143,7 +143,7 @@ const Navbar = (props: any) => {
   };
 
   const fetchData = async () => {
-    const fetchedData = await getUserDetails();
+    await getUserDetails();
     props?.onUserDetailsFetch(() => fetchData());
   };
 

@@ -21,7 +21,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import TablePagination from "@mui/material/TablePagination";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 // icons imports
 import PlayButton from "@/assets/icons/worklogs/PlayButton";
 import Minus from "@/assets/icons/worklogs/Minus";
@@ -280,6 +280,41 @@ const Datatable = ({
   };
 
   // API for get Assignee with all conditions
+  const getReviwer = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.api_url}/user/GetReviewerDropdown`,
+        {
+          ClientIds: selectedRowClientId,
+          WorktypeId: selectedRowWorkTypeId[0],
+          IsAll: selectedRowClientId.length > 0 ? true : false,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setReviewer(response.data.ResponseData);
+        } else {
+          toast.error("Please try again later.");
+        }
+      } else {
+        toast.error("Please try again.");
+      }
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        localStorage.clear();
+      }
+    }
+  };
+
   const getAssignee = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -305,7 +340,7 @@ const Datatable = ({
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Error duplicating task.");
+            toast.error("Please try again after some time.");
           } else {
             toast.error(data);
           }
@@ -313,7 +348,7 @@ const Datatable = ({
       } else {
         const data = response.data.Message;
         if (data === null) {
-          toast.error("Error duplicating task.");
+          toast.error("Please try again after some time.");
         } else {
           toast.error(data);
         }
@@ -326,6 +361,7 @@ const Datatable = ({
   useEffect(() => {
     if (selectedRowClientId.length > 0 && selectedRowWorkTypeId.length > 0) {
       getAssignee();
+      getReviwer();
     }
   }, [selectedRowClientId, selectedRowWorkTypeId]);
 
@@ -365,11 +401,11 @@ const Datatable = ({
             handleClearSelection();
             getReviewList();
           } else {
-            toast.error(data || "Error duplicating task.");
+            toast.error(data || "Please try again after some time.");
           }
         } else {
           const data = response.data.Message;
-          toast.error(data || "Error duplicating task.");
+          toast.error(data || "Please try again after some time.");
         }
       }
     } catch (error) {
@@ -413,11 +449,11 @@ const Datatable = ({
             handleClearSelection();
             getReviewList();
           } else {
-            toast.error(data || "Error duplicating task.");
+            toast.error(data || "Please try again after some time.");
           }
         } else {
           const data = response.data.Message;
-          toast.error(data || "Error duplicating task.");
+          toast.error(data || "Please try again after some time.");
         }
       }
     } catch (error) {
@@ -427,45 +463,60 @@ const Datatable = ({
 
   // API for status dropdown in Filter Popup
   const getAllStatus = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
     try {
+      const token = await localStorage.getItem("token");
+      const orgToken = await localStorage.getItem("Org_Token");
+
       const response = await axios.get(
         `${process.env.pms_api_url}/status/GetDropdown`,
         {
           headers: {
             Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
+            org_token: orgToken,
           },
         }
       );
 
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setAllStatus(
-            response.data.ResponseData.map((i: any) =>
-              i.Type === "OnHoldFromClient" || i.Type === "WithDraw" ? i : ""
-            ).filter((i: any) => i !== "")
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Error duplicating task.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Error duplicating task.");
-        } else {
-          toast.error(data);
-        }
-      }
+      handleResponseStatus(response);
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleResponseStatus = (response: AxiosResponse<any, any>) => {
+    const { status, data } = response;
+
+    if (status === 200) {
+      handleSuccessResponse(data);
+    } else {
+      handleErrorResponse(data);
+    }
+  };
+
+  const handleSuccessResponse = (data: {
+    ResponseStatus: string;
+    ResponseData: any[];
+  }) => {
+    if (data.ResponseStatus === "Success") {
+      const filteredStatus = data.ResponseData.filter(
+        (item) => item.Type === "OnHoldFromClient" || item.Type === "WithDraw"
+      );
+
+      setAllStatus(filteredStatus);
+    } else {
+      handleErrorResponse(data);
+    }
+  };
+
+  const handleErrorResponse = (data: {
+    ResponseStatus?: string;
+    ResponseData?: any[];
+    Message?: any;
+  }) => {
+    const errorMessage = data
+      ? data.Message
+      : "Please try again after some time.";
+    toast.error(errorMessage);
   };
 
   // API for update status
@@ -539,11 +590,11 @@ const Datatable = ({
             handleClearSelection();
             getReviewList();
           } else {
-            toast.error(data || "Error duplicating task.");
+            toast.error(data || "Please try again after some time.");
           }
         } else {
           const data = response.data.Message;
-          toast.error(data || "Error duplicating task.");
+          toast.error(data || "Please try again after some time.");
         }
       }
     } catch (error) {
@@ -1013,7 +1064,7 @@ const Datatable = ({
   useEffect(() => {
     // refreshing data from Drawer side
     const fetchData = async () => {
-      const fetchedData = await getReviewList();
+      await getReviewList();
       onDataFetch(() => fetchData());
     };
     fetchData();
@@ -1648,39 +1699,7 @@ const Datatable = ({
                   }}
                 >
                   <nav className="!w-52">
-                    <List>
-                      {filteredAssignees.map((assignee: any) => {
-                        return (
-                          <span
-                            key={assignee.value}
-                            className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
-                          >
-                            <span
-                              className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
-                              onClick={() =>
-                                handleOptionAssignee(assignee.value)
-                              }
-                            >
-                              <Avatar
-                                sx={{ width: 32, height: 32, fontSize: 14 }}
-                              >
-                                {assignee.label
-                                  .split(" ")
-                                  .map((word: any) =>
-                                    word.charAt(0).toUpperCase()
-                                  )
-                                  .join("")}
-                              </Avatar>
-
-                              <span className="pt-[0.8px]">
-                                {assignee.label}
-                              </span>
-                            </span>
-                          </span>
-                        );
-                      })}
-                    </List>
-                    <div className="mr-4 ml-4 mb-4">
+                    <div className="mr-4 ml-4 mt-4">
                       <div
                         className="flex items-center h-10 rounded-md pl-2 flex-row"
                         style={{
@@ -1701,6 +1720,44 @@ const Datatable = ({
                         </span>
                       </div>
                     </div>
+                    <List>
+                      {assignee.length === 0 ? (
+                        <span className="flex flex-col py-2 px-4  text-sm">
+                          No Data Available
+                        </span>
+                      ) : (
+                        filteredAssignees.map((assignee: any) => {
+                          return (
+                            <span
+                              key={assignee.value}
+                              className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                            >
+                              <span
+                                className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
+                                onClick={() =>
+                                  handleOptionAssignee(assignee.value)
+                                }
+                              >
+                                <Avatar
+                                  sx={{ width: 32, height: 32, fontSize: 14 }}
+                                >
+                                  {assignee.label
+                                    .split(" ")
+                                    .map((word: any) =>
+                                      word.charAt(0).toUpperCase()
+                                    )
+                                    .join("")}
+                                </Avatar>
+
+                                <span className="pt-[0.8px]">
+                                  {assignee.label}
+                                </span>
+                              </span>
+                            </span>
+                          );
+                        })
+                      )}
+                    </List>
                   </nav>
                 </Popover>
 
@@ -1731,39 +1788,7 @@ const Datatable = ({
                   }}
                 >
                   <nav className="!w-52">
-                    <List>
-                      {filteredReviewer.map((reviewer: any) => {
-                        return (
-                          <span
-                            key={reviewer.value}
-                            className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
-                          >
-                            <span
-                              className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
-                              onClick={() =>
-                                handleOptionReviewer(reviewer.value)
-                              }
-                            >
-                              <Avatar
-                                sx={{ width: 32, height: 32, fontSize: 14 }}
-                              >
-                                {reviewer.label
-                                  ?.split(" ")
-                                  .map((word: any) =>
-                                    word.charAt(0).toUpperCase()
-                                  )
-                                  .join("")}
-                              </Avatar>
-
-                              <span className="pt-[0.8px]">
-                                {reviewer.label}
-                              </span>
-                            </span>
-                          </span>
-                        );
-                      })}
-                    </List>
-                    <div className="mr-4 ml-4 mb-4">
+                    <div className="mr-4 ml-4 mt-4">
                       <div
                         className="flex items-center h-10 rounded-md pl-2 flex-row"
                         style={{
@@ -1784,6 +1809,44 @@ const Datatable = ({
                         </span>
                       </div>
                     </div>
+                    <List>
+                      {reviewer.length === 0 ? (
+                        <span className="flex flex-col py-2 px-4  text-sm">
+                          No Data Available
+                        </span>
+                      ) : (
+                        filteredReviewer.map((reviewer: any) => {
+                          return (
+                            <span
+                              key={reviewer.value}
+                              className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                            >
+                              <span
+                                className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
+                                onClick={() =>
+                                  handleOptionReviewer(reviewer.value)
+                                }
+                              >
+                                <Avatar
+                                  sx={{ width: 32, height: 32, fontSize: 14 }}
+                                >
+                                  {reviewer.label
+                                    ?.split(" ")
+                                    .map((word: any) =>
+                                      word.charAt(0).toUpperCase()
+                                    )
+                                    .join("")}
+                                </Avatar>
+
+                                <span className="pt-[0.8px]">
+                                  {reviewer.label}
+                                </span>
+                              </span>
+                            </span>
+                          );
+                        })
+                      )}
+                    </List>
                   </nav>
                 </Popover>
 

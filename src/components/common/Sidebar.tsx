@@ -2,7 +2,7 @@
 "use client";
 import styles from "../../assets/scss/sidebar.module.scss";
 import React, { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import DashboardIcon from "../../assets/icons/DashboardIcon";
 import Worklogs from "../../assets/icons/WorklogsIcon";
 import Approvals from "../../assets/icons/ApprovalsIcon";
@@ -15,7 +15,6 @@ import PabsCollapse from "../../assets/icons/PabsCollaps";
 import Link from "next/link";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 interface SidebarItem {

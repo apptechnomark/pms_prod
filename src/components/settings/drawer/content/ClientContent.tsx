@@ -197,8 +197,6 @@ const ClientContent = forwardRef<
     setAccGroupHasErr(checked);
     setAccContHrsHasErr(checked);
     setAccActHrsHasErr(checked);
-    // setIsAuditOpen(false);
-    // setIsTaxationOpen(false);
   };
 
   const toggleAuditAccordion = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -209,8 +207,6 @@ const ClientContent = forwardRef<
     setAuditGroupHasErr(checked);
     setAuditContHrsHasErr(checked);
     setAuditActHrsHasErr(checked);
-    // setIsAccountingOpen(false);
-    // setIsTaxationOpen(false);
   };
 
   const toggleTaxAccordion = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -221,7 +217,6 @@ const ClientContent = forwardRef<
     setTaxGroupHasErr(checked);
     setTaxContHrsHasErr(checked);
     setTaxActHrsHasErr(checked);
-    // setIsAuditOpen(false);
   };
 
   useEffect(() => {

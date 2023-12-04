@@ -3162,13 +3162,11 @@ const EditDrawer = ({
                             onEdit === 0 && setReceiverDateErr(false);
                             onEdit === 0 && setDueDate("");
                             assigneeDisable && setAssignee(0);
-                            assigneeDisable && setAssigneeErr(false);
                             setReviewer(0);
-                            setReviewerErr(false);
                             setTypeOfWork(e.target.value);
                             onEdit === 0 && setDateOfReview("");
                             onEdit === 0 && setDateOfPreperation("");
-                            // setReturnYear(0);
+                            onEdit === 0 && setReturnYear(0);
                             onEdit === 0 && setNoOfPages(0);
                           }}
                           onBlur={(e: any) => {
@@ -5235,7 +5233,13 @@ const EditDrawer = ({
             {hasPermissionWorklog("Reminder", "View", "WorkLogs") && (
               <div
                 className="my-14"
-                id={`${onEdit > 0 ? "tabpanel-6" : "tabpanel-4"}`}
+                id={`${
+                  onEdit > 0 && (isManual === true || isManual === null)
+                    ? "tabpanel-6"
+                    : onEdit > 0
+                    ? "tabpanel-5"
+                    : "tabpanel-4"
+                }`}
               >
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
@@ -5485,7 +5489,14 @@ const EditDrawer = ({
 
             {hasPermissionWorklog("ErrorLog", "View", "WorkLogs") &&
               onEdit > 0 && (
-                <div className="mt-14" id={`${onEdit > 0 && "tabpanel-7"}`}>
+                <div
+                  className="mt-14"
+                  id={`${
+                    isManual === true || isManual === null
+                      ? "tabpanel-7"
+                      : "tabpanel-6"
+                  }`}
+                >
                   <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                     <span className="flex items-center">
                       <TaskIcon />
@@ -5866,7 +5877,14 @@ const EditDrawer = ({
               )}
 
             {onEdit > 0 && (
-              <div className="mt-14" id={`${onEdit > 0 && "tabpanel-8"}`}>
+              <div
+                className="mt-14"
+                id={`${
+                  isManual === true || isManual === null
+                    ? "tabpanel-8"
+                    : "tabpanel-7"
+                }`}
+              >
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
                     <HistoryIcon />

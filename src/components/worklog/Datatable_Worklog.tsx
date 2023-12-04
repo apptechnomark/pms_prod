@@ -113,12 +113,6 @@ const Datatable_Worklog = ({
   const [selectedRowStatusId, setSelectedRowStatusId] = useState<
     any | number[]
   >([]);
-  const [selectedRowClientId, setSelectedRowClientId] = useState<
-    any | number[]
-  >([]);
-  const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
-    any | number[]
-  >([]);
   const [selectedRowId, setSelectedRowId] = useState<any | number>(null);
   const [isCreatedByClient, setIsCreatedByClient] = useState<any | number>(
     null
@@ -127,8 +121,6 @@ const Datatable_Worklog = ({
 
   // States for popup/shortcut filter management using table
   const [anchorElPriority, setAnchorElPriority] =
-    React.useState<HTMLButtonElement | null>(null);
-  const [anchorElAssignee, setAnchorElAssignee] =
     React.useState<HTMLButtonElement | null>(null);
   const [anchorElStatus, setAnchorElStatus] =
     React.useState<HTMLButtonElement | null>(null);
@@ -238,20 +230,6 @@ const Datatable_Worklog = ({
         ? selectedData.map((selectedRow: any) => selectedRow.StatusId)
         : [];
     setSelectedRowStatusId(selectedWorkItemStatusIds);
-
-    // adding all selected row's Client Ids in an array
-    const selectedWorkItemClientIds =
-      selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.ClientId)
-        : [];
-    setSelectedRowClientId(selectedWorkItemClientIds);
-
-    // adding all selected row's WorkType Ids in an array
-    const selectedWorkItemWorkTypeIds =
-      selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.WorkTypeId)
-        : [];
-    setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
 
     setIsPopupOpen(allRowsSelected);
   };
@@ -452,7 +430,7 @@ const Datatable_Worklog = ({
             toast.success("Task has been deleted successfully.");
             handleClearSelection();
             getWorkItemList();
-            shouldWarn = [];
+            shouldWarn.splice(0, shouldWarn.length);
           } else {
             const data = response.data.Message || "An error occurred.";
             toast.error(data);
@@ -683,7 +661,7 @@ const Datatable_Worklog = ({
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedData = await getWorkItemList();
+      await getWorkItemList();
       onDataFetch(() => fetchData());
     };
     fetchData();
@@ -764,7 +742,7 @@ const Datatable_Worklog = ({
         customHeadLabelRender: () => generateCustomHeaderName("Qty."),
       },
       customBodyRender: (value: any) => {
-        return <div>{value === null || value === "" ? "-" : value}</div>;
+        return generateCommonBodyRender(value);
       },
     },
     {
@@ -958,9 +936,9 @@ const Datatable_Worklog = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {priorityOptions.map((option, index) => (
+                      {priorityOptions.map((option: any) => (
                         <span
-                          key={index}
+                          key={option.id}
                           className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                         >
                           <span
@@ -1000,10 +978,10 @@ const Datatable_Worklog = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {allStatus.map((option: any, index: any) => {
+                      {allStatus.map((option: any) => {
                         return (
                           <span
-                            key={index}
+                            key={option.value}
                             className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                           >
                             <span
