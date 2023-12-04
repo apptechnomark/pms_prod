@@ -172,7 +172,7 @@ const GroupContent = forwardRef<
       try {
         const prams = {
           id: onEdit || 0,
-          name: groupName,
+          name: groupName.trim(),
           groupUserIds: selectValue,
         };
         const response = await axios.post(

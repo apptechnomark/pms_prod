@@ -145,11 +145,11 @@ const OrganizationContent = forwardRef<
           };
           const param = {
             OrganizationId: onEdit || 0,
-            OrganizationName: organizationName,
-            ClientModuleName: clientName,
-            ProjectModuleName: projectName,
-            ProcessModuleName: processName,
-            SubProcessModuleName: subProcessName,
+            OrganizationName: organizationName.trim(),
+            ClientModuleName: clientName.trim(),
+            ProjectModuleName: projectName.trim(),
+            ProcessModuleName: processName.trim(),
+            SubProcessModuleName: subProcessName.trim(),
           };
           const response = await axios.post(
             `${process.env.pms_api_url}/organization/save`,

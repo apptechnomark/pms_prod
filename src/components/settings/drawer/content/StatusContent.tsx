@@ -128,9 +128,9 @@ const StatusContent = forwardRef<
           `${process.env.pms_api_url}/status/Save`,
           {
             statusId: onEdit || 0,
-            name: statusName,
+            name: statusName.trim(),
             Type: type,
-            colorCode: colorName,
+            colorCode: colorName.trim(),
           },
           {
             headers: {

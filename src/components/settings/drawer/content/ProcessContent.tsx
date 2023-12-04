@@ -154,9 +154,9 @@ const ProcessContent = forwardRef<
       const { value } = e.target;
       const isValidInput = /^[a-zA-Z0-9\s,]*$/.test(value);
 
-      if (isValidInput && value.length <= 50) {
+      if (isValidInput && value.trim().length <= 50) {
         const updatedInputList = [...inputList];
-        updatedInputList[index].activityName = value;
+        updatedInputList[index].activityName = value.trim();
         setInputList(updatedInputList);
 
         const updatedActivity = [...activity];
@@ -426,9 +426,9 @@ const ProcessContent = forwardRef<
       try {
         const prams = {
           ProcessId: onEdit || 0,
-          Name: subProcessName,
+          Name: subProcessName.trim(),
           ReturnTypeId: returnType === 3 ? 0 : returnType,
-          ActivityList: activity,
+          ActivityList: activity.map((i: any) => i.trim()),
           EstimatedHour: estTimeTotalSeconds,
           IsProductive: productive,
           IsBillable: billable,

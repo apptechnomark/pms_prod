@@ -141,11 +141,6 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
               href: "/admin-dashboard",
               icon: <DashboardIcon />,
             },
-          // {
-          //   name: "Workload",
-          //   href: "/workload",
-          //   icon: <WorkloadIcon />,
-          // },
           hasPermissionWorklog("", "View", "WorkLogs") &&
             (hasPermissionWorklog("", "TaskManager", "WorkLogs") ||
               hasPermissionWorklog("", "ManageAssignee", "WorkLogs")) &&
@@ -180,11 +175,11 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
               href: "/settings",
               icon: <Settings />,
             },
-          !isClient && {
-            name: "Help",
-            href: "/help",
-            icon: <Help />,
-          },
+          // !isClient && {
+          //   name: "Help",
+          //   href: "/help",
+          //   icon: <Help />,
+          // },
           hasPermissionWorklog("", "View", "Dashboard") &&
             isClient && {
               name: "Dashboard",

@@ -1008,17 +1008,17 @@ const ClientContent = forwardRef<
         {
           id: Id || 0,
           Name: clientName,
-          email: email,
+          email: email.trim(),
           contactNo: tel,
-          address: address,
+          address: address.trim(),
           isActive: true,
 
           WorkTypes: workTypes.length > 0 ? workTypes : null,
 
-          OwnerAndCPAName: getFieldValue(isAdditionalFieldsClicked, cpaName),
-          OwnerEmail: getFieldValue(isAdditionalFieldsClicked, cpaEmail),
+          OwnerAndCPAName: getFieldValue(isAdditionalFieldsClicked, cpaName.trim()),
+          OwnerEmail: getFieldValue(isAdditionalFieldsClicked, cpaEmail.trim()),
           OwnerPhone: getFieldValue(isAdditionalFieldsClicked, cpaMobileNo),
-          City: getFieldValue(isAdditionalFieldsClicked, city),
+          City: getFieldValue(isAdditionalFieldsClicked, city.trim()),
           StateId: isAdditionalFieldsClicked && state !== 0 ? state : null,
           Zip: getFieldValue(isAdditionalFieldsClicked, zip),
 
@@ -1026,21 +1026,21 @@ const ClientContent = forwardRef<
 
           ClientITPOCName: getFieldValue(
             isAdditionalFieldsClicked,
-            clientItPOCName
+            clientItPOCName.trim()
           ),
           ClientITPOCEmail: getFieldValue(
             isAdditionalFieldsClicked,
-            clientItPOCEmail
+            clientItPOCEmail.trim()
           ),
-          PABSPOCName: getFieldValue(isAdditionalFieldsClicked, pabsPOCName),
+          PABSPOCName: getFieldValue(isAdditionalFieldsClicked, pabsPOCName.trim()),
 
-          Pabsbdm: getFieldValue(isAdditionalFieldsClicked, pabsBDM),
+          Pabsbdm: getFieldValue(isAdditionalFieldsClicked, pabsBDM.trim()),
           PabsManagerAssigned: getFieldValue(
             isAdditionalFieldsClicked,
-            pabsManagerAssigned
+            pabsManagerAssigned.trim()
           ),
 
-          GroupMail: getFieldValue(isAdditionalFieldsClicked, groupEmail),
+          GroupMail: getFieldValue(isAdditionalFieldsClicked, groupEmail.trim()),
           SopStatus: getFieldValue(isAdditionalFieldsClicked, sopStatus),
 
           DateOfImplementation: getFieldValue(
@@ -1053,47 +1053,47 @@ const ClientContent = forwardRef<
           ),
           FteAgreementTax: getFieldValue(
             isAdditionalFieldsClicked,
-            fteAgreement
+            fteAgreement.trim()
           ),
           EstimatedWorkflow: getFieldValue(
             isAdditionalFieldsClicked,
-            estimationWorkflow
+            estimationWorkflow.trim()
           ),
           VpnRequirement: getFieldValue(
             isAdditionalFieldsClicked,
-            vpnRequirement
+            vpnRequirement.trim()
           ),
           RemoteSystemAccess: getFieldValue(
             isAdditionalFieldsClicked,
-            remoteSystemAccess
+            remoteSystemAccess.trim()
           ),
           TaxPreparationSoftware: getFieldValue(
             isAdditionalFieldsClicked,
-            taxPreparationSoftware
+            taxPreparationSoftware.trim()
           ),
           DocumentPortal: getFieldValue(
             isAdditionalFieldsClicked,
-            documentPortal
+            documentPortal.trim()
           ),
           WorkflowTracker: getFieldValue(
             isAdditionalFieldsClicked,
-            workflowTracker
+            workflowTracker.trim()
           ),
           CommunicationChannel: getFieldValue(
             isAdditionalFieldsClicked,
-            communicationChannel
+            communicationChannel.trim()
           ),
           RecurringCall: getFieldValue(
             isAdditionalFieldsClicked,
-            recurringCall
+            recurringCall.trim()
           ),
           SpecificAdditionalProcessSteps: getFieldValue(
             isAdditionalFieldsClicked,
-            specificProcessStep
+            specificProcessStep.trim()
           ),
           ClientTimeZone: getFieldValue(
             isAdditionalFieldsClicked,
-            clientTimeZone
+            clientTimeZone.trim()
           ),
         },
         {

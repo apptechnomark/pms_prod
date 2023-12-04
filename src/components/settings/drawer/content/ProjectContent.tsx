@@ -313,7 +313,7 @@ const ProjectContent = forwardRef<
           {
             ClientId: client,
             ProjectId: projectValue !== 0 ? projectValue : null,
-            ProjectName: projectLabel,
+            ProjectName: projectLabel.trim(),
           },
           {
             headers: {

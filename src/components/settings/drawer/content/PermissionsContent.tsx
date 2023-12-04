@@ -51,7 +51,7 @@ const PermissionsContent = forwardRef<
       const response = await axios.post(
         `${process.env.pms_api_url}/Role/Save`,
         {
-          Name: role,
+          Name: role.trim(),
           type: parseInt(type),
         },
         {
