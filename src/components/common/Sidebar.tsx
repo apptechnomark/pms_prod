@@ -2,18 +2,20 @@
 "use client";
 import styles from "../../assets/scss/sidebar.module.scss";
 import React, { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import DashboardIcon from "../../assets/icons/DashboardIcon";
 import Worklogs from "../../assets/icons/WorklogsIcon";
 import Approvals from "../../assets/icons/ApprovalsIcon";
 import Settings from "../../assets/icons/SettingsIcon";
 import Reports from "../../assets/icons/ReportsIcon";
 import MenuIcon from "../../assets/icons/MenuIcon";
+import Help from "@/assets/icons/Help";
 import Pabs from "../../assets/icons/Pabs";
 import PabsCollapse from "../../assets/icons/PabsCollaps";
 import Link from "next/link";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 interface SidebarItem {
@@ -28,11 +30,11 @@ const DashboardItems = ({ pathname, isCollapsed }: any) => {
   return (
     <>
       {sidebarItems?.length > 0 &&
-        sidebarItems.map((item: any) => {
+        sidebarItems.map((item: any, index: number) => {
           if (item && item.href) {
             return (
               <Link
-                key={item.icon}
+                key={index}
                 href={item.href}
                 className={`mb-[15px] flex items-center pl-[27px] border-l-[4px] hover:bg-[#F6F6F6] hover:border-[#0592C6] ${
                   pathname === `${item.href}`

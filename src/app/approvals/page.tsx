@@ -12,11 +12,28 @@ import FilterIcon from "@/assets/icons/FilterIcon";
 // Material Import
 import { Tooltip, TooltipProps, tooltipClasses, styled } from "@mui/material";
 import Drawer from "@/components/approvals/Drawer";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import FilterDialog_Approval from "@/components/approvals/FilterDialog_Approval";
 import IdleTimer from "@/components/common/IdleTimer";
+import Loading from "@/assets/icons/reports/Loading";
+import axios from "axios";
+
+const exportBody = {
+  pageNo: 1,
+  pageSize: 50000,
+  sortColumn: "",
+  isDesc: true,
+  globalSearch: "",
+  userId: null,
+  clientId: null,
+  projectId: null,
+  startDate: null,
+  endDate: null,
+  StatusId: 6,
+  ProcessId: null,
+};
 
 const Page = () => {
   const router = useRouter();
@@ -29,6 +46,8 @@ const Page = () => {
   const [currentFilterData, setCurrentFilterData] = useState([]);
   const [hasComment, setHasComment] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [canExport, setCanExport] = useState<boolean>(false);
 
   const handleCloseFilter = () => {
     setisFilterOpen(false);
@@ -99,6 +118,48 @@ const Page = () => {
     setHasEditId(selectedId);
   };
 
+  const handleExport = async () => {
+    setIsExporting(true);
+    const token = localStorage.getItem("token");
+    const Org_Token = localStorage.getItem("Org_Token");
+
+    const response = await axios.post(
+      `${process.env.worklog_api_url}/workitem/approval/GetReviewExportExcelList`,
+      {
+        ...exportBody,
+        isDownload: true,
+      },
+      {
+        headers: {
+          Authorization: `bearer ${token}`,
+          org_token: Org_Token,
+        },
+        responseType: "arraybuffer",
+      }
+    );
+    if (response.status === 200) {
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "approval_report.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      setIsExporting(false);
+    } else {
+      toast.error("Failed to download, please try again later.");
+    }
+  };
+
+  const handleCanExport = (arg1: boolean) => {
+    setCanExport(arg1);
+  };
+
   return (
     <Wrapper>
       <IdleTimer onIdle={() => window.location.reload()} />
@@ -119,11 +180,18 @@ const Page = () => {
                 <FilterIcon />
               </span>
             </ColorToolTip>
-            {/* <ColorToolTip title="Export" placement="top" arrow>
-              <span className="cursor-pointer">
-                <ExportIcon />
+            <ColorToolTip title="Export" placement="top" arrow>
+              <span
+                className={
+                  canExport
+                    ? "cursor-pointer"
+                    : "pointer-events-none opacity-50"
+                }
+                onClick={canExport ? handleExport : undefined}
+              >
+                {isExporting ? <Loading /> : <ExportIcon />}
               </span>
-            </ColorToolTip> */}
+            </ColorToolTip>
           </div>
         </div>
         <Datatable
@@ -135,6 +203,7 @@ const Page = () => {
           onCloseDrawer={openDrawer}
           onComment={handleSetComments}
           onErrorLog={handleSetError}
+          onHandleExport={handleCanExport}
         />
 
         <Drawer

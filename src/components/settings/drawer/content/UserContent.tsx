@@ -628,9 +628,7 @@ const UserContent = forwardRef<
               value={tel}
               maxLength={14}
               getValue={(e) => setTel(e)}
-              getError={(e) => {
-                e;
-              }}
+              getError={(e) => {}}
             />
             <Select
               label="Role"

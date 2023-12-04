@@ -21,27 +21,28 @@ const Page = () => {
   const [passwordHasError, setPasswordHasError] = useState(false);
   const [cPasswordHasError, setCPasswordHasError] = useState(false);
 
-  const handleSubmit = async (e: { preventDefault: () => void }) => {
+  const validatePassword = (password: string) => password.trim() !== "";
+
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    if (password.trim() === "") {
-      setPasswordError(true);
-    }
-    if (passwordNew.trim() === "") {
-      setPasswordErrorNew(true);
-    }
-    if (password !== passwordNew) {
-      setError(true);
-    } else {
-      setError(false);
-    }
+
+    const isPasswordValid = validatePassword(password);
+    const isNewPasswordValid = validatePassword(passwordNew);
+    const passwordsMatch = password === passwordNew;
+
+    setPasswordError(!isPasswordValid);
+    setPasswordErrorNew(!isNewPasswordValid);
+    setError(!passwordsMatch);
+
     if (
-      password !== "" &&
-      passwordNew !== "" &&
-      password === passwordNew &&
+      isPasswordValid &&
+      isNewPasswordValid &&
+      passwordsMatch &&
       passwordHasError &&
       cPasswordHasError
     ) {
       setClicked(true);
+
       try {
         const response = await axios.post(
           `${process.env.api_url}/auth/setpassword`,
@@ -49,22 +50,19 @@ const Page = () => {
         );
 
         if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
+          const { ResponseStatus, Message } = response.data;
+          if (ResponseStatus === "Success") {
             setClicked(false);
             Toast.success("Password set successfully.");
             router.push(`/login`);
           } else {
             setClicked(false);
-            Toast.error("Please try again.");
+            Toast.error(Message || "Please try again.");
           }
         } else {
           setClicked(false);
           const data = response.data.Message;
-          if (data === null) {
-            Toast.error("Please try again after sometime.");
-          } else {
-            Toast.error(data);
-          }
+          Toast.error(data || "Please try again after some time.");
         }
       } catch (error) {
         setClicked(false);

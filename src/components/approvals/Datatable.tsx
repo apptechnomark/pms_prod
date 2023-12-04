@@ -121,6 +121,7 @@ const Datatable = ({
   onCloseDrawer,
   onComment,
   onErrorLog,
+  onHandleExport,
 }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
@@ -878,6 +879,7 @@ const Datatable = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          onHandleExport(response.data.ResponseData.List > 0 ? true : false);
           setLoaded(true);
           setReviewList(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
