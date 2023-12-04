@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-key */
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
 import TaskIcon from "@/assets/icons/TaskIcon";
 import HistoryIcon from "@/assets/icons/HistoryIcon";
@@ -434,7 +434,7 @@ const EditDrawer = ({
 
   const handleEstTimeChange = (e: any) => {
     let newValue = e.target.value;
-    newValue = newValue.replace(/[^0-9]/g, "");
+    newValue = newValue.replace(/\D/g, "");
     if (newValue.length > 8) {
       return;
     }

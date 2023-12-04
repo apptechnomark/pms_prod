@@ -417,7 +417,7 @@ const EditDrawer = ({
 
   const handleEstTimeChange = (e: any) => {
     let newValue = e.target.value;
-    newValue = newValue.replace(/[^0-9]/g, "");
+    newValue = newValue.replace(/\D/g, "");
     if (newValue.length > 8) {
       return;
     }
@@ -2140,6 +2140,7 @@ const EditDrawer = ({
               getManualData();
             } else {
               getManualData();
+              getEditData();
               const data = response.data.Message;
               if (data === null) {
                 toast.error("Please try again later.");
@@ -2362,17 +2363,15 @@ const EditDrawer = ({
         assigneeData
           .map((i: any) => (i.value === assignee ? assignee : false))
           .filter((j: any) => j !== false)[0];
-
       onEdit > 0 &&
         assignee > 0 &&
         assigneeData.length > 0 &&
-        assigneeId !== undefined &&
-        setAssignee(assigneeId);
+        setAssignee(assigneeId !== undefined ? assigneeId : 0);
+
       const reviewerData = await getReviewerDropdownData(
         clientName,
         typeOfWork
       );
-
       reviewerData.length > 0 && setReviewerDropdownData(reviewerData);
       const UserId: any = await localStorage.getItem("UserId");
       const reviwerId =
@@ -2382,7 +2381,7 @@ const EditDrawer = ({
           .filter((i: any) => i !== undefined)[0];
       reviewerData.length > 0 &&
         onEdit === 0 &&
-        setReviewer(!reviwerId ? 0 : reviwerId);
+        setReviewer(reviwerId === false ? 0 : reviwerId);
     };
 
     typeOfWork !== 0 && getData();
@@ -3162,12 +3161,10 @@ const EditDrawer = ({
                             onEdit === 0 && setReceiverDate("");
                             onEdit === 0 && setReceiverDateErr(false);
                             onEdit === 0 && setDueDate("");
-                            onEdit === 0 && assigneeDisable && setAssignee(0);
-                            onEdit === 0 &&
-                              assigneeDisable &&
-                              setAssigneeErr(false);
-                            onEdit === 0 && setReviewer(0);
-                            onEdit === 0 && setReviewerErr(false);
+                            assigneeDisable && setAssignee(0);
+                            assigneeDisable && setAssigneeErr(false);
+                            setReviewer(0);
+                            setReviewerErr(false);
                             setTypeOfWork(e.target.value);
                             onEdit === 0 && setDateOfReview("");
                             onEdit === 0 && setDateOfPreperation("");

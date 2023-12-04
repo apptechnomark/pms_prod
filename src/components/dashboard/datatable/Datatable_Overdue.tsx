@@ -117,42 +117,33 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
     };
   }, []);
 
-  useEffect(() => {
-    const getData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/clientdashboard/tasklistbyproject`,
-          {
-            PageNo: page + 1,
-            PageSize: rowsPerPage,
-            SortColumn: null,
-            IsDesc: true,
-            projectIds: onSelectedProjectIds,
-            typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-            onHold: false,
+  const getData = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/clientdashboard/tasklistbyproject`,
+        {
+          PageNo: page + 1,
+          PageSize: rowsPerPage,
+          SortColumn: null,
+          IsDesc: true,
+          projectIds: onSelectedProjectIds,
+          typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+          onHold: false,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        }
+      );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setData(response.data.ResponseData.List);
-            setTableDataCount(response.data.ResponseData.TotalCount);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setData(response.data.ResponseData.List);
+          setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -161,12 +152,20 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
             toast.error(data);
           }
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
       }
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    // calling function
+  useEffect(() => {
     getData();
   }, [onSelectedProjectIds, onSelectedWorkType, page, rowsPerPage]);
 

@@ -13,7 +13,6 @@ import FilterIcon from "@/assets/icons/FilterIcon";
 import { Tooltip, TooltipProps, tooltipClasses, styled } from "@mui/material";
 import Drawer from "@/components/approvals/Drawer";
 import { ToastContainer } from "react-toastify";
-// import SearchIcon from "@/assets/icons/SearchIcon";
 import { useRouter } from "next/navigation";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import FilterDialog_Approval from "@/components/approvals/FilterDialog_Approval";

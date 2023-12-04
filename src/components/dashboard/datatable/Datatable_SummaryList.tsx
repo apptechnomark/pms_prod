@@ -69,58 +69,58 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
   };
 
   // API for Project Status list
+  const getSummaryData = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/clientdashboard/summarylist`,
+        {
+          PageNo: page + 1,
+          PageSize: rowsPerPage,
+          SortColumn: null,
+          IsDesc: true,
+          TypeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+          ProjectIds: onSelectedProjectIds ? onSelectedProjectIds : [],
+          Key: onCurrSelectedSummaryStatus
+            ? onCurrSelectedSummaryStatus
+            : onSelectedSummaryStatus,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setData(response.data.ResponseData.List);
+          setTableDataCount(response.data.ResponseData.TotalCount);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     if (onSelectedSummaryStatus !== "") {
-      const getSummaryData = async () => {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.report_api_url}/clientdashboard/summarylist`,
-            {
-              PageNo: page + 1,
-              PageSize: rowsPerPage,
-              SortColumn: null,
-              IsDesc: true,
-              TypeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-              ProjectIds: onSelectedProjectIds ? onSelectedProjectIds : [],
-              Key: onCurrSelectedSummaryStatus
-                ? onCurrSelectedSummaryStatus
-                : onSelectedSummaryStatus,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              setData(response.data.ResponseData.List);
-              setTableDataCount(response.data.ResponseData.TotalCount);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
-
       getSummaryData();
     }
   }, [

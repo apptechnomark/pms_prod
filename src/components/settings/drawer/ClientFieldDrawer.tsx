@@ -123,9 +123,9 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
         </div>
 
         <div className="py-5 grid grid-cols-3 justify-items-center">
-          {fieldsData.map((field: any, index: React.Key | null | undefined) => (
+          {fieldsData.map((field: any) => (
             <div
-              key={index}
+              key={field.FieldId}
               className="py-[15px] flex items-center w-64 justify-between"
             >
               <span>{field.DisplayName}</span>

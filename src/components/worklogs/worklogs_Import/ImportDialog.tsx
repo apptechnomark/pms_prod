@@ -324,7 +324,6 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
             </Button>
           ) : null}
         </DialogTitle>
-
         <DialogContent>
           {isTaskClicked ? (
             <div className="pt-6 px-[10px] pb-[10px] h-[235px] w-[40vw]">
@@ -336,7 +335,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
                   required
                   placeholder="Enter Import Fields"
                   className={`outline-none border-b border-lightSilver !w-[37.5vw] ${
-                    Boolean(error) ? "!border-defaultRed" : ""
+                    error.length > 0 ? "!border-defaultRed" : ""
                   }`}
                   value={importText}
                   onChange={(e) => {
@@ -344,7 +343,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
                     setError("");
                   }}
                 />
-                {Boolean(error) && (
+                {error.length > 0 && (
                   <FormHelperText error>{error}</FormHelperText>
                 )}
               </FormControl>

@@ -61,8 +61,8 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
 
-  const [anchorElFilter, setAnchorElFilter] =
-    useState<HTMLButtonElement | null>(null);
+  const anchorElFilter: HTMLButtonElement | null = null;
+
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [clickedRowId, setClickedRowId] = useState<number>(-1);
   const openFilter = Boolean(anchorElFilter);
@@ -141,6 +141,33 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
     }
   }, [filteredData, searchValue]);
 
+  const generateUserNameBodyRender = (bodyValue: any, TableMeta: any) => {
+    return (
+      <div
+        className="flex flex-col cursor-pointer"
+        onClick={
+          workloadData[TableMeta.rowIndex].workLoadWorkItemData.length > 0
+            ? () => {
+                setIsExpanded(true);
+                setClickedRowId(TableMeta.rowIndex);
+              }
+            : () => {
+                toast.error("There is no workitem data available!");
+              }
+        }
+      >
+        {bodyValue === null || "" ? (
+          "-"
+        ) : (
+          <>
+            <span>{bodyValue}</span>
+            <span>{workloadData[TableMeta.rowIndex].DepartmentName}</span>
+          </>
+        )}
+      </div>
+    );
+  };
+
   const columns: any[] = [
     {
       name: "UserName",
@@ -149,30 +176,7 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("User Name"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div
-              className="flex flex-col cursor-pointer"
-              onClick={
-                workloadData[tableMeta.rowIndex].workLoadWorkItemData.length > 0
-                  ? () => {
-                      setIsExpanded(true);
-                      setClickedRowId(tableMeta.rowIndex);
-                    }
-                  : () => {
-                      toast.error("There is no workitem data available!");
-                    }
-              }
-            >
-              {value === null || "" ? (
-                "-"
-              ) : (
-                <>
-                  <span>{value}</span>
-                  <span>{workloadData[tableMeta.rowIndex].DepartmentName}</span>
-                </>
-              )}
-            </div>
-          );
+          return generateUserNameBodyRender(value, tableMeta);
         },
       },
     },
@@ -271,9 +275,7 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Est. Time"),
         customBodyRender: (value: any) => {
-          return (
-            <div>{value === null || value === "" ? "00:00:00" : value}</div>
-          );
+          return generateInitialTimer(value);
         },
       },
     },

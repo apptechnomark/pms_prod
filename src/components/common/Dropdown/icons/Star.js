@@ -8,8 +8,8 @@ const Star = ({ data, getUserDetails }) => {
   }, [data]);
 
   const getData = async (id) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
+    const token = localStorage.getItem("token");
+    const Org_Token = localStorage.getItem("Org_Token");
     try {
       let response = await axios.post(
         `${process.env.pms_api_url}/organization/setfavorite`,

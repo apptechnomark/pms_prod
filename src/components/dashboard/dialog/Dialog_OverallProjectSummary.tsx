@@ -51,55 +51,56 @@ const Dialog_OverallProjectSummary: React.FC<
   };
 
   // API for Project Status
-  useEffect(() => {
-    if (onOpen === true) {
-      const getTaskStatusList = async () => {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.report_api_url}/clientdashboard/overallprojectcompletion`,
-            {
-              typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-              ProjectIds: onSelectedProjectIds ? onSelectedProjectIds : [],
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
+  const getTaskStatusList = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.report_api_url}/clientdashboard/overallprojectcompletion`,
+        {
+          typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+          ProjectIds: onSelectedProjectIds ? onSelectedProjectIds : [],
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          const statusName: any = response.data.ResponseData.List.map(
+            (item: { Key: any }) => ({
+              name: item.Key,
+            })
           );
 
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              const statusName: any = response.data.ResponseData.List.map(
-                (item: { Key: any }) => ({
-                  name: item.Key,
-                })
-              );
-
-              setAllTaskList(statusName);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
+          setAllTaskList(statusName);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again.");
-            } else {
-              toast.error(data);
-            }
+            toast.error(data);
           }
-        } catch (error) {
-          console.error(error);
         }
-      };
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (onOpen === true) {
       getTaskStatusList();
     }
   }, [onSelectedWorkType, onSelectedProjectIds, onSelectedProjectIds, onOpen]);

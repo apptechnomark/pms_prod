@@ -1,10 +1,6 @@
 import React from "react";
 
 const PlayPause = () => {
-  const svgStyle = {
-    width: "28px",
-    height: "28px",
-  };
   return (
     <div className="ml-1">
       <svg

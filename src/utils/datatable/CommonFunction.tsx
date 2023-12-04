@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Tooltip, TooltipProps, tooltipClasses } from "@mui/material";
+import { Rating, Tooltip, TooltipProps, tooltipClasses } from "@mui/material";
 import React from "react";
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
@@ -169,4 +169,8 @@ export const generateDaysBodyRender = (bodyValue: any) => {
       {bodyValue > 1 ? "days" : "day"}
     </div>
   );
+};
+
+export const generateRatingsBodyRender = (bodyValue: any) => {
+  return <Rating name="read-only" value={bodyValue} readOnly />;
 };

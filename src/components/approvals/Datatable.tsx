@@ -136,7 +136,6 @@ const Datatable = ({
   const [allStatus, setAllStatus] = useState<any | any[]>([]);
   const [workitemId, setWorkitemId] = useState(0);
   const [id, setId] = useState(0);
-  const [note, setNote] = useState<string>("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
@@ -159,6 +158,7 @@ const Datatable = ({
   const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
     any | number[]
   >([]);
+  const note: string = "";
 
   // States for popup/shortcut filter management using table
   const [anchorElPriority, setAnchorElPriority] =
@@ -1082,7 +1082,7 @@ const Datatable = ({
         customHeadLabelRender: () => generateCustomHeaderName("Est. Hours"),
         // converting time (Seconnds) into HH:MM:SS
         customBodyRender: (value: any) => {
-          return <div>{value ? formatTime(value) : "00:00:00"}</div>;
+          return generateManualTimeBodyRender(value);
         },
       },
     },
@@ -1094,7 +1094,7 @@ const Datatable = ({
         customHeadLabelRender: () => generateCustomHeaderName("Total Hrs"),
         // converting time (Seconnds) into HH:MM:SS
         customBodyRender: (value: any) => {
-          return <div>{value ? formatTime(value) : "00:00:00"}</div>;
+          return generateManualTimeBodyRender(value);
         },
       },
     },

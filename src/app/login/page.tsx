@@ -2,16 +2,10 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import Link from "next/link";
-import {
-  Button,
-  Password,
-  Toast,
-  Loader,
-  Email,
-} from "next-ts-lib";
+import { Button, Password, Toast, Loader, Email } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import { hasToken } from "@/utils/commonFunction";
 import Pabs from "@/assets/icons/Pabs";
@@ -35,13 +29,38 @@ const Page = () => {
     password.trim().length > 0 && setPasswordHasError(true);
   }, [email, password]);
 
+  const validateEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const showErrorToast = (message: string) => {
+    const errorMessage = message || "Login failed. Please try again.";
+    Toast.error(errorMessage);
+  };
+
+  const handleSuccessfulLogin = (response: AxiosResponse<any, any>) => {
+    const { ResponseStatus, ResponseData } = response.data;
+    if (ResponseStatus === "Success") {
+      Toast.success("You are successfully logged in.");
+      setEmail("");
+      setPassword("");
+      setEmailHasError(false);
+      setPasswordHasError(false);
+      localStorage.setItem("token", ResponseData.Token.Token);
+      router.push("/");
+    } else {
+      setClicked(false);
+      const errorMessage = response.data.Message || "Data does not match.";
+      Toast.error(errorMessage);
+    }
+  };
+
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    email.trim().length <= 0 && setEmailError(true);
-    password.trim().length <= 0 && setPasswordError(true);
+    setEmailError(email.trim().length <= 0);
+    setPasswordError(password.trim().length <= 0);
 
     if (
-      email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/) &&
+      validateEmail(email) &&
       password.trim() !== "" &&
       emailHasError &&
       passwordHasError
@@ -54,35 +73,10 @@ const Page = () => {
         });
 
         if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            Toast.success("You are successfully logged in.");
-            setEmail("");
-            setPassword("");
-            setEmailHasError(false);
-            setPasswordHasError(false);
-            setClicked(false);
-            localStorage.setItem(
-              "token",
-              response.data.ResponseData.Token.Token
-            );
-            router.push("/");
-          } else {
-            setClicked(false);
-            const data = response.data.Message;
-            if (data === null) {
-              Toast.error("Data does not match.");
-            } else {
-              Toast.error(data);
-            }
-          }
+          handleSuccessfulLogin(response);
         } else {
           setClicked(false);
-          const data = response.data.Message;
-          if (data === null) {
-            Toast.error("Login failed. Please try again.");
-          } else {
-            Toast.error(data);
-          }
+          showErrorToast(response.data.Message);
         }
       } catch (error) {
         setClicked(false);
@@ -160,15 +154,8 @@ const Page = () => {
               </Button>
             )}
           </form>
-          {/* <div className="pb-4 flex justify-between items-center mt-[20px] text-darkCharcoal text-sm lg:text-base">
-            Don&rsquo;t have an accout?&nbsp;
-            <Link href={""} className="text-primary font-semibold underline">
-              Sign Up
-            </Link>
-          </div> */}
         </div>
       </div>
-      {/* <Footer /> */}
     </div>
   );
 };

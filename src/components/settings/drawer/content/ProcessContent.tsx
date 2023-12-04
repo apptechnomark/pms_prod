@@ -26,19 +26,15 @@ const ProcessContent = forwardRef<
     processData: any;
     onDataFetch(): any;
   }
->(({ tab, processData, onEdit, onClose, onDataFetch }, ref) => {
+>(({ onEdit, onClose, onDataFetch }, ref) => {
   // For token and org_token
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
-  const [isTextFieldOpen, setIsTextFieldOpen] = useState(false);
   const [data, setData] = useState([]);
 
-  // select Dropdown State
   const [selectValue, setSelectValue] = useState(0);
   const [selectvalueErr, setSelectValueErr] = useState(false);
   const [selectvalueHasErr, setSelectValueHasErr] = useState(false);
-  // Sub-process state
-
   const [subProcessName, setSubProcessName] = useState("");
   const [subProcessNameError, setSubProcessNameError] = useState(false);
   const [subProcessNameHasError, setSubProcessNameHasError] = useState(false);
@@ -213,7 +209,9 @@ const ProcessContent = forwardRef<
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
             setSelectValue(response.data.ResponseData.ParentId);
+            setSelectValueHasErr(true);
             setSubProcessName(response.data.ResponseData.Name);
+            setSubProcessNameHasError(true);
             setReturnType(
               response.data.ResponseData.ReturnType === null
                 ? 0
@@ -221,10 +219,12 @@ const ProcessContent = forwardRef<
                 ? 3
                 : response.data.ResponseData.ReturnType
             );
+            setReturnTypeHasError(true);
             const estTimeConverted = secondsToHHMMSS(
               response.data.ResponseData.EstimatedHour
             );
             setEstTime(estTimeConverted);
+            setEstTimeHasError(true);
             setActivity(response.data.ResponseData.ActivityList);
             setProductive(response.data.ResponseData.IsProductive);
             setBillable(response.data.ResponseData.IsBillable);
@@ -368,6 +368,7 @@ const ProcessContent = forwardRef<
     setEstTimeError(true);
     setActivityError(true);
   };
+
   const clearData = () => {
     setSubProcessName("");
     setReturnType(0);
@@ -406,13 +407,17 @@ const ProcessContent = forwardRef<
     returnType <= 0 && setReturnTypeError(true);
     estTime.length < 8 && setEstTimeError(true);
     if (
-      !(selectValue <= 0) &&
-      !(subProcessName.length <= 0) &&
+      selectValue > 0 &&
+      subProcessName.length > 0 &&
       returnType > 0 &&
-      !(estTime === "00:00:00") &&
-      !(estTime === "") &&
+      estTime !== "00:00:00" &&
+      estTime !== "" &&
       estTime.length >= 8 &&
-      !(estTimeTotalSeconds === 0)
+      estTimeTotalSeconds > 0 &&
+      selectvalueHasErr &&
+      subProcessNameHasError &&
+      returnTypeHasError &&
+      estTimeHasError
     ) {
       setLoader(true);
       try {
@@ -483,13 +488,17 @@ const ProcessContent = forwardRef<
     estTimeTotalSeconds === 0 && setEstTimeError(true);
 
     if (
-      !(selectValue <= 0) &&
-      !(subProcessName.length <= 0) &&
+      selectValue > 0 &&
+      subProcessName.length > 0 &&
       returnType > 0 &&
-      !(estTime === "00:00:00") &&
-      !(estTime === "") &&
+      estTime !== "00:00:00" &&
+      estTime !== "" &&
       estTime.length >= 8 &&
-      !(estTimeTotalSeconds === 0)
+      estTimeTotalSeconds > 0 &&
+      selectvalueHasErr &&
+      subProcessNameHasError &&
+      returnTypeHasError &&
+      estTimeHasError
     ) {
       setLoader(true);
       try {
@@ -649,6 +658,7 @@ const ProcessContent = forwardRef<
             hasError={selectvalueErr}
             getValue={(value: any) => {
               setSelectValue(value);
+              value > 0 && setSelectValueErr(false);
             }}
             addDynamicForm
             addDynamicForm_Placeholder="Enter Process"
@@ -689,6 +699,7 @@ const ProcessContent = forwardRef<
             hasError={returnTypeError}
             getValue={(e) => {
               setReturnType(e);
+              e > 0 && setReturnTypeError(false);
             }}
             getError={(e) => setReturnTypeHasError(e)}
           />

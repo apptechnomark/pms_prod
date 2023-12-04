@@ -196,7 +196,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
                   required
                   placeholder="Enter Import Fields"
                   className={`outline-none border-b border-lightSilver !w-[37.5vw] ${
-                    Boolean(error) ? "!border-defaultRed" : ""
+                    error.length > 0 ? "!border-defaultRed" : ""
                   }`}
                   value={importText}
                   onChange={(e) => {
@@ -204,7 +204,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
                     setError("");
                   }}
                 />
-                {Boolean(error) && (
+                {error.length > 0 && (
                   <FormHelperText error>{error}</FormHelperText>
                 )}
               </FormControl>

@@ -606,7 +606,7 @@ const AuditFilter = ({
                       setFilterName(e.target.value);
                       setError("");
                     }}
-                    error={Boolean(error)}
+                    error={error.length > 0 ? true : false}
                     helperText={error}
                   />
                 </FormControl>

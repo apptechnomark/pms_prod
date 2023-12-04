@@ -1,11 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
-import {
-  TablePagination,
-  ThemeProvider,
-  createTheme,
-} from "@mui/material";
+import { TablePagination, ThemeProvider, createTheme } from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
@@ -45,7 +41,6 @@ const getMuiTheme = () =>
   });
 
 const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
-  const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [customReportData, setCustomReportData] = useState<any>([]);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -71,11 +66,9 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
           onHandleExport(
             response.data.ResponseData.List.length > 0 ? true : false
           );
-          setLoaded(true);
           setCustomReportData(response.data.ResponseData.List);
           setTableDataCount(response.data.ResponseData.TotalCount);
         } else {
-          setLoaded(true);
           const data = response.data.Message;
           if (data === null) {
             toast.error("Please try again later.");
@@ -84,7 +77,6 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
           }
         }
       } else {
-        setLoaded(true);
         const data = response.data.Message;
         if (data === null) {
           toast.error("Please try again later.");
@@ -93,7 +85,6 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         }
       }
     } catch (error) {
-      setLoaded(true);
       console.error(error);
     }
   };

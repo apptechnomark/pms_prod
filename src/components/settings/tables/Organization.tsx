@@ -250,9 +250,7 @@ function Organization({
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          onHandleExport(
-            response.data.ResponseData.List.length > 0 ? true : false
-          );
+          onHandleExport(response.data.ResponseData.length > 0 ? true : false);
           setLoader(false);
           setUserList(response.data.ResponseData);
         } else {

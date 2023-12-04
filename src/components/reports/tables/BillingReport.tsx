@@ -340,6 +340,18 @@ const BillingReport = ({
     setFinalBTCData(mergeBTCDataAndRaisedInvoiceArrays(btcData, raisedInvoice));
   }, [btcData, raisedInvoice]);
 
+  const generateBTCFieldBodyRender = (bodyValue: any, TableMeta: any) => {
+    return (
+      <BTCField
+        billingReportData={billingReportData}
+        setBiliingReportData={setBiliingReportData}
+        handleBTCData={handleBTCData}
+        value={bodyValue}
+        tableMeta={TableMeta}
+      />
+    );
+  };
+
   const columns: any[] = [
     {
       name: "WorkItemId",
@@ -549,15 +561,7 @@ const BillingReport = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("BTC Time"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <BTCField
-              billingReportData={billingReportData}
-              setBiliingReportData={setBiliingReportData}
-              handleBTCData={handleBTCData}
-              value={value}
-              tableMeta={tableMeta}
-            />
-          );
+          return generateBTCFieldBodyRender(value, tableMeta);
         },
       },
     },

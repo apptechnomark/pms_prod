@@ -32,6 +32,7 @@ import {
   generateCustomHeaderName,
   generateCommonBodyRender,
   generateDateWithoutTime,
+  generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
 
 const useStyles = makeStyles((theme) => ({
@@ -106,10 +107,13 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
   const [showDateWiseLogs, setShowDateWiseLogs] = useState<boolean>(false);
   const [dateWiseLogsData, setDateWiseLogsData] = useState<any[]>([]);
 
-  const [anchorElFilter, setAnchorElFilter] =
-    useState<HTMLButtonElement | null>(null);
+  const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
+
+  const generateIsManulaBodyRender = (bodyValue: any) => {
+    return <span className="capitalize">{bodyValue ? "yes" : "no"}</span>;
+  };
 
   const datewiselogsColumn: any = [
     {
@@ -173,8 +177,8 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Is Manual"),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return <span className="capitalize">{value ? "yes" : "no"}</span>;
+        customBodyRender: (value: any) => {
+          return generateIsManulaBodyRender(value);
         },
       },
     },
@@ -444,10 +448,6 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [timesheetData, setTimesheetData] = useState<any>([]);
   const [tableDataCount, setTableDataCount] = useState<number>(0);
 
-  const anchorElFilter: HTMLButtonElement | null = null;
-  const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
-
   const getData = async (arg1: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -538,24 +538,32 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
     return day === 6 || day === 0;
   };
 
+  const generateUserNameHeaderRender = (headerValue: any) => {
+    return (
+      <div className="font-bold text-sm capitalize !w-[100px]">
+        {headerValue}
+      </div>
+    );
+  };
+
+  const generateUserNameBodyRender = (bodyValue: any, TableMeta: any) => {
+    return (
+      <div className="flex flex-col">
+        <span>{bodyValue}</span>
+        <span>{timesheetData[TableMeta.rowIndex].DepartmentName}</span>
+      </div>
+    );
+  };
+
   const columns: any[] = [
     {
       name: "UserName",
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <div className="font-bold text-sm capitalize !w-[100px]">
-            user name
-          </div>
-        ),
+        customHeadLabelRender: () => generateUserNameHeaderRender("User Name"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex flex-col">
-              <span>{value}</span>
-              <span>{timesheetData[tableMeta.rowIndex].DepartmentName}</span>
-            </div>
-          );
+          return generateUserNameBodyRender(value, tableMeta);
         },
       },
     },
@@ -564,9 +572,7 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">designation</span>
-        ),
+        customHeadLabelRender: () => generateCustomHeaderName("designation"),
       },
     },
     {
@@ -574,11 +580,8 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">
-            Reporting Manager
-          </span>
-        ),
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Reporting Manager"),
       },
     },
     {
@@ -586,17 +589,10 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">Std Shift Hours</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 || value === "0"
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Std Shift Hours"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
         },
       },
     },
@@ -605,9 +601,7 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">Present Days</span>
-        ),
+        customHeadLabelRender: () => generateCustomHeaderName("Present Days"),
       },
     },
     {
@@ -615,17 +609,9 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">Total time</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 || value === "0"
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
         },
       },
     },
@@ -634,17 +620,9 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">Rejected Hours</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 || value === "0"
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+        customHeadLabelRender: () => generateCustomHeaderName("Rejected Hours"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
         },
       },
     },
@@ -653,17 +631,9 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">std time</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 || value === "0"
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+        customHeadLabelRender: () => generateCustomHeaderName("Std time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
         },
       },
     },
@@ -672,19 +642,10 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">
-            Average Total Time
-          </span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 || value === "0"
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Average Total Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
         },
       },
     },
@@ -693,19 +654,10 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">
-            Average Break Time
-          </span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 || value === "0"
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Average Break Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
         },
       },
     },
@@ -714,19 +666,10 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">
-            Average Idle Time
-          </span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 || value === "0"
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Average Idle Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
         },
       },
     },
@@ -770,17 +713,10 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => (
-          <span className="font-bold text-sm capitalize">Total Idle Time</span>
-        ),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === 0 || value === "0"
-                ? "00:00:00"
-                : value}
-            </div>
-          );
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Total Idle Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
         },
       },
     },

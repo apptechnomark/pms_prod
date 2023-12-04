@@ -152,6 +152,21 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
     return day === 6 || day === 0;
   };
 
+  const generateUserNameBodyRender = (bodyValue: any, TableMeta: any) => {
+    return (
+      <div className="flex flex-col">
+        {bodyValue === null || "" ? (
+          "-"
+        ) : (
+          <>
+            <span>{bodyValue}</span>
+            <span>{userData[TableMeta.rowIndex].DepartmentName}</span>
+          </>
+        )}
+      </div>
+    );
+  };
+
   const columns: any[] = [
     {
       name: "UserName",
@@ -160,18 +175,7 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("User Name"),
         customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <div className="flex flex-col">
-              {value === null || "" ? (
-                "-"
-              ) : (
-                <>
-                  <span>{value}</span>
-                  <span>{userData[tableMeta.rowIndex].DepartmentName}</span>
-                </>
-              )}
-            </div>
-          );
+          return generateUserNameBodyRender(value, tableMeta);
         },
       },
     },
@@ -246,7 +250,7 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("STd. Time"),
-        customBodyRender: (value: any, tableMeta: any) => {
+        customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
       },
@@ -257,7 +261,7 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
-        customBodyRender: (value: any, tableMeta: any) => {
+        customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
       },
@@ -269,7 +273,7 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Total Break Time"),
-        customBodyRender: (value: any, tableMeta: any) => {
+        customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
       },
@@ -281,7 +285,7 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Total Idle Time"),
-        customBodyRender: (value: any, tableMeta: any) => {
+        customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
       },

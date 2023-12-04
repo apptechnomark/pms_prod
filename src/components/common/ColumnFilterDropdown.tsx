@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { CheckBox } from "next-ts-lib";
 import ColFilterIcon from "@/assets/icons/ColFilterIcon";
 
@@ -6,7 +6,7 @@ interface ColumnFilterDropdownProps {
   headers: any[];
   visibleHeaders: any[];
   isOpen?: boolean;
-  setOpen: (arg1: boolean) => void; 
+  setOpen: (arg1: boolean) => void;
   handleHeaderToggle: (header: string) => void;
 }
 

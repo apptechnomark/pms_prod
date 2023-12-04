@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
   CircularProgress,
-  Rating,
   TablePagination,
   ThemeProvider,
   createTheme,
@@ -21,6 +20,7 @@ import {
   generateCustomHeaderName,
   generateCommonBodyRender,
   generateCustomFormatDate,
+  generateRatingsBodyRender,
 } from "@/utils/datatable/CommonFunction";
 
 const getMuiTheme = () =>
@@ -236,7 +236,7 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Ratings"),
         customBodyRender: (value: any) => {
-          return <Rating name="read-only" value={value} readOnly />;
+          return generateRatingsBodyRender(value);
         },
       },
     },

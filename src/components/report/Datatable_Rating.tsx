@@ -1,5 +1,5 @@
 import { ThemeProvider } from "@emotion/react";
-import { CircularProgress, Rating, createTheme } from "@mui/material";
+import { CircularProgress, createTheme } from "@mui/material";
 import axios from "axios";
 import MUIDataTable from "mui-datatables";
 import React, { useEffect, useState } from "react";
@@ -9,6 +9,7 @@ import {
   generateCustomHeaderName,
   generateCommonBodyRender,
   generateCustomFormatDate,
+  generateRatingsBodyRender,
 } from "@/utils/datatable/CommonFunction";
 
 const getMuiTheme = () =>
@@ -33,6 +34,7 @@ const getMuiTheme = () =>
       },
     },
   });
+  
 const Data = new Date();
 
 const pageNo = 1;
@@ -251,7 +253,7 @@ const Datatable_Rating = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Ratings"),
         customBodyRender: (value: any) => {
-          return <Rating name="read-only" value={value} readOnly />;
+          return generateRatingsBodyRender(value);
         },
       },
     },

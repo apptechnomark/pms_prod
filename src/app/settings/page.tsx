@@ -120,7 +120,6 @@ const Page = () => {
   const [orgSearchValue, setOrgSearchValue] = useState("");
   const [orgSearchData, setOrgSearchData] = useState("");
   const [canExport, setCanExport] = useState<boolean>(false);
-  const [orgTokenAvailable, setOrgTokenAvailable] = useState(false);
 
   useEffect(() => {
     if (localStorage.getItem("isClient") === "false") {

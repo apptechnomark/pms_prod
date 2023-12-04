@@ -37,11 +37,8 @@ const ClientContent = forwardRef<
     onOpen: boolean;
   }
 >(({ tab, onEdit, onClose, clientData, onOpen, onDataFetch }, ref) => {
-  const [workType, setWorkType] = useState<any>([]);
   const [billingTypeData, setBillingTypeData] = useState([]);
-  const [layoutTypeData, setLayoutTypeData] = useState([]);
   const [groupTypeData, setGroupTypeData] = useState([]);
-  const [hasTax, setHasTax] = useState(false);
 
   const [Id, setId] = useState(0);
   const [accountingId, setAccountingId] = useState(0);
@@ -68,9 +65,6 @@ const ClientContent = forwardRef<
 
   // Getting WorkType's Data
   const [workTypeData, setWorkTypeData] = useState<any>([]);
-  const [workTypeAccData, setWorkTypeAccData] = useState<any>([]);
-  const [workTypeAuditData, setWorkTypeAuditData] = useState<any>([]);
-  const [workTypeTaxData, setWorkTypeTaxData] = useState<any>([]);
   const [loader, setLoader] = useState(false);
 
   const [accBillingType, setAccBillingType] = useState(0);
@@ -79,9 +73,6 @@ const ClientContent = forwardRef<
   const [accGroup, setAccGroup] = useState([]);
   const [accGroupErr, setAccGroupErr] = useState(false);
   const [accGroupHasErr, setAccGroupHasErr] = useState(true);
-  const [accLayout, setAccLayout] = useState(0);
-  const [accLayoutErr, setAccLayoutErr] = useState(false);
-  const [accLayoutHasErr, setAccLayoutHasErr] = useState(true);
   const [accContHrs, setAccContHrs] = useState<any>(0);
   const [accContHrsErr, setAccContHrsErr] = useState(false);
   const [accContHrsHasErr, setAccContHrsHasErr] = useState(true);
@@ -90,7 +81,6 @@ const ClientContent = forwardRef<
   const [accActualHrsErr, setAccActHrsErr] = useState(false);
   const [accActualHrsHasErr, setAccActHrsHasErr] = useState(true);
   const [accActualHrsErrMsg, setAccActualHrsErrMsg] = useState("");
-  const [accHasError, setAccHasError] = useState(false);
 
   const [auditBillingType, setAuditBillingType] = useState(0);
   const [auditBillingErr, setAuditBillingErr] = useState(false);
@@ -98,9 +88,6 @@ const ClientContent = forwardRef<
   const [auditGroup, setAuditGroup] = useState([]);
   const [auditGroupErr, setAuditGroupErr] = useState(false);
   const [auditGroupHasErr, setAuditGroupHasErr] = useState(true);
-  const [auditLayout, setAuditLayout] = useState(0);
-  const [auditLayoutErr, setAuditLayoutErr] = useState(false);
-  const [auditLayoutHasErr, setAuditLayoutHasErr] = useState(true);
   const [auditContHrs, setAuditContHrs] = useState<any>(0);
   const [auditContHrsErr, setAuditContHrsErr] = useState(false);
   const [auditContHrsHasErr, setAuditContHrsHasErr] = useState(true);
@@ -109,7 +96,6 @@ const ClientContent = forwardRef<
   const [auditActualHrsErr, setAuditActHrsErr] = useState(false);
   const [auditActualHrsErrMsg, setAuditActualHrsErrMsg] = useState("");
   const [auditActualHrsHasErr, setAuditActHrsHasErr] = useState(true);
-  const [auditHasError, setAuditHasError] = useState(false);
 
   const [taxBillingType, setTaxBillingType] = useState(0);
   const [taxBillingErr, setTaxBillingErr] = useState(false);
@@ -117,9 +103,6 @@ const ClientContent = forwardRef<
   const [taxGroup, setTaxGroup] = useState([]);
   const [taxGroupErr, setTaxGroupErr] = useState(false);
   const [taxGroupHasErr, setTaxGroupHasErr] = useState(true);
-  const [taxLayout, setTaxLayout] = useState(0);
-  const [taxLayoutErr, setTaxLayoutErr] = useState(false);
-  const [taxLayoutHasErr, setTaxLayoutHasErr] = useState(true);
   const [taxContHrs, setTaxContHrs] = useState<any>(0);
   const [taxContHrsErr, setTaxContHrsErr] = useState(false);
   const [taxContHrsHasErr, setTaxContHrsHasErr] = useState(true);
@@ -128,7 +111,10 @@ const ClientContent = forwardRef<
   const [taxActualHrsErr, setTaxActHrsErr] = useState(false);
   const [taxActualHrsErrMsg, setTaxActualHrsErrMsg] = useState("");
   const [taxActualHrsHasErr, setTaxActHrsHasErr] = useState(true);
-  const [taxHasError, setTaxHasError] = useState(false);
+
+  const workTypeAccData: any[] = [];
+  const workTypeAuditData: any[] = [];
+  const workTypeTaxData: any[] = [];
 
   // Additional Field's State
   const [addMoreClicked, setAddMoreClicked] = useState(false);
@@ -446,14 +432,12 @@ const ClientContent = forwardRef<
         setIsAccountingOpen(true);
         setAccBillingType(i.BillingTypeId);
         setAccGroup(i.GroupIds);
-        setAccLayout(i.LayoutId);
         setAccContHrs(i.ContractHrs);
         setAccActHrs(i.InternalHrs);
         setAccContHrsHasErr(true);
         setAccActHrsHasErr(true);
         setAccBillingHasErr(true);
         setAccGroupHasErr(true);
-        setAccLayoutHasErr(true);
       }
 
       if (i.WorkTypeId === 2) {
@@ -462,14 +446,12 @@ const ClientContent = forwardRef<
         setIsAuditOpen(true);
         setAuditBillingType(i.BillingTypeId);
         setAuditGroup(i.GroupIds);
-        setAuditLayout(i.LayoutId);
         setAuditContHrs(i.ContractHrs);
         setAuditActHrs(i.InternalHrs);
         setAuditContHrsHasErr(true);
         setAuditActHrsHasErr(true);
         setAuditBillingHasErr(true);
         setAuditGroupHasErr(true);
-        setAuditLayoutHasErr(true);
       }
 
       if (i.WorkTypeId === 3) {
@@ -478,14 +460,12 @@ const ClientContent = forwardRef<
         setIsTaxOpen(true);
         setTaxBillingType(i.BillingTypeId);
         setTaxGroup(i.GroupIds);
-        setTaxLayout(i.LayoutId);
         setTaxContHrs(i.ContractHrs);
         setTaxActHrs(i.InternalHrs);
         setTaxContHrsHasErr(true);
         setTaxActHrsHasErr(true);
         setTaxBillingHasErr(true);
         setTaxGroupHasErr(true);
-        setTaxLayoutHasErr(true);
       }
     });
   };
@@ -544,9 +524,6 @@ const ClientContent = forwardRef<
       if (accGroup.length === 0) {
         setAccGroupErr(true);
       }
-      // if (accLayout <= 0) {
-      //   setAccLayoutErr(true);
-      // }
 
       if (accContHrs <= 0) {
         setAccContHrsErr(true);
@@ -578,7 +555,6 @@ const ClientContent = forwardRef<
       if (accActualHrs <= 0) {
         setAccActHrsErr(true);
         setAccActualHrsErrMsg("Internal Hours must be greater than 0.");
-        // return false;
       } else if (Number(accActualHrs) > Number(accContHrs)) {
         setAccActHrsErr(true);
         setAccActualHrsErrMsg(
@@ -617,9 +593,6 @@ const ClientContent = forwardRef<
       if (auditGroup.length === 0) {
         setAuditGroupErr(true);
       }
-      // if (auditLayout <= 0) {
-      //   setAuditLayoutErr(true);
-      // }
 
       if (auditContHrs <= 0) {
         setAuditContHrsErr(true);
@@ -653,7 +626,6 @@ const ClientContent = forwardRef<
       if (auditActualHrs <= 0) {
         setAuditActHrsErr(true);
         setAuditActualHrsErrMsg("Internal Hours must be greater than 0.");
-        // return false;
       } else if (Number(auditActualHrs) > Number(auditContHrs)) {
         setAuditActHrsErr(true);
         setAuditActualHrsErrMsg(
@@ -694,14 +666,10 @@ const ClientContent = forwardRef<
       if (taxGroup.length === 0) {
         setTaxGroupErr(true);
       }
-      // if (taxLayout <= 0) {
-      //   setTaxLayout(true);
-      // }
 
       if (taxContHrs <= 0) {
         setTaxContHrsErr(true);
         setTaxContHrsErrMsg("Contracted Hours must be greater than 0.");
-        // return false;
       } else if (
         taxContHrs === "0" ||
         taxContHrs === "00" ||
@@ -729,7 +697,6 @@ const ClientContent = forwardRef<
       if (taxActualHrs <= 0) {
         setTaxActHrsErr(true);
         setTaxActualHrsErrMsg("Internal Hours must be greater than 0.");
-        // return false;
       } else if (Number(taxActualHrs) > Number(taxContHrs)) {
         setTaxActHrsErr(true);
         setTaxActualHrsErrMsg(
@@ -761,26 +728,20 @@ const ClientContent = forwardRef<
       }
     }
     const accHasError =
-      // accounting &&
       accContHrsHasErr &&
       accActualHrsHasErr &&
       accBillingHasErr &&
       accGroupHasErr;
-    // && accLayoutHasErr;
     const auditHasError =
-      // audit &&
       auditActualHrsHasErr &&
       auditContHrsHasErr &&
       auditBillingHasErr &&
       auditGroupHasErr;
-    // && auditLayoutHasErr;
     const taxHasError =
-      // tax &&
       taxActualHrsHasErr &&
       taxContHrsHasErr &&
       taxBillingHasErr &&
       taxGroupHasErr;
-    // && taxLayoutHasErr;
 
     if (accounting && accHasError) {
       workTypeAccData.push({
@@ -848,7 +809,6 @@ const ClientContent = forwardRef<
 
     setAccBillingErr(true);
     setAccGroupErr(true);
-    // setAccLayoutErr(true);
     setAccContHrsErr(true);
     setAccActHrsErr(true);
     setAccActualHrsErrMsg("");
@@ -856,7 +816,6 @@ const ClientContent = forwardRef<
 
     setAuditBillingErr(true);
     setAuditGroupErr(true);
-    // setAuditLayoutErr(true);
     setAuditContHrsErr(true);
     setAuditActHrsErr(true);
     setAuditActualHrsErrMsg("");
@@ -864,7 +823,6 @@ const ClientContent = forwardRef<
 
     setTaxBillingErr(true);
     setTaxGroupErr(true);
-    // setTaxLayoutErr(true);
     setTaxContHrsErr(true);
     setTaxActHrsErr(true);
     setTaxActualHrsErrMsg("");
@@ -890,63 +848,42 @@ const ClientContent = forwardRef<
     setIsAccountingOpen(false);
     setAccBillingType(0);
     setAccBillingErr(false);
-    // setAccBillingHasErr(false);
     setAccGroup([]);
     setAccGroupErr(false);
-    // setAccGroupHasErr(false);
-    // setAccLayout(0);
-    // setAccLayoutErr(false);
-    // setAccLayoutHasErr(false);
     setAccContHrs(0);
     setAccContHrsErr(false);
-    // setAccContHrsHasErr(false);
     setAccActHrs(0);
     setAccActHrsErr(false);
     setAccActualHrsErrMsg("");
     setAccContHrsErrMsg("");
-    // setAccActHrsHasErr(false);
 
     setAuditId(0);
     setAudit(false);
     setIsAuditOpen(false);
     setAuditBillingType(0);
     setAuditBillingErr(false);
-    // setAuditBillingHasErr(false);
     setAuditGroup([]);
     setAuditGroupErr(false);
-    // setAuditGroupHasErr(false);
-    // setAuditLayout(0);
-    // setAuditLayoutErr(false);
-    // setAuditLayoutHasErr(false);
     setAuditContHrs(0);
     setAuditContHrsErr(false);
-    // setAuditContHrsHasErr(false);
     setAuditActHrs(0);
     setAuditActHrsErr(false);
     setAuditActualHrsErrMsg("");
     setAuditContHrsErrMsg("");
-    // setAuditActHrsHasErr(false);
 
     setTaxId(0);
     setTax(false);
     setIsTaxOpen(false);
     setTaxBillingType(0);
     setTaxBillingErr(false);
-    // setTaxBillingHasErr(false);
     setTaxGroup([]);
     setTaxGroupErr(false);
-    // setTaxGroupHasErr(false);
-    // setTaxLayout(0);
-    // setTaxLayoutErr(false);
-    // setTaxLayoutHasErr(false);
     setTaxContHrs(0);
     setTaxContHrsErr(false);
-    // setTaxContHrsHasErr(false);
     setTaxActHrs(0);
     setTaxActHrsErr(false);
     setTaxActualHrsErrMsg("");
     setTaxContHrsErrMsg("");
-    // setTaxActHrsHasErr(false);
 
     setPocFields([
       {
@@ -1014,7 +951,10 @@ const ClientContent = forwardRef<
 
           WorkTypes: workTypes.length > 0 ? workTypes : null,
 
-          OwnerAndCPAName: getFieldValue(isAdditionalFieldsClicked, cpaName.trim()),
+          OwnerAndCPAName: getFieldValue(
+            isAdditionalFieldsClicked,
+            cpaName.trim()
+          ),
           OwnerEmail: getFieldValue(isAdditionalFieldsClicked, cpaEmail.trim()),
           OwnerPhone: getFieldValue(isAdditionalFieldsClicked, cpaMobileNo),
           City: getFieldValue(isAdditionalFieldsClicked, city.trim()),
@@ -1031,7 +971,10 @@ const ClientContent = forwardRef<
             isAdditionalFieldsClicked,
             clientItPOCEmail.trim()
           ),
-          PABSPOCName: getFieldValue(isAdditionalFieldsClicked, pabsPOCName.trim()),
+          PABSPOCName: getFieldValue(
+            isAdditionalFieldsClicked,
+            pabsPOCName.trim()
+          ),
 
           Pabsbdm: getFieldValue(isAdditionalFieldsClicked, pabsBDM.trim()),
           PabsManagerAssigned: getFieldValue(
@@ -1039,7 +982,10 @@ const ClientContent = forwardRef<
             pabsManagerAssigned.trim()
           ),
 
-          GroupMail: getFieldValue(isAdditionalFieldsClicked, groupEmail.trim()),
+          GroupMail: getFieldValue(
+            isAdditionalFieldsClicked,
+            groupEmail.trim()
+          ),
           SopStatus: getFieldValue(isAdditionalFieldsClicked, sopStatus),
 
           DateOfImplementation: getFieldValue(
@@ -1154,59 +1100,11 @@ const ClientContent = forwardRef<
   // Getting WorkTypes
   useEffect(() => {
     if (onOpen) {
-      getWorkTypes();
       getBillingTypes();
-      getLayoutTypes();
       getGroupTypes();
       getStates();
     }
   }, [onOpen]);
-
-  const getWorkTypes = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/WorkType/GetDropdown`,
-        {
-          clientId: 0,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setWorkType(response.data.ResponseData);
-
-          const workTypeLabels = response.data.ResponseData.map(
-            (item: { label: any }) => item.label
-          );
-          setHasTax(workTypeLabels.includes("Tax"));
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            Toast.error("Please try again later.");
-          } else {
-            Toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          Toast.error("Please try again.");
-        } else {
-          Toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const getBillingTypes = async () => {
     const token = await localStorage.getItem("token");
@@ -1225,37 +1123,6 @@ const ClientContent = forwardRef<
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           setBillingTypeData(response.data.ResponseData);
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          Toast.error("Failed Please try again.");
-        } else {
-          Toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getLayoutTypes = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/Layout/GetDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setLayoutTypeData(response.data.ResponseData);
         }
       } else {
         const data = response.data.Message;
@@ -1479,18 +1346,6 @@ const ClientContent = forwardRef<
                       validate
                       errorClass="!-mt-[15px]"
                     />
-                    {/* <Select
-                    id="Layout"
-                    label="Layout"
-                    defaultValue={taxLayout}
-                    options={layoutTypeData}
-                    onSelect={() => {}}
-                    getValue={(e) => setTaxLayout(e)}
-                    getError={(e) => setTaxLayoutHasErr(e)}
-                    hasError={taxLayoutErr}
-                    validate
-                    errorClass="!-mt-[15px]"
-                  /> */}
                     <Text
                       className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       type="number"
@@ -1590,18 +1445,6 @@ const ClientContent = forwardRef<
                       validate
                       errorClass="!-mt-[15px]"
                     />
-                    {/* <Select
-                  id="layout"
-                  label="Layout"
-                  defaultValue={accLayout}
-                  options={layoutTypeData}
-                  onSelect={() => {}}
-                  getValue={(e) => setAccLayout(e)}
-                  getError={(e) => setAccLayoutHasErr(e)}
-                  hasError={accLayoutErr}
-                  validate
-                  errorClass="!-mt-[15px]"
-                /> */}
                     <Text
                       className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       type="number"
@@ -1701,18 +1544,6 @@ const ClientContent = forwardRef<
                       validate
                       errorClass="!-mt-[15px]"
                     />
-                    {/* <Select
-                  id="Layout"
-                  label="Layout"
-                  defaultValue={auditLayout}
-                  options={layoutTypeData}
-                  onSelect={() => {}}
-                  getValue={(e) => setAuditLayout(e)}
-                  getError={(e) => setAuditLayoutHasErr(e)}
-                  hasError={auditLayoutErr}
-                  validate
-                  errorClass="!-mt-[15px]"
-                /> */}
                     <Text
                       className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       type="number"

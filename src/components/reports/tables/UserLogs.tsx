@@ -131,6 +131,10 @@ const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
     }
   }, [filteredData, searchValue]);
 
+  const generateIsLoggedInBodyRender = (bodyValue: any) => {
+    return bodyValue === 0 ? <div>No</div> : bodyValue === 1 && <div>Yes</div>;
+  };
+
   const columns: any[] = [
     {
       name: "UserName",
@@ -227,9 +231,7 @@ const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
         sort: true,
         filter: true,
         customHeadLabelRender: () => generateCustomHeaderName("Is Logged In"),
-        customBodyRender: (value: any) => {
-          return value === 0 ? <div>No</div> : value === 1 && <div>Yes</div>;
-        },
+        customBodyRender: (value: any) => generateIsLoggedInBodyRender(value),
       },
     },
   ];

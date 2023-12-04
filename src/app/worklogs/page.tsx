@@ -45,9 +45,6 @@ const Page = () => {
   const [hasEdit, setHasEdit] = useState(0);
   const [hasRecurring, setHasRecurring] = useState(false);
   const [hasComment, setHasComment] = useState(false);
-  const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
-    (() => void) | null
-  >(null);
   const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
   const [filterList, setFilterList] = useState([]);
@@ -59,7 +56,6 @@ const Page = () => {
   const [breakId, setBreakID] = useState<number>(0);
   const [timer, setTimer] = useState<string>("00:00:00");
   const [loaded, setLoaded] = useState(false);
-  const [filterApplied, setFilterApplied] = useState(false);
   const [isTaskClicked, setIsTaskClicked] = useState(true);
   const [isUnassigneeClicked, setIsUnassigneeClicked] = useState(false);
   const [hasId, setHasId] = useState("");
@@ -120,7 +116,6 @@ const Page = () => {
   }));
 
   const handleUserDetailsFetch = (getData: () => void) => {
-    setGetOrgDetailsFunction(() => getData);
     setLoaded(true);
   };
 
@@ -450,11 +445,11 @@ const Page = () => {
                       </span>
                     </span>
 
-                    {filteredFilters.map((i: any, index: number) => {
+                    {filteredFilters.map((i: any) => {
                       return (
                         <>
                           <div
-                            key={index}
+                            key={i.FilterId}
                             className="group px-2 cursor-pointer bg-whiteSmoke hover:bg-lightSilver flex justify-between items-center h-9"
                           >
                             <span
@@ -462,7 +457,6 @@ const Page = () => {
                               onClick={() => {
                                 setclickedFilterId(i.FilterId);
                                 handleCloseFilter();
-                                setFilterApplied(true);
                               }}
                             >
                               {i.Name}
@@ -481,8 +475,8 @@ const Page = () => {
                               </span>
                               <span
                                 onClick={() => {
-                                  setIsDeleteOpen(true),
-                                    setCurrentFilterId(i.FilterId);
+                                  setIsDeleteOpen(true);
+                                  setCurrentFilterId(i.FilterId);
                                   handleCloseFilter();
                                 }}
                               >

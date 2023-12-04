@@ -4,12 +4,6 @@ import ArrowDown from "./icons/ArrowDown";
 import Star from "./icons/Star";
 import Building from "./icons/Building";
 
-interface OptionsProps {
-  id: string;
-  label: string;
-  token: string;
-}
-
 export default function Dropdown({ options, getUserDetails }: any) {
   let Org_Name;
   if (typeof window !== "undefined") {
@@ -102,9 +96,9 @@ export default function Dropdown({ options, getUserDetails }: any) {
         <ul
           className={`max-h-[400px] m-0 p-0 list-none border-b border-b-[#d8d8d8] overflow-auto`}
         >
-          {filteredOptions.map((option: any, index: number) => (
+          {filteredOptions.map((option: any) => (
             <li
-              key={index}
+              key={option.id}
               className="mx-5 my-5 cursor-pointer flex items-center justify-between text-[14px] font-normal"
               id={option.id}
               value={option.label}
@@ -119,13 +113,10 @@ export default function Dropdown({ options, getUserDetails }: any) {
                   setSelectedValue(value);
                   setSelectedToken(option.token);
 
-                  // const newTab = window.open("./settings", "_blank");
-                  // if (newTab) {
                   localStorage.setItem("Org_Token", option.token);
                   localStorage.setItem("Org_Id", option.id);
                   localStorage.setItem("Org_Name", option.label);
                   handleRefresh();
-                  // }
                 }
               }}
             >
@@ -133,9 +124,7 @@ export default function Dropdown({ options, getUserDetails }: any) {
                 <Building />
                 <span className="truncate w-40">{option.label}</span>
               </span>
-              <div
-                className="starContainer"
-              >
+              <div className="starContainer">
                 <Star data={option} getUserDetails={getUserDetails} />
               </div>
             </li>
