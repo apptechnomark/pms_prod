@@ -28,7 +28,6 @@ import {
   generateCustomHeaderName,
   generateCommonBodyRender,
   generateInitialTimer,
-  generateDateWithTime,
   generateDateWithoutTime,
 } from "@/utils/datatable/CommonFunction";
 

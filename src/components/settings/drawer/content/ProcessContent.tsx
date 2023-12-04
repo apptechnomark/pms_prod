@@ -1,14 +1,6 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react-hooks/exhaustive-deps */
-import {
-  Button,
-  CheckBox,
-  Loader,
-  Radio,
-  Select,
-  Text,
-  Toast,
-} from "next-ts-lib";
+import { Button, Loader, Select, Text, Toast } from "next-ts-lib";
 import React, {
   useState,
   forwardRef,
@@ -416,10 +408,10 @@ const ProcessContent = forwardRef<
     if (
       !(selectValue <= 0) &&
       !(subProcessName.length <= 0) &&
-      !(returnType <= 0) &&
+      returnType > 0 &&
       !(estTime === "00:00:00") &&
       !(estTime === "") &&
-      !(estTime.length < 8) &&
+      estTime.length >= 8 &&
       !(estTimeTotalSeconds === 0)
     ) {
       setLoader(true);
@@ -493,10 +485,10 @@ const ProcessContent = forwardRef<
     if (
       !(selectValue <= 0) &&
       !(subProcessName.length <= 0) &&
-      !(returnType <= 0) &&
+      returnType > 0 &&
       !(estTime === "00:00:00") &&
       !(estTime === "") &&
-      !(estTime.length < 8) &&
+      estTime.length >= 8 &&
       !(estTimeTotalSeconds === 0)
     ) {
       setLoader(true);

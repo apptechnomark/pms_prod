@@ -1,9 +1,7 @@
 import axios from "axios";
-import { CheckBox, Close, Switch, Toast } from "next-ts-lib";
+import { Button, Close, Switch, Toast } from "next-ts-lib";
 import React, { useEffect, useState } from "react";
-
 import TaskIcon from "@/assets/icons/TaskIcon";
-import { Button } from "next-ts-lib";
 
 const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
   const [fieldsData, setFieldsData] = useState<string[] | any>([]);

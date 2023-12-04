@@ -381,10 +381,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   const saveCurrentFilter = async () => {
     if (filterName.trim().length === 0) {
       setError("This is required field!");
-      return;
     } else if (filterName.trim().length > 15) {
       setError("Max 15 characters allowed!");
-      return;
     } else {
       setError("");
 

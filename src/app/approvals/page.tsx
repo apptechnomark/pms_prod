@@ -9,7 +9,6 @@ import Wrapper from "@/components/common/Wrapper";
 // Icons
 import ExportIcon from "@/assets/icons/ExportIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
-import ImportIcon from "@/assets/icons/ImportIcon";
 // Material Import
 import { Tooltip, TooltipProps, tooltipClasses, styled } from "@mui/material";
 import Drawer from "@/components/approvals/Drawer";
@@ -121,11 +120,6 @@ const Page = () => {
                 <FilterIcon />
               </span>
             </ColorToolTip>
-            {/* <ColorToolTip title="Import" placement="top" arrow>
-              <span className="cursor-pointer">
-                <ImportIcon />
-              </span>
-            </ColorToolTip> */}
             {/* <ColorToolTip title="Export" placement="top" arrow>
               <span className="cursor-pointer">
                 <ExportIcon />

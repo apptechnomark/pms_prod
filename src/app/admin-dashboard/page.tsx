@@ -310,6 +310,7 @@ const Page = () => {
         `${process.env.report_api_url}/dashboard/dashboardclientsummary/export`,
         {
           ...filteredObject,
+          IsDownload: true,
         },
         {
           headers: { Authorization: `bearer ${token}`, org_token: Org_Token },

@@ -92,11 +92,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
   //   converting importText to Array of Object
   const convertToArrayOfObjects = (data: string) => {
     let dataArray;
-    if (data.includes(",")) {
-      dataArray = data
-        .split(",")
-        .map((item, index) => ({ id: index + 1, field: item.trim() }));
-    } else if (data.includes("\n")) {
+    if (data.includes("\n")) {
       dataArray = data
         .split("\n")
         .filter((item) => item.trim() !== "")

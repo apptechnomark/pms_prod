@@ -2,7 +2,6 @@ import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
 import CommentsIcon from "@/assets/icons/CommentsIcon";
 import TaskIcon from "@/assets/icons/TaskIcon";
 import EditIcon from "@mui/icons-material/Edit";
-import FileIcon from "@/assets/icons/worklogs/FileIcon";
 import SendIcon from "@/assets/icons/worklogs/SendIcon";
 import { Close, Download, Save } from "@mui/icons-material";
 import {
@@ -13,7 +12,6 @@ import {
   FormControl,
   FormControlLabel,
   FormGroup,
-  FormHelperText,
   Grid,
   IconButton,
   InputLabel,
@@ -28,7 +26,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Mention, MentionsInput } from "react-mentions";
 import mentionsInputStyle from "./mentionsInputStyle";
 import { toast } from "react-toastify";
