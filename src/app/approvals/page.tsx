@@ -10,7 +10,13 @@ import Wrapper from "@/components/common/Wrapper";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
 // Material Import
-import { Tooltip, TooltipProps, tooltipClasses, styled } from "@mui/material";
+import {
+  Tooltip,
+  TooltipProps,
+  tooltipClasses,
+  styled,
+  InputBase,
+} from "@mui/material";
 import Drawer from "@/components/approvals/Drawer";
 import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -19,6 +25,7 @@ import FilterDialog_Approval from "@/components/approvals/FilterDialog_Approval"
 import IdleTimer from "@/components/common/IdleTimer";
 import Loading from "@/assets/icons/reports/Loading";
 import axios from "axios";
+import SearchIcon from "@/assets/icons/SearchIcon";
 
 const exportBody = {
   pageNo: 1,
@@ -41,6 +48,7 @@ const Page = () => {
   const [hasEditId, setHasEditId] = useState(0);
   const [iconIndex, setIconIndex] = useState<number>(0);
   const [hasId, setHasId] = useState("");
+  const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
   const [currentFilterData, setCurrentFilterData] = useState([]);
@@ -89,6 +97,7 @@ const Page = () => {
     setHasComment(false);
     setHasError(false);
     setHasId("");
+    setGlobalSearchValue("");
   };
 
   // To Toggle Drawer for Edit
@@ -161,6 +170,9 @@ const Page = () => {
     setCanExport(arg1);
   };
 
+  console.log(currentFilterData);
+  
+
   return (
     <Wrapper>
       <IdleTimer onIdle={() => window.location.reload()} />
@@ -173,6 +185,17 @@ const Page = () => {
             </label>
           </div>
           <div className="flex gap-[20px] items-center">
+            <div className="relative">
+              <InputBase
+                className="pl-1 pr-7 border-b border-b-slatyGrey w-52"
+                placeholder="Search"
+                value={globalSearchValue}
+                onChange={(e: any) => setGlobalSearchValue(e.target.value)}
+              />
+              <span className="absolute top-2 right-2 text-slatyGrey">
+                <SearchIcon />
+              </span>
+            </div>
             <ColorToolTip title="Filter" placement="top" arrow>
               <span
                 className="cursor-pointer"
@@ -196,6 +219,7 @@ const Page = () => {
           </div>
         </div>
         <Datatable
+          searchValue={globalSearchValue}
           onDataFetch={handleDataFetch}
           onEdit={handleEdit}
           onDrawerOpen={handleDrawerOpen}

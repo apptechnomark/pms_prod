@@ -14,6 +14,7 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { useRouter } from "next/navigation";
 import { handleLogoutUtil } from "@/utils/commonFunction";
+import { callAPI } from "@/utils/API/callAPI";
 
 const getMuiTheme = () =>
   createTheme({
@@ -113,49 +114,71 @@ const Datatable_Task = ({
 
   // TaskList API
   const getTaskList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const { data, status } = await axios.post(
-        `${process.env.report_api_url}/report/client/task`,
-        allFields.filteredObject,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (status === 200) {
-        const { ResponseStatus, ResponseData } = data;
-
-        if (ResponseStatus === "Success") {
-          onHandleExport(ResponseData.List.length > 0);
-          setAllFields({
-            ...allFields,
-            loaded: true,
-            taskData: ResponseData.List,
-            tableDataCount: ResponseData.TotalCount,
-          });
-        } else {
-          handleErrorResponse(data);
-        }
+    const params = allFields.filteredObject;
+    const url = `${process.env.report_api_url}/report/client/task`;
+    const successCallback = (ResponseData: any, error: any) => {
+      if (ResponseData !== null && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
+        setAllFields({
+          ...allFields,
+          loaded: true,
+          taskData: ResponseData.List,
+          tableDataCount: ResponseData.TotalCount,
+        });
       } else {
-        handleErrorResponse(data);
+        setAllFields({
+          ...allFields,
+          loaded: false,
+        });
       }
-    } catch (error: any) {
-      setAllFields({
-        ...allFields,
-        loaded: false,
-      });
-      if (error.response?.status === 401) {
-        router.push("/login");
-        handleLogoutUtil();
-      }
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
+
+  // const getTaskList = async () => {
+  //   const token = await localStorage.getItem("token");
+  //   const Org_Token = await localStorage.getItem("Org_Token");
+
+  //   try {
+  //     const { data, status } = await axios.post(
+  //       `${process.env.report_api_url}/report/client/task`,
+  //       allFields.filteredObject,
+  //       {
+  //         headers: {
+  //           Authorization: `bearer ${token}`,
+  //           org_token: `${Org_Token}`,
+  //         },
+  //       }
+  //     );
+
+  //     if (status === 200) {
+  //       const { ResponseStatus, ResponseData } = data;
+
+  //       if (ResponseStatus === "Success") {
+  //         onHandleExport(ResponseData.List.length > 0);
+  //         setAllFields({
+  //           ...allFields,
+  //           loaded: true,
+  //           taskData: ResponseData.List,
+  //           tableDataCount: ResponseData.TotalCount,
+  //         });
+  //       } else {
+  //         handleErrorResponse(data);
+  //       }
+  //     } else {
+  //       handleErrorResponse(data);
+  //     }
+  //   } catch (error: any) {
+  //     setAllFields({
+  //       ...allFields,
+  //       loaded: false,
+  //     });
+  //     if (error.response?.status === 401) {
+  //       router.push("/login");
+  //       handleLogoutUtil();
+  //     }
+  //   }
+  // };
 
   const handleErrorResponse = (data: { Message: string }) => {
     setAllFields({

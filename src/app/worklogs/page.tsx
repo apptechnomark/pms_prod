@@ -71,6 +71,7 @@ const Page = () => {
   const [currentFilterId, setCurrentFilterId] = useState<number>(0);
   const [clickedFilterId, setclickedFilterId] = useState<number>(0);
   const [searchValue, setSearchValue] = useState("");
+  const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [currentFilterData, setCurrentFilterData] = useState([]);
   const [breakId, setBreakID] = useState<number>(0);
   const [timer, setTimer] = useState<string>("00:00:00");
@@ -151,6 +152,7 @@ const Page = () => {
     setHasRecurring(false);
     setHasComment(false);
     setHasId("");
+    setGlobalSearchValue("");
   };
 
   // To Toggle Drawer for Edit
@@ -386,7 +388,7 @@ const Page = () => {
       {
         ...exportBody,
         ...currentFilterData,
-        // IsDownload: true,
+        GlobalSearch: globalSearchValue,
       },
       {
         headers: {
@@ -425,6 +427,7 @@ const Page = () => {
           <div className="flex gap-[16px] items-center py-[6.5px]">
             <label
               onClick={() => {
+                setGlobalSearchValue("");
                 setIsTaskClicked(true);
                 setIsUnassigneeClicked(false);
               }}
@@ -445,6 +448,7 @@ const Page = () => {
               hasPermissionWorklog("", "ManageAssignee", "WorkLogs") && (
                 <label
                   onClick={() => {
+                    setGlobalSearchValue("");
                     setIsUnassigneeClicked(true);
                     setIsTaskClicked(false);
                   }}
@@ -459,6 +463,18 @@ const Page = () => {
               )}
           </div>
           <div className="flex gap-[20px] items-center">
+            <div className="relative">
+              <InputBase
+                className="pl-1 pr-7 border-b border-b-slatyGrey w-52"
+                placeholder="Search"
+                value={globalSearchValue}
+                onChange={(e: any) => setGlobalSearchValue(e.target.value)}
+              />
+              <span className="absolute top-2 right-2 text-slatyGrey">
+                <SearchIcon />
+              </span>
+            </div>
+
             {filterList.length > 0 && isTaskClicked ? (
               <div>
                 <span
@@ -650,6 +666,7 @@ const Page = () => {
         </div>
         {isTaskClicked && (
           <Datatable
+            searchValue={globalSearchValue}
             isOnBreak={breakId}
             onGetBreakData={getBreakData}
             onSetBreak={setBreak}
@@ -666,6 +683,7 @@ const Page = () => {
         )}
         {isUnassigneeClicked && (
           <UnassigneeDatatable
+            searchValue={globalSearchValue}
             currentFilterData={currentFilterData}
             onCurrentFilterId={clickedFilterId}
             onDataFetch={handleDataFetch}

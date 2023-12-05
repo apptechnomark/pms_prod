@@ -125,6 +125,12 @@ const initialFilter = {
   ReviewStatus: null,
 };
 
+let userID: string | null = "-1";
+
+if (typeof window !== "undefined") {
+  userID = localStorage.getItem("UserId");
+}
+
 const Datatable = ({
   isOnBreak,
   onGetBreakData,
@@ -138,6 +144,7 @@ const Datatable = ({
   currentFilterData,
   onHandleExport,
   onComment,
+  searchValue,
 }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [allStatus, setAllStatus] = useState<any | any[]>([]);
@@ -706,9 +713,13 @@ const Datatable = ({
   };
 
   useEffect(() => {
-    setFilteredOject({ ...filteredObject, ...currentFilterData });
+    setFilteredOject({
+      ...filteredObject,
+      ...currentFilterData,
+      GlobalSearch: searchValue,
+    });
     getWorkItemList();
-  }, [currentFilterData]);
+  }, [currentFilterData, searchValue]);
 
   // client Dropdown API
   const getClientData = async () => {
@@ -1801,6 +1812,10 @@ const Datatable = ({
     getWorkItemList();
   }, [isOnBreak]);
 
+  useEffect(() => {
+    onHandleExport(workItemData.length > 0 ? true : false);
+  }, [workItemData]);
+
   const handleComment = (e: any) => {
     setComment(e.target.value);
     if (e.target.value.trim().length === 0) {
@@ -1964,6 +1979,10 @@ const Datatable = ({
 
           const timerValue =
             value === 0 ? "00:00:00" : toHoursAndMinutes(value);
+          console.log(
+            tableMeta.rowData[tableMeta.rowData.length - 4] === userID
+          );
+
           return (
             <div className="w-40 h-7 flex items-center">
               <ColorToolTip
@@ -1981,7 +2000,9 @@ const Datatable = ({
                   {timerValue}
                 </span>
               </ColorToolTip>
-              {tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
+              {tableMeta.rowData[tableMeta.rowData.length - 4].toString() ===
+                userID &&
+                tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
                 (workItemData[tableMeta.rowIndex].IsManual === false ||
                   !workItemData[tableMeta.rowIndex].IsManual ||
                   workItemData[tableMeta.rowIndex].IsManual === null) &&
@@ -2231,6 +2252,13 @@ const Datatable = ({
     },
     {
       name: "IsRecurring",
+      options: {
+        display: false,
+        viewColumns: false,
+      },
+    },
+    {
+      name: "AssignedToId",
       options: {
         display: false,
         viewColumns: false,

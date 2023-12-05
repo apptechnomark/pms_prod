@@ -38,11 +38,17 @@ import {
   getClientDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
+  getStatusDropdownData,
 } from "@/utils/commonDropdownApiCall";
 
 //icons
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
+
+const SIGNED_OFF = "signedoff";
+const ACCEPTED = "accept";
+const IN_REVIEW = "inreview";
+const IN_PROGRESS = "inprogress";
 
 const returnTypeDropdown = [
   {
@@ -130,6 +136,7 @@ const CustomReportFilter = ({
   const [returnYear, setReturnYear] = useState<number | string>(0);
   const [currentYear, setCurrentYear] = useState<number | string>(0);
   const [complexity, setComplexity] = useState<number | string>(0);
+  const [status, setStatus] = useState<number | string>(0);
   const [priority, setPriority] = useState<string | number>(0);
   const [receivedDate, setReceivedDate] = useState<string | number>("");
   const [dueDate, setDueDate] = useState<string | number>("");
@@ -142,6 +149,7 @@ const CustomReportFilter = ({
   const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
   const [processDropdown, setProcessDropdown] = useState<any[]>([]);
   const [userDropdown, setUserDropdown] = useState<any[]>([]);
+  const [statusDropdown, setStatusDropdown] = useState<any[]>([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currentFilterId, setCurrentFilterId] = useState<any>("");
   const [savedFilters, setSavedFilters] = useState<any[]>([]);
@@ -176,6 +184,7 @@ const CustomReportFilter = ({
     setReturnYear(0);
     setCurrentYear(0);
     setComplexity(0);
+    setStatus(0);
     setPriority(0);
     setReceivedDate("");
     setDueDate("");
@@ -205,6 +214,7 @@ const CustomReportFilter = ({
     setReturnYear(0);
     setCurrentYear(0);
     setComplexity(0);
+    setStatus(0);
     setPriority(0);
     setReceivedDate("");
     setDueDate("");
@@ -233,6 +243,7 @@ const CustomReportFilter = ({
       returnYear: returnYear === 0 || returnYear === "" ? null : returnYear,
       currentYear: currentYear === 0 || currentYear === "" ? null : currentYear,
       complexity: complexity === 0 || complexity === "" ? null : complexity,
+      StatusId: status === 0 || status === "" ? null : status,
       priority: priority === 0 || priority === "" ? null : priority,
       receivedDate:
         receivedDate.toString().trim().length <= 0
@@ -267,6 +278,7 @@ const CustomReportFilter = ({
           returnYear: savedFilters[index].AppliedFilter.returnYear,
           currentYear: savedFilters[index].AppliedFilter.currentYear,
           complexity: savedFilters[index].AppliedFilter.complexity,
+          StatusId: savedFilters[index].AppliedFilter.StatusId,
           priority: savedFilters[index].AppliedFilter.priority,
           receivedDate: savedFilters[index].AppliedFilter.receivedDate,
           dueDate: savedFilters[index].AppliedFilter.dueDate,
@@ -318,6 +330,7 @@ const CustomReportFilter = ({
                 currentYear === 0 || currentYear === "" ? null : currentYear,
               complexity:
                 complexity === 0 || complexity === "" ? null : complexity,
+              StatusId: status === 0 || status === "" ? null : status,
               priority: priority === 0 || priority === "" ? null : priority,
               receivedDate:
                 receivedDate.toString().trim().length <= 0
@@ -388,6 +401,7 @@ const CustomReportFilter = ({
       returnYear !== 0 ||
       currentYear !== 0 ||
       complexity !== 0 ||
+      status !== 0 ||
       priority !== 0 ||
       receivedDate.toString().trim().length > 0 ||
       dueDate.toString().trim().length > 0 ||
@@ -408,6 +422,7 @@ const CustomReportFilter = ({
     returnYear,
     currentYear,
     complexity,
+    status,
     priority,
     receivedDate,
     dueDate,
@@ -424,6 +439,7 @@ const CustomReportFilter = ({
         await getProcessDropdownData(clientName.length > 0 ? clientName[0] : 0)
       );
       setUserDropdown(await getUserData());
+      setStatusDropdown(await getStatusDropdownData());
     };
     customDropdowns();
 
@@ -505,6 +521,7 @@ const CustomReportFilter = ({
     setReturnYear(savedFilters[index].AppliedFilter.returnYear);
     setCurrentYear(savedFilters[index].AppliedFilter.currentYear);
     setComplexity(savedFilters[index].AppliedFilter.complexity);
+    setStatus(savedFilters[index].AppliedFilter.status);
     setPriority(savedFilters[index].AppliedFilter.priority);
     setReceivedDate(savedFilters[index].AppliedFilter.receivedDate);
     setDueDate(savedFilters[index].AppliedFilter.dueDate);
@@ -877,6 +894,34 @@ const CustomReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
+                  <InputLabel id="status">Status</InputLabel>
+                  <Select
+                    labelId="status"
+                    id="status"
+                    value={status === 0 ? "" : status}
+                    onChange={(e) => setStatus(e.target.value)}
+                  >
+                    {statusDropdown
+                      .filter(
+                        (stats: any) =>
+                          stats.Type.toLowerCase() === IN_PROGRESS ||
+                          stats.Type.toLowerCase() === IN_REVIEW ||
+                          stats.Type.toLowerCase() === SIGNED_OFF ||
+                          stats.Type.toLowerCase() === ACCEPTED
+                      )
+                      .map((i: any, index: number) => (
+                        <MenuItem value={i.value} key={i.value}>
+                          {i.label}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, minWidth: 200 }}
+                >
                   <InputLabel id="priority">Priority</InputLabel>
                   <Select
                     labelId="priority"
@@ -891,8 +936,6 @@ const CustomReportFilter = ({
                     ))}
                   </Select>
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >
@@ -930,6 +973,8 @@ const CustomReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
+              </div>
+              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >
@@ -947,7 +992,6 @@ const CustomReportFilter = ({
                   </LocalizationProvider>
                 </div>
               </div>
-              <div className="flex gap-[20px]"></div>
             </div>
           </DialogContent>
           <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">

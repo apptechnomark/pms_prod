@@ -119,6 +119,7 @@ export const customreport_InitialFilter = {
   numberOfPages: null,
   returnYear: null,
   currentYear: null,
+  StatusId: null,
   reviewerId: null,
   complexity: null,
   priority: null,

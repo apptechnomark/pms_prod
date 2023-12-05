@@ -122,6 +122,7 @@ const Datatable = ({
   onComment,
   onErrorLog,
   onHandleExport,
+  searchValue,
 }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
@@ -364,6 +365,10 @@ const Datatable = ({
       getReviwer();
     }
   }, [selectedRowClientId, selectedRowWorkTypeId]);
+
+  useEffect(() => {
+    onHandleExport(reviewList.length > 0 ? true : false);
+  }, [reviewList]);
 
   // API for update Assignee
   const updateAssignee = async (id: number[], assigneeId: number) => {
@@ -960,9 +965,13 @@ const Datatable = ({
 
   // Applying filter data
   useEffect(() => {
-    setFilteredOject({ ...filteredObject, ...currentFilterData });
+    setFilteredOject({
+      ...filteredObject,
+      ...currentFilterData,
+      globalSearch: searchValue,
+    });
     getReviewList();
-  }, [currentFilterData]);
+  }, [currentFilterData, searchValue]);
 
   // calling reviewList on first time
   useEffect(() => {
@@ -1094,11 +1103,22 @@ const Datatable = ({
       },
     },
     {
-      name: "EmpolyeeName",
+      name: "ClientName",
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Employees"),
+        customHeadLabelRender: () => generateCustomHeaderName("Client"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "ProjectName",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1117,41 +1137,27 @@ const Datatable = ({
       },
     },
     {
-      name: "Role",
+      name: "ParentProcess",
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Designation"),
+        customHeadLabelRender: () => generateCustomHeaderName("Process"),
+        customBodyRender: (value: any) => {
+          return generateParentProcessBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "SubProcess",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
       },
     },
-    {
-      name: "EstimateTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Est. Hours"),
-        // converting time (Seconnds) into HH:MM:SS
-        customBodyRender: (value: any) => {
-          return generateManualTimeBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "TotalTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Total Hrs"),
-        // converting time (Seconnds) into HH:MM:SS
-        customBodyRender: (value: any) => {
-          return generateManualTimeBodyRender(value);
-        },
-      },
-    },
-
     {
       name: "Timer",
       options: {
@@ -1159,6 +1165,7 @@ const Datatable = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Review Timer"),
         customBodyRender: (value: any, tableMeta: any) => {
+          console.log(tableMeta.rowData);
           const timerValue =
             value === 0 ? "00:00:00" : toHoursAndMinutes(value);
 
@@ -1166,7 +1173,7 @@ const Datatable = ({
             <div className="w-40 h-7 flex items-center">
               <ColorToolTip
                 title={`Estimated Time: ${toHoursAndMinutes(
-                  tableMeta.rowData[4] * tableMeta.rowData[17]
+                  tableMeta.rowData[11] * tableMeta.rowData[12]
                 )}`}
                 placement="top"
                 arrow
@@ -1315,46 +1322,37 @@ const Datatable = ({
       },
     },
     {
-      name: "ClientName",
+      name: "EstimateTime",
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Client"),
+        customHeadLabelRender: () => generateCustomHeaderName("Est. Hours"),
+        // converting time (Seconnds) into HH:MM:SS
+        customBodyRender: (value: any) => {
+          return generateManualTimeBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "Quantity",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
       },
     },
     {
-      name: "ProjectName",
+      name: "TotalTime",
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Project"),
+        customHeadLabelRender: () => generateCustomHeaderName("Total Hrs"),
+        // converting time (Seconnds) into HH:MM:SS
         customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ParentProcess",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Process"),
-        customBodyRender: (value: any) => {
-          return generateParentProcessBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "SubProcess",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
+          return generateManualTimeBodyRender(value);
         },
       },
     },
@@ -1381,11 +1379,22 @@ const Datatable = ({
       },
     },
     {
-      name: "Quantity",
+      name: "EmpolyeeName",
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
+        customHeadLabelRender: () => generateCustomHeaderName("Employees"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "Role",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Designation"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
@@ -1524,7 +1533,7 @@ const Datatable = ({
       {/* filter popup box*/}
       {selectedRowsCount > 0 && (
         <div className="flex items-center justify-start ml-12">
-          <Card className="rounded-full flex border p-2 border-[#1976d2] absolute shadow-lg w-[65%] h-[8%] bottom-12 -translate-y-1/2">
+          <Card className="rounded-full flex border p-2 border-[#1976d2] absolute shadow-lg w-[65%] bottom-12 -translate-y-1/2">
             <div className="flex flex-row w-full">
               <div className="pt-1 pl-2 flex w-[40%]">
                 <span className="cursor-pointer" onClick={handleClearSelection}>

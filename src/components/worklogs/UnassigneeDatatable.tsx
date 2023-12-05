@@ -110,6 +110,7 @@ const UnassigneeDatatable = ({
   onComment,
   currentFilterData,
   onDrawerClose,
+  searchValue,
 }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [allStatus, setAllStatus] = useState<any | any[]>([]);
@@ -442,8 +443,12 @@ const UnassigneeDatatable = ({
   };
 
   useEffect(() => {
-    setFilteredOject({ ...filteredObject, ...currentFilterData });
-  }, [currentFilterData]);
+    setFilteredOject({
+      ...filteredObject,
+      ...currentFilterData,
+      GlobalSearch: searchValue,
+    });
+  }, [currentFilterData, searchValue]);
 
   useEffect(() => {
     getWorkItemList();
