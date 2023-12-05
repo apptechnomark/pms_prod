@@ -170,18 +170,7 @@ const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Status"),
         customBodyRender: (value: any, tableMeta: any) =>
-          generateStatusWithColor(value, tableMeta.rowData[12]),
-      },
-    },
-    {
-      name: "TypeOfReturnName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Type of Return"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
+          generateStatusWithColor(value, tableMeta.rowData[11]),
       },
     },
     {

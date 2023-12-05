@@ -168,17 +168,6 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
       },
     },
     {
-      name: "TypeOfReturnName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Type of Return"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
       name: "TaxReturnTypeName",
       options: {
         filter: true,
@@ -197,7 +186,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Status"),
         customBodyRender: (value: any, tableMeta: any) =>
-          generateStatusWithColor(value, tableMeta.rowData[11]),
+          generateStatusWithColor(value, tableMeta.rowData[10]),
       },
     },
     {
