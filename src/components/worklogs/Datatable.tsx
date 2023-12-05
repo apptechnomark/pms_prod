@@ -41,6 +41,7 @@ import RecurringIcon from "@/assets/icons/worklogs/RecurringIcon";
 import ClientIcon from "@/assets/icons/worklogs/ClientIcon";
 import ProjectIcon from "@/assets/icons/worklogs/ProjectIcon";
 import ProcessIcon from "@/assets/icons/worklogs/ProcessIcon";
+import SubProcessIcon from "@/assets/icons/worklogs/SubProcess";
 import ReturnYearIcon from "@/assets/icons/worklogs/ReturnYearIcon";
 import ManagerIcon from "@/assets/icons/worklogs/ManagerIcon";
 import DateIcon from "@/assets/icons/worklogs/DateIcon";
@@ -59,6 +60,7 @@ import {
   getClientDropdownData,
   getManagerDropdownData,
   getProjectDropdownData,
+  getSubProcessDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -158,12 +160,14 @@ const Datatable = ({
   const [managerSearchQuery, setManagerSearchQuery] = useState("");
   const [projectSearchQuery, setprojectSearchQuery] = useState("");
   const [processSearchQuery, setprocessSearchQuery] = useState("");
+  const [subProcessSearchQuery, setSubProcessSearchQuery] = useState("");
   const [workItemData, setWorkItemData] = useState<any | any[]>([]);
   const [selectedRowIds, setSelectedRowIds] = useState<any | number[]>([]);
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [managerDropdownData, setManagerDropdownData] = useState([]);
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [processDropdownData, setProcessDropdownData] = useState([]);
+  const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
   const [selectedRowStatusName, setSelectedRowStatusName] = useState<
     any | string[]
   >([]);
@@ -225,6 +229,8 @@ const Datatable = ({
     React.useState<HTMLButtonElement | null>(null);
   const [anchorElProcess, setAnchorElProcess] =
     React.useState<HTMLButtonElement | null>(null);
+  const [anchorElSubProcess, setAnchorElSubProcess] =
+    React.useState<HTMLButtonElement | null>(null);
   const [anchorElReturnYear, setAnchorElReturnYear] =
     React.useState<HTMLButtonElement | null>(null);
   const [anchorElManager, setAnchorElManager] =
@@ -281,6 +287,16 @@ const Datatable = ({
     setAnchorElProcess(null);
   };
 
+  const handleClickSubProcess = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    setAnchorElSubProcess(event.currentTarget);
+  };
+
+  const handleCloseSubProcess = () => {
+    setAnchorElSubProcess(null);
+  };
+
   const handleClickReturnYear = (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
@@ -328,6 +344,9 @@ const Datatable = ({
   const openProcess = Boolean(anchorElProcess);
   const idProcess = openProcess ? "simple-popover" : undefined;
 
+  const openSubProcess = Boolean(anchorElSubProcess);
+  const idSubProcess = openSubProcess ? "simple-popover" : undefined;
+
   const openReturnYear = Boolean(anchorElReturnYear);
   const idReturnYear = openReturnYear ? "simple-popover" : undefined;
 
@@ -361,6 +380,10 @@ const Datatable = ({
     setprocessSearchQuery(event.target.value);
   };
 
+  const handleSubProcessSearchChange = (event: any) => {
+    setSubProcessSearchQuery(event.target.value);
+  };
+
   const filteredClient = clientDropdownData?.filter((client: any) =>
     client.label.toLowerCase().includes(clientSearchQuery.toLowerCase())
   );
@@ -375,6 +398,10 @@ const Datatable = ({
 
   const filteredProcess = processDropdownData?.filter((process: any) =>
     process.label.toLowerCase().includes(processSearchQuery.toLowerCase())
+  );
+
+  const filteredSubProcess = subProcessDropdownData?.filter((subProcess: any) =>
+    subProcess.Name.toLowerCase().includes(subProcessSearchQuery.toLowerCase())
   );
 
   // actions for priority popup
@@ -416,6 +443,11 @@ const Datatable = ({
   const handleOptionProcess = (id: any) => {
     updateProcess(selectedRowIds, id);
     handleCloseProcess();
+  };
+
+  const handleOptionSubProcess = (id: any) => {
+    updateSubProcess(selectedRowIds, id);
+    handleCloseSubProcess();
   };
 
   // Function for checking that All vlaues in the arrar are same or not
@@ -1102,7 +1134,7 @@ const Datatable = ({
           const data = response.data.Message;
           if (response.data.ResponseStatus === "Success") {
             toast.success("Priority has been updated successfully.");
-            handleClearSelection();
+            // handleClearSelection();
             getWorkItemList();
           } else {
             toast.error(data || "Please try again later.");
@@ -1267,7 +1299,7 @@ const Datatable = ({
   };
 
   useEffect(() => {
-    const getData = async (clientName: any) => {
+    const getProjectData = async (clientName: any) => {
       clientName > 0 &&
         setProjectDropdownData(await getProjectDropdownData(clientName));
     };
@@ -1299,7 +1331,7 @@ const Datatable = ({
         .filter((j: any) => j !== undefined).length <= 0 &&
       Array.from(new Set(selectedRowClientId)).length === 1
     ) {
-      getData(Array.from(new Set(selectedRowClientId))[0]);
+      getProjectData(Array.from(new Set(selectedRowClientId))[0]);
     }
 
     if (
@@ -1330,6 +1362,67 @@ const Datatable = ({
         .filter((j: any) => j !== undefined).length <= 0
     ) {
       getProcessData(selectedRowClientId);
+    }
+
+    const getSubProcessData = async (clientName: any, processId: any) => {
+      clientName > 0 &&
+        setSubProcessDropdownData(
+          await getSubProcessDropdownData(clientName, processId)
+        );
+    };
+    if (
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId > 0 &&
+          i.ProcessId > 0 &&
+          i.SubProcessId === 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length > 0 &&
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId === 0 &&
+          i.ProcessId === 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length <= 0 &&
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId > 0 &&
+          i.ProcessId > 0 &&
+          i.SubProcessId !== 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length <= 0 &&
+      Array.from(new Set(selectedRowClientId)).length === 1 &&
+      Array.from(
+        new Set(
+          workItemData
+            .map(
+              (i: any) => selectedRowIds.includes(i.WorkitemId) && i.ProcessId
+            )
+            .filter((j: any) => j !== false)
+        )
+      ).length === 1
+    ) {
+      getSubProcessData(
+        Array.from(new Set(selectedRowClientId))[0],
+        Array.from(
+          new Set(
+            workItemData
+              .map(
+                (i: any) => selectedRowIds.includes(i.WorkitemId) && i.ProcessId
+              )
+              .filter((j: any) => j !== false)
+          )
+        )[0]
+      );
     }
   }, [selectedRowClientId]);
 
@@ -1390,7 +1483,7 @@ const Datatable = ({
           const data = response.data.Message;
           if (response.data.ResponseStatus === "Success") {
             toast.success("Status has been updated successfully.");
-            handleClearSelection();
+            // handleClearSelection();
             getWorkItemList();
           } else {
             toast.error(data || "Error duplicating task.");
@@ -1494,7 +1587,7 @@ const Datatable = ({
           const data = response.data.Message;
           if (response.data.ResponseStatus === "Success") {
             toast.success("Assignee has been updated successfully.");
-            handleClearSelection();
+            // handleClearSelection();
             getWorkItemList();
           } else {
             toast.error(data || "Error duplicating task.");
@@ -1531,7 +1624,7 @@ const Datatable = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Manager has been updated successfully.");
-          handleClearSelection();
+          // handleClearSelection();
           getWorkItemList();
         } else {
           const data = response.data.Message;
@@ -1584,7 +1677,7 @@ const Datatable = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Reciever Date has been updated successfully.");
-          handleClearSelection();
+          // handleClearSelection();
           handleCloseDateReceived();
           getWorkItemList();
         } else {
@@ -1630,7 +1723,7 @@ const Datatable = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Return Year has been updated successfully.");
-          handleClearSelection();
+          // handleClearSelection();
           getWorkItemList();
         } else {
           const data = response.data.Message;
@@ -1720,7 +1813,7 @@ const Datatable = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Project has been updated successfully.");
-          handleClearSelection();
+          // handleClearSelection();
           getWorkItemList();
         } else {
           const data = response.data.Message;
@@ -1766,6 +1859,51 @@ const Datatable = ({
         if (response.data.ResponseStatus === "Success") {
           toast.success("Process has been updated successfully.");
           handleClearSelection();
+          getWorkItemList();
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Something went wrong, Please try again later..");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Something went wrong, Please try again later..");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // API for update SubProcess
+  const updateSubProcess = async (id: number[], processId: number) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/bulkupdateworkitemsubprocess`,
+        {
+          WorkitemIds: id,
+          SubProcessId: processId,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Sub-Process has been updated successfully.");
+          // handleClearSelection();
           getWorkItemList();
         } else {
           const data = response.data.Message;
@@ -1979,9 +2117,6 @@ const Datatable = ({
 
           const timerValue =
             value === 0 ? "00:00:00" : toHoursAndMinutes(value);
-          console.log(
-            tableMeta.rowData[tableMeta.rowData.length - 4] === userID
-          );
 
           return (
             <div className="w-40 h-7 flex items-center">
@@ -2879,7 +3014,7 @@ const Datatable = ({
                     </ColorToolTip>
                   )}
 
-                {/* Process Popover */}
+                {/* Process Project */}
                 <Popover
                   id={idProject}
                   open={openProject}
@@ -3041,6 +3176,125 @@ const Datatable = ({
                               >
                                 <span className="pt-[0.8px]">
                                   {process.label}
+                                </span>
+                              </span>
+                            </span>
+                          );
+                        })
+                      )}
+                    </List>
+                  </nav>
+                </Popover>
+
+                {/* Change Sub-Process */}
+                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      i.ClientId > 0 &&
+                      i.ProcessId > 0 &&
+                      i.SubProcessId === 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length > 0 &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      i.ClientId === 0 &&
+                      i.ProcessId === 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length <= 0 &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      i.ClientId > 0 &&
+                      i.ProcessId > 0 &&
+                      i.SubProcessId !== 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length <= 0 &&
+                  Array.from(
+                    new Set(
+                      workItemData
+                        .map(
+                          (i: any) =>
+                            selectedRowIds.includes(i.WorkitemId) && i.ProcessId
+                        )
+                        .filter((j: any) => j !== false)
+                    )
+                  ).length === 1 && (
+                    <ColorToolTip title="Sub-Process" arrow>
+                      <span
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                        aria-describedby={idSubProcess}
+                        onClick={handleClickSubProcess}
+                      >
+                        <SubProcessIcon />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
+                {/* Sub-Process Popover */}
+                <Popover
+                  id={idSubProcess}
+                  open={openSubProcess}
+                  anchorEl={anchorElSubProcess}
+                  onClose={handleCloseSubProcess}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                >
+                  <nav className="!w-52">
+                    <div className="mr-4 ml-4 mt-4">
+                      <div
+                        className="flex items-center h-10 rounded-md pl-2 flex-row"
+                        style={{
+                          border: "1px solid lightgray",
+                        }}
+                      >
+                        <span className="mr-2">
+                          <SearchIcon />
+                        </span>
+                        <span>
+                          <InputBase
+                            placeholder="Search"
+                            inputProps={{ "aria-label": "search" }}
+                            value={subProcessSearchQuery}
+                            onChange={handleSubProcessSearchChange}
+                            style={{ fontSize: "13px" }}
+                          />
+                        </span>
+                      </div>
+                    </div>
+                    <List>
+                      {subProcessDropdownData.length === 0 ? (
+                        <span className="flex flex-col py-2 px-4  text-sm">
+                          No Data Available
+                        </span>
+                      ) : (
+                        filteredSubProcess.map((subProcess: any) => {
+                          return (
+                            <span
+                              key={subProcess.Id}
+                              className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                            >
+                              <span
+                                className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
+                                onClick={() =>
+                                  handleOptionSubProcess(subProcess.Id)
+                                }
+                              >
+                                <span className="pt-[0.8px]">
+                                  {subProcess.Name}
                                 </span>
                               </span>
                             </span>

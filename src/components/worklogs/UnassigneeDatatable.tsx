@@ -33,6 +33,7 @@ import {
   getClientDropdownData,
   getManagerDropdownData,
   getProjectDropdownData,
+  getSubProcessDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import ClientIcon from "@/assets/icons/worklogs/ClientIcon";
 import ProjectIcon from "@/assets/icons/worklogs/ProjectIcon";
@@ -124,12 +125,14 @@ const UnassigneeDatatable = ({
   const [managerSearchQuery, setManagerSearchQuery] = useState("");
   const [projectSearchQuery, setprojectSearchQuery] = useState("");
   const [processSearchQuery, setprocessSearchQuery] = useState("");
+  const [subProcessSearchQuery, setSubProcessSearchQuery] = useState("");
   const [workItemData, setWorkItemData] = useState<any | any[]>([]);
   const [selectedRowIds, setSelectedRowIds] = useState<any | number[]>([]);
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [managerDropdownData, setManagerDropdownData] = useState([]);
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [processDropdownData, setProcessDropdownData] = useState([]);
+  const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
   const [selectedRowStatusId, setSelectedRowStatusId] = useState<
     any | number[]
   >([]);
@@ -183,6 +186,8 @@ const UnassigneeDatatable = ({
   const [anchorElProject, setAnchorElProject] =
     React.useState<HTMLButtonElement | null>(null);
   const [anchorElProcess, setAnchorElProcess] =
+    React.useState<HTMLButtonElement | null>(null);
+  const [anchorElSubProcess, setAnchorElSubProcess] =
     React.useState<HTMLButtonElement | null>(null);
   const [anchorElReturnYear, setAnchorElReturnYear] =
     React.useState<HTMLButtonElement | null>(null);
@@ -240,6 +245,16 @@ const UnassigneeDatatable = ({
     setAnchorElProcess(null);
   };
 
+  const handleClickSubProcess = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    setAnchorElSubProcess(event.currentTarget);
+  };
+
+  const handleCloseSubProcess = () => {
+    setAnchorElSubProcess(null);
+  };
+
   const handleClickReturnYear = (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
@@ -287,6 +302,9 @@ const UnassigneeDatatable = ({
   const openProcess = Boolean(anchorElProcess);
   const idProcess = openProcess ? "simple-popover" : undefined;
 
+  const openSubProcess = Boolean(anchorElSubProcess);
+  const idSubProcess = openSubProcess ? "simple-popover" : undefined;
+
   const openReturnYear = Boolean(anchorElReturnYear);
   const idReturnYear = openReturnYear ? "simple-popover" : undefined;
 
@@ -320,6 +338,10 @@ const UnassigneeDatatable = ({
     setprocessSearchQuery(event.target.value);
   };
 
+  const handleSubProcessSearchChange = (event: any) => {
+    setSubProcessSearchQuery(event.target.value);
+  };
+
   const filteredClient = clientDropdownData?.filter((client: any) =>
     client.label.toLowerCase().includes(clientSearchQuery.toLowerCase())
   );
@@ -334,6 +356,10 @@ const UnassigneeDatatable = ({
 
   const filteredProcess = processDropdownData?.filter((process: any) =>
     process.label.toLowerCase().includes(processSearchQuery.toLowerCase())
+  );
+
+  const filteredSubProcess = subProcessDropdownData?.filter((subProcess: any) =>
+    subProcess.Name.toLowerCase().includes(subProcessSearchQuery.toLowerCase())
   );
 
   const handleOptionPriority = (id: any) => {
@@ -374,6 +400,11 @@ const UnassigneeDatatable = ({
   const handleOptionProcess = (id: any) => {
     updateProcess(selectedRowIds, id);
     handleCloseProcess();
+  };
+
+  const handleOptionSubProcess = (id: any) => {
+    updateSubProcess(selectedRowIds, id);
+    handleCloseSubProcess();
   };
 
   function areAllValuesSame(arr: any[]) {
@@ -998,6 +1029,67 @@ const UnassigneeDatatable = ({
     ) {
       getProcessData(selectedRowClientId);
     }
+
+    const getSubProcessData = async (clientName: any, processId: any) => {
+      clientName > 0 &&
+        setSubProcessDropdownData(
+          await getSubProcessDropdownData(clientName, processId)
+        );
+    };
+    if (
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId > 0 &&
+          i.ProcessId > 0 &&
+          i.SubProcessId === 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length > 0 &&
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId === 0 &&
+          i.ProcessId === 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length <= 0 &&
+      workItemData
+        .map((i: any) =>
+          selectedRowIds.includes(i.WorkitemId) &&
+          i.ClientId > 0 &&
+          i.ProcessId > 0 &&
+          i.SubProcessId !== 0
+            ? i.WorkitemId
+            : undefined
+        )
+        .filter((j: any) => j !== undefined).length <= 0 &&
+      Array.from(new Set(selectedRowClientId)).length === 1 &&
+      Array.from(
+        new Set(
+          workItemData
+            .map(
+              (i: any) => selectedRowIds.includes(i.WorkitemId) && i.ProcessId
+            )
+            .filter((j: any) => j !== false)
+        )
+      ).length === 1
+    ) {
+      getSubProcessData(
+        Array.from(new Set(selectedRowClientId))[0],
+        Array.from(
+          new Set(
+            workItemData
+              .map(
+                (i: any) => selectedRowIds.includes(i.WorkitemId) && i.ProcessId
+              )
+              .filter((j: any) => j !== false)
+          )
+        )[0]
+      );
+    }
   }, [selectedRowClientId]);
 
   // API for update Process
@@ -1055,6 +1147,51 @@ const UnassigneeDatatable = ({
         {
           workitemIds: id,
           ProcessId: processId,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Process has been updated successfully.");
+          handleClearSelection();
+          getWorkItemList();
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Something went wrong, Please try again later..");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Something went wrong, Please try again later..");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // API for update SubProcess
+  const updateSubProcess = async (id: number[], processId: number) => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/bulkupdateworkitemsubprocess`,
+        {
+          WorkitemIds: id,
+          SubProcessId: processId,
         },
         {
           headers: {
@@ -2153,6 +2290,125 @@ const UnassigneeDatatable = ({
                               >
                                 <span className="pt-[0.8px]">
                                   {process.label}
+                                </span>
+                              </span>
+                            </span>
+                          );
+                        })
+                      )}
+                    </List>
+                  </nav>
+                </Popover>
+
+                {/* Change Sub-Process */}
+                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      i.ClientId > 0 &&
+                      i.ProcessId > 0 &&
+                      i.SubProcessId === 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length > 0 &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      i.ClientId === 0 &&
+                      i.ProcessId === 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length <= 0 &&
+                  workItemData
+                    .map((i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) &&
+                      i.ClientId > 0 &&
+                      i.ProcessId > 0 &&
+                      i.SubProcessId !== 0
+                        ? i.WorkitemId
+                        : undefined
+                    )
+                    .filter((j: any) => j !== undefined).length <= 0 &&
+                  Array.from(
+                    new Set(
+                      workItemData
+                        .map(
+                          (i: any) =>
+                            selectedRowIds.includes(i.WorkitemId) && i.ProcessId
+                        )
+                        .filter((j: any) => j !== false)
+                    )
+                  ).length === 1 && (
+                    <ColorToolTip title="Sub-Process" arrow>
+                      <span
+                        className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300"
+                        aria-describedby={idSubProcess}
+                        onClick={handleClickSubProcess}
+                      >
+                        <ProcessIcon />
+                      </span>
+                    </ColorToolTip>
+                  )}
+
+                {/* Sub-Process Popover */}
+                <Popover
+                  id={idSubProcess}
+                  open={openSubProcess}
+                  anchorEl={anchorElSubProcess}
+                  onClose={handleCloseSubProcess}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                >
+                  <nav className="!w-52">
+                    <div className="mr-4 ml-4 mt-4">
+                      <div
+                        className="flex items-center h-10 rounded-md pl-2 flex-row"
+                        style={{
+                          border: "1px solid lightgray",
+                        }}
+                      >
+                        <span className="mr-2">
+                          <SearchIcon />
+                        </span>
+                        <span>
+                          <InputBase
+                            placeholder="Search"
+                            inputProps={{ "aria-label": "search" }}
+                            value={subProcessSearchQuery}
+                            onChange={handleSubProcessSearchChange}
+                            style={{ fontSize: "13px" }}
+                          />
+                        </span>
+                      </div>
+                    </div>
+                    <List>
+                      {subProcessDropdownData.length === 0 ? (
+                        <span className="flex flex-col py-2 px-4  text-sm">
+                          No Data Available
+                        </span>
+                      ) : (
+                        filteredSubProcess.map((subProcess: any) => {
+                          return (
+                            <span
+                              key={subProcess.Id}
+                              className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                            >
+                              <span
+                                className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
+                                onClick={() =>
+                                  handleOptionSubProcess(subProcess.Id)
+                                }
+                              >
+                                <span className="pt-[0.8px]">
+                                  {subProcess.Name}
                                 </span>
                               </span>
                             </span>
