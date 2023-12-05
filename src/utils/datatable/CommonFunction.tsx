@@ -60,7 +60,7 @@ export const generatePriorityWithColor = (value: any) => {
 
   return (
     <div>
-      {value === null || value === "" ? (
+      {value === null || value === "" || value === 0 || value === "0" ? (
         "-"
       ) : (
         <div className="inline-block mr-1">
@@ -87,7 +87,7 @@ export const generateStatusWithColor = (value: any, rowIndex: any) => {
 
   return (
     <div>
-      {value === null || value === "" ? (
+      {value === null || value === "" || value === 0 || value === "0" ? (
         "-"
       ) : (
         <div className="inline-block mr-1">

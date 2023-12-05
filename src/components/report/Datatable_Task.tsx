@@ -12,6 +12,8 @@ import {
   generatePriorityWithColor,
   generateStatusWithColor,
 } from "@/utils/datatable/CommonFunction";
+import { useRouter } from "next/navigation";
+import { handleLogoutUtil } from "@/utils/commonFunction";
 
 const getMuiTheme = () =>
   createTheme({
@@ -61,38 +63,49 @@ const Datatable_Task = ({
   onSearchData,
   onHandleExport,
 }: any) => {
-  const [loaded, setLoaded] = useState<boolean>(false);
-  const [taskData, setTaskData] = useState<any>([]);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(pageSize);
-  const [tableDataCount, setTableDataCount] = useState(0);
+  const router = useRouter();
+
+  const [allFields, setAllFields] = useState<any>({
+    loaded: false,
+    taskData: [],
+    filteredObject: initialFilter,
+    page: 0,
+    rowsPerPage: pageSize,
+    tableDataCount: 0,
+  });
 
   // functions for handling pagination
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setPage(newPage);
-    setFilteredOject({ ...filteredObject, PageNo: newPage + 1 });
+    setAllFields({
+      ...allFields,
+      filteredObject: { ...allFields.filteredObject, PageNo: newPage + 1 },
+      page: newPage,
+    });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
-    setFilteredOject({
-      ...filteredObject,
-      PageNo: 1,
-      PageSize: event.target.value,
+    setAllFields({
+      ...allFields,
+      filteredObject: {
+        ...allFields.filteredObject,
+        PageNo: 1,
+        PageSize: event.target.value,
+      },
     });
   };
 
   // for showing value according to search
   useEffect(() => {
     if (onSearchData) {
-      setTaskData(onSearchData);
+      setAllFields({
+        ...allFields,
+        taskData: onSearchData,
+      });
     } else {
       getTaskList();
     }
@@ -104,9 +117,9 @@ const Datatable_Task = ({
     const Org_Token = await localStorage.getItem("Org_Token");
 
     try {
-      const response = await axios.post(
+      const { data, status } = await axios.post(
         `${process.env.report_api_url}/report/client/task`,
-        filteredObject,
+        allFields.filteredObject,
         {
           headers: {
             Authorization: `bearer ${token}`,
@@ -115,45 +128,54 @@ const Datatable_Task = ({
         }
       );
 
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          onHandleExport(
-            response.data.ResponseData.List.length > 0 ? true : false
-          );
-          setLoaded(true);
-          setTaskData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
+      if (status === 200) {
+        const { ResponseStatus, ResponseData } = data;
+
+        if (ResponseStatus === "Success") {
+          onHandleExport(ResponseData.List.length > 0);
+          setAllFields({
+            ...allFields,
+            loaded: true,
+            taskData: ResponseData.List,
+            tableDataCount: ResponseData.TotalCount,
+          });
         } else {
-          setLoaded(true);
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+          handleErrorResponse(data);
         }
       } else {
-        setLoaded(true);
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+        handleErrorResponse(data);
       }
-    } catch (error) {
-      setLoaded(true);
-      console.error(error);
+    } catch (error: any) {
+      setAllFields({
+        ...allFields,
+        loaded: false,
+      });
+      if (error.response?.status === 401) {
+        router.push("/login");
+        handleLogoutUtil();
+      }
     }
   };
 
+  const handleErrorResponse = (data: { Message: string }) => {
+    setAllFields({
+      ...allFields,
+      loaded: false,
+    });
+    const errorMessage = data.Message || "Please try again later.";
+    toast.error(errorMessage);
+  };
+
   useEffect(() => {
-    setFilteredOject({ ...filteredObject, ...currentFilterData });
+    setAllFields({
+      ...allFields,
+      filteredObject: { ...allFields.filteredObject, ...currentFilterData },
+    });
   }, [currentFilterData]);
 
   useEffect(() => {
     getTaskList();
-  }, [filteredObject]);
+  }, [allFields.filteredObject]);
 
   // Table Columns
   const columns = [
@@ -311,10 +333,10 @@ const Datatable_Task = ({
     pagination: false,
   };
 
-  return loaded ? (
+  return allFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
-        data={taskData}
+        data={allFields.taskData}
         columns={columns}
         title={undefined}
         options={{
@@ -325,10 +347,10 @@ const Datatable_Task = ({
       <TablePagination
         component="div"
         // rowsPerPageOptions={[5, 10, 15]}
-        count={tableDataCount}
-        page={page}
+        count={allFields.tableDataCount}
+        page={allFields.page}
         onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
+        rowsPerPage={allFields.rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>

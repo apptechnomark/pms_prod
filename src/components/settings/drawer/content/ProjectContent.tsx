@@ -175,6 +175,11 @@ const ProjectContent = forwardRef<
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           setProjectDrpdown(response.data.ResponseData.List);
+          setProjectValue(
+            response.data.ResponseData.List.length === 1
+              ? response.data.ResponseData.List[0].value
+              : 0
+          );
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -359,11 +364,7 @@ const ProjectContent = forwardRef<
   };
 
   const handleAddNewProject = (editing: boolean) => {
-    if (editing) {
-      handleAddProject();
-    } else {
-      handleAddProject();
-    }
+    handleAddProject();
   };
 
   const handleValueChange = (isDeleteOpen: any, selectedRowId: boolean) => {
@@ -386,8 +387,8 @@ const ProjectContent = forwardRef<
           getValue={(e) => {
             setClient(e);
             e > 0 && setClientHasError(false);
-            setProjectValue(0);
-            setProjectHasError(false);
+            // setProjectValue(0);
+            // setProjectHasError(false);
           }}
           getError={(e) => setClientError(e)}
         />

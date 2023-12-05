@@ -23,7 +23,7 @@ const Page = () => {
 
   const validatePassword = (password: string) => password.trim() !== "";
 
-  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
     const isPasswordValid = validatePassword(password);
@@ -90,7 +90,10 @@ const Page = () => {
             <Password
               label="Password"
               validate
-              getValue={(e) => setPassword(e)}
+              getValue={(e) => {
+                setPassword(e);
+                setError(false);
+              }}
               getError={(e) => {
                 setPasswordHasError(e);
               }}
@@ -102,7 +105,10 @@ const Page = () => {
             <Password
               label="Confirm Password"
               validate
-              getValue={(e) => setPasswordNew(e)}
+              getValue={(e) => {
+                setPasswordNew(e);
+                setError(false);
+              }}
               getError={(e) => {
                 setCPasswordHasError(e);
               }}
@@ -110,6 +116,9 @@ const Page = () => {
               autoComplete="off"
             />
           </div>
+          <span className="text-[14px] text-defaultRed">
+            {error ? "Password does not match." : ""}
+          </span>
           <div className="pb-5 flex justify-center items-center w-[320px] lg:w-[384px]">
             {clicked ? (
               <span className="mt-[35px] w-full text-center">
