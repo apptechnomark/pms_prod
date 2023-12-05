@@ -57,7 +57,6 @@ import {
   getReviewerDropdownData,
   getStatusDropdownData,
   getSubProcessDropdownData,
-  getTypeOfReturnDropdownData,
   getTypeOfWorkDropdownData,
   hours,
   months,

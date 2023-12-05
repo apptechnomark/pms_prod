@@ -449,7 +449,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
                 <Button
                   color="success"
                   variant="contained"
-                  className="bg-darkSuccess"
+                  className="!bg-[#2e7d32] hover:!bg-darkSuccess"
                   onClick={handleDownloadSampleFile}
                 >
                   Sample File&nbsp;

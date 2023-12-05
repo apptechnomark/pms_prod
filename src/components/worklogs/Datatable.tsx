@@ -135,7 +135,8 @@ const Datatable = ({
   onDrawerClose,
   onDataFetch,
   onCurrentFilterId,
-  currentFilterData,onHandleExport,
+  currentFilterData,
+  onHandleExport,
   onComment,
 }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
@@ -1849,6 +1850,21 @@ const Datatable = ({
     );
   };
 
+  const generateShortProcessNameBody = (bodyValue: any) => {
+    const shortProcessName = bodyValue && bodyValue.split(" ");
+    return (
+      <div className="font-semibold">
+        {bodyValue === null || bodyValue === "" ? (
+          "-"
+        ) : (
+          <ColorToolTip title={bodyValue} placement="top">
+            {shortProcessName[0]}
+          </ColorToolTip>
+        )}
+      </div>
+    );
+  };
+
   // Table Columns
   const columns = [
     {
@@ -1904,21 +1920,9 @@ const Datatable = ({
       options: {
         filter: true,
         sort: true,
-        // display: false,
         customHeadLabelRender: () => generateCustomHeaderName("Process"),
         customBodyRender: (value: any) => {
-          const shortProcessName = value && value.split(" ");
-          return (
-            <div className="font-semibold">
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <ColorToolTip title={value} placement="top">
-                  {shortProcessName[0]}
-                </ColorToolTip>
-              )}
-            </div>
-          );
+          return generateShortProcessNameBody(value);
         },
       },
     },

@@ -313,55 +313,53 @@ const Page = () => {
   };
 
   const handleFormButtonClick = (editing: boolean) => {
-    if (editing) {
-      if (textName.trim().length > 0 && textValue !== null) {
-        const saveRole = async () => {
-          const token = await localStorage.getItem("token");
-          const Org_Token = await localStorage.getItem("Org_Token");
-          try {
-            const response = await axios.post(
-              `${process.env.pms_api_url}/Role/Save`,
-              {
-                RoleId: textValue,
-                Name: textName,
-                Type: permissionDropdownData
-                  .map((i: any) => (i.value === textValue ? i.Type : undefined))
-                  .filter((i: any) => i !== undefined)[0],
+    if (editing && textName.trim().length > 0 && textValue !== null) {
+      const saveRole = async () => {
+        const token = await localStorage.getItem("token");
+        const Org_Token = await localStorage.getItem("Org_Token");
+        try {
+          const response = await axios.post(
+            `${process.env.pms_api_url}/Role/Save`,
+            {
+              RoleId: textValue,
+              Name: textName,
+              Type: permissionDropdownData
+                .map((i: any) => (i.value === textValue ? i.Type : undefined))
+                .filter((i: any) => i !== undefined)[0],
+            },
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: `${Org_Token}`,
               },
-              {
-                headers: {
-                  Authorization: `bearer ${token}`,
-                  org_token: `${Org_Token}`,
-                },
-              }
-            );
+            }
+          );
 
-            if (response.status === 200) {
-              if (response.data.ResponseStatus === "Success") {
-                getPermissionDropdown();
-                Toast.success(`Role saved successfully.`);
-              } else {
-                const data = response.data.Message;
-                if (data === null) {
-                  Toast.error("Please try again later.");
-                } else {
-                  Toast.error(data);
-                }
-              }
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              getPermissionDropdown();
+              Toast.success(`Role saved successfully.`);
             } else {
               const data = response.data.Message;
               if (data === null) {
-                Toast.error("Failed Please try again.");
+                Toast.error("Please try again later.");
               } else {
                 Toast.error(data);
               }
             }
-          } catch (error) {
-            console.error(error);
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              Toast.error("Failed Please try again.");
+            } else {
+              Toast.error(data);
+            }
           }
-        };
-        saveRole();
-      }
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      saveRole();
     }
   };
 

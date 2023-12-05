@@ -129,9 +129,6 @@ const UnassigneeDatatable = ({
   const [managerDropdownData, setManagerDropdownData] = useState([]);
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [processDropdownData, setProcessDropdownData] = useState([]);
-  const [selectedRowStatusName, setSelectedRowStatusName] = useState<
-    any | string[]
-  >([]);
   const [selectedRowStatusId, setSelectedRowStatusId] = useState<
     any | number[]
   >([]);
@@ -141,7 +138,6 @@ const UnassigneeDatatable = ({
   const [selectedRowWorkTypeId, setSelectedRowWorkTypeId] = useState<
     any | number[]
   >([]);
-  const [selectedRowsdata, setSelectedRowsData] = useState<any | number[]>([]);
   const [selectedRowId, setSelectedRowId] = useState<any | number>(null);
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
   const [page, setPage] = useState(0);
@@ -405,37 +401,37 @@ const UnassigneeDatatable = ({
     );
     setSelectedRowsCount(rowsSelected.length);
     setSelectedRows(rowsSelected);
-    setSelectedRowsData(selectedData);
+
     const selectedWorkItemIds =
       selectedData.length > 0
         ? selectedData.map((selectedRow: any) => selectedRow?.WorkitemId)
         : [];
     setSelectedRowIds(selectedWorkItemIds);
+
     const lastSelectedWorkItemId =
       selectedData.length > 0
         ? selectedData[selectedData.length - 1].WorkitemId
         : null;
     setSelectedRowId(lastSelectedWorkItemId);
-    const selectedWorkItemStatus =
-      selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.StatusName)
-        : [];
-    setSelectedRowStatusName(selectedWorkItemStatus);
+
     const selectedWorkItemStatusIds =
       selectedData.length > 0
         ? selectedData.map((selectedRow: any) => selectedRow.StatusId)
         : [];
     setSelectedRowStatusId(selectedWorkItemStatusIds);
+
     const selectedWorkItemClientIds =
       selectedData.length > 0
         ? selectedData.map((selectedRow: any) => selectedRow.ClientId)
         : [];
     setSelectedRowClientId(selectedWorkItemClientIds);
+
     const selectedWorkItemWorkTypeIds =
       selectedData.length > 0
         ? selectedData.map((selectedRow: any) => selectedRow.WorkTypeId)
         : [];
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
+
     setIsPopupOpen(allRowsSelected);
   };
 
@@ -476,19 +472,6 @@ const UnassigneeDatatable = ({
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-
-  const handleAssigneeForSubmission = (arr: any[], userId: string | null) => {
-    const workItemIds: number[] = [];
-    const selctedWorkItemStatusIds: number[] = [];
-
-    for (const item of arr) {
-      if (item.AssignedToId === parseInt(userId || "", 10)) {
-        workItemIds.push(item.WorkitemId);
-        selctedWorkItemStatusIds.push(item.StatusId);
-      }
-    }
-    return { workItemIds, selctedWorkItemStatusIds };
-  };
 
   const getClientData = async () => {
     setClientDropdownData(await getClientDropdownData());
@@ -796,7 +779,7 @@ const UnassigneeDatatable = ({
             toast.success("Task has been deleted successfully.");
             handleClearSelection();
             getWorkItemList();
-            shouldWarn = [];
+            shouldWarn.splice(0, shouldWarn.length);
           } else {
             const data = response.data.Message || "An error occurred.";
             toast.error(data);
@@ -1159,6 +1142,49 @@ const UnassigneeDatatable = ({
   };
 
   // API for get Assignee with all conditions
+  const getAssignee = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.api_url}/user/GetAssigneeUserDropdown`,
+        {
+          ClientIds: selectedRowClientId,
+          WorktypeId: selectedRowWorkTypeId[0],
+          IsAll: selectedRowClientId.length > 1 ? true : false,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setAssignee(response.data.ResponseData);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Error duplicating task.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Error duplicating task.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     if (
       selectedRowClientId.length > 0 &&
@@ -1166,50 +1192,6 @@ const UnassigneeDatatable = ({
       areAllValuesSame(selectedRowClientId) &&
       areAllValuesSame(selectedRowWorkTypeId)
     ) {
-      const getAssignee = async () => {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.api_url}/user/GetAssigneeUserDropdown`,
-            {
-              ClientIds: selectedRowClientId,
-              WorktypeId: selectedRowWorkTypeId[0],
-              IsAll: selectedRowClientId.length > 1 ? true : false,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              setAssignee(response.data.ResponseData);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Error duplicating task.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Error duplicating task.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      };
-
-      // calling function
       getAssignee();
     }
   }, [selectedRowClientId, selectedRowWorkTypeId]);
@@ -1272,6 +1254,53 @@ const UnassigneeDatatable = ({
     getAllStatus();
   }, []);
 
+  const generateCustomClientNameBody = (bodyValue: any, TableMeta: any) => {
+    const IsHasErrorlog = TableMeta.rowData[18];
+    return (
+      <div>
+        {IsHasErrorlog && (
+          <div
+            className={
+              "w-[10px] h-[10px] rounded-full inline-block mr-2 bg-defaultRed"
+            }
+          ></div>
+        )}
+        {bodyValue === null || bodyValue === "" ? "-" : bodyValue}
+      </div>
+    );
+  };
+
+  const generateCustomTaskNameBody = (bodyValue: any, TableMeta: any) => {
+    const IsRecurring = TableMeta.rowData[19];
+    return (
+      <div className="flex items-center gap-2">
+        {bodyValue === null || bodyValue === "" ? (
+          "-"
+        ) : (
+          <>
+            {IsRecurring && (
+              <span className="text-secondary font-semibold">
+                <RecurringIcon />
+              </span>
+            )}
+            {bodyValue}
+          </>
+        )}
+      </div>
+    );
+  };
+
+  const generateShortProcessNameBody = (bodyValue: any) => {
+    const shortProcessName = bodyValue.split(" ");
+    return (
+      <div className="font-semibold">
+        <ColorToolTip title={bodyValue} placement="top">
+          {shortProcessName[0]}
+        </ColorToolTip>
+      </div>
+    );
+  };
+
   // Table Columns
   const columns = [
     {
@@ -1292,19 +1321,7 @@ const UnassigneeDatatable = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Client"),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsHasErrorlog = tableMeta.rowData[18];
-          return (
-            <div>
-              {IsHasErrorlog && (
-                <div
-                  className={
-                    "w-[10px] h-[10px] rounded-full inline-block mr-2 bg-defaultRed"
-                  }
-                ></div>
-              )}
-              {value === null || value === "" ? "-" : value}
-            </div>
-          );
+          return generateCustomClientNameBody(value, tableMeta);
         },
       },
     },
@@ -1315,11 +1332,7 @@ const UnassigneeDatatable = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Project"),
         customBodyRender: (value: any) => {
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === "" ? "-" : value}
-            </div>
-          );
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -1331,23 +1344,7 @@ const UnassigneeDatatable = ({
         // viewColumns: true,
         customHeadLabelRender: () => generateCustomHeaderName("Task"),
         customBodyRender: (value: any, tableMeta: any) => {
-          const IsRecurring = tableMeta.rowData[19];
-          return (
-            <div className="flex items-center gap-2">
-              {value === null || value === "" ? (
-                "-"
-              ) : (
-                <>
-                  {IsRecurring && (
-                    <span className="text-secondary font-semibold">
-                      <RecurringIcon />
-                    </span>
-                  )}
-                  {value}
-                </>
-              )}
-            </div>
-          );
+          return generateCustomTaskNameBody(value, tableMeta);
         },
       },
     },
@@ -1358,14 +1355,7 @@ const UnassigneeDatatable = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Process"),
         customBodyRender: (value: any) => {
-          const shortProcessName = value.split(" ");
-          return (
-            <div className="font-semibold">
-              <ColorToolTip title={value} placement="top">
-                {shortProcessName[0]}
-              </ColorToolTip>
-            </div>
-          );
+          return generateShortProcessNameBody(value);
         },
       },
     },
@@ -1393,13 +1383,7 @@ const UnassigneeDatatable = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
         customBodyRender: (value: any) => {
-          return (
-            <div>
-              {value === null || value === undefined || value === ""
-                ? "-"
-                : value}
-            </div>
-          );
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -1697,9 +1681,9 @@ const UnassigneeDatatable = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {priorityOptions.map((option, index) => (
+                      {priorityOptions.map((option) => (
                         <span
-                          key={index}
+                          key={option.id}
                           className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                         >
                           <span
@@ -1745,10 +1729,10 @@ const UnassigneeDatatable = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {filteredAssignees.map((assignee: any, index: any) => {
+                      {filteredAssignees.map((assignee: any) => {
                         return (
                           <span
-                            key={index}
+                            key={assignee.value}
                             className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                           >
                             <span
@@ -1827,10 +1811,10 @@ const UnassigneeDatatable = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {allStatus.map((option: any, index: any) => {
+                      {allStatus.map((option: any) => {
                         return (
                           <span
-                            key={index}
+                            key={option.value}
                             className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                           >
                             <span
@@ -1941,10 +1925,10 @@ const UnassigneeDatatable = ({
                           No Data Available
                         </span>
                       ) : (
-                        filteredClient.map((client: any, index: any) => {
+                        filteredClient.map((client: any) => {
                           return (
                             <span
-                              key={index}
+                              key={client.value}
                               className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                             >
                               <span
@@ -2045,10 +2029,10 @@ const UnassigneeDatatable = ({
                           No Data Available
                         </span>
                       ) : (
-                        filteredProject.map((project: any, index: any) => {
+                        filteredProject.map((project: any) => {
                           return (
                             <span
-                              key={index}
+                              key={project.value}
                               className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                             >
                               <span
@@ -2150,10 +2134,10 @@ const UnassigneeDatatable = ({
                           No Data Available
                         </span>
                       ) : (
-                        filteredProcess.map((process: any, index: any) => {
+                        filteredProcess.map((process: any) => {
                           return (
                             <span
-                              key={index}
+                              key={process.value}
                               className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                             >
                               <span
@@ -2225,10 +2209,10 @@ const UnassigneeDatatable = ({
                           No Data Available
                         </span>
                       ) : (
-                        Years.map((yr: any, index: any) => {
+                        Years.map((yr: any) => {
                           return (
                             <span
-                              key={index}
+                              key={yr.value}
                               className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                             >
                               <span
@@ -2317,10 +2301,10 @@ const UnassigneeDatatable = ({
                           No Data Available
                         </span>
                       ) : (
-                        filteredManager.map((manager: any, index: any) => {
+                        filteredManager.map((manager: any) => {
                           return (
                             <span
-                              key={index}
+                              key={manager.value}
                               className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
                             >
                               <span
