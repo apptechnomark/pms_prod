@@ -163,8 +163,6 @@ const Page = () => {
     setCanExport(arg1);
   };
 
-  console.log(currentFilterData);
-
   return (
     <Wrapper>
       <IdleTimer onIdle={() => window.location.reload()} />

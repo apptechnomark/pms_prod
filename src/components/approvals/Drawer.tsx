@@ -620,9 +620,6 @@ const EditDrawer = ({
       setIsPartiallySubmitted(true);
       scrollToPanel(isManual === null || isManual === true ? 6 : 5);
     }
-    onManualTime === true
-      ? scrollToPanel(isManual === null || isManual === true ? 6 : 5)
-      : scrollToPanel(0);
     onComment === true ? scrollToPanel(3) : scrollToPanel(0);
     onErrorLog === true
       ? scrollToPanel(
@@ -633,6 +630,9 @@ const EditDrawer = ({
             : 7
         )
       : scrollToPanel(0);
+    onManualTime === true
+      ? scrollToPanel(isManual === null || isManual === true ? 6 : 5)
+      : scrollToPanel(0);
   }, [onEdit, onComment, onErrorLog, onManualTime]);
 
   const handleTabClick = (index: number) => {
@@ -640,6 +640,7 @@ const EditDrawer = ({
   };
 
   const scrollToPanel = (index: number) => {
+    console.log(index);
     const panel = document.getElementById(`tabpanel-${index}`);
     if (panel) {
       panel.scrollIntoView({ behavior: "smooth", block: "start" });

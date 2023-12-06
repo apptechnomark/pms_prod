@@ -481,7 +481,6 @@ const CustomReportFilter = ({
   };
 
   const handleSavedFilterEdit = (index: number) => {
-    console.log(index, savedFilters);
     setSaveFilter(true);
     setDefaultFilter(true);
     setFilterName(savedFilters[index].Name);
