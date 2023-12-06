@@ -121,6 +121,7 @@ const Datatable = ({
   onCloseDrawer,
   onComment,
   onErrorLog,
+  onManualTime,
   onHandleExport,
   searchValue,
 }: any) => {
@@ -763,8 +764,10 @@ const Datatable = ({
     handleClearSelection();
   };
 
-  const handleReviewerManualTime = () => {
-    onEdit(workitemId, id, 2);
+  const handleReviewerManualTime = (id1: any, id2: any) => {
+    // onEdit(workitemId, id, 2);
+    onEdit(id1, id2, 2);
+    onManualTime(true, id1);
     handleClearSelection();
   };
 
@@ -1165,7 +1168,6 @@ const Datatable = ({
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Review Timer"),
         customBodyRender: (value: any, tableMeta: any) => {
-          console.log(tableMeta.rowData);
           const timerValue =
             value === 0 ? "00:00:00" : toHoursAndMinutes(value);
 
@@ -1274,6 +1276,26 @@ const Datatable = ({
                   </ColorToolTip>
                 </div>
               )}
+              {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+                tableMeta.rowData[tableMeta.rowData.length - 4] !== false && (
+                  <ColorToolTip
+                    title="Reviewer Manual Time"
+                    placement="top"
+                    arrow
+                  >
+                    <span
+                      className="ml-2 cursor-pointer"
+                      onClick={() =>
+                        handleReviewerManualTime(
+                          tableMeta.rowData[tableMeta.rowData.length - 1],
+                          tableMeta.rowData[tableMeta.rowData.length - 3]
+                        )
+                      }
+                    >
+                      <ClockIcon />
+                    </span>
+                  </ColorToolTip>
+                )}
             </div>
           );
         },
@@ -1432,6 +1454,12 @@ const Datatable = ({
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
+      },
+    },
+    {
+      name: "ReviewerIsManual",
+      options: {
+        display: false,
       },
     },
     {
@@ -1884,23 +1912,20 @@ const Datatable = ({
                     </ColorToolTip>
                   )}
 
-                {
-                  // hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
-
+                {/* {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
                   reviewList.filter(
                     (list: any) => list.WorkitemId === workitemId
                   )[0]?.ReviewerIsManual !== false &&
-                    selectedRowsCount === 1 && (
-                      <ColorToolTip title="Reviewer Manual Time" arrow>
-                        <span
-                          onClick={handleReviewerManualTime}
-                          className="pl-2 pr-2 pt-[6px] cursor-pointer border-l-[1.5px] border-gray-300"
-                        >
-                          <ClockIcon />
-                        </span>
-                      </ColorToolTip>
-                    )
-                }
+                  selectedRowsCount === 1 && (
+                    <ColorToolTip title="Reviewer Manual Time" arrow>
+                      <span
+                        onClick={handleReviewerManualTime}
+                        className="pl-2 pr-2 pt-[6px] cursor-pointer border-l-[1.5px] border-gray-300"
+                      >
+                        <ClockIcon />
+                      </span>
+                    </ColorToolTip>
+                  )} */}
 
                 {selectedRowsCount === 1 && (
                   <ColorToolTip title="Edit Time" arrow>

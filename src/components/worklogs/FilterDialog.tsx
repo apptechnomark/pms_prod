@@ -261,7 +261,9 @@ const FilterDialog: React.FC<FilterModalProps> = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          setStatusDropdownData(response.data.ResponseData);
+          setStatusDropdownData(
+            response.data.ResponseData.filter((i: any) => i.Type !== "Reject")
+          );
         } else {
           const data = response.data.Message;
           if (data === null) {

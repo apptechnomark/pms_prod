@@ -25,7 +25,6 @@ import { USER } from "./Constants/Tabname";
 const User = ({
   onOpen,
   onEdit,
-  onHandleUserData,
   onUserDataFetch,
   getOrgDetailsFunction,
   canView,

@@ -39,6 +39,7 @@ import {
   getProcessDropdownData,
   getProjectDropdownData,
   getStatusDropdownData,
+  getSubProcessDropdownData,
 } from "@/utils/commonDropdownApiCall";
 
 //icons
@@ -58,21 +59,6 @@ const returnTypeDropdown = [
   {
     label: "Business Return",
     value: 2,
-  },
-];
-
-const complexityDropdown = [
-  {
-    label: "Moderate",
-    value: 1,
-  },
-  {
-    label: "Intermediate",
-    value: 2,
-  },
-  {
-    label: "Complex",
-    value: 3,
   },
 ];
 
@@ -127,15 +113,14 @@ const CustomReportFilter = ({
   const [clients, setClients] = useState<any[]>([]);
   const [clientName, setClientName] = useState<any[]>([]);
   const [projectName, setProjectName] = useState<number | string>(0);
-  const [processName, setProcessName] = useState<number | string>(0);
+  const [processName, setProcessName] = useState<any>(0);
+  const [complexity, setComplexity] = useState<number | string>(0);
   const [assignByName, setAssignByName] = useState<number | string>(0);
   const [assigneeName, setAssigneeName] = useState<number | string>(0);
   const [reviewerName, setReviewerName] = useState<number | string>(0);
   const [returnTypeName, setReturnTypeName] = useState<number | string>(0);
   const [noofPages, setNoofPages] = useState<number | string>("");
   const [returnYear, setReturnYear] = useState<number | string>(0);
-  const [currentYear, setCurrentYear] = useState<number | string>(0);
-  const [complexity, setComplexity] = useState<number | string>(0);
   const [status, setStatus] = useState<number | string>(0);
   const [priority, setPriority] = useState<string | number>(0);
   const [receivedDate, setReceivedDate] = useState<string | number>("");
@@ -148,6 +133,7 @@ const CustomReportFilter = ({
   const [clientDropdown, setClientDropdown] = useState<any[]>([]);
   const [projectDropdown, setProjectDropdown] = useState<any[]>([]);
   const [processDropdown, setProcessDropdown] = useState<any[]>([]);
+  const [subProcessDropdown, setSubProcessDropdown] = useState<any[]>([]);
   const [userDropdown, setUserDropdown] = useState<any[]>([]);
   const [statusDropdown, setStatusDropdown] = useState<any[]>([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
@@ -182,7 +168,6 @@ const CustomReportFilter = ({
     setReturnTypeName(0);
     setNoofPages("");
     setReturnYear(0);
-    setCurrentYear(0);
     setComplexity(0);
     setStatus(0);
     setPriority(0);
@@ -212,7 +197,6 @@ const CustomReportFilter = ({
     setReturnTypeName(0);
     setNoofPages("");
     setReturnYear(0);
-    setCurrentYear(0);
     setComplexity(0);
     setStatus(0);
     setPriority(0);
@@ -241,7 +225,6 @@ const CustomReportFilter = ({
         returnTypeName === 0 || returnTypeName === "" ? null : returnTypeName,
       numberOfPages: noofPages.toString().trim().length <= 0 ? null : noofPages,
       returnYear: returnYear === 0 || returnYear === "" ? null : returnYear,
-      currentYear: currentYear === 0 || currentYear === "" ? null : currentYear,
       complexity: complexity === 0 || complexity === "" ? null : complexity,
       StatusId: status === 0 || status === "" ? null : status,
       priority: priority === 0 || priority === "" ? null : priority,
@@ -276,7 +259,6 @@ const CustomReportFilter = ({
           returnTypeId: savedFilters[index].AppliedFilter.returnTypeId,
           numberOfPages: savedFilters[index].AppliedFilter.numberOfPages,
           returnYear: savedFilters[index].AppliedFilter.returnYear,
-          currentYear: savedFilters[index].AppliedFilter.currentYear,
           complexity: savedFilters[index].AppliedFilter.complexity,
           StatusId: savedFilters[index].AppliedFilter.StatusId,
           priority: savedFilters[index].AppliedFilter.priority,
@@ -326,8 +308,6 @@ const CustomReportFilter = ({
                 noofPages.toString().trim().length <= 0 ? null : noofPages,
               returnYear:
                 returnYear === 0 || returnYear === "" ? null : returnYear,
-              currentYear:
-                currentYear === 0 || currentYear === "" ? null : currentYear,
               complexity:
                 complexity === 0 || complexity === "" ? null : complexity,
               StatusId: status === 0 || status === "" ? null : status,
@@ -399,7 +379,6 @@ const CustomReportFilter = ({
       returnTypeName !== 0 ||
       noofPages.toString().trim().length > 0 ||
       returnYear !== 0 ||
-      currentYear !== 0 ||
       complexity !== 0 ||
       status !== 0 ||
       priority !== 0 ||
@@ -420,7 +399,6 @@ const CustomReportFilter = ({
     returnTypeName,
     noofPages,
     returnYear,
-    currentYear,
     complexity,
     status,
     priority,
@@ -448,6 +426,19 @@ const CustomReportFilter = ({
     }
   }, [clientName]);
 
+  useEffect(() => {
+    const customDropdowns = async () => {
+      processName > 0 &&
+        setSubProcessDropdown(
+          await getSubProcessDropdownData(
+            clientName.length > 0 ? clientName[0] : 0,
+            processName
+          )
+        );
+    };
+    customDropdowns();
+  }, [processName]);
+
   const getFilterList = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -455,7 +446,7 @@ const CustomReportFilter = ({
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/getfilterlist`,
         {
-          type: client,
+          type: customReport,
         },
         {
           headers: {
@@ -490,16 +481,17 @@ const CustomReportFilter = ({
   };
 
   const handleSavedFilterEdit = (index: number) => {
+    console.log(index, savedFilters)
     setSaveFilter(true);
     setDefaultFilter(true);
     setFilterName(savedFilters[index].Name);
     setCurrentFilterId(savedFilters[index].FilterId);
 
     setClients(
-      savedFilters[index].AppliedFilter.clients === null
+      savedFilters[index].AppliedFilter.clientIdsJSON === null
         ? []
         : clientDropdown.filter((client: any) =>
-            savedFilters[index].AppliedFilter.clients.includes(client.value)
+            savedFilters[index].AppliedFilter.clientIdsJSON.includes(client.value)
           )
     );
     setClientName(savedFilters[index].AppliedFilter.clientIdsJSON);
@@ -519,9 +511,8 @@ const CustomReportFilter = ({
     setReturnTypeName(savedFilters[index].AppliedFilter.returnTypeId);
     setNoofPages(savedFilters[index].AppliedFilter.numberOfPages);
     setReturnYear(savedFilters[index].AppliedFilter.returnYear);
-    setCurrentYear(savedFilters[index].AppliedFilter.currentYear);
     setComplexity(savedFilters[index].AppliedFilter.complexity);
-    setStatus(savedFilters[index].AppliedFilter.status);
+    setStatus(savedFilters[index].AppliedFilter.StatusId);
     setPriority(savedFilters[index].AppliedFilter.priority);
     setReceivedDate(savedFilters[index].AppliedFilter.receivedDate);
     setDueDate(savedFilters[index].AppliedFilter.dueDate);
@@ -752,6 +743,24 @@ const CustomReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
+                  <InputLabel id="complexity">Sub-Process Name</InputLabel>
+                  <Select
+                    labelId="complexity"
+                    id="complexity"
+                    value={complexity === 0 ? "" : complexity}
+                    onChange={(e) => setComplexity(e.target.value)}
+                  >
+                    {subProcessDropdown.map((i: any, index: number) => (
+                      <MenuItem value={i.Id} key={i.Id}>
+                        {i.Name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, minWidth: 200 }}
+                >
                   <InputLabel id="assignBy">Assign By</InputLabel>
                   <Select
                     labelId="assignBy"
@@ -784,6 +793,8 @@ const CustomReportFilter = ({
                     ))}
                   </Select>
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -802,8 +813,6 @@ const CustomReportFilter = ({
                     ))}
                   </Select>
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -834,6 +843,8 @@ const CustomReportFilter = ({
                     onChange={handleNoOfPageChange}
                   />
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -846,44 +857,6 @@ const CustomReportFilter = ({
                     onChange={(e) => setReturnYear(e.target.value)}
                   >
                     {yearDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
-                <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
-                >
-                  <InputLabel id="=currentYear">Current Year</InputLabel>
-                  <Select
-                    labelId="=currentYear"
-                    id="=currentYear"
-                    value={currentYear === 0 ? "" : currentYear}
-                    onChange={(e) => setCurrentYear(e.target.value)}
-                  >
-                    {yearDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
-                >
-                  <InputLabel id="complexity">Complexity</InputLabel>
-                  <Select
-                    labelId="complexity"
-                    id="complexity"
-                    value={complexity === 0 ? "" : complexity}
-                    onChange={(e) => setComplexity(e.target.value)}
-                  >
-                    {complexityDropdown.map((i: any, index: number) => (
                       <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
@@ -916,8 +889,6 @@ const CustomReportFilter = ({
                       ))}
                   </Select>
                 </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
@@ -936,6 +907,8 @@ const CustomReportFilter = ({
                     ))}
                   </Select>
                 </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >
@@ -973,8 +946,6 @@ const CustomReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
-              </div>
-              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >

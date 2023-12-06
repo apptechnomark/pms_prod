@@ -73,6 +73,7 @@ const EditDrawer = ({
   hasIconIndex,
   onComment,
   onErrorLog,
+  onManualTime,
 }: any) => {
   const router = useRouter();
   const [inputTypeReview, setInputTypeReview] = useState("text");
@@ -621,6 +622,9 @@ const EditDrawer = ({
       setIsPartiallySubmitted(true);
       scrollToPanel(isManual === null || isManual === true ? 6 : 5);
     }
+    onManualTime === true
+      ? scrollToPanel(isManual === null || isManual === true ? 6 : 5)
+      : scrollToPanel(0);
     onComment === true ? scrollToPanel(3) : scrollToPanel(0);
     onErrorLog === true
       ? scrollToPanel(
@@ -631,7 +635,7 @@ const EditDrawer = ({
             : 7
         )
       : scrollToPanel(0);
-  }, [onEdit, onComment, onErrorLog]);
+  }, [onEdit, onComment, onErrorLog, onManualTime]);
 
   const handleTabClick = (index: number) => {
     scrollToPanel(index);

@@ -54,6 +54,7 @@ const Page = () => {
   const [currentFilterData, setCurrentFilterData] = useState([]);
   const [hasComment, setHasComment] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [hasManual, setHasManual] = useState(false);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [canExport, setCanExport] = useState<boolean>(false);
 
@@ -96,6 +97,7 @@ const Page = () => {
     setHasEditId(0);
     setHasComment(false);
     setHasError(false);
+    setHasManual(false)
     setHasId("");
     setGlobalSearchValue("");
   };
@@ -123,6 +125,13 @@ const Page = () => {
   // To Toggle Drawer for Error
   const handleSetError = (rowData: any, selectedId: number) => {
     setHasError(true);
+    setOpenDrawer(rowData);
+    setHasEditId(selectedId);
+  };
+
+  // To Toggle Drawer for Error
+  const handleSetManual = (rowData: any, selectedId: number) => {
+    setHasManual(true);
     setOpenDrawer(rowData);
     setHasEditId(selectedId);
   };
@@ -228,6 +237,7 @@ const Page = () => {
           onCloseDrawer={openDrawer}
           onComment={handleSetComments}
           onErrorLog={handleSetError}
+          onManualTime={handleSetManual}
           onHandleExport={handleCanExport}
         />
 
@@ -240,6 +250,7 @@ const Page = () => {
           onHasId={hasId}
           onComment={hasComment}
           onErrorLog={hasError}
+          onManualTime={hasManual}
         />
 
         <FilterDialog_Approval

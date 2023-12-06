@@ -162,8 +162,23 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
+        customBodyRender: (value: any, tableMeta: any) => {
+          return (
+            <div className="ml-2">
+              {!value || value === "0" ? (
+                "-"
+              ) : (
+                <a
+                  href={`${process.env.redirectURL}${
+                    tableMeta.rowData[tableMeta.rowData.length - 1]
+                  }`}
+                  className="text-[#0592C6] cursor-pointer"
+                >
+                  {value}
+                </a>
+              )}
+            </div>
+          );
         },
       },
     },
@@ -363,6 +378,12 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
+      },
+    },
+    {
+      name: "WorkItemId",
+      options: {
+        display: false,
       },
     },
   ];

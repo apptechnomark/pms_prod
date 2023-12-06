@@ -174,16 +174,17 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
         if (response.data.ResponseStatus === "Success") {
           setStatusDropdownData(
             response.data.ResponseData
-            // .filter(
-            //   (i: any) =>
+            .filter(
+              (i: any) =>
             //     i.Type !== "Errorlogs" &&
             //     i.Type !== "InProgress" &&
             //     i.Type !== "NotStarted" &&
             //     i.Type !== "PartialSubmitted" &&
-            //     i.Type !== "Reject" &&
+                i.Type !== "Reject" 
+                // &&
             //     i.Type !== "Rework" &&
             //     i.Type !== "Stop"
-            // )
+            )
           );
         } else {
           const data = response.data.Message;

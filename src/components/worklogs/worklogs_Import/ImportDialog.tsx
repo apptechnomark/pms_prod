@@ -11,7 +11,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
 import { TextareaAutosize } from "@mui/base/TextareaAutosize";
-import { CircularProgress, FormControl, FormHelperText } from "@mui/material";
+import { FormControl, FormHelperText } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 
 // Icons Imports
@@ -50,7 +50,6 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
   const [isTaskClicked, setIsTaskClicked] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [isUploading, setIsUplaoding] = useState<boolean>(false);
-  const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const [fileInputKey, setFileInputKey] = useState(0);
 
   const handleClose = () => {
@@ -255,7 +254,6 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     const Org_Token = await localStorage.getItem("Org_Token");
 
     try {
-      setIsDownloading(true);
       const response = await axios.get(
         `${process.env.worklog_api_url}/workitem/exportexcelfordemo`,
         {
@@ -280,13 +278,10 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
         toast.success("File has been downloaded successfully.");
-        setIsDownloading(false);
       } else {
-        setIsDownloading(false);
         toast.error("Please try again later.");
       }
     } catch (error) {
-      setIsDownloading(false);
       toast.error("Error downloading data.");
     }
   };
@@ -386,7 +381,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
                 >
                   <div className="flex flex-col items-center gap-3">
                     {isUploading ? (
-                      <CircularProgress color="success" />
+                      <span>Uploading..</span>
                     ) : (
                       <>
                         <ExcelIcon />
@@ -441,23 +436,18 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
             </Button>
           ) : (
             <>
-              {isDownloading ? (
-                <div className="px-8">
-                  <CircularProgress color="success" size="1.75rem" />
-                </div>
-              ) : (
-                <Button
-                  color="success"
-                  variant="contained"
-                  className="!bg-[#2e7d32] hover:!bg-darkSuccess"
-                  onClick={handleDownloadSampleFile}
-                >
-                  Sample File&nbsp;
-                  <span className="text-xl">
-                    <Download />
-                  </span>
-                </Button>
-              )}
+              <Button
+                color="success"
+                variant="contained"
+                className="!bg-[#2e7d32] hover:!bg-darkSuccess"
+                onClick={handleDownloadSampleFile}
+              >
+                Sample File&nbsp;
+                <span className="text-xl">
+                  <Download />
+                </span>
+              </Button>
+
               <Button variant="outlined" color="error" onClick={handleClose}>
                 Cancel
               </Button>
