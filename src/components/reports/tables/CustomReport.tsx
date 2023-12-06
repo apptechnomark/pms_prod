@@ -1,11 +1,12 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
-import { TablePagination, ThemeProvider, createTheme } from "@mui/material";
+import { TablePagination, ThemeProvider } from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
-import { options } from "./Options/Options";
+import { options } from "@/utils/datatable/TableOptions";
+
 import { customreport_InitialFilter } from "@/utils/reports/getFilters";
 import { haveSameData } from "@/utils/reports/commonFunctions";
 
@@ -16,29 +17,7 @@ import {
   generateInitialTimer,
   generateDateWithoutTime,
 } from "@/utils/datatable/CommonFunction";
-
-const getMuiTheme = () =>
-  createTheme({
-    components: {
-      MUIDataTableHeadCell: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "#F6F6F6",
-            whiteSpace: "nowrap",
-            fontWeight: "bold",
-          },
-        },
-      },
-      MUIDataTableBodyCell: {
-        styleOverrides: {
-          root: {
-            overflowX: "auto",
-            whiteSpace: "nowrap",
-          },
-        },
-      },
-    },
-  });
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 
 const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [page, setPage] = useState<number>(0);

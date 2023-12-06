@@ -3,7 +3,6 @@ import axios from "axios";
 import { Button, Loader, Radio, Text, Toast } from "next-ts-lib";
 import React, {
   forwardRef,
-  useEffect,
   useImperativeHandle,
   useState,
 } from "react";

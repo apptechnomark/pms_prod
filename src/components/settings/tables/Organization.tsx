@@ -6,7 +6,6 @@ import { Switch, DataTable, Toast, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import axios from "axios";
-import DeleteModal from "@/components/common/DeleteModal";
 import SwitchModal from "@/components/common/SwitchModal";
 import { ORGANIZATION } from "./Constants/Tabname";
 

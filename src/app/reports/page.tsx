@@ -5,13 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
-import {
-  Button,
-  InputBase,
-  Tooltip,
-  TooltipProps,
-  tooltipClasses,
-} from "@mui/material";
+import { Button, InputBase } from "@mui/material";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
@@ -47,7 +41,7 @@ import CustomReportFilter from "@/components/reports/Filter/CustomReportFilter";
 import RatingReport from "@/components/reports/tables/RatingReport";
 import RatingReportFilter from "@/components/reports/Filter/RatingReportFilter";
 import AuditFilter from "@/components/reports/Filter/AuditFilter";
-import styled from "@emotion/styled";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 const primaryTabs = [
   { label: "project", value: 1 },
@@ -127,17 +121,6 @@ const Page = () => {
       window.removeEventListener("click", handleOutsideClick);
     };
   }, []);
-
-  const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} arrow classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.arrow}`]: {
-      color: "#0281B9",
-    },
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: "#0281B9",
-    },
-  }));
 
   //check if has permissions
   const hasTabsPermission = () => {
@@ -340,7 +323,7 @@ const Page = () => {
           <div className="h-full flex items-center gap-5">
             <div className="relative">
               <InputBase
-                className="pl-1 pr-7 border-b border-b-slatyGrey w-52"
+                className="pl-1 pr-7 border-b border-b-lightSilver w-52"
                 placeholder="Search"
                 value={searchValue}
                 onChange={(e: any) => setSearchValue(e.target.value)}

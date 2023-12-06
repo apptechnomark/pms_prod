@@ -54,4 +54,56 @@ const getDates = (startDate?: any, endDate?: any) => {
   return array;
 };
 
-export { toHoursAndMinutes, toSeconds, getDates };
+const getFormattedDate = (newValue: any) => {
+  if (
+    newValue !== "" &&
+    newValue.$y !== undefined &&
+    newValue.$M !== undefined &&
+    newValue.$D !== undefined
+  ) {
+    const year = newValue.$y;
+    const month =
+      (newValue.$M + 1).toString().length > 1
+        ? newValue.$M + 1
+        : `0${newValue.$M + 1}`;
+    const date =
+      newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`;
+    const formattedDate = year + "-" + month + "-" + date;
+
+    return formattedDate;
+  }
+};
+
+const getStartDate = (startDate: any, endDate: any) => {
+  const trimmedStartDate = startDate.toString().trim();
+  const trimmedEndDate = endDate.toString().trim();
+  if (trimmedStartDate.length <= 0) {
+    if (trimmedEndDate.length <= 0) {
+      const dates = getDates();
+      return dates.length > 0 ? getFormattedDate(dates[0]) : null;
+    } else {
+      return getFormattedDate(endDate);
+    }
+  } else {
+    return getFormattedDate(startDate);
+  }
+};
+
+const getEndDate = (startDate: any, endDate: any) => {
+  const trimmedEndDate = endDate.toString().trim();
+  const trimmedStartDate = startDate.toString().trim();
+  return trimmedEndDate.length <= 0
+    ? trimmedStartDate.length <= 0
+      ? getFormattedDate(getDates()[getDates().length - 1])
+      : getFormattedDate(startDate)
+    : getFormattedDate(endDate);
+};
+
+export {
+  toHoursAndMinutes,
+  toSeconds,
+  getDates,
+  getFormattedDate,
+  getStartDate,
+  getEndDate,
+};

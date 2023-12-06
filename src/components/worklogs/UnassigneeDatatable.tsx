@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import MUIDataTable from "mui-datatables";
-import { createTheme, styled, ThemeProvider } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import Popover from "@mui/material/Popover";
 import { Avatar, Card, CircularProgress, InputBase, List } from "@mui/material";
-import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import TablePagination from "@mui/material/TablePagination";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -28,7 +27,10 @@ import {
   generateCustomFormatDate,
   generatePriorityWithColor,
   generateStatusWithColor,
+  handlePageChangeWithFilter,
+  handleChangeRowsPerPageWithFilter,
 } from "@/utils/datatable/CommonFunction";
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import {
   getClientDropdownData,
   getManagerDropdownData,
@@ -44,40 +46,8 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import ProcessIcon from "@/assets/icons/worklogs/ProcessIcon";
-
-const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} arrow classes={{ popper: className }} />
-))(() => ({
-  [`& .${tooltipClasses.arrow}`]: {
-    color: "#0281B9",
-  },
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: "#0281B9",
-  },
-}));
-
-const getMuiTheme = () =>
-  createTheme({
-    components: {
-      MUIDataTableHeadCell: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "#F6F6F6",
-            whiteSpace: "nowrap",
-            fontWeight: "bold",
-          },
-        },
-      },
-      MUIDataTableBodyCell: {
-        styleOverrides: {
-          root: {
-            overflowX: "auto",
-            whiteSpace: "nowrap",
-          },
-        },
-      },
-    },
-  });
+import { worklogs_Options } from "@/utils/datatable/TableOptions";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 const priorityOptions = [
   { id: 3, text: "Low" },
@@ -147,27 +117,6 @@ const UnassigneeDatatable = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
-
-  // functions for handling pagination
-  const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-    setFilteredOject({ ...filteredObject, PageNo: newPage + 1 });
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
-    setFilteredOject({
-      ...filteredObject,
-      PageNo: 1,
-      PageSize: event.target.value,
-    });
-  };
 
   useEffect(() => {
     handleClearSelection();
@@ -899,11 +848,10 @@ const UnassigneeDatatable = ({
         if (response.data.ResponseStatus === "Success") {
           setAllStatus(
             response.data.ResponseData.map((i: any) =>
-              i.Type === "OnHoldFromClient" ||
-              i.Type === "WithDraw" 
-              // ||
-              // i.Type === "InProgress"
-                ? i
+              i.Type === "OnHoldFromClient" || i.Type === "WithDraw"
+                ? // ||
+                  // i.Type === "InProgress"
+                  i
                 : ""
             ).filter((i: any) => i !== "")
           );
@@ -1671,48 +1619,6 @@ const UnassigneeDatatable = ({
     },
   ];
 
-  // Table Customization Options
-  const options: any = {
-    filterType: "checkbox",
-    responsive: "standard",
-    tableBodyHeight: "73vh",
-    viewColumns: false,
-    filter: false,
-    print: false,
-    download: false,
-    search: false,
-    pagination: false,
-    selectToolbarPlacement: "none",
-    draggableColumns: {
-      enabled: true,
-      transitionTime: 300,
-    },
-    elevation: 0,
-    selectableRows: "multiple",
-    selectAllRows: isPopupOpen && selectedRowsCount === 0,
-    rowsSelected: selectedRows,
-    // isRowSelectable,
-    textLabels: {
-      body: {
-        noMatch: (
-          <div className="flex items-start">
-            <span>
-              Currently there is no record, you may
-              <a
-                className="text-secondary underline cursor-pointer"
-                onClick={onDrawerOpen}
-              >
-                create task
-              </a>{" "}
-              to continue.
-            </span>
-          </div>
-        ),
-        toolTip: "",
-      },
-    },
-  };
-
   const isWeekend = (date: any) => {
     const day = date.day();
     return day === 6 || day === 0;
@@ -1727,7 +1633,28 @@ const UnassigneeDatatable = ({
             columns={columns}
             title={undefined}
             options={{
-              ...options,
+              ...worklogs_Options,
+              selectAllRows: isPopupOpen && selectedRowsCount === 0,
+              rowsSelected: selectedRows,
+              textLabels: {
+                body: {
+                  noMatch: (
+                    <div className="flex items-start">
+                      <span>
+                        Currently there is no record, you may
+                        <a
+                          className="text-secondary underline cursor-pointer"
+                          onClick={onDrawerOpen}
+                        >
+                          create task
+                        </a>{" "}
+                        to continue.
+                      </span>
+                    </div>
+                  ),
+                  toolTip: "",
+                },
+              },
               onRowSelectionChange: (
                 currentRowsSelected: any,
                 allRowsSelected: any,
@@ -1743,12 +1670,25 @@ const UnassigneeDatatable = ({
           />
           <TablePagination
             component="div"
-            // rowsPerPageOptions={[5, 10, 15]}
             count={tableDataCount}
             page={page}
-            onPageChange={handleChangePage}
+            onPageChange={(
+              event: React.MouseEvent<HTMLButtonElement> | null,
+              newPage: number
+            ) => {
+              handlePageChangeWithFilter(newPage, setPage, setFilteredOject);
+            }}
             rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
+            onRowsPerPageChange={(
+              event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            ) => {
+              handleChangeRowsPerPageWithFilter(
+                event,
+                setRowsPerPage,
+                setPage,
+                setFilteredOject
+              );
+            }}
           />
         </ThemeProvider>
       ) : (

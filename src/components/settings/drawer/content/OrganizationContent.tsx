@@ -1,7 +1,7 @@
 /* eslint-disable react/display-name */
 // import { getHeaderOptions } from "@/utils/commonFunction";
 import axios from "axios";
-import { Button, Loader, Switch, Text, Toast, Typography } from "next-ts-lib";
+import { Button, Loader, Text, Toast, Typography } from "next-ts-lib";
 import React, {
   forwardRef,
   useEffect,

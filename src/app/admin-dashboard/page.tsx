@@ -15,10 +15,6 @@ import {
   Grid,
   TextField,
   ThemeProvider,
-  Tooltip,
-  TooltipProps,
-  createTheme,
-  tooltipClasses,
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -54,33 +50,14 @@ import { getClientDropdownData } from "@/utils/commonDropdownApiCall";
 import {
   generateCustomHeaderName,
   generateDashboardReportBodyRender,
+  handleChangeRowsPerPageWithFilter,
+  handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import ExportIcon from "@/assets/icons/ExportIcon";
-import styled from "@emotion/styled";
 import Loading from "@/assets/icons/reports/Loading";
-
-const getMuiTheme = () =>
-  createTheme({
-    components: {
-      MUIDataTableHeadCell: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "#F6F6F6",
-            whiteSpace: "nowrap",
-            fontWeight: "bold",
-          },
-        },
-      },
-      MUIDataTableBodyCell: {
-        styleOverrides: {
-          root: {
-            overflowX: "auto",
-            whiteSpace: "nowrap",
-          },
-        },
-      },
-    },
-  });
+import { dashboardReport_Options } from "@/utils/datatable/TableOptions";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -116,7 +93,7 @@ const Page = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [filteredObject, setFilteredObject] = useState<any>(initialFilter);
   const [clients, setClients] = useState<any[]>([]);
   const [clientDropdownData, setClientDropdownData] = useState<any>([]);
   const [isExporting, setIsExporting] = useState<boolean>(false);
@@ -276,27 +253,6 @@ const Page = () => {
     Rework: <RestorePageOutlinedIcon />,
     "Total Received": <PlaylistAddCheckOutlinedIcon />,
     "Review Complated": <TaskOutlinedIcon />,
-  };
-
-  // functions for handling pagination
-  const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-    setFilteredOject({ ...filteredObject, PageNo: newPage + 1 });
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
-    setFilteredOject({
-      ...filteredObject,
-      PageNo: 1,
-      PageSize: event.target.value,
-    });
   };
 
   const exportSummaryReport = async () => {
@@ -520,35 +476,6 @@ const Page = () => {
     },
   ];
 
-  const options: any = {
-    responsive: "standard",
-    tableBodyHeight: "73vh",
-    viewColumns: false,
-    filter: false,
-    print: false,
-    download: false,
-    search: false,
-    pagination: false,
-    selectToolbarPlacement: "none",
-    draggableColumns: {
-      enabled: true,
-      transitionTime: 300,
-    },
-    elevation: 0,
-    selectableRows: "none",
-  };
-
-  const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} arrow classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.arrow}`]: {
-      color: "#0281B9",
-    },
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: "#0281B9",
-    },
-  }));
-
   return (
     <Wrapper className="min-h-screen overflow-y-auto">
       <div>
@@ -576,7 +503,7 @@ const Page = () => {
                 setIsReportClicked(true);
                 setIsDashboardClicked(false);
                 setClients([]);
-                setFilteredOject({ ...filteredObject, Clients: null });
+                setFilteredObject({ ...filteredObject, Clients: null });
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isReportClicked
@@ -605,7 +532,7 @@ const Page = () => {
                   )}
                   getOptionLabel={(option: any) => option.label}
                   onChange={(e: any, data: any) => {
-                    setFilteredOject({
+                    setFilteredObject({
                       ...filteredObject,
                       Clients: data.map((i: any) => i.value),
                     });
@@ -637,24 +564,6 @@ const Page = () => {
 
         {isDashboardClicked && (
           <div className="py-[10px]">
-            {/* <section className="flex py-[10px] px-[20px] justify-end items-center">
-            <FormControl sx={{ mx: 0.75, minWidth: 150, marginTop: 1 }}>
-              <Select
-                labelId="workType"
-                id="workType"
-                value={workType === 0 ? 0 : workType}
-                onChange={(e) => setWorkType(e.target.value)}
-                sx={{ height: 50 }}
-              >
-                <MenuItem value={0}>All</MenuItem>
-                {workTypeData.map((i: any, index: number) => (
-                  <MenuItem value={i.value} key={index}>
-                    {i.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </section> */}
             <Grid
               container
               className="flex items-center px-[20px] py-[10px]"
@@ -851,16 +760,30 @@ const Page = () => {
               data={reportData}
               columns={columns}
               title={undefined}
-              options={options}
+              options={dashboardReport_Options}
               data-tableid="Datatable"
             />
             <TablePagination
               component="div"
               count={tableDataCount}
               page={page}
-              onPageChange={handleChangePage}
+              onPageChange={(
+                event: React.MouseEvent<HTMLButtonElement> | null,
+                newPage: number
+              ) => {
+                handlePageChangeWithFilter(newPage, setPage, setFilteredObject);
+              }}
               rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
+              onRowsPerPageChange={(
+                event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+              ) => {
+                handleChangeRowsPerPageWithFilter(
+                  event,
+                  setRowsPerPage,
+                  setPage,
+                  setFilteredObject
+                );
+              }}
             />
           </ThemeProvider>
         )}

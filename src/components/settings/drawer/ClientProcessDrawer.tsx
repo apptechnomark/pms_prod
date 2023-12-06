@@ -98,7 +98,7 @@ const ClientProcessDrawer = ({
     dId: string
   ) => {
     let newValue = event.target.value;
-    newValue = newValue.replace(/[^0-9]/g, "");
+    newValue = newValue.replace(/\D/g, "");
     if (newValue.length > 8) {
       return;
     }

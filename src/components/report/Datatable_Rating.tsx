@@ -1,5 +1,5 @@
 import { ThemeProvider } from "@emotion/react";
-import { CircularProgress, createTheme } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import React, { useEffect, useState } from "react";
 import TablePagination from "@mui/material/TablePagination";
@@ -9,30 +9,9 @@ import {
   generateCustomFormatDate,
   generateRatingsBodyRender,
 } from "@/utils/datatable/CommonFunction";
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { callAPI } from "@/utils/API/callAPI";
-
-const getMuiTheme = () =>
-  createTheme({
-    components: {
-      MUIDataTableHeadCell: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "#F6F6F6",
-            whiteSpace: "nowrap",
-            fontWeight: "bold",
-          },
-        },
-      },
-      MUIDataTableBodyCell: {
-        styleOverrides: {
-          root: {
-            overflowX: "auto",
-            whiteSpace: "nowrap",
-          },
-        },
-      },
-    },
-  });
+import { report_Options } from "@/utils/datatable/TableOptions";
 
 const Data = new Date();
 
@@ -245,20 +224,6 @@ const Datatable_Rating = ({
     },
   ];
 
-  const options: any = {
-    responsive: "standard",
-    tableBodyHeight: "73vh",
-    viewColumns: false,
-    filter: false,
-    print: false,
-    download: false,
-    search: false,
-    selectToolbarPlacement: "none",
-    selectableRows: "none",
-    elevation: 0,
-    pagination: false,
-  };
-
   return allFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
@@ -266,7 +231,7 @@ const Datatable_Rating = ({
         columns={columns}
         title={undefined}
         options={{
-          ...options,
+          ...report_Options,
         }}
         data-tableid="rating_Datatable"
       />

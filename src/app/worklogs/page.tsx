@@ -13,15 +13,7 @@ import ImportIcon from "@/assets/icons/ImportIcon";
 import { Delete, Edit } from "@mui/icons-material";
 
 // Material Import
-import {
-  Button,
-  Popover,
-  Tooltip,
-  TooltipProps,
-  tooltipClasses,
-  styled,
-  InputBase,
-} from "@mui/material";
+import { Button, Popover, Tooltip, InputBase } from "@mui/material";
 import { ToastContainer, toast } from "react-toastify";
 
 // Internal components
@@ -39,6 +31,7 @@ import UnassigneeFilterDialog from "@/components/worklogs/UnassigneeFilterDialog
 import ImportDialog from "@/components/worklogs/worklogs_Import/ImportDialog";
 import IdleTimer from "@/components/common/IdleTimer";
 import Loading from "@/assets/icons/reports/Loading";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 const exportBody = {
   PageNo: 1,
@@ -125,17 +118,6 @@ const Page = () => {
   const handleDataFetch = (getData: () => void) => {
     setDataFunction(() => getData);
   };
-
-  const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} arrow classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.arrow}`]: {
-      color: "#0281B9",
-    },
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: "#0281B9",
-    },
-  }));
 
   const handleUserDetailsFetch = (getData: () => void) => {
     setLoaded(true);
@@ -465,7 +447,7 @@ const Page = () => {
           <div className="flex gap-[20px] items-center">
             <div className="relative">
               <InputBase
-                className="pl-1 pr-7 border-b border-b-slatyGrey w-52"
+                className="pl-1 pr-7 border-b border-b-lightSilver w-52"
                 placeholder="Search"
                 value={globalSearchValue}
                 onChange={(e: any) => setGlobalSearchValue(e.target.value)}

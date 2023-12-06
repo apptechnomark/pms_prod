@@ -75,8 +75,6 @@ const WorkLoadFilter = ({
 
     sendFilterToPage({
       ...workLoad_InitialFilter,
-      departmentId: null,
-      users: [],
     });
   };
 
@@ -111,7 +109,6 @@ const WorkLoadFilter = ({
       ...workLoad_InitialFilter,
       users: userNames,
       departmentId: dept === 0 || dept === "" ? null : dept,
-      // dateFilter: dateFilter === null || dateFilter === "" ? null : dateFilter,
       dateFilter:
         dateFilter === null || dateFilter.toString().trim().length <= 0
           ? null
@@ -128,6 +125,7 @@ const WorkLoadFilter = ({
           ...workLoad_InitialFilter,
           users: savedFilters[index].AppliedFilter.users,
           department: savedFilters[index].AppliedFilter.Department,
+          dateFilter: savedFilters[index].AppliedFilter.dateFilter,
         });
       }
     }
@@ -255,29 +253,17 @@ const WorkLoadFilter = ({
 
   const handleSavedFilterEdit = (index: number) => {
     setUsers(
-      savedFilters[index].AppliedFilter.users === null
-        ? []
-        : userDropdown.filter((user: any) =>
+      savedFilters[index].AppliedFilter.users.length > 0
+        ? userDropdown.filter((user: any) =>
             savedFilters[index].AppliedFilter.users.includes(user.value)
           )
+        : []
     );
-    setUserNames(
-      savedFilters[index].AppliedFilter.users === null
-        ? []
-        : savedFilters[index].AppliedFilter.users
-    );
+    setUserNames(savedFilters[index].AppliedFilter.users);
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
-    setDept(
-      savedFilters[index].AppliedFilter.Department === null
-        ? ""
-        : savedFilters[index].AppliedFilter.Department
-    );
-    setDateFilter(
-      savedFilters[index].AppliedFilter.dateFilter === null
-        ? ""
-        : savedFilters[index].AppliedFilter.dateFilter
-    );
+    setDept(savedFilters[index].AppliedFilter.Department ?? 0);
+    setDateFilter(savedFilters[index].AppliedFilter.dateFilter ?? "");
     setDefaultFilter(true);
     setSaveFilter(true);
   };

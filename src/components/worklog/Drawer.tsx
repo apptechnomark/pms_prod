@@ -20,15 +20,13 @@ import {
   Switch,
   TextField,
   Tooltip,
-  TooltipProps,
   Typography,
-  tooltipClasses,
 } from "@mui/material";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Mention, MentionsInput } from "react-mentions";
-import mentionsInputStyle from "./mentionsInputStyle";
+import mentionsInputStyle from "../../utils/worklog/mentionsInputStyle";
 import { toast } from "react-toastify";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import {
@@ -40,10 +38,10 @@ import {
 } from "@/utils/commonDropdownApiCall";
 import ImageUploader from "../common/ImageUploader";
 import { getFileFromBlob } from "@/utils/downloadFile";
-import styled from "@emotion/styled";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 const Drawer = ({
   onOpen,
@@ -1336,17 +1334,6 @@ const Drawer = ({
     onDataFetch();
     onClose();
   };
-
-  const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} arrow classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.arrow}`]: {
-      color: "#0281B9",
-    },
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: "#0281B9",
-    },
-  }));
 
   const isWeekend = (date: any) => {
     const day = date.day();

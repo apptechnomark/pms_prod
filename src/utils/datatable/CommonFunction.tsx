@@ -1,17 +1,6 @@
-import styled from "@emotion/styled";
-import { Rating, Tooltip, TooltipProps, tooltipClasses } from "@mui/material";
+import { Rating } from "@mui/material";
 import React from "react";
-
-const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} arrow classes={{ popper: className }} />
-))(() => ({
-  [`& .${tooltipClasses.arrow}`]: {
-    color: "#0281B9",
-  },
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: "#0281B9",
-  },
-}));
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 export const generateCustomHeaderName = (headerName: string) => {
   return <span className="font-extrabold capitalize">{headerName}</span>;
@@ -173,4 +162,51 @@ export const generateDaysBodyRender = (bodyValue: any) => {
 
 export const generateRatingsBodyRender = (bodyValue: any) => {
   return <Rating name="read-only" value={bodyValue} readOnly />;
+};
+
+// functions for handling pagination
+export const handleChangePage = (
+  event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  newPage: number,
+  setPage: React.Dispatch<React.SetStateAction<number>>
+) => {
+  setPage(newPage);
+};
+
+export const handleChangeRowsPerPage = (
+  event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  setRowsPerPage: React.Dispatch<React.SetStateAction<number>>,
+  setPage: React.Dispatch<React.SetStateAction<number>>
+) => {
+  setRowsPerPage(parseInt(event.target.value));
+  setPage(0);
+};
+
+export const handlePageChangeWithFilter = (
+  newPage: number,
+  setPage: React.Dispatch<React.SetStateAction<number>>,
+  setFilteredObject: React.Dispatch<React.SetStateAction<any>>
+) => {
+  setPage(newPage);
+  setFilteredObject((prevState: any) => ({
+    ...prevState,
+    PageNo: newPage + 1,
+  }));
+};
+
+export const handleChangeRowsPerPageWithFilter = (
+  event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  setRowsPerPage: React.Dispatch<React.SetStateAction<number>>,
+  setPage: React.Dispatch<React.SetStateAction<number>>,
+  setFilteredObject: React.Dispatch<React.SetStateAction<any>>
+) => {
+  const pageSize = parseInt(event.target.value);
+
+  setRowsPerPage(pageSize);
+  setPage(0);
+  setFilteredObject((prevState: any) => ({
+    ...prevState,
+    PageNo: 1,
+    PageSize: pageSize,
+  }));
 };

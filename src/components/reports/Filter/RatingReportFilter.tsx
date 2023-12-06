@@ -83,12 +83,6 @@ const RatingReportFilter = ({
 
     sendFilterToPage({
       ...rating_InitialFilter,
-      Clients: [],
-      Projects: [],
-      ReturnTypeId: null,
-      Ratings: null,
-      StartDate: null,
-      EndDate: null,
     });
   };
 
@@ -110,19 +104,27 @@ const RatingReportFilter = ({
   const handleFilterApply = () => {
     sendFilterToPage({
       ...rating_InitialFilter,
-      Clients: clientName.length > 0 ? clientName : [],
+      Clients: clientName,
       Projects: projectName === 0 || projectName === "" ? [] : [projectName],
-      ReturnTypeId: returnType || null,
-      Ratings: ratings || null,
+      ReturnTypeId: returnType !== 0 ? returnType : null,
+      Ratings: ratings !== 0 ? ratings : null,
       StartDate:
         startDate !== null
           ? new Date(new Date(startDate).getTime() + 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split("T")[0]
+          : endDate !== null
+          ? new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000)
               .toISOString()
               .split("T")[0]
           : null,
       EndDate:
         endDate !== null
           ? new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split("T")[0]
+          : startDate !== null
+          ? new Date(new Date(startDate).getTime() + 24 * 60 * 60 * 1000)
               .toISOString()
               .split("T")[0]
           : null,
@@ -136,18 +138,12 @@ const RatingReportFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...rating_InitialFilter,
-          Clients:
-            savedFilters[index].AppliedFilter.Clients === null
-              ? 0
-              : savedFilters[index].AppliedFilter.Clients,
+          Clients: savedFilters[index].AppliedFilter.Clients,
           Projects:
-            savedFilters[index].AppliedFilter.Projects === null
-              ? 0
-              : savedFilters[index].AppliedFilter.Projects === null,
-          ReturnTypeId:
-            savedFilters[index].AppliedFilter.ReturnTypeId === null
-              ? 0
-              : savedFilters[index].AppliedFilter.ReturnTypeId === null,
+            savedFilters[index].AppliedFilter.Projects.length > 0
+              ? []
+              : savedFilters[index].AppliedFilter.Projects[0],
+          ReturnTypeId: savedFilters[index].AppliedFilter.ReturnTypeId,
           Ratings: savedFilters[index].AppliedFilter.Ratings,
           StartDate: savedFilters[index].AppliedFilter.StartDate,
           EndDate: savedFilters[index].AppliedFilter.EndDate,
@@ -178,8 +174,8 @@ const RatingReportFilter = ({
               Clients: clientName.length > 0 ? clientName : [],
               Projects:
                 projectName === 0 || projectName === "" ? [] : [projectName],
-              ReturnTypeId: returnType || null,
-              Ratings: ratings || null,
+              ReturnTypeId: returnType !== 0 ? returnType : null,
+              Ratings: ratings !== 0 ? ratings : null,
               StartDate:
                 startDate !== null
                   ? new Date(
@@ -187,10 +183,20 @@ const RatingReportFilter = ({
                     )
                       .toISOString()
                       .split("T")[0]
+                  : endDate !== null
+                  ? new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000)
+                      .toISOString()
+                      .split("T")[0]
                   : null,
               EndDate:
                 endDate !== null
                   ? new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000)
+                      .toISOString()
+                      .split("T")[0]
+                  : startDate !== null
+                  ? new Date(
+                      new Date(startDate).getTime() + 24 * 60 * 60 * 1000
+                    )
                       .toISOString()
                       .split("T")[0]
                   : null,
@@ -282,30 +288,22 @@ const RatingReportFilter = ({
     setCurrentFilterId(savedFilters[index].FilterId);
 
     setClients(
-      savedFilters[index].AppliedFilter.clients === null
-        ? []
-        : clientDropdown.filter((client: any) =>
-            savedFilters[index].AppliedFilter.clients.includes(client.value)
+      savedFilters[index].AppliedFilter.Clients.length > 0
+        ? clientDropdown.filter((client: any) =>
+            savedFilters[index].AppliedFilter.Clients.includes(client.value)
           )
+        : []
     );
-    setClientName(
-      savedFilters[index].AppliedFilter.clients === null
-        ? []
-        : savedFilters[index].AppliedFilter.clients
-    );
+    setClientName(savedFilters[index].AppliedFilter.Clients);
     setProjectName(
-      savedFilters[index].AppliedFilter.projects.length > 0
-        ? savedFilters[index].AppliedFilter.projects[0]
+      savedFilters[index].AppliedFilter.Projects.length > 0
+        ? savedFilters[index].AppliedFilter.Projects[0]
         : 0
     );
-    setReturnType(
-      savedFilters[index].AppliedFilter.ReturnTypes === null
-        ? 0
-        : savedFilters[index].AppliedFilter.ReturnTypes
-    );
-    setStartDate(savedFilters[index].AppliedFilter.DateSubmitted);
-    setEndDate(savedFilters[index].AppliedFilter.RatingOn);
-    setRatings(savedFilters[index].AppliedFilter.Ratings);
+    setReturnType(savedFilters[index].AppliedFilter.ReturnTypeId ?? 0);
+    setStartDate(savedFilters[index].AppliedFilter.StartDate ?? "");
+    setEndDate(savedFilters[index].AppliedFilter.EndDate ?? "");
+    setRatings(savedFilters[index].AppliedFilter.Ratings ?? "");
   };
 
   const handleSavedFilterDelete = async () => {

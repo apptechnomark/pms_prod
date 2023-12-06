@@ -20,7 +20,10 @@ import FileIcon from "@/assets/icons/Import/FileIcon";
 import Download from "@/assets/icons/Import/Download";
 
 // Internal components
-import { Table_Options, Table_Columns } from "./options/Table_Options";
+import {
+  Table_Options,
+  Table_Columns,
+} from "../../../utils/worklog/importTableOprions";
 
 interface ImportDialogProp {
   onOpen: boolean;

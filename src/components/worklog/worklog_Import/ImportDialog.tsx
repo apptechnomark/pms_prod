@@ -15,7 +15,10 @@ import { FormControl, FormHelperText } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 
 // internal components
-import { Table_Options, Table_Columns } from "./options/Table_Options";
+import {
+  Table_Options,
+  Table_Columns,
+} from "../../../utils/worklog/importTableOprions";
 
 interface ImportDialogProp {
   onOpen: boolean;

@@ -31,9 +31,7 @@ import {
   Switch,
   TextField,
   Tooltip,
-  TooltipProps,
   Typography,
-  tooltipClasses,
 } from "@mui/material";
 import { Close, Download, Save } from "@mui/icons-material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -43,7 +41,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { MentionsInput, Mention } from "react-mentions";
-import mentionsInputStyle from "./mentionsInputStyle";
+import mentionsInputStyle from "../../utils/worklog/mentionsInputStyle";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import {
   days,
@@ -62,7 +60,7 @@ import {
 } from "@/utils/commonDropdownApiCall";
 import ImageUploader from "../common/ImageUploader";
 import { getFileFromBlob } from "@/utils/downloadFile";
-import styled from "@emotion/styled";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 const EditDrawer = ({
   onOpen,
@@ -1249,10 +1247,10 @@ const EditDrawer = ({
         if (response.data.ResponseStatus === "Success") {
           const data = await response.data.ResponseData;
           setSubTaskSwitch(
-            data.length <= 0
-              ? !hasPermissionWorklog("Task/SubTask", "save", "WorkLogs") &&
-                  false
-              : hasPermissionWorklog("Task/SubTask", "save", "WorkLogs") && true
+            data.length <= 0 &&
+              !hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")
+              ? false
+              : true
           );
           setSubTaskFields(
             data.length <= 0
@@ -1310,9 +1308,10 @@ const EditDrawer = ({
         if (response.data.ResponseStatus === "Success") {
           const data = await response.data.ResponseData;
           setRecurringSwitch(
-            data.length <= 0
-              ? !hasPermissionWorklog("Reccuring", "save", "WorkLogs") && false
-              : hasPermissionWorklog("Reccuring", "save", "WorkLogs") && true
+            data.length <= 0 &&
+              !hasPermissionWorklog("Reccuring", "save", "WorkLogs")
+              ? false
+              : true
           );
           setRecurringStartDate(data.length <= 0 ? "" : data.StartDate);
           setRecurringEndDate(data.length <= 0 ? "" : data.EndDate);
@@ -1460,9 +1459,10 @@ const EditDrawer = ({
           const data = await response.data.ResponseData;
           setReminderId(data.ReminderId);
           setReminderSwitch(
-            data === null
-              ? !hasPermissionWorklog("Reminder", "save", "WorkLogs") && false
-              : hasPermissionWorklog("Reminder", "save", "WorkLogs") && true
+            data === null &&
+              !hasPermissionWorklog("Reminder", "save", "WorkLogs")
+              ? false
+              : true
           );
           setReminderCheckboxValue(data.ReminderType);
           setReminderDate(data.ReminderDate);
@@ -2998,17 +2998,6 @@ const EditDrawer = ({
       }
     }
   };
-
-  const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} arrow classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.arrow}`]: {
-      color: "#0281B9",
-    },
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: "#0281B9",
-    },
-  }));
 
   const isWeekend = (date: any) => {
     const day = date.day();

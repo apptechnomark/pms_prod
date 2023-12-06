@@ -10,13 +10,7 @@ import Wrapper from "@/components/common/Wrapper";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
 // Material Import
-import {
-  Tooltip,
-  TooltipProps,
-  tooltipClasses,
-  styled,
-  InputBase,
-} from "@mui/material";
+import { InputBase } from "@mui/material";
 import Drawer from "@/components/approvals/Drawer";
 import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -26,6 +20,7 @@ import IdleTimer from "@/components/common/IdleTimer";
 import Loading from "@/assets/icons/reports/Loading";
 import axios from "axios";
 import SearchIcon from "@/assets/icons/SearchIcon";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 const exportBody = {
   pageNo: 1,
@@ -76,17 +71,6 @@ const Page = () => {
     }
   }, [router]);
 
-  const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} arrow classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.arrow}`]: {
-      color: "#0281B9",
-    },
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: "#0281B9",
-    },
-  }));
-
   // To Toggle Drawer
   const handleDrawerOpen = () => {
     setOpenDrawer(true);
@@ -97,7 +81,7 @@ const Page = () => {
     setHasEditId(0);
     setHasComment(false);
     setHasError(false);
-    setHasManual(false)
+    setHasManual(false);
     setHasId("");
     setGlobalSearchValue("");
   };
@@ -180,7 +164,6 @@ const Page = () => {
   };
 
   console.log(currentFilterData);
-  
 
   return (
     <Wrapper>
@@ -196,7 +179,7 @@ const Page = () => {
           <div className="flex gap-[20px] items-center">
             <div className="relative">
               <InputBase
-                className="pl-1 pr-7 border-b border-b-slatyGrey w-52"
+                className="pl-1 pr-7 border-b border-b-lightSilver w-52"
                 placeholder="Search"
                 value={globalSearchValue}
                 onChange={(e: any) => setGlobalSearchValue(e.target.value)}

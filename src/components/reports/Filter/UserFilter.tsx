@@ -119,11 +119,15 @@ const UserFilter = ({
       departmentId: dept === 0 || dept === "" ? null : dept,
       startDate:
         startDate.toString().trim().length <= 0
-          ? getDates()[0]
+          ? endDate.toString().trim().length <= 0
+            ? getDates()[0]
+            : getFormattedDate(endDate)
           : getFormattedDate(startDate),
       endDate:
         endDate.toString().trim().length <= 0
-          ? getDates()[getDates().length - 1]
+          ? startDate.toString().trim().length <= 0
+            ? getDates()[getDates().length - 1]
+            : getFormattedDate(startDate)
           : getFormattedDate(endDate),
     });
 
@@ -167,11 +171,15 @@ const UserFilter = ({
               departmentId: dept === 0 ? null : dept,
               startDate:
                 startDate.toString().trim().length <= 0
-                  ? getDates()[0]
+                  ? endDate.toString().trim().length <= 0
+                    ? getDates()[0]
+                    : getFormattedDate(endDate)
                   : getFormattedDate(startDate),
               endDate:
                 endDate.toString().trim().length <= 0
-                  ? getDates()[getDates().length - 1]
+                  ? startDate.toString().trim().length <= 0
+                    ? getDates()[getDates().length - 1]
+                    : getFormattedDate(startDate)
                   : getFormattedDate(endDate),
             },
             type: user,
@@ -281,32 +289,16 @@ const UserFilter = ({
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
     setUsers(
-      savedFilters[index].AppliedFilter.users === null
-        ? []
-        : userDropdown.filter((user: any) =>
+      savedFilters[index].AppliedFilter.users.length > 0
+        ? userDropdown.filter((user: any) =>
             savedFilters[index].AppliedFilter.users.includes(user.value)
           )
+        : []
     );
-    setUserNames(
-      savedFilters[index].AppliedFilter.users === null
-        ? []
-        : savedFilters[index].AppliedFilter.users
-    );
-    setDept(
-      savedFilters[index].AppliedFilter.Department === null
-        ? 0
-        : savedFilters[index].AppliedFilter.Department
-    );
-    setStartDate(
-      savedFilters[index].AppliedFilter.startDate === null
-        ? 0
-        : savedFilters[index].AppliedFilter.startDate
-    );
-    setEndDate(
-      savedFilters[index].AppliedFilter.endDate === null
-        ? 0
-        : savedFilters[index].AppliedFilter.endDate
-    );
+    setUserNames(savedFilters[index].AppliedFilter.users);
+    setDept(savedFilters[index].AppliedFilter.Department ?? 0);
+    setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
+    setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
     setDefaultFilter(true);
     setSaveFilter(true);
   };

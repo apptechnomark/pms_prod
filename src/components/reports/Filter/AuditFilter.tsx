@@ -94,10 +94,6 @@ const AuditFilter = ({
 
     sendFilterToPage({
       ...audit_InitialFilter,
-      Clients: [],
-      Users: [],
-      StartDate: null,
-      EndDate: null,
     });
   };
 
@@ -123,11 +119,15 @@ const AuditFilter = ({
       Users: userName.length > 0 ? userName : [],
       StartDate:
         startDate.toString().trim().length <= 0
-          ? null
+          ? endDate.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(endDate)
           : getFormattedDate(startDate),
       EndDate:
         endDate.toString().trim().length <= 0
-          ? null
+          ? startDate.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(startDate)
           : getFormattedDate(endDate),
     });
 
@@ -177,8 +177,18 @@ const AuditFilter = ({
           AppliedFilter: {
             clients: clientName,
             users: userName,
-            startDate: startdate,
-            endDate: enddate,
+            startDate:
+              startDate.toString().trim().length <= 0
+                ? endDate.toString().trim().length <= 0
+                  ? null
+                  : getFormattedDate(endDate)
+                : getFormattedDate(startDate),
+            endDate:
+              endDate.toString().trim().length <= 0
+                ? startDate.toString().trim().length <= 0
+                  ? null
+                  : getFormattedDate(startDate)
+                : getFormattedDate(endDate),
           },
           type: audit,
         },

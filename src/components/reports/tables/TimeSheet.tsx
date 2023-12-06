@@ -6,12 +6,11 @@ import {
   Popover,
   TablePagination,
   ThemeProvider,
-  createTheme,
 } from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
-import { options } from "./Options/Options";
+import { options } from "@/utils/datatable/TableOptions";
 
 //filter for client
 import { timeSheet_InitialFilter } from "@/utils/reports/getFilters";
@@ -34,6 +33,7 @@ import {
   generateDateWithoutTime,
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -422,29 +422,6 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
     </>
   );
 };
-
-const getMuiTheme = () =>
-  createTheme({
-    components: {
-      MUIDataTableHeadCell: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "#F6F6F6",
-            whiteSpace: "nowrap",
-            fontWeight: "bold",
-          },
-        },
-      },
-      MUIDataTableBodyCell: {
-        styleOverrides: {
-          root: {
-            overflowX: "auto",
-            whiteSpace: "nowrap",
-          },
-        },
-      },
-    },
-  });
 
 const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);

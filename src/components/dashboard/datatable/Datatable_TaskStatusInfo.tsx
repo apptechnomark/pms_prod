@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import MUIDataTable from "mui-datatables";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import TablePagination from "@mui/material/TablePagination";
 import {
   generateCustomHeaderName,
@@ -10,36 +10,17 @@ import {
   generateCustomFormatDate,
   generatePriorityWithColor,
   generateStatusWithColor,
+  handleChangePage,
+  handleChangeRowsPerPage,
 } from "@/utils/datatable/CommonFunction";
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { dashboard_Options } from "@/utils/datatable/TableOptions";
 
 interface TaskStatusInfoProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
   onSelectedStatusId: number;
 }
-
-const getMuiTheme = () =>
-  createTheme({
-    components: {
-      MUIDataTableHeadCell: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "#F6F6F6",
-            whiteSpace: "nowrap",
-            fontWeight: "bold",
-          },
-        },
-      },
-      MUIDataTableBodyCell: {
-        styleOverrides: {
-          root: {
-            overflowX: "auto",
-            whiteSpace: "nowrap",
-          },
-        },
-      },
-    },
-  });
 
 const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
   onSelectedProjectIds,
@@ -50,21 +31,6 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
-
-  // functions for handling pagination
-  const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
-  };
 
   useEffect(() => {
     const getData = async () => {
@@ -225,36 +191,6 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
     },
   ];
 
-  // Table Customization Options
-  const options: any = {
-    filterType: "checkbox",
-    responsive: "standard",
-    tableBodyHeight: "60vh",
-    viewColumns: false,
-    filter: false,
-    print: false,
-    download: false,
-    search: false,
-    pagination: false,
-    selectToolbarPlacement: "none",
-    draggableColumns: {
-      enabled: true,
-      transitionTime: 300,
-    },
-    selectableRows: "none",
-    elevation: 0,
-    textLabels: {
-      body: {
-        noMatch: (
-          <div className="flex items-start">
-            <span>Currently there is no record</span>
-          </div>
-        ),
-        toolTip: "",
-      },
-    },
-  };
-
   return (
     <div>
       <ThemeProvider theme={getMuiTheme()}>
@@ -262,16 +198,22 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
           data={data}
           columns={columns}
           title={undefined}
-          options={options}
+          options={dashboard_Options}
           data-tableid="taskStatusInfo_Datatable"
         />
         <TablePagination
           component="div"
           count={tableDataCount}
           page={page}
-          onPageChange={handleChangePage}
+          onPageChange={(event: any, newPage) => {
+            handleChangePage(event, newPage, setPage);
+          }}
           rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+          onRowsPerPageChange={(
+            event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+          ) => {
+            handleChangeRowsPerPage(event, setRowsPerPage, setPage);
+          }}
         />
       </ThemeProvider>
     </div>

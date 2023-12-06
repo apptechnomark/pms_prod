@@ -9,12 +9,11 @@ import {
   TablePagination,
   TextField,
   ThemeProvider,
-  createTheme,
 } from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
-import { options } from "./Options/Options";
+import { options } from "@/utils/datatable/TableOptions";
 
 //filter for billing report
 import { billingreport_InitialFilter } from "@/utils/reports/getFilters";
@@ -27,29 +26,7 @@ import {
   generateInitialTimer,
   generateDateWithTime,
 } from "@/utils/datatable/CommonFunction";
-
-const getMuiTheme = () =>
-  createTheme({
-    components: {
-      MUIDataTableHeadCell: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "#F6F6F6",
-            whiteSpace: "nowrap",
-            fontWeight: "bold",
-          },
-        },
-      },
-      MUIDataTableBodyCell: {
-        styleOverrides: {
-          root: {
-            overflowX: "auto",
-            whiteSpace: "nowrap",
-          },
-        },
-      },
-    },
-  });
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 
 const BTCField = ({
   billingReportData,

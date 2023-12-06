@@ -80,9 +80,6 @@ const UserLogsFilter = ({
 
     sendFilterToPage({
       ...userLogs_InitialFilter,
-      users: [],
-      departmentId: null,
-      isLoggedInFilter: null,
     });
   };
 
@@ -124,7 +121,6 @@ const UserLogsFilter = ({
       ...userLogs_InitialFilter,
       users: userNames,
       departmentId: dept === 0 || dept === "" ? null : dept,
-      // dateFilter: dateFilter === null || dateFilter === "" ? null : dateFilter,
       dateFilter:
         dateFilter === null || dateFilter.toString().trim().length <= 0
           ? null
@@ -281,15 +277,15 @@ const UserLogsFilter = ({
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
     setUsers(
-      savedFilters[index].AppliedFilter.users === null
-        ? []
-        : userDropdown.filter((user: any) =>
+      savedFilters[index].AppliedFilter.users.length > 0
+        ? userDropdown.filter((user: any) =>
             savedFilters[index].AppliedFilter.users.includes(user.value)
           )
+        : []
     );
-    setUserNames(savedFilters[index].AppliedFilter.users ?? []);
-    setDept(savedFilters[index].AppliedFilter.Department);
-    setIsloggedIn(savedFilters[index].AppliedFilter.isLoggedInFilter);
+    setUserNames(savedFilters[index].AppliedFilter.users);
+    setDept(savedFilters[index].AppliedFilter.Department ?? 0);
+    setIsloggedIn(savedFilters[index].AppliedFilter.isLoggedInFilter ?? 0);
     setDefaultFilter(true);
     setSaveFilter(true);
     setDateFilter(

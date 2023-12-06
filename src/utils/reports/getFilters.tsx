@@ -142,7 +142,6 @@ export const rating_InitialFilter: any = {
   Ratings: null,
   Clients: [],
   DepartmentId: null,
-  DateSubmitted: null,
   StartDate: null,
   EndDate: null,
 };

@@ -1,6 +1,5 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { data } from "autoprefixer";
 import axios from "axios";
 import { Button, Toast, Text, ColorPicker, Loader } from "next-ts-lib";
 import React, {

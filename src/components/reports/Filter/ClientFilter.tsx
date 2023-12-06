@@ -74,9 +74,6 @@ const ClientFilter = ({
 
     sendFilterToPage({
       ...client_project_InitialFilter,
-      typeOfWork: null,
-      billType: null,
-      department: null,
     });
   };
 
@@ -242,9 +239,9 @@ const ClientFilter = ({
   const handleSavedFilterEdit = (index: number) => {
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
-    setTypeOfWork(savedFilters[index].AppliedFilter.TypeOfWork);
-    setBillingType(savedFilters[index].AppliedFilter.BillingType);
-    setDept(savedFilters[index].AppliedFilter.Department);
+    setTypeOfWork(savedFilters[index].AppliedFilter.TypeOfWork ?? 0);
+    setBillingType(savedFilters[index].AppliedFilter.BillingType ?? 0);
+    setDept(savedFilters[index].AppliedFilter.Department ?? 0);
     setDefaultFilter(true);
     setSaveFilter(true);
   };

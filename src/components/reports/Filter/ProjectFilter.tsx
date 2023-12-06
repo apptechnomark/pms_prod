@@ -112,12 +112,6 @@ const ProjectFilter = ({
 
     sendFilterToPage({
       ...project_InitialFilter,
-      clients: [],
-      projects: [],
-      typeOfWork: null,
-      billType: null,
-      startDate: null,
-      endDate: null,
     });
   };
 
@@ -145,11 +139,15 @@ const ProjectFilter = ({
       billType: billingType === 0 || billingType === "" ? null : billingType,
       startDate:
         startDate.toString().trim().length <= 0
-          ? null
+          ? endDate.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(endDate)
           : getFormattedDate(startDate),
       endDate:
         endDate.toString().trim().length <= 0
-          ? null
+          ? startDate.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(startDate)
           : getFormattedDate(endDate),
     });
 
@@ -197,11 +195,15 @@ const ProjectFilter = ({
               BillingType: billingType === 0 ? null : billingType,
               startDate:
                 startDate.toString().trim().length <= 0
-                  ? null
+                  ? endDate.toString().trim().length <= 0
+                    ? null
+                    : getFormattedDate(endDate)
                   : getFormattedDate(startDate),
               endDate:
                 endDate.toString().trim().length <= 0
-                  ? null
+                  ? startDate.toString().trim().length <= 0
+                    ? null
+                    : getFormattedDate(startDate)
                   : getFormattedDate(endDate),
             },
             type: project,
@@ -327,17 +329,13 @@ const ProjectFilter = ({
     setCurrentFilterId(savedFilters[index].FilterId);
 
     setClients(
-      savedFilters[index].AppliedFilter.clients === null
-        ? []
-        : clientDropdown.filter((client: any) =>
+      savedFilters[index].AppliedFilter.clients.length > 0
+        ? clientDropdown.filter((client: any) =>
             savedFilters[index].AppliedFilter.clients.includes(client.value)
           )
+        : []
     );
-    setClientName(
-      savedFilters[index].AppliedFilter.clients === null
-        ? []
-        : savedFilters[index].AppliedFilter.clients
-    );
+    setClientName(savedFilters[index].AppliedFilter.clients);
     setProjectName(
       savedFilters[index].AppliedFilter.projects.length > 0
         ? savedFilters[index].AppliedFilter.projects[0]
@@ -348,21 +346,9 @@ const ProjectFilter = ({
         ? 0
         : savedFilters[index].AppliedFilter.TypeOfWork
     );
-    setBillingType(
-      savedFilters[index].AppliedFilter.BillingType === null
-        ? 0
-        : savedFilters[index].AppliedFilter.BillingType
-    );
-    setStartDate(
-      savedFilters[index].AppliedFilter.startDate === null
-        ? ""
-        : savedFilters[index].AppliedFilter.startDate
-    );
-    setEndDate(
-      savedFilters[index].AppliedFilter.endDate === null
-        ? ""
-        : savedFilters[index].AppliedFilter.endDate
-    );
+    setBillingType(savedFilters[index].AppliedFilter.BillingType ?? 0);
+    setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
+    setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
   };
 
   const handleSavedFilterDelete = async () => {

@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import ColumnFilterDropdown from "@/components/common/ColumnFilterDropdown";
 import axios from "axios";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
-import { DataTable, Loader, Toast, Tooltip } from "next-ts-lib";
+import { DataTable, Loader, Toast } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import DeleteModal from "@/components/common/DeleteModal";
 import { PROCESS } from "./Constants/Tabname";

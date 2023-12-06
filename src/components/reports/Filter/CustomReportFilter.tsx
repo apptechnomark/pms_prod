@@ -481,18 +481,20 @@ const CustomReportFilter = ({
   };
 
   const handleSavedFilterEdit = (index: number) => {
-    console.log(index, savedFilters)
+    console.log(index, savedFilters);
     setSaveFilter(true);
     setDefaultFilter(true);
     setFilterName(savedFilters[index].Name);
     setCurrentFilterId(savedFilters[index].FilterId);
 
     setClients(
-      savedFilters[index].AppliedFilter.clientIdsJSON === null
-        ? []
-        : clientDropdown.filter((client: any) =>
-            savedFilters[index].AppliedFilter.clientIdsJSON.includes(client.value)
+      savedFilters[index].AppliedFilter.clientIdsJSON.length > 0
+        ? clientDropdown.filter((client: any) =>
+            savedFilters[index].AppliedFilter.clientIdsJSON.includes(
+              client.value
+            )
           )
+        : []
     );
     setClientName(savedFilters[index].AppliedFilter.clientIdsJSON);
     setProjectName(
@@ -505,18 +507,18 @@ const CustomReportFilter = ({
         ? savedFilters[index].AppliedFilter.processIdsJSON[0]
         : 0
     );
-    setAssignByName(savedFilters[index].AppliedFilter.assignedById);
-    setAssigneeName(savedFilters[index].AppliedFilter.assigneeId);
-    setReviewerName(savedFilters[index].AppliedFilter.reviewerId);
-    setReturnTypeName(savedFilters[index].AppliedFilter.returnTypeId);
-    setNoofPages(savedFilters[index].AppliedFilter.numberOfPages);
-    setReturnYear(savedFilters[index].AppliedFilter.returnYear);
-    setComplexity(savedFilters[index].AppliedFilter.complexity);
-    setStatus(savedFilters[index].AppliedFilter.StatusId);
-    setPriority(savedFilters[index].AppliedFilter.priority);
-    setReceivedDate(savedFilters[index].AppliedFilter.receivedDate);
-    setDueDate(savedFilters[index].AppliedFilter.dueDate);
-    setAllInfoDate(savedFilters[index].AppliedFilter.allInfoDate);
+    setAssignByName(savedFilters[index].AppliedFilter.assignedById ?? 0);
+    setAssigneeName(savedFilters[index].AppliedFilter.assigneeId ?? 0);
+    setReviewerName(savedFilters[index].AppliedFilter.reviewerId ?? 0);
+    setReturnTypeName(savedFilters[index].AppliedFilter.returnTypeId ?? 0);
+    setNoofPages(savedFilters[index].AppliedFilter.numberOfPages ?? "");
+    setReturnYear(savedFilters[index].AppliedFilter.returnYear ?? 0);
+    setComplexity(savedFilters[index].AppliedFilter.complexity ?? 0);
+    setStatus(savedFilters[index].AppliedFilter.status ?? 0);
+    setPriority(savedFilters[index].AppliedFilter.priority ?? 0);
+    setReceivedDate(savedFilters[index].AppliedFilter.receivedDate ?? "");
+    setDueDate(savedFilters[index].AppliedFilter.dueDate ?? "");
+    setAllInfoDate(savedFilters[index].AppliedFilter.allInfoDate ?? "");
   };
 
   const handleSavedFilterDelete = async () => {

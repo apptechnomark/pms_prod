@@ -9,15 +9,8 @@ import Datatable_Worklog from "@/components/worklog/Datatable_Worklog";
 import Datatable_CompletedTask from "@/components/worklog/Datatable_CompletedTask";
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
-import {
-  Button,
-  TextField,
-  Tooltip,
-  tooltipClasses,
-  TooltipProps,
-} from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import { toast, ToastContainer } from "react-toastify";
-import styled from "@emotion/styled";
 import FilterDialog from "@/components/worklog/filterDialog";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import ImportIcon from "@/assets/icons/ImportIcon";
@@ -25,6 +18,7 @@ import axios from "axios";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
 import ImportDialog from "@/components/worklog/worklog_Import/ImportDialog";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 const Worklog = () => {
   const router = useRouter();
@@ -250,17 +244,6 @@ const Worklog = () => {
     setOpenDrawer(rowData);
     setHasEdit(selectedId);
   };
-
-  const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} arrow classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.arrow}`]: {
-      color: "#0281B9",
-    },
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: "#0281B9",
-    },
-  }));
 
   const getIdFromFilterDialog = (data: any) => {
     setCurrentFilterData(data);

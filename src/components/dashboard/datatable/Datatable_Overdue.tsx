@@ -2,42 +2,21 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import MUIDataTable from "mui-datatables";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import TablePagination from "@mui/material/TablePagination";
 import {
   generateCommonBodyRender,
   generateCustomFormatDate,
   generateCustomHeaderName,
   generateDaysBodyRender,
+  handleChangePage,
+  handleChangeRowsPerPage,
 } from "@/utils/datatable/CommonFunction";
-
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 interface OverdueProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
 }
-
-const getMuiTheme = () =>
-  createTheme({
-    components: {
-      MUIDataTableHeadCell: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "#F6F6F6",
-            whiteSpace: "nowrap",
-            fontWeight: "bold",
-          },
-        },
-      },
-      MUIDataTableBodyCell: {
-        styleOverrides: {
-          root: {
-            overflowX: "auto",
-            whiteSpace: "nowrap",
-          },
-        },
-      },
-    },
-  });
 
 const Datatable_Overdue: React.FC<OverdueProps> = ({
   onSelectedProjectIds,
@@ -75,21 +54,6 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
       },
     },
   });
-
-  // functions for handling pagination
-  const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
-  };
 
   // Resizing the table according to the fileds
   useEffect(() => {
@@ -255,9 +219,15 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
           component="div"
           count={tableDataCount}
           page={page}
-          onPageChange={handleChangePage}
+          onPageChange={(event: any, newPage) => {
+            handleChangePage(event, newPage, setPage);
+          }}
           rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+          onRowsPerPageChange={(
+            event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+          ) => {
+            handleChangeRowsPerPage(event, setRowsPerPage, setPage);
+          }}
         />
       </ThemeProvider>
     </div>

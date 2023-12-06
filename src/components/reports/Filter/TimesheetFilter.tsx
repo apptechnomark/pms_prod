@@ -93,10 +93,6 @@ const TimesheetFilter = ({
 
     sendFilterToPage({
       ...timeSheet_InitialFilter,
-      users: [],
-      departmentId: null,
-      startDate: getDates()[0],
-      endDate: getDates()[getDates().length - 1],
     });
   };
 
@@ -119,11 +115,15 @@ const TimesheetFilter = ({
       departmentId: dept === 0 || dept === "" ? null : dept,
       startDate:
         startDate.toString().trim().length <= 0
-          ? getDates()[0]
+          ? endDate.toString().trim().length <= 0
+            ? getDates()[0]
+            : getFormattedDate(endDate)
           : getFormattedDate(startDate),
       endDate:
         endDate.toString().trim().length <= 0
-          ? getDates()[getDates().length - 1]
+          ? startDate.toString().trim().length <= 0
+            ? getDates()[getDates().length - 1]
+            : getFormattedDate(startDate)
           : getFormattedDate(endDate),
     });
 
@@ -167,11 +167,15 @@ const TimesheetFilter = ({
               departmentId: dept === 0 ? null : dept,
               startDate:
                 startDate.toString().trim().length <= 0
-                  ? getDates()[0]
+                  ? endDate.toString().trim().length <= 0
+                    ? getDates()[0]
+                    : getFormattedDate(endDate)
                   : getFormattedDate(startDate),
               endDate:
                 endDate.toString().trim().length <= 0
-                  ? getDates()[getDates().length - 1]
+                  ? startDate.toString().trim().length <= 0
+                    ? getDates()[getDates().length - 1]
+                    : getFormattedDate(startDate)
                   : getFormattedDate(endDate),
             },
             type: timesheet,
@@ -281,32 +285,16 @@ const TimesheetFilter = ({
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
     setUsers(
-      savedFilters[index].AppliedFilter.users === null
-        ? []
-        : userDropdown.filter((user: any) =>
+      savedFilters[index].AppliedFilter.users.length > 0
+        ? userDropdown.filter((user: any) =>
             savedFilters[index].AppliedFilter.users.includes(user.value)
           )
+        : []
     );
-    setUserNames(
-      savedFilters[index].AppliedFilter.users === null
-        ? []
-        : savedFilters[index].AppliedFilter.users
-    );
-    setDept(
-      savedFilters[index].AppliedFilter.Department === null
-        ? 0
-        : savedFilters[index].AppliedFilter.users
-    );
-    setStartDate(
-      savedFilters[index].AppliedFilter.startDate === null
-        ? ""
-        : savedFilters[index].AppliedFilter.users
-    );
-    setEndDate(
-      savedFilters[index].AppliedFilter.endDate === null
-        ? ""
-        : savedFilters[index].AppliedFilter.users
-    );
+    setUserNames(savedFilters[index].AppliedFilter.users);
+    setDept(savedFilters[index].AppliedFilter.Department ?? 0);
+    setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
+    setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
     setDefaultFilter(true);
     setSaveFilter(true);
   };

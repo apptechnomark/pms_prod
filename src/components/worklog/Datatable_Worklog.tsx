@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 import MUIDataTable from "mui-datatables";
-import { createTheme, styled, ThemeProvider } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import Popover from "@mui/material/Popover";
 import DeleteDialog from "../common/workloags/DeleteDialog";
 import { Card, CircularProgress, List } from "@mui/material";
-import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import TablePagination from "@mui/material/TablePagination";
 // icons imports
 import Minus from "@/assets/icons/worklogs/Minus";
@@ -25,41 +24,12 @@ import {
   generateCustomFormatDate,
   generatePriorityWithColor,
   generateStatusWithColor,
+  handlePageChangeWithFilter,
+  handleChangeRowsPerPageWithFilter,
 } from "@/utils/datatable/CommonFunction";
-
-const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} arrow classes={{ popper: className }} />
-))(() => ({
-  [`& .${tooltipClasses.arrow}`]: {
-    color: "#0281B9",
-  },
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: "#0281B9",
-  },
-}));
-
-const getMuiTheme = () =>
-  createTheme({
-    components: {
-      MUIDataTableHeadCell: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "#F6F6F6",
-            whiteSpace: "nowrap",
-            fontWeight: "bold",
-          },
-        },
-      },
-      MUIDataTableBodyCell: {
-        styleOverrides: {
-          root: {
-            overflowX: "auto",
-            whiteSpace: "nowrap",
-          },
-        },
-      },
-    },
-  });
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { worklogs_Options } from "@/utils/datatable/TableOptions";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 const priorityOptions = [
   { id: 3, text: "Low" },
@@ -171,26 +141,6 @@ const Datatable_Worklog = ({
       getWorkItemList();
     }
   }, [onSearchWorkTypeData]);
-
-  const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-    setFilteredOject({ ...filteredObject, PageNo: newPage + 1 });
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-    setFilteredOject({
-      ...filteredObject,
-      PageNo: 1,
-      PageSize: event.target.value,
-    });
-  };
 
   const handleRowSelect = (
     currentRowsSelected: any,
@@ -781,47 +731,6 @@ const Datatable_Worklog = ({
     },
   ];
 
-  // Table Customization Options
-  const options: any = {
-    filterType: "checkbox",
-    responsive: "standard",
-    tableBodyHeight: "73vh",
-    viewColumns: false,
-    filter: false,
-    print: false,
-    download: false,
-    search: false,
-    pagination: false,
-    selectToolbarPlacement: "none",
-    draggableColumns: {
-      enabled: true,
-      transitionTime: 300,
-    },
-    elevation: 0,
-    selectableRows: "multiple",
-    selectAllRows: isPopupOpen && selectedRowsCount === 0,
-    rowsSelected: selectedRows,
-    textLabels: {
-      body: {
-        noMatch: (
-          <div className="flex items-center">
-            <span>
-              Currently no record found, you have to&nbsp;
-              <a
-                className="text-secondary underline cursor-pointer"
-                onClick={onDrawerOpen}
-              >
-                create
-              </a>{" "}
-              process/task.
-            </span>
-          </div>
-        ),
-        toolTip: "",
-      },
-    },
-  };
-
   return loaded ? (
     <div>
       <ThemeProvider theme={getMuiTheme()}>
@@ -830,7 +739,28 @@ const Datatable_Worklog = ({
           columns={columns}
           title={undefined}
           options={{
-            ...options,
+            ...worklogs_Options,
+            selectAllRows: isPopupOpen && selectedRowsCount === 0,
+            rowsSelected: selectedRows,
+            textLabels: {
+              body: {
+                noMatch: (
+                  <div className="flex items-center">
+                    <span>
+                      Currently no record found, you have to&nbsp;
+                      <a
+                        className="text-secondary underline cursor-pointer"
+                        onClick={onDrawerOpen}
+                      >
+                        create
+                      </a>{" "}
+                      process/task.
+                    </span>
+                  </div>
+                ),
+                toolTip: "",
+              },
+            },
             onRowSelectionChange: (
               currentRowsSelected: any,
               allRowsSelected: any,
@@ -849,10 +779,23 @@ const Datatable_Worklog = ({
           component="div"
           count={tableDataCount}
           page={page}
-          // rowsPerPageOptions={[5, 10, 15]}
-          onPageChange={handleChangePage}
+          onPageChange={(
+            event: React.MouseEvent<HTMLButtonElement> | null,
+            newPage: number
+          ) => {
+            handlePageChangeWithFilter(newPage, setPage, setFilteredOject);
+          }}
           rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+          onRowsPerPageChange={(
+            event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+          ) => {
+            handleChangeRowsPerPageWithFilter(
+              event,
+              setRowsPerPage,
+              setPage,
+              setFilteredOject
+            );
+          }}
         />
       </ThemeProvider>
 

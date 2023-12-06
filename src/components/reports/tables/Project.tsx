@@ -5,12 +5,11 @@ import {
   CircularProgress,
   TablePagination,
   ThemeProvider,
-  createTheme,
 } from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
 //MUIDataTable Options
-import { options } from "./Options/Options";
+import { options } from "@/utils/datatable/TableOptions";
 
 //filter for project
 import { client_project_InitialFilter } from "@/utils/reports/getFilters";
@@ -21,29 +20,7 @@ import {
   generateCommonBodyRender,
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
-
-const getMuiTheme = () =>
-  createTheme({
-    components: {
-      MUIDataTableHeadCell: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "#F6F6F6",
-            whiteSpace: "nowrap",
-            fontWeight: "bold",
-          },
-        },
-      },
-      MUIDataTableBodyCell: {
-        styleOverrides: {
-          root: {
-            overflowX: "auto",
-            whiteSpace: "nowrap",
-          },
-        },
-      },
-    },
-  });
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 
 const project_InitialFilter = {
   ...client_project_InitialFilter,

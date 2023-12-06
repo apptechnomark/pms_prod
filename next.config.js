@@ -5,6 +5,7 @@ const nextConfig = {
     pms_api_url: process.env.pms_api_url,
     worklog_api_url: process.env.worklog_api_url,
     report_api_url: process.env.report_api_url,
+    redirectURL: process.env.redirectURL,
     storageName: process.env.storageName,
     attachment: process.env.attachment,
     sasToken: process.env.sasToken,
@@ -26,7 +27,7 @@ module.exports = withSentryConfig(
     // Suppresses source map uploading logs during build
     silent: true,
     org: "technomark",
-    project: "pms_staging",
+    project: "pms_frontend",
   },
   {
     // For all available options, see:

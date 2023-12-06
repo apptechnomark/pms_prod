@@ -1,5 +1,5 @@
 import { ThemeProvider } from "@emotion/react";
-import { CircularProgress, createTheme } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import React, { useEffect, useState } from "react";
 import TablePagination from "@mui/material/TablePagination";
@@ -10,30 +10,9 @@ import {
   generatePriorityWithColor,
   generateStatusWithColor,
 } from "@/utils/datatable/CommonFunction";
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { callAPI } from "@/utils/API/callAPI";
-
-const getMuiTheme = () =>
-  createTheme({
-    components: {
-      MUIDataTableHeadCell: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "#F6F6F6",
-            whiteSpace: "nowrap",
-            fontWeight: "bold",
-          },
-        },
-      },
-      MUIDataTableBodyCell: {
-        styleOverrides: {
-          root: {
-            overflowX: "auto",
-            whiteSpace: "nowrap",
-          },
-        },
-      },
-    },
-  });
+import { report_Options } from "@/utils/datatable/TableOptions";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -275,21 +254,6 @@ const Datatable_Task = ({
     },
   ];
 
-  // Table Customization Options
-  const options: any = {
-    responsive: "standard",
-    tableBodyHeight: "73vh",
-    viewColumns: false,
-    filter: false,
-    print: false,
-    download: false,
-    search: false,
-    selectToolbarPlacement: "none",
-    selectableRows: "none",
-    elevation: 0,
-    pagination: false,
-  };
-
   return allFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
@@ -297,7 +261,7 @@ const Datatable_Task = ({
         columns={columns}
         title={undefined}
         options={{
-          ...options,
+          ...report_Options,
         }}
         data-tableid="task_Report_Datatable"
       />

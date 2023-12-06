@@ -31,9 +31,7 @@ import {
   Switch,
   TextField,
   Tooltip,
-  TooltipProps,
   Typography,
-  tooltipClasses,
 } from "@mui/material";
 import { Close, Download, Save } from "@mui/icons-material";
 import axios from "axios";
@@ -44,7 +42,7 @@ import dayjs from "dayjs";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import ImageUploader from "../common/ImageUploader";
 import { Mention, MentionsInput } from "react-mentions";
-import mentionsInputStyle from "../worklog/mentionsInputStyle";
+import mentionsInputStyle from "../../utils/worklog/mentionsInputStyle";
 import EditIcon from "@mui/icons-material/Edit";
 import {
   days,
@@ -62,7 +60,7 @@ import {
   months,
 } from "@/utils/commonDropdownApiCall";
 import { getFileFromBlob } from "@/utils/downloadFile";
-import styled from "@emotion/styled";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 const EditDrawer = ({
   onOpen,
@@ -1759,10 +1757,10 @@ const EditDrawer = ({
         if (response.data.ResponseStatus === "Success") {
           const data = await response.data.ResponseData;
           setSubTaskSwitch(
-            data.length <= 0
-              ? !hasPermissionWorklog("Task/SubTask", "save", "WorkLogs") &&
-                  false
-              : hasPermissionWorklog("Task/SubTask", "save", "WorkLogs") && true
+            data.length <= 0 &&
+              !hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")
+              ? false
+              : true
           );
           setSubTaskFields(
             data.length <= 0
@@ -1955,9 +1953,10 @@ const EditDrawer = ({
           const data = await response.data.ResponseData;
           setReminderId(data.ReminderId);
           setReminderSwitch(
-            data === null
-              ? !hasPermissionWorklog("Reminder", "save", "WorkLogs") && false
-              : hasPermissionWorklog("Reminder", "save", "WorkLogs") && true
+            data === null &&
+              !hasPermissionWorklog("Reminder", "save", "WorkLogs")
+              ? false
+              : true
           );
           setReminderCheckboxValue(data.ReminderType);
           setReminderDate(data.ReminderDate);
@@ -2936,17 +2935,6 @@ const EditDrawer = ({
     }
     onClose();
   };
-
-  const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} arrow classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.arrow}`]: {
-      color: "#0281B9",
-    },
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: "#0281B9",
-    },
-  }));
 
   const isWeekend = (date: any) => {
     const day = date.day();

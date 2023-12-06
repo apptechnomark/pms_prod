@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Table, Switch, Toast, DataTable, Loader } from "next-ts-lib";
+import { Switch, Toast, DataTable, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
 // Import Common Components

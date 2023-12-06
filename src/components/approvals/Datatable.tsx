@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import MUIDataTable from "mui-datatables";
-import { createTheme, styled, ThemeProvider } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import {
   Button,
   Card,
@@ -16,7 +16,6 @@ import {
   CircularProgress,
 } from "@mui/material";
 import Popover from "@mui/material/Popover";
-import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
@@ -53,41 +52,12 @@ import {
   generatePriorityWithColor,
   generateStatusWithColor,
   generateParentProcessBodyRender,
+  handlePageChangeWithFilter,
+  handleChangeRowsPerPageWithFilter,
 } from "@/utils/datatable/CommonFunction";
-
-const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} arrow classes={{ popper: className }} />
-))(() => ({
-  [`& .${tooltipClasses.arrow}`]: {
-    color: "#0281B9",
-  },
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: "#0281B9",
-  },
-}));
-
-const getMuiTheme = () =>
-  createTheme({
-    components: {
-      MUIDataTableHeadCell: {
-        styleOverrides: {
-          root: {
-            backgroundColor: "#F6F6F6",
-            whiteSpace: "nowrap",
-            fontWeight: "bold",
-          },
-        },
-      },
-      MUIDataTableBodyCell: {
-        styleOverrides: {
-          root: {
-            overflowX: "auto",
-            whiteSpace: "nowrap",
-          },
-        },
-      },
-    },
-  });
+import { approvals_Dt_Options } from "@/utils/datatable/TableOptions";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 
 const priorityOptions = [
   { id: 3, text: "Low" },
@@ -639,26 +609,6 @@ const Datatable = ({
       setRowsPerPage(10);
     }
   }, [onCloseDrawer, isEditOpen]);
-
-  const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-    setFilteredOject({ ...filteredObject, PageNo: newPage + 1 });
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-    setFilteredOject({
-      ...filteredObject,
-      PageNo: 1,
-      PageSize: event.target.value,
-    });
-  };
 
   const handleRowSelect = (
     currentRowsSelected: any,
@@ -1482,34 +1432,6 @@ const Datatable = ({
     },
   ];
 
-  const options: any = {
-    filterType: "checkbox",
-    responsive: "standard",
-    tableBodyHeight: "73vh",
-    elevation: 0,
-    viewColumns: false,
-    filter: false,
-    print: false,
-    download: false,
-    search: false,
-    selectToolbarPlacement: "none",
-    pagination: false,
-    draggableColumns: {
-      enabled: true,
-      transitionTime: 300,
-    },
-    textLabels: {
-      body: {
-        noMatch: (
-          <div className="flex items-start">
-            <span>Currently there is no records available.</span>
-          </div>
-        ),
-        toolTip: "",
-      },
-    },
-  };
-
   const closeModal = () => {
     setisEditOpen(false);
     setisAcceptOpen(false);
@@ -1526,7 +1448,7 @@ const Datatable = ({
             title={undefined}
             data-tableid="approval_Datatable"
             options={{
-              ...options,
+              ...approvals_Dt_Options,
               onRowSelectionChange: (
                 currentRowsSelected: any,
                 allRowsSelected: any,
@@ -1546,10 +1468,23 @@ const Datatable = ({
             component="div"
             count={tableDataCount}
             page={page}
-            // rowsPerPageOptions={[5, 10, 15]}
-            onPageChange={handleChangePage}
+            onPageChange={(
+              event: React.MouseEvent<HTMLButtonElement> | null,
+              newPage: number
+            ) => {
+              handlePageChangeWithFilter(newPage, setPage, setFilteredOject);
+            }}
             rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
+            onRowsPerPageChange={(
+              event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            ) => {
+              handleChangeRowsPerPageWithFilter(
+                event,
+                setRowsPerPage,
+                setPage,
+                setFilteredOject
+              );
+            }}
           />
         </ThemeProvider>
       ) : (

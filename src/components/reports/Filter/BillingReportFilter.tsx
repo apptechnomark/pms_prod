@@ -133,14 +133,6 @@ const BillingReportFilter = ({
 
     sendFilterToPage({
       ...billingreport_InitialFilter,
-      clients: [],
-      projects: [],
-      assigneeId: null,
-      reviewerId: null,
-      numberOfPages: null,
-      IsBTC: false,
-      startDate: null,
-      endDate: null,
     });
   };
 
@@ -173,11 +165,15 @@ const BillingReportFilter = ({
       IsBTC: isBTC,
       startDate:
         startDate.toString().trim().length <= 0
-          ? null
+          ? endDate.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(endDate)
           : getFormattedDate(startDate),
       endDate:
         endDate.toString().trim().length <= 0
-          ? null
+          ? startDate.toString().trim().length <= 0
+            ? null
+            : getFormattedDate(startDate)
           : getFormattedDate(endDate),
     });
 
@@ -233,11 +229,15 @@ const BillingReportFilter = ({
             IsBTC: isBTC,
             startDate:
               startDate.toString().trim().length <= 0
-                ? null
+                ? endDate.toString().trim().length <= 0
+                  ? null
+                  : getFormattedDate(endDate)
                 : getFormattedDate(startDate),
             endDate:
               endDate.toString().trim().length <= 0
-                ? null
+                ? startDate.toString().trim().length <= 0
+                  ? null
+                  : getFormattedDate(startDate)
                 : getFormattedDate(endDate),
           },
           type: billingReport,
@@ -372,11 +372,11 @@ const BillingReportFilter = ({
         ? savedFilters[index].AppliedFilter.projects[0]
         : 0
     );
-    setAssignee(savedFilters[index].AppliedFilter.assigneeId);
-    setReviewer(savedFilters[index].AppliedFilter.reviewerId);
-    setNoOfPages(savedFilters[index].AppliedFilter.numberOfPages);
-    setStartDate(savedFilters[index].AppliedFilter.startDate);
-    setEndDate(savedFilters[index].AppliedFilter.endDate);
+    setAssignee(savedFilters[index].AppliedFilter.assigneeId ?? 0);
+    setReviewer(savedFilters[index].AppliedFilter.reviewerId ?? 0);
+    setNoOfPages(savedFilters[index].AppliedFilter.numberOfPages ?? "");
+    setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
+    setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
 
     setCurrentFilterId(savedFilters[index].FilterId);
     setFilterName(savedFilters[index].Name);
@@ -620,24 +620,7 @@ const BillingReportFilter = ({
                     ))}
                   </Select>
                 </FormControl>
-                {/* <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, minWidth: 210 }}
-                >
-                  <InputLabel id="typeOfReturn">Type of Return</InputLabel>
-                  <Select
-                    labelId="typeOfReturn"
-                    id="typeOfReturn"
-                    value={typeOfReturn === 0 ? "" : typeOfReturn}
-                    onChange={(e) => setTypeOfReturn(e.target.value)}
-                  >
-                    {typeOfReturnDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl> */}
+
                 <FormControl
                   variant="standard"
                   sx={{ mt: 0.35, mx: 0.75, minWidth: 210 }}

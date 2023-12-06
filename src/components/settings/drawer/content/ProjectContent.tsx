@@ -1,5 +1,4 @@
 /* eslint-disable react/display-name */
-import DeleteModal from "@/components/common/DeleteModal";
 import axios from "axios";
 import { Button, Loader, Select, Text, Toast } from "next-ts-lib";
 import React, {

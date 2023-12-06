@@ -5,16 +5,10 @@ import "next-ts-lib/dist/index.css";
 import Wrapper from "@/components/common/Wrapper";
 import Navbar from "@/components/common/Navbar";
 import { ToastContainer, toast } from "react-toastify";
-import {
-  TextField,
-  Tooltip,
-  TooltipProps,
-  tooltipClasses,
-} from "@mui/material";
+import { TextField } from "@mui/material";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import Datatable_Rating from "@/components/report/Datatable_Rating";
 import Datatable_Task from "@/components/report/Datatable_Task";
-import styled from "@emotion/styled";
 import FilterDialog_Task from "../../components/report/filterDialog_Task";
 import FilterDialog_Rating from "../../components/report/filterDialog_Rating";
 import axios from "axios";
@@ -23,6 +17,7 @@ import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
+import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
 const task_InitialFilter = {
   pageNo: 1,
@@ -227,17 +222,6 @@ const Report = () => {
   const closeFilterModal = () => {
     setIsFilterOpen(false);
   };
-
-  const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} arrow classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.arrow}`]: {
-      color: "#0281B9",
-    },
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: "#0281B9",
-    },
-  }));
 
   const getIdFromFilterDialog = (data: any) => {
     setCurrentFilterData(data);
