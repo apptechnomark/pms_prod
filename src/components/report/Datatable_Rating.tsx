@@ -1,9 +1,7 @@
 import { ThemeProvider } from "@emotion/react";
 import { CircularProgress, createTheme } from "@mui/material";
-import axios from "axios";
 import MUIDataTable from "mui-datatables";
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
 import {
   generateCustomHeaderName,
@@ -11,6 +9,7 @@ import {
   generateCustomFormatDate,
   generateRatingsBodyRender,
 } from "@/utils/datatable/CommonFunction";
+import { callAPI } from "@/utils/API/callAPI";
 
 const getMuiTheme = () =>
   createTheme({
@@ -34,7 +33,7 @@ const getMuiTheme = () =>
       },
     },
   });
-  
+
 const Data = new Date();
 
 const pageNo = 1;
@@ -62,27 +61,29 @@ const Datatable_Rating = ({
   onSearchData,
   onHandleExport,
 }: any) => {
-  const [loaded, setLoaded] = useState<boolean>(false);
-  const [ratingData, setRatingData] = useState<any>([]);
+  const [allFields, setAllFields] = useState<any>({
+    loaded: false,
+    ratingData: [],
+    page: 0,
+    rowsPerPage: pageSize,
+    tableDataCount: 0,
+  });
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(pageSize);
-  const [tableDataCount, setTableDataCount] = useState(0);
 
-  // functions for handling pagination
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setPage(newPage);
+    setAllFields({
+      ...allFields,
+      page: newPage,
+    });
     setFilteredOject({ ...filteredObject, PageNo: newPage + 1 });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
     setFilteredOject({
       ...filteredObject,
       PageNo: 1,
@@ -90,62 +91,37 @@ const Datatable_Rating = ({
     });
   };
 
-  // for showing value according to search
   useEffect(() => {
     if (onSearchData) {
-      setRatingData(onSearchData);
+      setAllFields({
+        ...allFields,
+        ratingData: onSearchData,
+      });
     } else {
       getRatingList();
     }
   }, [onSearchData]);
 
-  // TaskList API
   const getRatingList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/client/rating`,
-        filteredObject,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          onHandleExport(
-            response.data.ResponseData.List.length > 0 ? true : false
-          );
-          setLoaded(true);
-          setRatingData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          setLoaded(true);
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+    const params = filteredObject;
+    const url = `${process.env.report_api_url}/report/client/rating`;
+    const successCallback = (ResponseData: any, error: any) => {
+      if (ResponseData !== null && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
+        setAllFields({
+          ...allFields,
+          loaded: true,
+          ratingData: ResponseData.List,
+          tableDataCount: ResponseData.TotalCount,
+        });
       } else {
-        setLoaded(true);
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+        setAllFields({
+          ...allFields,
+          loaded: false,
+        });
       }
-    } catch (error) {
-      setLoaded(true);
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -156,7 +132,6 @@ const Datatable_Rating = ({
     getRatingList();
   }, [filteredObject]);
 
-  // Table Columns
   const columns = [
     {
       name: "WorkItemId",
@@ -270,7 +245,6 @@ const Datatable_Rating = ({
     },
   ];
 
-  // Table Customization Options
   const options: any = {
     responsive: "standard",
     tableBodyHeight: "73vh",
@@ -285,10 +259,10 @@ const Datatable_Rating = ({
     pagination: false,
   };
 
-  return loaded ? (
+  return allFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
-        data={ratingData}
+        data={allFields.ratingData}
         columns={columns}
         title={undefined}
         options={{
@@ -298,11 +272,10 @@ const Datatable_Rating = ({
       />
       <TablePagination
         component="div"
-        // rowsPerPageOptions={[5, 10, 15]}
-        count={tableDataCount}
-        page={page}
+        count={allFields.tableDataCount}
+        page={allFields.page}
         onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
+        rowsPerPage={allFields.rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>

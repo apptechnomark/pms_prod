@@ -1,9 +1,7 @@
 import { ThemeProvider } from "@emotion/react";
 import { CircularProgress, createTheme } from "@mui/material";
-import axios from "axios";
 import MUIDataTable from "mui-datatables";
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
 import {
   generateCustomHeaderName,
@@ -12,8 +10,6 @@ import {
   generatePriorityWithColor,
   generateStatusWithColor,
 } from "@/utils/datatable/CommonFunction";
-import { useRouter } from "next/navigation";
-import { handleLogoutUtil } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
 
 const getMuiTheme = () =>
@@ -64,16 +60,14 @@ const Datatable_Task = ({
   onSearchData,
   onHandleExport,
 }: any) => {
-  const router = useRouter();
-
   const [allFields, setAllFields] = useState<any>({
     loaded: false,
     taskData: [],
-    filteredObject: initialFilter,
     page: 0,
     rowsPerPage: pageSize,
     tableDataCount: 0,
   });
+  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
 
   // functions for handling pagination
   const handleChangePage = (
@@ -82,21 +76,18 @@ const Datatable_Task = ({
   ) => {
     setAllFields({
       ...allFields,
-      filteredObject: { ...allFields.filteredObject, PageNo: newPage + 1 },
       page: newPage,
     });
+    setFilteredOject({ ...filteredObject, PageNo: newPage + 1 });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setAllFields({
-      ...allFields,
-      filteredObject: {
-        ...allFields.filteredObject,
-        PageNo: 1,
-        PageSize: event.target.value,
-      },
+    setFilteredOject({
+      ...filteredObject,
+      PageNo: 1,
+      PageSize: event.target.value,
     });
   };
 
@@ -114,7 +105,7 @@ const Datatable_Task = ({
 
   // TaskList API
   const getTaskList = async () => {
-    const params = allFields.filteredObject;
+    const params = filteredObject;
     const url = `${process.env.report_api_url}/report/client/task`;
     const successCallback = (ResponseData: any, error: any) => {
       if (ResponseData !== null && error === false) {
@@ -135,70 +126,13 @@ const Datatable_Task = ({
     callAPI(url, params, successCallback, "POST");
   };
 
-  // const getTaskList = async () => {
-  //   const token = await localStorage.getItem("token");
-  //   const Org_Token = await localStorage.getItem("Org_Token");
-
-  //   try {
-  //     const { data, status } = await axios.post(
-  //       `${process.env.report_api_url}/report/client/task`,
-  //       allFields.filteredObject,
-  //       {
-  //         headers: {
-  //           Authorization: `bearer ${token}`,
-  //           org_token: `${Org_Token}`,
-  //         },
-  //       }
-  //     );
-
-  //     if (status === 200) {
-  //       const { ResponseStatus, ResponseData } = data;
-
-  //       if (ResponseStatus === "Success") {
-  //         onHandleExport(ResponseData.List.length > 0);
-  //         setAllFields({
-  //           ...allFields,
-  //           loaded: true,
-  //           taskData: ResponseData.List,
-  //           tableDataCount: ResponseData.TotalCount,
-  //         });
-  //       } else {
-  //         handleErrorResponse(data);
-  //       }
-  //     } else {
-  //       handleErrorResponse(data);
-  //     }
-  //   } catch (error: any) {
-  //     setAllFields({
-  //       ...allFields,
-  //       loaded: false,
-  //     });
-  //     if (error.response?.status === 401) {
-  //       router.push("/login");
-  //       handleLogoutUtil();
-  //     }
-  //   }
-  // };
-
-  const handleErrorResponse = (data: { Message: string }) => {
-    setAllFields({
-      ...allFields,
-      loaded: false,
-    });
-    const errorMessage = data.Message || "Please try again later.";
-    toast.error(errorMessage);
-  };
-
   useEffect(() => {
-    setAllFields({
-      ...allFields,
-      filteredObject: { ...allFields.filteredObject, ...currentFilterData },
-    });
+    setFilteredOject({ ...filteredObject, ...currentFilterData });
   }, [currentFilterData]);
 
   useEffect(() => {
     getTaskList();
-  }, [allFields.filteredObject]);
+  }, [filteredObject]);
 
   // Table Columns
   const columns = [

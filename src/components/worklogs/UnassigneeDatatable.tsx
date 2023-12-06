@@ -899,7 +899,12 @@ const UnassigneeDatatable = ({
         if (response.data.ResponseStatus === "Success") {
           setAllStatus(
             response.data.ResponseData.map((i: any) =>
-              i.Type === "OnHoldFromClient" || i.Type === "WithDraw" ? i : ""
+              i.Type === "OnHoldFromClient" ||
+              i.Type === "WithDraw" 
+              // ||
+              // i.Type === "InProgress"
+                ? i
+                : ""
             ).filter((i: any) => i !== "")
           );
         } else {
