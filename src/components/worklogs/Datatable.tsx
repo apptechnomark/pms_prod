@@ -97,12 +97,6 @@ const initialFilter = {
   ReviewStatus: null,
 };
 
-let userID: string | null = "-1";
-
-if (typeof window !== "undefined") {
-  userID = localStorage.getItem("UserId");
-}
-
 const Datatable = ({
   isOnBreak,
   onGetBreakData,
@@ -2089,7 +2083,7 @@ const Datatable = ({
                 </span>
               </ColorToolTip>
               {tableMeta.rowData[tableMeta.rowData.length - 4].toString() ===
-                userID &&
+                localStorage.getItem("UserId") &&
                 tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
                 (workItemData[tableMeta.rowIndex].IsManual === false ||
                   !workItemData[tableMeta.rowIndex].IsManual ||

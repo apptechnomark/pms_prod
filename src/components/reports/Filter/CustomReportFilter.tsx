@@ -22,17 +22,9 @@ import { Transition } from "./Transition/Transition";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-
-// filter type
 import { FilterType } from "./types/ReportsFilterType";
-
-// filter type enum
 import { client, customReport } from "../Enum/Filtertype";
-
-//filter body for client
 import { customreport_InitialFilter } from "@/utils/reports/getFilters";
-
-// dropdown api
 import { getUserData } from "./api/getDropDownData";
 import {
   getClientDropdownData,
@@ -41,10 +33,9 @@ import {
   getStatusDropdownData,
   getSubProcessDropdownData,
 } from "@/utils/commonDropdownApiCall";
-
-//icons
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
+import { getFormattedDate } from "@/utils/timerFunctions";
 
 const SIGNED_OFF = "signedoff";
 const ACCEPTED = "accept";
@@ -86,21 +77,6 @@ const getYears = () => {
   }
 
   return Years;
-};
-
-const getFormattedDate = (newValue: any) => {
-  if (newValue !== "") {
-    const year = newValue.$y;
-    const month =
-      (newValue.$M + 1).toString().length > 1
-        ? newValue.$M + 1
-        : `0${newValue.$M + 1}`;
-    const date =
-      newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`;
-    const formattedDate = year + "-" + month + "-" + date;
-
-    return formattedDate;
-  }
 };
 
 const CustomReportFilter = ({

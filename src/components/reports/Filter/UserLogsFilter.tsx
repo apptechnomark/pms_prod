@@ -40,6 +40,7 @@ import { getDeptData, getUserData } from "./api/getDropDownData";
 //icons
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
+import { getFormattedDate } from "@/utils/timerFunctions";
 
 const isLoggedIn = 2;
 const isLoggedOut = 3;
@@ -93,21 +94,6 @@ const UserLogsFilter = ({
     setIsloggedIn(0);
     setDateFilter("");
     setError("");
-  };
-
-  const getFormattedDate = (newValue: any) => {
-    if (newValue !== "") {
-      const year = newValue.$y;
-      const month =
-        (newValue.$M + 1).toString().length > 1
-          ? newValue.$M + 1
-          : `0${newValue.$M + 1}`;
-      const date =
-        newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`;
-      const formattedDate = year + "-" + month + "-" + date;
-
-      return formattedDate;
-    }
   };
 
   const getLoggedInFilterValue = () => {

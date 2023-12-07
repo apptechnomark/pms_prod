@@ -21,30 +21,19 @@ import {
 import { Transition } from "./Transition/Transition";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-
-//custom component
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
-
-// filter type
 import { FilterType } from "./types/ReportsFilterType";
-
-// filter type enum
 import { project } from "../Enum/Filtertype";
-
-//filter body for project
 import { client_project_InitialFilter } from "@/utils/reports/getFilters";
-
-// dropdown api
 import {
   getBillingTypeData,
   getClientData,
   getProjectData,
   getWorkTypeData,
 } from "./api/getDropDownData";
-
-//icons
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Edit, Delete } from "@mui/icons-material";
+import { getFormattedDate } from "@/utils/timerFunctions";
 
 const project_InitialFilter = {
   ...client_project_InitialFilter,
@@ -83,21 +72,6 @@ const ProjectFilter = ({
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
-
-  const getFormattedDate = (newValue: any) => {
-    if (newValue !== "") {
-      const year = newValue.$y;
-      const month =
-        (newValue.$M + 1).toString().length > 1
-          ? newValue.$M + 1
-          : `0${newValue.$M + 1}`;
-      const date =
-        newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`;
-      const formattedDate = year + "-" + month + "-" + date;
-
-      return formattedDate;
-    }
-  };
 
   const handleResetAll = () => {
     setClientName([]);

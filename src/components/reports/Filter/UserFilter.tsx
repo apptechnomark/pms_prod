@@ -21,24 +21,12 @@ import {
 import { Transition } from "./Transition/Transition";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-
-//custom component
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
-
-// filter type
 import { FilterType } from "./types/ReportsFilterType";
-
-// filter type enum
 import { user } from "../Enum/Filtertype";
-
-//filter body for user
 import { user_InitialFilter } from "@/utils/reports/getFilters";
-import { getDates } from "@/utils/timerFunctions";
-
-//dropdown api
+import { getDates, getFormattedDate } from "@/utils/timerFunctions";
 import { getDeptData, getUserData } from "./api/getDropDownData";
-
-//icons
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
 
@@ -67,21 +55,6 @@ const UserFilter = ({
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
-
-  const getFormattedDate = (newValue: any) => {
-    if (newValue !== "") {
-      const year = newValue.$y;
-      const month =
-        (newValue.$M + 1).toString().length > 1
-          ? newValue.$M + 1
-          : `0${newValue.$M + 1}`;
-      const date =
-        newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`;
-      const formattedDate = year + "-" + month + "-" + date;
-
-      return formattedDate;
-    }
-  };
 
   const handleResetAll = () => {
     setUserNames([]);

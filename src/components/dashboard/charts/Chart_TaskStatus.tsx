@@ -65,7 +65,7 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
   const chartOptions: Highcharts.Options = {
     chart: {
       type: "bar",
-      height: 380,
+      height: 600,
       spacingTop: 0,
     },
     title: {

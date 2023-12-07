@@ -26,7 +26,6 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Mention, MentionsInput } from "react-mentions";
-import mentionsInputStyle from "../../utils/worklog/mentionsInputStyle";
 import { toast } from "react-toastify";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import {
@@ -42,6 +41,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import mentionsInputStyle from "@/utils/worklog/mentionsInputStyle";
 
 const Drawer = ({
   onOpen,

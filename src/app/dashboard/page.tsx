@@ -546,7 +546,7 @@ const Page = () => {
           </section>
 
           <section className="px-[20px] py-[10px]">
-            <Card className="w-full h-[460px] border border-lightSilver rounded-lg">
+            <Card className="w-full border border-lightSilver rounded-lg">
               <Chart_TaskStatus
                 sendData={handleValueFromTaskStatus}
                 onSelectedProjectIds={currentProjectId}

@@ -640,7 +640,6 @@ const EditDrawer = ({
   };
 
   const scrollToPanel = (index: number) => {
-    console.log(index);
     const panel = document.getElementById(`tabpanel-${index}`);
     if (panel) {
       panel.scrollIntoView({ behavior: "smooth", block: "start" });

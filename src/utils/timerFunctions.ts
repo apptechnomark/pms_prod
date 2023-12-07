@@ -56,18 +56,13 @@ const getDates = (startDate?: any, endDate?: any) => {
 
 const getFormattedDate = (newValue: any) => {
   if (
-    newValue !== "" &&
-    newValue.$y !== undefined &&
-    newValue.$M !== undefined &&
-    newValue.$D !== undefined
+    newValue !== ""
   ) {
-    const year = newValue.$y;
-    const month =
-      (newValue.$M + 1).toString().length > 1
-        ? newValue.$M + 1
-        : `0${newValue.$M + 1}`;
-    const date =
-      newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`;
+    const dateObject = new Date(newValue);
+    const year = dateObject.getFullYear();
+    const month = dateObject.getMonth() + 1;
+    const day = dateObject.getDate();
+    const date = day.toString().length > 1 ? day : `0${day}`;
     const formattedDate = year + "-" + month + "-" + date;
 
     return formattedDate;

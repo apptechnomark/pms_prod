@@ -23,29 +23,18 @@ import {
 import { Transition } from "./Transition/Transition";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-
-//custom component
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
-
-// filter type
 import { FilterType } from "./types/ReportsFilterType";
-
-// filter type enum
 import { billingReport } from "../Enum/Filtertype";
-
-//filter body for client
 import { billingreport_InitialFilter } from "@/utils/reports/getFilters";
-
-// dropdown api
 import {
   getClientData,
   getProjectData,
   getUserData,
 } from "./api/getDropDownData";
-
-//icons
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
+import { getFormattedDate } from "@/utils/timerFunctions";
 
 const BillingReportFilter = ({
   isFiltering,
@@ -89,28 +78,6 @@ const BillingReportFilter = ({
     } else {
       return;
     }
-  };
-
-  const getFormattedDate = (newValue: any) => {
-    if (
-      newValue &&
-      newValue.$y !== undefined &&
-      newValue.$M !== undefined &&
-      newValue.$D !== undefined
-    ) {
-      const year = newValue.$y;
-      const month =
-        (newValue.$M + 1).toString().length > 1
-          ? newValue.$M + 1
-          : `0${newValue.$M + 1}`;
-      const date =
-        newValue.$D.toString().length > 1 ? newValue.$D : `0${newValue.$D}`;
-      const formattedDate = year + "-" + month + "-" + date;
-
-      return formattedDate;
-    }
-
-    return null;
   };
 
   const handleIsBTCChange = (e: any) => {
