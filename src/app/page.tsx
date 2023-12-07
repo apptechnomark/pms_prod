@@ -1,12 +1,12 @@
 "use client";
 
 import { handleLogoutUtil, hasPermissionWorklog } from "@/utils/commonFunction";
+import CustomToastContainer from "@/utils/style/CustomToastContainer";
 import { CircularProgress } from "@mui/material";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 const Home = () => {
   const router = useRouter();
@@ -144,18 +144,7 @@ const Home = () => {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <CircularProgress />
-      <ToastContainer
-        position="top-center"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+      <CustomToastContainer />
     </div>
   );
 };

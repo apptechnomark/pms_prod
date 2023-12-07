@@ -15,13 +15,8 @@ import { options } from "@/utils/datatable/TableOptions";
 import { userLogs_InitialFilter } from "@/utils/reports/getFilters";
 
 // common functions for datatable
-import {
-  generateCustomHeaderName,
-  generateCommonBodyRender,
-  generateInitialTimer,
-  generateDateWithTime,
-} from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { reportsUserLogsCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 
 const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
@@ -108,116 +103,11 @@ const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
     }
   }, [filteredData, searchValue]);
 
-  const generateIsLoggedInBodyRender = (bodyValue: any) => {
-    return bodyValue === 0 ? <div>No</div> : bodyValue === 1 && <div>Yes</div>;
-  };
-
-  const columns: any[] = [
-    {
-      name: "UserName",
-      options: {
-        sort: true,
-        filter: true,
-        customHeadLabelRender: () => generateCustomHeaderName("User Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ReportingManager",
-      options: {
-        sort: true,
-        filter: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Reporting To"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "DepartmentName",
-      options: {
-        sort: true,
-        filter: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Department"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "LoginTime",
-      options: {
-        sort: true,
-        filter: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Login"),
-        customBodyRender: (value: any) => {
-          return generateDateWithTime(value);
-        },
-      },
-    },
-    {
-      name: "LogoutTime",
-      options: {
-        sort: true,
-        filter: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Logout"),
-        customBodyRender: (value: any) => {
-          return generateDateWithTime(value);
-        },
-      },
-    },
-    {
-      name: "TotalIdleTime",
-      options: {
-        sort: true,
-        filter: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Idle Time"),
-        customBodyRender: (value: any) => {
-          return generateInitialTimer(value);
-        },
-      },
-    },
-    {
-      name: "TotalBreakTime",
-      options: {
-        sort: true,
-        filter: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Break Time"),
-        customBodyRender: (value: any) => {
-          return generateInitialTimer(value);
-        },
-      },
-    },
-    {
-      name: "TotalProductiveTime",
-      options: {
-        sort: true,
-        filter: true,
-        customHeadLabelRender: () =>
-          generateCustomHeaderName("Productive Time"),
-        customBodyRender: (value: any) => {
-          return generateInitialTimer(value);
-        },
-      },
-    },
-    {
-      name: "IsLoggedIn",
-      options: {
-        sort: true,
-        filter: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Is Logged In"),
-        customBodyRender: (value: any) => generateIsLoggedInBodyRender(value),
-      },
-    },
-  ];
-
   return loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title={undefined}
-        columns={columns}
+        columns={reportsUserLogsCols}
         data={userlogsData}
         options={options}
       />

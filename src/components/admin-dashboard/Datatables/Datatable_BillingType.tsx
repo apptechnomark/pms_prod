@@ -5,14 +5,12 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
 import {
-  generateCustomHeaderName,
-  generateCommonBodyRender,
-  generateBillingStatusBodyRender,
   handleChangePage,
   handleChangeRowsPerPage,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
+import { adminDashboardBillingTypeCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 
 interface BillingTypeProps {
   onSelectedWorkType: number;
@@ -99,83 +97,12 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
     rowsPerPage,
   ]);
 
-  // Table Columns
-  const columns = [
-    {
-      name: "ClientName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "TypeOfWorkName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "BillingTypeName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Billing Type"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "Status",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Status"),
-        customBodyRender: (value: any) => {
-          return generateBillingStatusBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ContractedHours",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () =>
-          generateCustomHeaderName("Contracted Hours"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "InternalHours",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Internal Hours"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-  ];
-
   return (
     <div>
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={columns}
+          columns={adminDashboardBillingTypeCols}
           title={undefined}
           options={dashboard_Options}
           data-tableid="taskStatusInfo_Datatable"

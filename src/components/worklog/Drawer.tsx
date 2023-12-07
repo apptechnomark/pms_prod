@@ -27,7 +27,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Mention, MentionsInput } from "react-mentions";
 import { toast } from "react-toastify";
-import { hasPermissionWorklog } from "@/utils/commonFunction";
+import { hasPermissionWorklog, isWeekend } from "@/utils/commonFunction";
 import {
   getCCDropdownData,
   getProcessDropdownData,
@@ -48,7 +48,6 @@ const Drawer = ({
   onClose,
   onEdit,
   onDataFetch,
-  onHasId,
   onComment,
   onErrorLog,
   errorLog,
@@ -56,7 +55,6 @@ const Drawer = ({
 }: any) => {
   const router = useRouter();
   const [userId, setUserId] = useState(0);
-  const [activeTab, setActiveTab] = useState(0);
   const [isCreatedByClient, setIsCreatedByClient] = useState(true);
   const [fieldsData, setFieldsData] = useState([]);
   const [editData, setEditData] = useState<any>([]);
@@ -77,7 +75,6 @@ const Drawer = ({
   }
 
   const handleTabClick = (index: number) => {
-    setActiveTab(index);
     scrollToPanel(index);
   };
 
@@ -1255,7 +1252,6 @@ const Drawer = ({
     setEditData([]);
     setIsCreatedByClient(true);
     setUserId(0);
-    setActiveTab(0);
     setTaskDrawer(true);
     setTypeOfWork(0);
     setProjectName(0);
@@ -1333,11 +1329,6 @@ const Drawer = ({
 
     onDataFetch();
     onClose();
-  };
-
-  const isWeekend = (date: any) => {
-    const day = date.day();
-    return day === 6 || day === 0;
   };
 
   return (
@@ -1708,14 +1699,7 @@ const Drawer = ({
                           >
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                               <DatePicker
-                                label={
-                                  <span>
-                                    Due Date
-                                    <span className="!text-defaultRed">
-                                      &nbsp;*
-                                    </span>
-                                  </span>
-                                }
+                                label="Due Date"
                                 value={dueDate === "" ? null : dayjs(dueDate)}
                                 disabled
                                 onChange={(newDate: any) => {

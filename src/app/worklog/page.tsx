@@ -10,7 +10,7 @@ import Datatable_CompletedTask from "@/components/worklog/Datatable_CompletedTas
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import { Button, TextField } from "@mui/material";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import FilterDialog from "@/components/worklog/filterDialog";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import ImportIcon from "@/assets/icons/ImportIcon";
@@ -19,6 +19,7 @@ import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
 import ImportDialog from "@/components/worklog/worklog_Import/ImportDialog";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import CustomToastContainer from "@/utils/style/CustomToastContainer";
 
 const Worklog = () => {
   const router = useRouter();
@@ -425,18 +426,7 @@ const Worklog = () => {
         onClose={() => setIsImportOpen(false)}
       />
 
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+      <CustomToastContainer />
     </Wrapper>
   );
 };

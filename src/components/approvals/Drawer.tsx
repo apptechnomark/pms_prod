@@ -11,7 +11,6 @@ import SendIcon from "../../assets/icons/worklogs/SendIcon";
 import AddIcon from "../../assets/icons/worklogs/AddIcon";
 import RemoveIcon from "../../assets/icons/worklogs/RemoveIcon";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import {
   Autocomplete,
   Avatar,
@@ -39,7 +38,7 @@ import { useRouter } from "next/navigation";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import { hasPermissionWorklog } from "@/utils/commonFunction";
+import { hasPermissionWorklog, isWeekend } from "@/utils/commonFunction";
 import ImageUploader from "../common/ImageUploader";
 import { Mention, MentionsInput } from "react-mentions";
 import mentionsInputStyle from "../../utils/worklog/mentionsInputStyle";
@@ -2714,15 +2713,6 @@ const EditDrawer = ({
         typeOfWork
       );
       assigneeData.length > 0 && setAssigneeDropdownData(assigneeData);
-      const UserId: any = localStorage.getItem("UserId");
-      assigneeData.length > 0 &&
-        setAssignee(
-          assigneeData
-            .map((i: any) =>
-              i.value === parseInt(UserId) ? i.value : undefined
-            )
-            .filter((i: any) => i !== undefined)[0]
-        );
       setReviewerDropdownData(
         await getReviewerDropdownData(clientName, typeOfWork)
       );
@@ -2934,11 +2924,6 @@ const EditDrawer = ({
       }
     }
     onClose();
-  };
-
-  const isWeekend = (date: any) => {
-    const day = date.day();
-    return day === 6 || day === 0;
   };
 
   return (

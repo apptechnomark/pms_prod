@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import { isWeekend } from "@/utils/commonFunction";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -613,11 +614,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     endDate,
     ReviewStatus,
   ]);
-
-  const isWeekend = (date: any) => {
-    const day = date.day();
-    return day === 6 || day === 0;
-  };
 
   return (
     <div>

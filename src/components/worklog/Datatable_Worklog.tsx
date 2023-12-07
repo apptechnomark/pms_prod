@@ -16,20 +16,15 @@ import ContentCopy from "@/assets/icons/worklogs/ContentCopy";
 import Comments from "@/assets/icons/worklogs/Comments";
 import EditIcon from "@/assets/icons/worklogs/EditIcon";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import {
-  generateCustomHeaderName,
-  generateCommonBodyRender,
-  generateCustomFormatDate,
-  generatePriorityWithColor,
-  generateStatusWithColor,
   handlePageChangeWithFilter,
   handleChangeRowsPerPageWithFilter,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import { datatableWorklogCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 
 const priorityOptions = [
   { id: 3, text: "Low" },
@@ -619,124 +614,12 @@ const Datatable_Worklog = ({
     getAllStatus();
   }, []);
 
-  // Table Columns
-  const columns = [
-    {
-      name: "WorkitemId",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ProjectName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Project"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "TaskName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Task"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "AssignedToName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "PriorityName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-        customBodyRender: (value: any) => generatePriorityWithColor(value),
-      },
-    },
-    {
-      name: "StatusName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Status"),
-        customBodyRender: (value: any, tableMeta: any) =>
-          generateStatusWithColor(value, tableMeta.rowData[9]),
-      },
-    },
-    {
-      name: "Quantity",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
-      },
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-    {
-      name: "StartDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
-    },
-    {
-      name: "EndDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
-    },
-    {
-      name: "StatusColorCode",
-      options: {
-        display: false,
-      },
-    },
-    {
-      name: "IsCreatedByClient",
-      options: {
-        display: false,
-      },
-    },
-  ];
-
   return loaded ? (
     <div>
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={workItemData}
-          columns={columns}
+          columns={datatableWorklogCols}
           title={undefined}
           options={{
             ...worklogs_Options,

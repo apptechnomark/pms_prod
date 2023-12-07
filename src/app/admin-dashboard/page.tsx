@@ -16,8 +16,7 @@ import {
   TextField,
   ThemeProvider,
 } from "@mui/material";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 // Internal components
 import { hasPermissionWorklog } from "@/utils/commonFunction";
@@ -48,16 +47,16 @@ import MUIDataTable from "mui-datatables";
 import TablePagination from "@mui/material/TablePagination";
 import { getClientDropdownData } from "@/utils/commonDropdownApiCall";
 import {
-  generateCustomHeaderName,
-  generateDashboardReportBodyRender,
   handleChangeRowsPerPageWithFilter,
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
+import { adminDashboardReportCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import { dashboardReport_Options } from "@/utils/datatable/TableOptions";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import CustomToastContainer from "@/utils/style/CustomToastContainer";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -300,181 +299,6 @@ const Page = () => {
       toast.error("Login failed. Please try again.");
     }
   };
-
-  // Report Table Columns
-  const columns: any = [
-    {
-      name: "ClientName",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
-        customBodyRender: (value: any) => {
-          return generateDashboardReportBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "Accept",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Accept"),
-        customBodyRender: (value: any) => {
-          return generateDashboardReportBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "AcceptWithNotes",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () =>
-          generateCustomHeaderName("Accept With Notes"),
-        customBodyRender: (value: any) => {
-          return generateDashboardReportBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "Errorlogs",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Errorlogs"),
-        customBodyRender: (value: any) => {
-          return generateDashboardReportBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "InProgress",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("In Progress"),
-        customBodyRender: (value: any) => {
-          return generateDashboardReportBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "InReview",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("In Review"),
-        customBodyRender: (value: any) => {
-          return generateDashboardReportBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "NotStarted",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Not Started"),
-        customBodyRender: (value: any) => {
-          return generateDashboardReportBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "OnHoldFromClient",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () =>
-          generateCustomHeaderName("On Hold From Client"),
-        customBodyRender: (value: any) => {
-          return generateDashboardReportBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "PartialSubmitted",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () =>
-          generateCustomHeaderName("Partial Submitted"),
-        customBodyRender: (value: any) => {
-          return generateDashboardReportBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "Rework",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Rework"),
-        customBodyRender: (value: any) => {
-          return generateDashboardReportBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "SignedOff",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Signed Off"),
-        customBodyRender: (value: any) => {
-          return generateDashboardReportBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "Stop",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Stop"),
-        customBodyRender: (value: any) => {
-          return generateDashboardReportBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "WithDraw",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("WithDraw"),
-        customBodyRender: (value: any) => {
-          return generateDashboardReportBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "Total",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Total"),
-        customBodyRender: (value: any) => {
-          return generateDashboardReportBodyRender(value);
-        },
-      },
-    },
-  ];
 
   return (
     <Wrapper className="min-h-screen overflow-y-auto">
@@ -758,7 +582,7 @@ const Page = () => {
           <ThemeProvider theme={getMuiTheme()}>
             <MUIDataTable
               data={reportData}
-              columns={columns}
+              columns={adminDashboardReportCols}
               title={undefined}
               options={dashboardReport_Options}
               data-tableid="Datatable"
@@ -788,18 +612,7 @@ const Page = () => {
           </ThemeProvider>
         )}
 
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
+        <CustomToastContainer />
       </div>
     </Wrapper>
   );

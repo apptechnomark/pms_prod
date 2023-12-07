@@ -18,8 +18,7 @@ import {
   Popover,
   Select,
 } from "@mui/material";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 // Icons
 import TotalTaskCreated from "@/assets/icons/dashboard_Client/TotalTaskCreated";
@@ -48,6 +47,7 @@ import { useRouter } from "next/navigation";
 import Dialog_OverallProjectSummary from "@/components/dashboard/dialog/Dialog_OverallProjectSummary";
 import Dialog_SummaryList from "@/components/dashboard/dialog/Dialog_SummaryList";
 import Dialog_ReturnTypeData from "@/components/dashboard/dialog/Dialog_ReturnTypeData";
+import CustomToastContainer from "@/utils/style/CustomToastContainer";
 
 const Page = () => {
   const router = useRouter();
@@ -690,18 +690,7 @@ const Page = () => {
           }
         />
 
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
+        <CustomToastContainer />
       </div>
     </Wrapper>
   );

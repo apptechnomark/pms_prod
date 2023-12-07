@@ -12,7 +12,7 @@ import FilterIcon from "@/assets/icons/FilterIcon";
 // Material Import
 import { InputBase } from "@mui/material";
 import Drawer from "@/components/approvals/Drawer";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import FilterDialog_Approval from "@/components/approvals/FilterDialog_Approval";
@@ -21,6 +21,7 @@ import Loading from "@/assets/icons/reports/Loading";
 import axios from "axios";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import CustomToastContainer from "@/utils/style/CustomToastContainer";
 
 const exportBody = {
   pageNo: 1,
@@ -241,18 +242,7 @@ const Page = () => {
           currentFilterData={getIdFromFilterDialog}
         />
 
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
+        <CustomToastContainer />
       </div>
     </Wrapper>
   );

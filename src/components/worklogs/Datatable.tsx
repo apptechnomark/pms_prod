@@ -19,7 +19,6 @@ import {
 } from "@mui/material";
 import TablePagination from "@mui/material/TablePagination";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 // icons imports
 import PlayButton from "@/assets/icons/worklogs/PlayButton";
 import PlayPause from "@/assets/icons/worklogs/PlayPause";
@@ -46,7 +45,7 @@ import ManagerIcon from "@/assets/icons/worklogs/ManagerIcon";
 import DateIcon from "@/assets/icons/worklogs/DateIcon";
 // Internal Component imports
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
-import { hasPermissionWorklog } from "@/utils/commonFunction";
+import { hasPermissionWorklog, isWeekend } from "@/utils/commonFunction";
 import { toHoursAndMinutes, toSeconds } from "@/utils/timerFunctions";
 import {
   generateCustomHeaderName,
@@ -2372,11 +2371,6 @@ const Datatable = ({
   const runningTimerData: any = workItemData.filter(
     (data: any) => data.WorkitemId === isRunning
   );
-
-  const isWeekend = (date: any) => {
-    const day = date.day();
-    return day === 6 || day === 0;
-  };
 
   return (
     <div>

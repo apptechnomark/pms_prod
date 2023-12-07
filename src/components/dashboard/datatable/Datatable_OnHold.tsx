@@ -5,14 +5,11 @@ import { ThemeProvider } from "@mui/material/styles";
 import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
 import {
-  generateCustomHeaderName,
-  generateCommonBodyRender,
-  generateCustomFormatDate,
-  generateDaysBodyRender,
   handleChangePage,
   handleChangeRowsPerPage,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { dashboardOnHoldCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 
 interface OnHoldProps {
   onSelectedProjectIds: number[];
@@ -132,71 +129,12 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
     getData();
   }, [onSelectedProjectIds, onSelectedWorkType, page, rowsPerPage]);
 
-  // Table Columns
-  const columns = [
-    {
-      name: "ProjectName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "TaskName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "StartDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
-    },
-    {
-      name: "DueDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
-    },
-    {
-      name: "DueFrom",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Due From"),
-        customBodyRender: (value: any) => {
-          return generateDaysBodyRender(value);
-        },
-      },
-    },
-  ];
-
   return (
     <div>
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={columns}
+          columns={dashboardOnHoldCols}
           title={undefined}
           options={options}
           data-tableid="dashboard_OnHold_Datatable"

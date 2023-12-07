@@ -20,6 +20,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { isWeekend } from "@/utils/commonFunction";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -367,11 +368,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   useEffect(() => {
     onOpen && getProjectData();
   }, [onOpen]);
-
-  const isWeekend = (date: any) => {
-    const day = date.day();
-    return day === 6 || day === 0;
-  };
 
   return (
     <div>

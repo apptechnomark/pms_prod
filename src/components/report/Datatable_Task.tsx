@@ -3,16 +3,10 @@ import { CircularProgress } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import React, { useEffect, useState } from "react";
 import TablePagination from "@mui/material/TablePagination";
-import {
-  generateCustomHeaderName,
-  generateCommonBodyRender,
-  generateCustomFormatDate,
-  generatePriorityWithColor,
-  generateStatusWithColor,
-} from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { callAPI } from "@/utils/API/callAPI";
 import { report_Options } from "@/utils/datatable/TableOptions";
+import { reportDatatableTaskCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -113,152 +107,11 @@ const Datatable_Task = ({
     getTaskList();
   }, [filteredObject]);
 
-  // Table Columns
-  const columns = [
-    {
-      name: "WorkItemId",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ProjectName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Project"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "TaskName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Task"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ProcessName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Process"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "Type",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Type"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "Priority",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-        customBodyRender: (value: any) => generatePriorityWithColor(value),
-      },
-    },
-    {
-      name: "Status",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Status"),
-        customBodyRender: (value: any, tableMeta: any) =>
-          generateStatusWithColor(value, tableMeta.rowData[11]),
-      },
-    },
-    {
-      name: "AssignedTo",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    // {
-    //   name: "",
-    //   options: {
-    //     filter: true,
-    //     sort: true,
-    //     customHeadLabelRender: () => (
-    //       <span className="font-bold">MONTH CLOSE</span>
-    //     ),
-    // customBodyRender: (value: any) => {
-    //   return <div>{value === null || value === "" ? "-" : value}</div>;
-    // },
-    //   },
-    // },
-    {
-      name: "HoursLogged",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Hours Logged"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "StartDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
-    },
-    {
-      name: "DueDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
-    },
-    {
-      name: "ColorCode",
-      options: {
-        display: false,
-      },
-    },
-  ];
-
   return allFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         data={allFields.taskData}
-        columns={columns}
+        columns={reportDatatableTaskCols}
         title={undefined}
         options={{
           ...report_Options,

@@ -6,7 +6,6 @@ import Popover from "@mui/material/Popover";
 import { Avatar, Card, CircularProgress, InputBase, List } from "@mui/material";
 import TablePagination from "@mui/material/TablePagination";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 // icons imports
 import Assignee from "@/assets/icons/worklogs/Assignee";
 import Minus from "@/assets/icons/worklogs/Minus";
@@ -20,7 +19,7 @@ import RecurringIcon from "@/assets/icons/worklogs/RecurringIcon";
 
 // Internal Component imports
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
-import { hasPermissionWorklog } from "@/utils/commonFunction";
+import { hasPermissionWorklog, isWeekend } from "@/utils/commonFunction";
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,
@@ -1618,11 +1617,6 @@ const UnassigneeDatatable = ({
       },
     },
   ];
-
-  const isWeekend = (date: any) => {
-    const day = date.day();
-    return day === 6 || day === 0;
-  };
 
   return (
     <div>

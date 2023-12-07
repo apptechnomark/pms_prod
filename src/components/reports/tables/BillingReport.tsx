@@ -27,6 +27,7 @@ import {
   generateDateWithTime,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { callAPI } from "@/utils/API/callAPI";
 
 const BTCField = ({
   billingReportData,
@@ -99,56 +100,42 @@ const BillingReport = ({
   searchValue,
   onHandleExport,
 }: any) => {
-  const [loaded, setLoaded] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(0);
+  const [billingReportFields, setBillingReportFields] = useState({
+    loaded: false,
+    page: 0,
+    rowsPerPage: 10,
+    dataCount: 0,
+  });
+
   const [btcData, setBTCData] = useState<any>([]);
   const [raisedInvoice, setRaisedInvoice] = useState<any>([]);
   const [finalBTCData, setFinalBTCData] = useState<any>([]);
   const [isBTCSaved, setBTCSaved] = useState<boolean>(false);
 
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [tableDataCount, setTableDataCount] = useState<number>(0);
-
   const [billingReportData, setBiliingReportData] = useState<any>([]);
 
   const getData = async (arg1: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
+    const url = `${process.env.report_api_url}/report/billing`;
 
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/billing`,
-        { ...arg1 },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (
-        response.status === 200 &&
-        response.data.ResponseStatus === "Success"
-      ) {
-        onHandleExport(
-          response.data.ResponseData.List.length > 0 ? true : false
-        );
-        setLoaded(true);
-        setBiliingReportData(response.data.ResponseData.List);
-        setTableDataCount(response.data.ResponseData.TotalCount);
+    const successCallback = (ResponseData: any, error: any) => {
+      if (ResponseData !== null && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
+        setBiliingReportData(ResponseData.List);
+
+        setBillingReportFields({
+          ...billingReportFields,
+          loaded: true,
+          dataCount: ResponseData.TotalCount,
+        });
       } else {
-        setLoaded(true);
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+        setBillingReportFields({
+          ...billingReportFields,
+          loaded: false,
+        });
       }
-    } catch (error) {
-      setLoaded(true);
-      console.error(error);
-    }
+    };
+
+    callAPI(url, arg1, successCallback, "post");
   };
 
   const saveBTCData = async (arg1: any) => {
@@ -204,15 +191,22 @@ const BillingReport = ({
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setPage(newPage);
-    getData({ ...filteredData, pageNo: newPage + 1, pageSize: rowsPerPage });
+    setBillingReportFields({ ...billingReportFields, page: newPage });
+    getData({
+      ...filteredData,
+      pageNo: newPage + 1,
+      pageSize: billingReportFields.rowsPerPage,
+    });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
+    setBillingReportFields({
+      ...billingReportFields,
+      page: 0,
+      rowsPerPage: parseInt(event.target.value),
+    });
     getData({
       ...filteredData,
       pageNo: 1,
@@ -287,8 +281,11 @@ const BillingReport = ({
   useEffect(() => {
     if (filteredData !== null) {
       getData({ ...filteredData, globalSearch: searchValue });
-      setPage(0);
-      setRowsPerPage(10);
+      setBillingReportFields({
+        ...billingReportFields,
+        page: 0,
+        rowsPerPage: 10,
+      });
     } else {
       getData({ ...billingreport_InitialFilter, globalSearch: searchValue });
     }
@@ -544,7 +541,7 @@ const BillingReport = ({
     },
   ];
 
-  return loaded ? (
+  return billingReportFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={columns}
@@ -577,10 +574,10 @@ const BillingReport = ({
       />
       <TablePagination
         component="div"
-        count={tableDataCount}
-        page={page}
+        count={billingReportFields.dataCount}
+        page={billingReportFields.page}
         onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
+        rowsPerPage={billingReportFields.rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>

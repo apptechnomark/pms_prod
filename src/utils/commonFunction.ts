@@ -94,4 +94,38 @@ const hasPermissionWorklog = (
   }
 };
 
-export { hasToken, hasNoToken, handleLogoutUtil, hasPermissionWorklog };
+const getYears = () => {
+  const currentYear = new Date().getFullYear();
+  const Years = [];
+
+  for (let year = 2010; year <= currentYear; year++) {
+    Years.push({ label: String(year), value: year });
+  }
+
+  return Years;
+};
+
+const extractText = (inputString: any) => {
+  const regex = /@\[([^\]]+)\]\([^)]+\)|\[([^\]]+)\]|[^@\[\]]+/g;
+  const matches = [];
+  let match;
+  while ((match = regex.exec(inputString)) !== null) {
+    matches.push(match[1] || match[2] || match[0]);
+  }
+  return matches;
+};
+
+const isWeekend = (date: any) => {
+  const day = date.day();
+  return day === 6 || day === 0;
+};
+
+export {
+  hasToken,
+  hasNoToken,
+  handleLogoutUtil,
+  hasPermissionWorklog,
+  getYears,
+  extractText,
+  isWeekend,
+};

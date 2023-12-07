@@ -11,7 +11,6 @@ import SendIcon from "../../assets/icons/worklogs/SendIcon";
 import AddIcon from "../../assets/icons/worklogs/AddIcon";
 import RemoveIcon from "../../assets/icons/worklogs/RemoveIcon";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import {
   Autocomplete,
   Avatar,
@@ -42,7 +41,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { MentionsInput, Mention } from "react-mentions";
 import mentionsInputStyle from "../../utils/worklog/mentionsInputStyle";
-import { hasPermissionWorklog } from "@/utils/commonFunction";
+import { hasPermissionWorklog, isWeekend } from "@/utils/commonFunction";
 import {
   days,
   getAssigneeDropdownData,
@@ -2997,11 +2996,6 @@ const EditDrawer = ({
         onClose();
       }
     }
-  };
-
-  const isWeekend = (date: any) => {
-    const day = date.day();
-    return day === 6 || day === 0;
   };
 
   return (

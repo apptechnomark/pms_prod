@@ -26,6 +26,7 @@ import {
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { isWeekend } from "@/utils/commonFunction";
 
 const User = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
@@ -123,11 +124,6 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
       getData({ ...user_InitialFilter, globalSearch: searchValue });
     }
   }, [filteredData, searchValue]);
-
-  const isWeekend = (date: any) => {
-    const day = dayjs(date).day();
-    return day === 6 || day === 0;
-  };
 
   const generateUserNameBodyRender = (bodyValue: any, TableMeta: any) => {
     return (

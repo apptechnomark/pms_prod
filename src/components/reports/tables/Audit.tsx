@@ -1,5 +1,4 @@
-import axios from "axios";
-import { toast } from "react-toastify";
+import { callAPI } from "@/utils/API/callAPI";
 import React, { useEffect, useState } from "react";
 import {
   CircularProgress,
@@ -8,85 +7,68 @@ import {
 } from "@mui/material";
 
 import MUIDataTable from "mui-datatables";
-//MUIDataTable Options
 import { options } from "@/utils/datatable/TableOptions";
-
-//filter for audit
 import { audit_InitialFilter } from "@/utils/reports/getFilters";
 
 // common functions for datatable
-import {
-  generateCustomHeaderName,
-  generateCommonBodyRender,
-  generateInitialTimer,
-  generateDateWithoutTime,
-  generateDateWithTime,
-} from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { reportsAuditCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 
 const Audit = ({ filteredData, searchValue, onHandleExport }: any) => {
-  const [loaded, setLoaded] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(0);
-  const [auditData, setAuditData] = useState<any>([]);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [tableDataCount, setTableDataCount] = useState<number>(0);
+  const [auditFields, setAuditFields] = useState({
+    loaded: false,
+    page: 0,
+    data: [],
+    rowsPerPage: 10,
+    dataCount: 0,
+  });
 
   const getData = async (arg1: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
+    const url = `${process.env.report_api_url}/report/audit`;
 
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/audit`,
-        { ...arg1 },
-        { headers: { Authorization: `bearer ${token}`, org_token: Org_Token } }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus.toLowerCase() === "success") {
-          onHandleExport(
-            response.data.ResponseData.List.length > 0 ? true : false
-          );
-          setLoaded(true);
-          setAuditData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          setLoaded(true);
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else toast.error(data);
-        }
+    const successCallback = (ResponseData: any, error: any) => {
+      if (ResponseData !== null && error === false) {
+        onHandleExport(ResponseData.List.length > 0);
+        setAuditFields({
+          ...auditFields,
+          loaded: true,
+          data: ResponseData.List,
+          dataCount: ResponseData.TotalCount,
+        });
       } else {
-        setLoaded(true);
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else toast.error(data);
+        setAuditFields({
+          ...auditFields,
+          loaded: false,
+        });
       }
-    } catch (error) {
-      setLoaded(true);
-      console.error(error);
-    }
+    };
+    callAPI(url, arg1, successCallback, "post");
   };
 
-  // functions for handling pagination
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setPage(newPage);
+    setAuditFields({
+      ...auditFields,
+      page: newPage,
+    });
     getData({
       ...audit_InitialFilter,
       pageNo: newPage + 1,
-      pageSize: rowsPerPage,
+      pageSize: auditFields.rowsPerPage,
     });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
+    setAuditFields({
+      ...auditFields,
+      page: 0,
+      rowsPerPage: parseInt(event.target.value),
+    });
+
     getData({
       ...audit_InitialFilter,
       pageNo: 1,
@@ -101,174 +83,30 @@ const Audit = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       getData({ ...filteredData, GlobalSearch: searchValue });
-      setPage(0);
-      setRowsPerPage(10);
+      setAuditFields({
+        ...auditFields,
+        page: 0,
+        rowsPerPage: 10,
+      });
     } else {
       getData({ ...audit_InitialFilter, GlobalSearch: searchValue });
     }
   }, [filteredData, searchValue]);
 
-  const columns: any[] = [
-    {
-      name: "UserName",
-      options: {
-        sort: true,
-        filter: true,
-        customHeadLabelRender: () => generateCustomHeaderName("User Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "DepartmentName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Department"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "TaskCreatedDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () =>
-          generateCustomHeaderName("Task Created Date"),
-        customBodyRender: (value: any) => {
-          return generateDateWithoutTime(value);
-        },
-      },
-    },
-    {
-      name: "LoginTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Login Time"),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return generateDateWithTime(value);
-        },
-      },
-    },
-    {
-      name: "LogoutTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Logout Time"),
-        customBodyRender: (value: any) => {
-          return generateDateWithTime(value);
-        },
-      },
-    },
-    {
-      name: "ClientName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Client"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ProjectName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Project"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ProcessName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Process"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "SubProcessName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "StandardTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
-      },
-      customBodyRender: (value: any) => {
-        return generateInitialTimer(value);
-      },
-    },
-    {
-      name: "TotalTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
-        customBodyRender: (value: any) => {
-          return generateInitialTimer(value);
-        },
-      },
-    },
-    {
-      name: "TotalBreakTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Break Time"),
-        customBodyRender: (value: any) => {
-          return generateInitialTimer(value);
-        },
-      },
-    },
-    {
-      name: "TotalIdleTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Idle Time"),
-        customBodyRender: (value: any) => {
-          return generateInitialTimer(value);
-        },
-      },
-    },
-  ];
-
-  return loaded ? (
+  return auditFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title={undefined}
-        columns={columns}
-        data={auditData}
+        columns={reportsAuditCols}
+        data={auditFields.data}
         options={options}
       />
       <TablePagination
         component="div"
-        count={tableDataCount}
-        page={page}
+        count={auditFields.dataCount}
+        page={auditFields.page}
         onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
+        rowsPerPage={auditFields.rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>

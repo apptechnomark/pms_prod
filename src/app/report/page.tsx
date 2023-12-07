@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import "next-ts-lib/dist/index.css";
 import Wrapper from "@/components/common/Wrapper";
 import Navbar from "@/components/common/Navbar";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { TextField } from "@mui/material";
 import FilterIcon from "@/assets/icons/FilterIcon";
 import Datatable_Rating from "@/components/report/Datatable_Rating";
@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import CustomToastContainer from "@/utils/style/CustomToastContainer";
 
 const task_InitialFilter = {
   pageNo: 1,
@@ -455,18 +456,7 @@ const Report = () => {
         />
       )}
 
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+      <CustomToastContainer />
     </Wrapper>
   );
 };

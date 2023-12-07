@@ -5,14 +5,11 @@ import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
 import TablePagination from "@mui/material/TablePagination";
 import {
-  generateCommonBodyRender,
-  generateCustomFormatDate,
-  generateCustomHeaderName,
-  generateDaysBodyRender,
   handleChangePage,
   handleChangeRowsPerPage,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { dashboardOverduCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 interface OverdueProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
@@ -133,84 +130,12 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
     getData();
   }, [onSelectedProjectIds, onSelectedWorkType, page, rowsPerPage]);
 
-  // Table Columns
-  const columns = [
-    {
-      name: "ProjectName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "TaskName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "CloseMonth",
-      options: {
-        filter: true,
-        sort: true,
-        display: false,
-        // display: onSelectedWorkType === 3 ? false : true,
-        customHeadLabelRender: () => generateCustomHeaderName("Month Close"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "StartDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
-    },
-    {
-      name: "DueDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
-    },
-    {
-      name: "DueFrom",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Due From"),
-        customBodyRender: (value: any) => {
-          return generateDaysBodyRender(value);
-        },
-      },
-    },
-  ];
-
   return (
     <div>
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={columns}
+          columns={dashboardOverduCols}
           title={undefined}
           options={options}
           data-tableid="dashboard_Overdue_Datatable"

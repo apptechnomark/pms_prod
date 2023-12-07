@@ -40,6 +40,7 @@ import { getClientData, getProjectData } from "./api/getDropDownData";
 //icons
 import { Edit, Delete } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
+import { isWeekend } from "@/utils/commonFunction";
 
 const RatingReportFilter = ({
   isFiltering,
@@ -381,11 +382,6 @@ const RatingReportFilter = ({
       onDialogClose(true);
     }
   }, [clientName]);
-
-  const isWeekend = (date: any) => {
-    const day = date.day();
-    return day === 6 || day === 0;
-  };
 
   return (
     <>

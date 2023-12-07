@@ -17,7 +17,6 @@ import {
 } from "@mui/material";
 import Popover from "@mui/material/Popover";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import TablePagination from "@mui/material/TablePagination";
 import axios, { AxiosResponse } from "axios";

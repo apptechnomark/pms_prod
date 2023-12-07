@@ -7,8 +7,7 @@ import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
 import { Button, InputBase } from "@mui/material";
 import React, { Fragment, useEffect, useRef, useState } from "react";
-import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import LineIcon from "@/assets/icons/reports/LineIcon";
 import MoreIcon from "@/assets/icons/reports/MoreIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
@@ -42,6 +41,7 @@ import RatingReport from "@/components/reports/tables/RatingReport";
 import RatingReportFilter from "@/components/reports/Filter/RatingReportFilter";
 import AuditFilter from "@/components/reports/Filter/AuditFilter";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import CustomToastContainer from "@/utils/style/CustomToastContainer";
 
 const primaryTabs = [
   { label: "project", value: 1 },
@@ -547,18 +547,7 @@ const Page = () => {
         />
       )}
 
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+      <CustomToastContainer />
     </Wrapper>
   );
 };

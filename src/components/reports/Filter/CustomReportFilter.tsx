@@ -36,6 +36,7 @@ import {
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
 import { getFormattedDate } from "@/utils/timerFunctions";
+import { getYears, isWeekend } from "@/utils/commonFunction";
 
 const SIGNED_OFF = "signedoff";
 const ACCEPTED = "accept";
@@ -67,17 +68,6 @@ const priorityDropdown = [
     value: 3,
   },
 ];
-
-const getYears = () => {
-  const currentYear = new Date().getFullYear();
-  const Years = [];
-
-  for (let year = 2010; year <= currentYear; year++) {
-    Years.push({ label: String(year), value: year });
-  }
-
-  return Years;
-};
 
 const CustomReportFilter = ({
   isFiltering,
@@ -538,11 +528,6 @@ const CustomReportFilter = ({
     } catch (error) {
       console.error(error);
     }
-  };
-
-  const isWeekend = (date: any) => {
-    const day = date.day();
-    return day === 6 || day === 0;
   };
 
   return (

@@ -164,6 +164,10 @@ export const generateRatingsBodyRender = (bodyValue: any) => {
   return <Rating name="read-only" value={bodyValue} readOnly />;
 };
 
+export const generateIsLoggedInBodyRender = (bodyValue: any) => {
+  return bodyValue === 0 ? <div>No</div> : bodyValue === 1 && <div>Yes</div>;
+};
+
 // functions for handling pagination
 export const handleChangePage = (
   event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,

@@ -14,7 +14,7 @@ import { Delete, Edit } from "@mui/icons-material";
 
 // Material Import
 import { Button, Popover, Tooltip, InputBase } from "@mui/material";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 // Internal components
 import DrawerOverlay from "@/components/settings/drawer/DrawerOverlay";
@@ -32,6 +32,7 @@ import ImportDialog from "@/components/worklogs/worklogs_Import/ImportDialog";
 import IdleTimer from "@/components/common/IdleTimer";
 import Loading from "@/assets/icons/reports/Loading";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import CustomToastContainer from "@/utils/style/CustomToastContainer";
 
 const exportBody = {
   PageNo: 1,
@@ -727,18 +728,7 @@ const Page = () => {
         }
       />
 
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+      <CustomToastContainer />
     </Wrapper>
   );
 };

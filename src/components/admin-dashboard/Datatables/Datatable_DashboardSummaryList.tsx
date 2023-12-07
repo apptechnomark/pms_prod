@@ -5,16 +5,12 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
 import {
-  generateCustomHeaderName,
-  generateCommonBodyRender,
-  generateCustomFormatDate,
-  generatePriorityWithColor,
-  generateStatusWithColor,
   handleChangePage,
   handleChangeRowsPerPage,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
+import { adminDashboardSummaryCols } from "@/utils/datatable/columns/AdminDatatableColumns";
 
 interface DashboardSummaryListProps {
   onSelectedWorkType: number;
@@ -94,143 +90,12 @@ const Datatable_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
     rowsPerPage,
   ]);
 
-  // Table Columns
-  const columns = [
-    {
-      name: "TaskName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ProjectName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ClientName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "StatusName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Status"),
-        customBodyRender: (value: any, tableMeta: any) =>
-          generateStatusWithColor(value, tableMeta.rowData[11]),
-      },
-    },
-    {
-      name: "TaxReturnTypeName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Return Type"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "WorkTypeName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "StartDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
-    },
-    {
-      name: "EndDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
-    },
-
-    {
-      name: "PriorityName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-        customBodyRender: (value: any) => generatePriorityWithColor(value),
-      },
-    },
-    {
-      name: "AssignedByName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Assigned By"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "AssignedToName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "StatusColorCode",
-      options: {
-        filter: false,
-        sort: false,
-        display: false,
-      },
-    },
-  ];
-
   return (
     <div>
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={dashboardSummaryData}
-          columns={columns}
+          columns={adminDashboardSummaryCols}
           title={undefined}
           options={dashboard_Options}
           data-tableid="Datatable_DashboardSummaryList"

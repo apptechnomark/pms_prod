@@ -29,6 +29,7 @@ import { getDates, getFormattedDate } from "@/utils/timerFunctions";
 import { getDeptData, getUserData } from "./api/getDropDownData";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
+import { isWeekend } from "@/utils/commonFunction";
 
 const UserFilter = ({
   isFiltering,
@@ -318,11 +319,6 @@ const UserFilter = ({
     } catch (error) {
       console.error(error);
     }
-  };
-
-  const isWeekend = (date: any) => {
-    const day = date.day();
-    return day === 6 || day === 0;
   };
 
   return (

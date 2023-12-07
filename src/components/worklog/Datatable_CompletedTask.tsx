@@ -11,7 +11,6 @@ import TablePagination from "@mui/material/TablePagination";
 import Minus from "@/assets/icons/worklogs/Minus";
 import Rating_Star from "@/assets/icons/worklog_Client/Rating_Star";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Comments from "@/assets/icons/worklogs/Comments";
 import ErrorLogs from "@/assets/icons/worklogs/ErrorLogs";
 import {

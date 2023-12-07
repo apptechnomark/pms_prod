@@ -15,12 +15,8 @@ import { options } from "@/utils/datatable/TableOptions";
 import { client_project_InitialFilter } from "@/utils/reports/getFilters";
 
 // common functions for datatable
-import {
-  generateCustomHeaderName,
-  generateCommonBodyRender,
-  generateInitialTimer,
-} from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { reportsProjectsCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 
 const project_InitialFilter = {
   ...client_project_InitialFilter,
@@ -128,112 +124,10 @@ const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
     }
   }, [filteredData, searchValue]);
 
-  const columns: any[] = [
-    {
-      name: "ProjectName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Project"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ClientName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "WorkType",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "BillingType",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Billing Type"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "InternalHours",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Internal Hours"),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return generateInitialTimer(value);
-        },
-      },
-    },
-    {
-      name: "StandardTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return generateInitialTimer(value);
-        },
-      },
-    },
-    {
-      name: "EditHours",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Edited Hours"),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return generateInitialTimer(value);
-        },
-      },
-    },
-    {
-      name: "TotalTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return generateInitialTimer(value);
-        },
-      },
-    },
-    {
-      name: "DifferenceTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Difference"),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return generateInitialTimer(value);
-        },
-      },
-    },
-  ];
-
   return loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
-        columns={columns}
+        columns={reportsProjectsCols}
         data={projectData}
         title={undefined}
         options={options}

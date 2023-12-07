@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { isWeekend } from "@/utils/commonFunction";
 import {
   Button,
   Dialog,
@@ -154,11 +155,6 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
   useEffect(() => {
     onOpen && getProjectData();
   }, [onOpen]);
-
-  const isWeekend = (date: any) => {
-    const day = date.day();
-    return day === 6 || day === 0;
-  };
 
   return (
     <div>

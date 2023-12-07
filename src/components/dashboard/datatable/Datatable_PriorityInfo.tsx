@@ -5,16 +5,12 @@ import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
 import TablePagination from "@mui/material/TablePagination";
 import {
-  generateCustomHeaderName,
-  generateCommonBodyRender,
-  generateCustomFormatDate,
-  generatePriorityWithColor,
-  generateStatusWithColor,
   handleChangePage,
   handleChangeRowsPerPage,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
+import { dashboardPriorityInfoCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 
 interface PriorityInfoProps {
   onSelectedProjectIds: number[];
@@ -74,120 +70,12 @@ const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
     getData();
   }, [onSelectedProjectIds, onSelectedPriorityId, page, rowsPerPage]);
 
-  // Table Columns
-  const columns = [
-    {
-      name: "TaskName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ProjectName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "TypeOfWorkName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "StartDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
-    },
-    {
-      name: "EndDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("End Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
-    },
-    {
-      name: "EndDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
-    },
-    {
-      name: "StatusName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Status"),
-        customBodyRender: (value: any, tableMeta: any) =>
-          generateStatusWithColor(value, tableMeta.rowData[9]),
-      },
-    },
-    {
-      name: "PriorityName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-        customBodyRender: (value: any) => generatePriorityWithColor(value),
-      },
-    },
-    {
-      name: "AssignedToName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "StatusColorCode",
-      options: {
-        filter: false,
-        sort: false,
-        display: false,
-      },
-    },
-  ];
-
   return (
     <div>
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={columns}
+          columns={dashboardPriorityInfoCols}
           title={undefined}
           options={dashboard_Options}
           data-tableid="priorityInfo_Datatable"
