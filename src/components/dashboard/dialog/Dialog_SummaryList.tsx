@@ -2,8 +2,6 @@ import React, { useState } from "react";
 // material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
 import {
   DialogTitle,
   FormControl,
@@ -13,6 +11,7 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import Datatable_SummaryList from "../datatable/Datatable_SummaryList";
+import { DialogTransition } from "@/utils/style/DialogTransition";
 
 interface SummaryListProps {
   onOpen: boolean;
@@ -22,15 +21,6 @@ interface SummaryListProps {
   onSelectedSummaryStatus: string;
   onCurrProjectSummary: string[];
 }
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="left" ref={ref} {...props} />;
-});
 
 const Dialog_SummaryList: React.FC<SummaryListProps> = ({
   onOpen,
@@ -52,7 +42,7 @@ const Dialog_SummaryList: React.FC<SummaryListProps> = ({
       <Dialog
         fullWidth
         open={onOpen}
-        TransitionComponent={Transition}
+        TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="xl"
         onClose={handleClose}

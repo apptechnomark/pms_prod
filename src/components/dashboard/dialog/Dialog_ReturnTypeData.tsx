@@ -2,8 +2,6 @@ import React, { useState } from "react";
 // material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
 import {
   DialogTitle,
   FormControl,
@@ -14,6 +12,7 @@ import {
 import { Close } from "@mui/icons-material";
 // Internal Components
 import Datatable_ReturnTypeData from "../datatable/Datatable_ReturnTypeData";
+import { DialogTransition } from "@/utils/style/DialogTransition";
 
 interface DialogProps {
   onOpen: boolean;
@@ -21,15 +20,6 @@ interface DialogProps {
   onSelectedProjectIds: number[];
   onSelectedReturnTypeValue: any;
 }
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="left" ref={ref} {...props} />;
-});
 
 const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
   onOpen,
@@ -49,7 +39,7 @@ const Dialog_ReturnTypeData: React.FC<DialogProps> = ({
       <Dialog
         fullWidth
         open={onOpen}
-        TransitionComponent={Transition}
+        TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="xl"
         onClose={handleClose}

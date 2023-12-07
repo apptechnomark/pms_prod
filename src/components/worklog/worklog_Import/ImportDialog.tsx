@@ -8,8 +8,6 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
 import { TextareaAutosize } from "@mui/base/TextareaAutosize";
 import { FormControl, FormHelperText } from "@mui/material";
 import MUIDataTable from "mui-datatables";
@@ -19,20 +17,12 @@ import {
   Table_Options,
   Table_Columns,
 } from "../../../utils/worklog/importTableOprions";
+import { TransitionDown } from "@/utils/style/DialogTransition";
 
 interface ImportDialogProp {
   onOpen: boolean;
   onClose: () => void;
 }
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="down" ref={ref} {...props} />;
-});
 
 const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
   const [error, setError] = useState("");
@@ -150,7 +140,7 @@ const ImportDialog: React.FC<ImportDialogProp> = ({ onOpen, onClose }) => {
     <div>
       <Dialog
         open={onOpen}
-        TransitionComponent={Transition}
+        TransitionComponent={TransitionDown}
         keepMounted
         maxWidth="md"
         onClose={handleClose}

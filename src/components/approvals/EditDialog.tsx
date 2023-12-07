@@ -5,8 +5,6 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
 import {
   FormControl,
   IconButton,
@@ -19,6 +17,7 @@ import {
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Close } from "@mui/icons-material";
+import { DialogTransition } from "@/utils/style/DialogTransition";
 
 interface EditModalProps {
   onOpen: boolean;
@@ -29,15 +28,6 @@ interface EditModalProps {
   onSelectWorkItemId: number;
   onSelectedSubmissionId: number;
 }
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="left" ref={ref} {...props} />;
-});
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -249,7 +239,7 @@ const EditDialog: React.FC<EditModalProps> = ({
     <div>
       <Dialog
         open={onOpen}
-        TransitionComponent={Transition}
+        TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="md"
         onClose={handleClose}

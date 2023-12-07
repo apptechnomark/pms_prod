@@ -18,7 +18,7 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
-import { Transition } from "./Transition/Transition";
+import { DialogTransition } from "@/utils/style/DialogTransition";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -619,7 +619,7 @@ const CustomReportFilter = ({
       ) : (
         <Dialog
           open={isFiltering}
-          TransitionComponent={Transition}
+          TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
           onClose={handleClose}

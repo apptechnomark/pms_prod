@@ -5,8 +5,6 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
 import {
   Checkbox,
   FormControl,
@@ -20,6 +18,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { DialogTransition } from "@/utils/style/DialogTransition";
 import { isWeekend } from "@/utils/commonFunction";
 
 interface FilterModalProps {
@@ -28,15 +27,6 @@ interface FilterModalProps {
   currentFilterData?: any;
   isCompletedTaskClicked?: any;
 }
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="left" ref={ref} {...props} />;
-});
 
 const initialFilter = {
   ProjectIds: null,
@@ -373,7 +363,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     <div>
       <Dialog
         open={onOpen}
-        TransitionComponent={Transition}
+        TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="md"
         onClose={handleClose}

@@ -5,8 +5,6 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
 import {
   FormControl,
   IconButton,
@@ -18,6 +16,7 @@ import Rating from "@mui/material/Rating";
 import StarIcon from "@mui/icons-material/Star";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { DialogTransition } from "@/utils/style/DialogTransition";
 
 interface RatingModalProps {
   onOpen: boolean;
@@ -28,15 +27,6 @@ interface RatingModalProps {
   onDataFetch: () => void;
   handleClearSelection: () => void;
 }
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="left" ref={ref} {...props} />;
-});
 
 const RatingDialog: React.FC<RatingModalProps> = ({
   onOpen,
@@ -120,7 +110,7 @@ const RatingDialog: React.FC<RatingModalProps> = ({
     <div>
       <Dialog
         open={onOpen}
-        TransitionComponent={Transition}
+        TransitionComponent={DialogTransition}
         onClose={handleClose}
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">

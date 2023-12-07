@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 // material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
 import {
   DialogTitle,
   FormControl,
@@ -17,6 +15,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import Datatable_BillingType from "../Datatables/Datatable_BillingType";
+import { DialogTransition } from "@/utils/style/DialogTransition";
 
 interface Status {
   Type: string;
@@ -30,15 +29,6 @@ interface BillingTypeDialogProps {
   onSelectedWorkType: number;
   onSelectedStatusName: string;
 }
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="left" ref={ref} {...props} />;
-});
 
 const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
   onOpen,
@@ -124,7 +114,7 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
       <Dialog
         fullWidth
         open={onOpen}
-        TransitionComponent={Transition}
+        TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="xl"
         onClose={handleClose}

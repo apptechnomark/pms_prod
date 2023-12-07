@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 // material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
 import {
   DialogTitle,
   FormControl,
@@ -15,6 +13,7 @@ import { Close } from "@mui/icons-material";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Datatable_OverallProjectSummary from "../datatable/Datatable_OverallProjectSummary";
+import { DialogTransition } from "@/utils/style/DialogTransition";
 
 interface OverallProjectSummaryDialogProps {
   onOpen: boolean;
@@ -23,15 +22,6 @@ interface OverallProjectSummaryDialogProps {
   onSelectedTaskStatus: string;
   onSelectedProjectIds: number[];
 }
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="left" ref={ref} {...props} />;
-});
 
 const Dialog_OverallProjectSummary: React.FC<
   OverallProjectSummaryDialogProps
@@ -110,7 +100,7 @@ const Dialog_OverallProjectSummary: React.FC<
       <Dialog
         fullWidth
         open={onOpen}
-        TransitionComponent={Transition}
+        TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="xl"
         onClose={handleClose}

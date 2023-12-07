@@ -47,6 +47,14 @@ export const generatePriorityWithColor = (value: any) => {
     isLowPriority = value.toLowerCase() === "low";
   }
 
+  const priorityColorCode = isHighPriority
+    ? "#DC3545"
+    : isMediumPriority
+    ? "#FFC107"
+    : isLowPriority
+    ? "#02B89D"
+    : "#D8D8D8";
+
   return (
     <div>
       {value === null || value === "" || value === 0 || value === "0" ? (
@@ -54,15 +62,8 @@ export const generatePriorityWithColor = (value: any) => {
       ) : (
         <div className="inline-block mr-1">
           <div
-            className={`w-[10px] h-[10px] rounded-full inline-block mr-2 ${
-              isHighPriority
-                ? "bg-defaultRed"
-                : isMediumPriority
-                ? "bg-yellowColor"
-                : isLowPriority
-                ? "bg-primary"
-                : "bg-lightSilver"
-            }`}
+            className={"w-[10px] h-[10px] rounded-full inline-block mr-2 "}
+            style={{ backgroundColor: priorityColorCode }}
           ></div>
           {value}
         </div>

@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { DialogTransition } from "@/utils/style/DialogTransition";
 import { isWeekend } from "@/utils/commonFunction";
 import {
   Button,
@@ -10,9 +11,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  Slide,
 } from "@mui/material";
-import { TransitionProps } from "@mui/material/transitions";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import axios from "axios";
@@ -25,15 +24,6 @@ interface FilterModalProps {
   onClose: () => void;
   currentFilterData?: any;
 }
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="left" ref={ref} {...props} />;
-});
 
 const initialFilter = {
   ProjectIdsForFilter: [],
@@ -213,7 +203,7 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
     <div>
       <Dialog
         open={onOpen}
-        TransitionComponent={Transition}
+        TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="md"
         onClose={handleClose}

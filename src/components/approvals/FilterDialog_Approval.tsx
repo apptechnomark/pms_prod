@@ -5,8 +5,6 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
 import { FormControl, InputLabel, MenuItem } from "@mui/material";
 import Select from "@mui/material/Select";
 import axios from "axios";
@@ -15,6 +13,7 @@ import {
   getProcessDropdownData,
   getProjectDropdownData,
 } from "@/utils/commonDropdownApiCall";
+import { DialogTransition } from "@/utils/style/DialogTransition";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -23,15 +22,6 @@ interface FilterModalProps {
   onDataFetch: () => void;
   currentFilterData?: any;
 }
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="left" ref={ref} {...props} />;
-});
 
 const initialFilter = {
   ClientId: null,
@@ -173,17 +163,16 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           setStatusDropdownData(
-            response.data.ResponseData
-            .filter(
+            response.data.ResponseData.filter(
               (i: any) =>
-            //     i.Type !== "Errorlogs" &&
-            //     i.Type !== "InProgress" &&
-            //     i.Type !== "NotStarted" &&
-            //     i.Type !== "PartialSubmitted" &&
-                i.Type !== "Reject" 
-                // &&
-            //     i.Type !== "Rework" &&
-            //     i.Type !== "Stop"
+                //     i.Type !== "Errorlogs" &&
+                //     i.Type !== "InProgress" &&
+                //     i.Type !== "NotStarted" &&
+                //     i.Type !== "PartialSubmitted" &&
+                i.Type !== "Reject"
+              // &&
+              //     i.Type !== "Rework" &&
+              //     i.Type !== "Stop"
             )
           );
         } else {
@@ -251,7 +240,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     <div>
       <Dialog
         open={onOpen}
-        TransitionComponent={Transition}
+        TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="md"
         onClose={handleClose}

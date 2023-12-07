@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 // material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
 import {
   DialogTitle,
   FormControl,
@@ -14,6 +12,7 @@ import {
 import { Close } from "@mui/icons-material";
 // Internal Components
 import Datatable_PriorityInfo from "../datatable/Datatable_PriorityInfo";
+import { DialogTransition } from "@/utils/style/DialogTransition";
 
 interface Priority {
   Type: string;
@@ -27,15 +26,6 @@ interface DialogProps {
   onSelectedProjectIds: number[];
   onSelectedPriorityName: string;
 }
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="left" ref={ref} {...props} />;
-});
 
 const Dialog_PriorityInfo: React.FC<DialogProps> = ({
   onOpen,
@@ -94,7 +84,7 @@ const Dialog_PriorityInfo: React.FC<DialogProps> = ({
       <Dialog
         fullWidth
         open={onOpen}
-        TransitionComponent={Transition}
+        TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="xl"
         onClose={handleClose}

@@ -4981,7 +4981,7 @@ const EditDrawer = ({
                           <TextField
                             label={
                               <span>
-                                Start Time
+                                Start Time(24h)
                                 <span className="!text-defaultRed">
                                   &nbsp;*
                                 </span>
@@ -5022,7 +5022,7 @@ const EditDrawer = ({
                           <TextField
                             label={
                               <span>
-                                End Time
+                                End Time(24h)
                                 <span className="!text-defaultRed">
                                   &nbsp;*
                                 </span>

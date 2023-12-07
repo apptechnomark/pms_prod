@@ -16,7 +16,7 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
-import { Transition } from "./Transition/Transition";
+import { DialogTransition } from "@/utils/style/DialogTransition";
 
 //custom component
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
@@ -379,7 +379,7 @@ const ClientFilter = ({
       ) : (
         <Dialog
           open={isFiltering}
-          TransitionComponent={Transition}
+          TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
           onClose={handleClose}
