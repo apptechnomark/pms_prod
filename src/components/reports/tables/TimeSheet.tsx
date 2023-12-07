@@ -34,7 +34,6 @@ import {
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
-import { isWeekend } from "@/utils/commonFunction";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -516,6 +515,11 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
       getData({ ...timeSheet_InitialFilter, globalSearch: searchValue });
     }
   }, [filteredData, searchValue]);
+
+  const isWeekend = (date: any) => {
+    const day = dayjs(date).day();
+    return day === 6 || day === 0;
+  };
 
   const generateUserNameHeaderRender = (headerValue: any) => {
     return (
