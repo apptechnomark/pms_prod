@@ -10,7 +10,7 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
-import { dashboardPriorityInfoCols } from "@/utils/datatable/columns/ClientDatatableColumns";
+import { dashboardPriorityReturnTaskInfoCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 
 interface PriorityInfoProps {
   onSelectedProjectIds: number[];
@@ -75,7 +75,7 @@ const Datatable_PriorityInfo: React.FC<PriorityInfoProps> = ({
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={dashboardPriorityInfoCols}
+          columns={dashboardPriorityReturnTaskInfoCols}
           title={undefined}
           options={dashboard_Options}
           data-tableid="priorityInfo_Datatable"

@@ -1,66 +1,41 @@
-import axios from "axios";
-import { toast } from "react-toastify";
-import React, { useEffect, useState } from "react";
-import { TablePagination, ThemeProvider } from "@mui/material";
-import MUIDataTable from "mui-datatables";
-import { options } from "@/utils/datatable/TableOptions";
-import { customreport_InitialFilter } from "@/utils/reports/getFilters";
-import { haveSameData } from "@/utils/reports/commonFunctions";
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,
   generateInitialTimer,
   generateDateWithoutTime,
+  generateStatusWithColor,
 } from "@/utils/datatable/CommonFunction";
+import MUIDataTable from "mui-datatables";
+import { useEffect, useState } from "react";
+import { callAPI } from "@/utils/API/callAPI";
+import { options } from "@/utils/datatable/TableOptions";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { TablePagination, ThemeProvider } from "@mui/material";
+import { haveSameData } from "@/utils/reports/commonFunctions";
+import { customreport_InitialFilter } from "@/utils/reports/getFilters";
 
 const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
-  const [page, setPage] = useState<number>(0);
-  const [customReportData, setCustomReportData] = useState<any>([]);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [tableDataCount, setTableDataCount] = useState<number>(0);
+  const [customReportFields, setCustomReportFields] = useState({
+    page: 0,
+    data: [],
+    rowsPerPage: 10,
+    dataCount: 0,
+  });
 
   const getData = async (arg1: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
+    const url = `${process.env.report_api_url}/report/custom`;
 
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/custom`,
-        { ...arg1 },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          onHandleExport(
-            response.data.ResponseData.List.length > 0 ? true : false
-          );
-          setCustomReportData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const successCallback = (data: any, error: any) => {
+      if (data !== null && error === false) {
+        onHandleExport(data.List.length > 0);
+        setCustomReportFields({
+          ...customReportFields,
+          data: data.List,
+          dataCount: data.TotalCount,
+        });
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, arg1, successCallback, "post");
   };
 
   // functions for handling pagination
@@ -68,13 +43,13 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setPage(newPage);
+    setCustomReportFields({ ...customReportFields, page: newPage });
     if (filteredData !== null) {
       if (!haveSameData(customreport_InitialFilter, filteredData)) {
         getData({
           ...filteredData,
           pageNo: newPage + 1,
-          pageSize: rowsPerPage,
+          pageSize: customReportFields.rowsPerPage,
         });
       }
     }
@@ -83,8 +58,12 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
+    setCustomReportFields({
+      ...customReportFields,
+      page: 0,
+      rowsPerPage: parseInt(event.target.value),
+    });
+
     if (filteredData !== null) {
       if (!haveSameData(customreport_InitialFilter, filteredData)) {
         getData({
@@ -99,8 +78,11 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       if (haveSameData(customreport_InitialFilter, filteredData)) {
-        setCustomReportData([]);
-        setTableDataCount(0);
+        setCustomReportFields({
+          ...customReportFields,
+          data: [],
+          dataCount: 0,
+        });
       } else {
         getData({ ...filteredData, globalSearch: searchValue });
       }
@@ -108,6 +90,14 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   }, [filteredData, searchValue]);
 
   const columns: any[] = [
+    {
+      name: "WorkItemId",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
+      },
+    },
     {
       name: "ClientName",
       options: {
@@ -143,9 +133,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
                 "-"
               ) : (
                 <a
-                  href={`${process.env.redirectURL}${
-                    tableMeta.rowData[tableMeta.rowData.length - 1]
-                  }`}
+                  href={`${process.env.redirectURL}${tableMeta.rowData[0]}`}
                   className="text-[#0592C6] cursor-pointer"
                 >
                   {value}
@@ -164,6 +152,20 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         customHeadLabelRender: () => generateCustomHeaderName("Process Name"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "Status",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Status"),
+        customBodyRender: (value: any, tableMeta: any) => {
+          return generateStatusWithColor(
+            value,
+            tableMeta.rowData[tableMeta.rowData.length - 1]
+          );
         },
       },
     },
@@ -355,7 +357,101 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       },
     },
     {
-      name: "WorkItemId",
+      name: "Description",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Description"),
+      },
+    },
+    {
+      name: "DateCreated",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Date Created"),
+        customBodyRender: (value: any) => {
+          return generateDateWithoutTime(value);
+        },
+      },
+    },
+    {
+      name: "DateOfPreparation",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Date of Preparation"),
+        customBodyRender: (value: any) => {
+          return generateDateWithoutTime(value);
+        },
+      },
+    },
+    {
+      name: "DateOfReview",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Date of Review"),
+        customBodyRender: (value: any) => {
+          return generateDateWithoutTime(value);
+        },
+      },
+    },
+    {
+      name: "AssigneeTimeTracked",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Assignee Time Tracked"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "ReviewerTimeTracked",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Reviewer Time Tracked"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "Errors",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Errors-Reviewer"),
+      },
+    },
+    {
+      name: "BTC",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("BTC Hours"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "IsBTC",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Billing Status"),
+      },
+    },
+    {
+      name: "StatusColorCode",
       options: {
         display: false,
       },
@@ -366,7 +462,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={columns}
-        data={customReportData}
+        data={customReportFields.data}
         title={undefined}
         options={{
           ...options,
@@ -388,10 +484,10 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       />
       <TablePagination
         component="div"
-        count={tableDataCount}
-        page={page}
+        count={customReportFields.dataCount}
+        page={customReportFields.page}
         onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
+        rowsPerPage={customReportFields.rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>

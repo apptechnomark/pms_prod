@@ -8,12 +8,12 @@ import { callAPI } from "@/utils/API/callAPI";
 import { report_Options } from "@/utils/datatable/TableOptions";
 import { reportDatatableTaskCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 
-const pageNo = 1;
-const pageSize = 10;
+const pageNoReportTask = 1;
+const pageSizeReportTask = 10;
 
-const initialFilter = {
-  PageNo: pageNo,
-  PageSize: pageSize,
+const initialReportTaskFilter = {
+  PageNo: pageNoReportTask,
+  PageSize: pageSizeReportTask,
   GlobalSearch: null,
   IsDesc: false,
   SortColumn: null,
@@ -33,32 +33,37 @@ const Datatable_Task = ({
   onSearchData,
   onHandleExport,
 }: any) => {
-  const [allFields, setAllFields] = useState<any>({
-    loaded: false,
+  const [allReportTaskFields, setAllReportTaskFields] = useState<any>({
+    loaded: true,
     taskData: [],
     page: 0,
-    rowsPerPage: pageSize,
+    rowsPerPage: pageSizeReportTask,
     tableDataCount: 0,
   });
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [filteredObjectReportTask, setFilteredOjectReportTask] = useState<any>(
+    initialReportTaskFilter
+  );
 
   // functions for handling pagination
-  const handleChangePage = (
+  const handleChangePageReportTask = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setAllFields({
-      ...allFields,
+    setAllReportTaskFields({
+      ...allReportTaskFields,
       page: newPage,
     });
-    setFilteredOject({ ...filteredObject, PageNo: newPage + 1 });
+    setFilteredOjectReportTask({
+      ...filteredObjectReportTask,
+      PageNo: newPage + 1,
+    });
   };
 
-  const handleChangeRowsPerPage = (
+  const handleChangeRowsPerPageReportTask = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setFilteredOject({
-      ...filteredObject,
+    setFilteredOjectReportTask({
+      ...filteredObjectReportTask,
       PageNo: 1,
       PageSize: event.target.value,
     });
@@ -67,32 +72,44 @@ const Datatable_Task = ({
   // for showing value according to search
   useEffect(() => {
     if (onSearchData) {
-      setAllFields({
-        ...allFields,
+      setAllReportTaskFields({
+        ...allReportTaskFields,
         taskData: onSearchData,
       });
     } else {
-      getTaskList();
+      getReportTaskList();
     }
   }, [onSearchData]);
 
   // TaskList API
-  const getTaskList = async () => {
-    const params = filteredObject;
+  const getReportTaskList = async () => {
+    setAllReportTaskFields({
+      ...allReportTaskFields,
+      loaded: false,
+    });
+    const params = filteredObjectReportTask;
     const url = `${process.env.report_api_url}/report/client/task`;
-    const successCallback = (ResponseData: any, error: any) => {
-      if (ResponseData !== null && error === false) {
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (
+        ResponseStatus === "Success" &&
+        ResponseData.List.length > 0 &&
+        error === false
+      ) {
         onHandleExport(ResponseData.List.length > 0);
-        setAllFields({
-          ...allFields,
+        setAllReportTaskFields({
+          ...allReportTaskFields,
           loaded: true,
           taskData: ResponseData.List,
           tableDataCount: ResponseData.TotalCount,
         });
       } else {
-        setAllFields({
-          ...allFields,
-          loaded: false,
+        setAllReportTaskFields({
+          ...allReportTaskFields,
+          loaded: true,
         });
       }
     };
@@ -100,17 +117,20 @@ const Datatable_Task = ({
   };
 
   useEffect(() => {
-    setFilteredOject({ ...filteredObject, ...currentFilterData });
+    setFilteredOjectReportTask({
+      ...filteredObjectReportTask,
+      ...currentFilterData,
+    });
   }, [currentFilterData]);
 
   useEffect(() => {
-    getTaskList();
-  }, [filteredObject]);
+    getReportTaskList();
+  }, [filteredObjectReportTask]);
 
-  return allFields.loaded ? (
+  return allReportTaskFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
-        data={allFields.taskData}
+        data={allReportTaskFields.taskData}
         columns={reportDatatableTaskCols}
         title={undefined}
         options={{
@@ -120,12 +140,11 @@ const Datatable_Task = ({
       />
       <TablePagination
         component="div"
-        // rowsPerPageOptions={[5, 10, 15]}
-        count={allFields.tableDataCount}
-        page={allFields.page}
-        onPageChange={handleChangePage}
-        rowsPerPage={allFields.rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        count={allReportTaskFields.tableDataCount}
+        page={allReportTaskFields.page}
+        onPageChange={handleChangePageReportTask}
+        rowsPerPage={allReportTaskFields.rowsPerPage}
+        onRowsPerPageChange={handleChangeRowsPerPageReportTask}
       />
     </ThemeProvider>
   ) : (

@@ -1,27 +1,24 @@
 import axios from "axios";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
-import React, { useEffect, useState } from "react";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider, TimeField } from "@mui/x-date-pickers";
-import {
-  CircularProgress,
-  TablePagination,
-  TextField,
-  ThemeProvider,
-} from "@mui/material";
 import MUIDataTable from "mui-datatables";
-import { options } from "@/utils/datatable/TableOptions";
-import { billingreport_InitialFilter } from "@/utils/reports/getFilters";
-import { toSeconds } from "@/utils/timerFunctions";
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,
   generateInitialTimer,
   generateDateWithTime,
 } from "@/utils/datatable/CommonFunction";
-import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { useEffect, useState } from "react";
 import { callAPI } from "@/utils/API/callAPI";
+import { toSeconds } from "@/utils/timerFunctions";
+import { options } from "@/utils/datatable/TableOptions";
+import ReportLoader from "@/components/common/ReportLoader";
+import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { BillingReportFieldsType } from "../types/FieldsType";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider, TimeField } from "@mui/x-date-pickers";
+import { billingreport_InitialFilter } from "@/utils/reports/getFilters";
+import { TablePagination, TextField, ThemeProvider } from "@mui/material";
 
 const BTCField = ({
   billingReportData,
@@ -94,18 +91,17 @@ const BillingReport = ({
   searchValue,
   onHandleExport,
 }: any) => {
-  const [billingReportFields, setBillingReportFields] = useState({
-    loaded: false,
-    page: 0,
-    rowsPerPage: 10,
-    dataCount: 0,
-  });
-
+  const [billingReportFields, setBillingReportFields] =
+    useState<BillingReportFieldsType>({
+      loaded: false,
+      page: 0,
+      rowsPerPage: 10,
+      dataCount: 0,
+    });
   const [btcData, setBTCData] = useState<any>([]);
-  const [raisedInvoice, setRaisedInvoice] = useState<any>([]);
   const [finalBTCData, setFinalBTCData] = useState<any>([]);
   const [isBTCSaved, setBTCSaved] = useState<boolean>(false);
-
+  const [raisedInvoice, setRaisedInvoice] = useState<any>([]);
   const [billingReportData, setBiliingReportData] = useState<any>([]);
 
   const getData = async (arg1: any) => {
@@ -576,9 +572,7 @@ const BillingReport = ({
       />
     </ThemeProvider>
   ) : (
-    <div className="h-screen w-full flex justify-center my-[20%]">
-      <CircularProgress />
-    </div>
+    <ReportLoader />
   );
 };
 

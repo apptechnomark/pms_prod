@@ -9,7 +9,7 @@ import {
   handleChangeRowsPerPage,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
-import { dashboardOverduCols } from "@/utils/datatable/columns/ClientDatatableColumns";
+import { dashboardOnHoldAndOverdueCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 interface OverdueProps {
   onSelectedProjectIds: number[];
   onSelectedWorkType: number;
@@ -135,7 +135,7 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={dashboardOverduCols}
+          columns={dashboardOnHoldAndOverdueCols}
           title={undefined}
           options={options}
           data-tableid="dashboard_Overdue_Datatable"

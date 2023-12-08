@@ -36,6 +36,7 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import WorklogsActionBar from "./actionBar/WorklogsActionBar";
+import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -587,78 +588,36 @@ const Datatable = ({
     );
   };
 
-  // Table Columns
-  const columns = [
+  const columnConfig = [
     {
       name: "WorkitemId",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Task ID",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "ClientName",
-      options: {
-        filter: true,
-        viewColumns: false,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Client"),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return generateCustomeClientNameBody(value, tableMeta);
-        },
-      },
+      label: "Client",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "ProjectName",
-      options: {
-        filter: true,
-        sort: true,
-        // display: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Project"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Project",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "TaskName",
-      options: {
-        filter: true,
-        sort: true,
-        // viewColumns: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Task"),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return generateCustomTaskNameBody(value, tableMeta);
-        },
-      },
+      label: "Task",
+      bodyRenderer: generateCustomTaskNameBody,
     },
     {
       name: "ProcessName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Process"),
-        customBodyRender: (value: any) => {
-          return generateShortProcessNameBody(value);
-        },
-      },
+      label: "Process",
+      bodyRenderer: generateShortProcessNameBody,
     },
     {
       name: "SubProcessName",
-      options: {
-        filter: true,
-        sort: true,
-        // display: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Sub-Process",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "IsManual",
@@ -670,176 +629,18 @@ const Datatable = ({
     },
     {
       name: "Timer",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Timer"),
-        customBodyRender: (value: any, tableMeta: any) => {
-          const estimatedTime = tableMeta.rowData[14].includes(":")
-            ? tableMeta.rowData[14].split(":")
-            : "00:00:00".split(":");
-          const estimatedTimeInSeconds =
-            parseInt(estimatedTime[0]) * 60 * 60 +
-            parseInt(estimatedTime[1]) * 60 +
-            parseInt(estimatedTime[2]);
-
-          const timerValue =
-            value === 0 ? "00:00:00" : toHoursAndMinutes(value);
-
-          return (
-            <div className="w-40 h-7 flex items-center">
-              <ColorToolTip
-                title={`Estimated Time: ${estimatedTime[0]}:${estimatedTime[1]}:${estimatedTime[2]}`}
-                placement="top"
-                arrow
-              >
-                <span
-                  className={`w-16 text-center text-ellipsis overflow-hidden ${
-                    tableMeta.rowData[tableMeta.rowData.length - 2] === 3
-                      ? "text-primary"
-                      : ""
-                  }`}
-                >
-                  {timerValue}
-                </span>
-              </ColorToolTip>
-              {tableMeta.rowData[tableMeta.rowData.length - 4].toString() ===
-                localStorage.getItem("UserId") &&
-                tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
-                (workItemData[tableMeta.rowIndex].IsManual === false ||
-                  !workItemData[tableMeta.rowIndex].IsManual ||
-                  workItemData[tableMeta.rowIndex].IsManual === null) &&
-                tableMeta.rowData[tableMeta.rowData.length - 3] !== 7 &&
-                tableMeta.rowData[tableMeta.rowData.length - 3] !== 9 &&
-                tableMeta.rowData[tableMeta.rowData.length - 3] !== 6 &&
-                // tableMeta.rowData[tableMeta.rowData.length - 3] !== 10 &&
-                tableMeta.rowData[tableMeta.rowData.length - 3] !== 8 &&
-                tableMeta.rowData[tableMeta.rowData.length - 3] !== 4 &&
-                tableMeta.rowData[tableMeta.rowData.length - 3] !== 11 &&
-                tableMeta.rowData[tableMeta.rowData.length - 1] !== isRunning &&
-                (tableMeta.rowData[tableMeta.rowData.length - 2] === 0 ? (
-                  <ColorToolTip title="Start" placement="top" arrow>
-                    <span
-                      className="cursor-pointer"
-                      onClick={() => {
-                        handleTimer(
-                          1,
-                          tableMeta.rowData[tableMeta.rowData.length - 1],
-                          0
-                        );
-                        handleClearSelection();
-                      }}
-                    >
-                      <PlayButton />
-                    </span>
-                  </ColorToolTip>
-                ) : (
-                  (workItemData[tableMeta.rowIndex].IsManual === false ||
-                    !workItemData[tableMeta.rowIndex].IsManual) &&
-                  tableMeta.rowData[tableMeta.rowData.length - 2] === 2 && (
-                    <ColorToolTip title="Resume" placement="top" arrow>
-                      <span
-                        className="cursor-pointer"
-                        onClick={() => {
-                          handleTimer(
-                            1,
-                            tableMeta.rowData[tableMeta.rowData.length - 1],
-                            0
-                          );
-                          handleClearSelection();
-                        }}
-                      >
-                        <PlayPause />
-                      </span>
-                    </ColorToolTip>
-                  )
-                ))}
-              {(tableMeta.rowData[tableMeta.rowData.length - 2] === 1 ||
-                tableMeta.rowData[tableMeta.rowData.length - 1] ===
-                  isRunning) && (
-                <div className="flex">
-                  <ColorToolTip title="Pause" placement="top" arrow>
-                    <span
-                      className="cursor-pointer"
-                      onClick={() => {
-                        setRunning(
-                          tableMeta.rowData[tableMeta.rowData.length - 1]
-                        );
-                        handleTimer(
-                          2,
-                          tableMeta.rowData[tableMeta.rowData.length - 1],
-                          workitemTimeId
-                        );
-                        handleClearSelection();
-                      }}
-                    >
-                      <PauseButton />
-                    </span>
-                  </ColorToolTip>
-                  <ColorToolTip title="Stop" placement="top" arrow>
-                    <span
-                      className="cursor-pointer mt-[2px]"
-                      onClick={() => {
-                        handleSync(
-                          tableMeta.rowData[tableMeta.rowData.length - 1]
-                        );
-                        setRunning(
-                          tableMeta.rowData[tableMeta.rowData.length - 1]
-                        );
-                        // setRowId(tableMeta.rowIndex);
-                        setStopTimerDialog(true);
-                        value > estimatedTimeInSeconds
-                          ? setIsTimeExceed(true)
-                          : setIsTimeExceed(false);
-
-                        handleClearSelection();
-                      }}
-                    >
-                      <StopButton />
-                    </span>
-                  </ColorToolTip>
-                  <ColorToolTip title="Sync" placement="top" arrow>
-                    <span
-                      className="cursor-pointer"
-                      onClick={() => {
-                        handleSync(
-                          tableMeta.rowData[tableMeta.rowData.length - 1]
-                        );
-                        handleClearSelection();
-                      }}
-                    >
-                      <RestartButton />
-                    </span>
-                  </ColorToolTip>
-                </div>
-              )}
-            </div>
-          );
-        },
-      },
+      label: "Timer",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "AssignedToName",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Assigned To",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "PriorityName",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-        customBodyRender: (value: any) => generatePriorityWithColor(value),
-      },
+      label: "Priority",
+      bodyRenderer: generatePriorityWithColor,
     },
     {
       name: "StatusColorCode",
@@ -852,86 +653,39 @@ const Datatable = ({
     },
     {
       name: "StatusName",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Status"),
-        customBodyRender: (value: any, tableMeta: any) =>
-          generateStatusWithColor(value, tableMeta.rowData[10]),
-      },
+      label: "Status",
+      bodyRenderer: (value: any, tableMeta: any) =>
+        generateStatusWithColor(value, tableMeta.rowData[9]),
     },
     {
       name: "EstimateTime",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Est. Time"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Est. Time",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "Quantity",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Qty.",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "STDTime",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Total Time",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "StartDate",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
+      label: "Start Date",
+      bodyRenderer: generateCustomFormatDate,
     },
     {
       name: "EndDate",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("End Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
+      label: "End Date",
+      bodyRenderer: generateCustomFormatDate,
     },
     {
       name: "AssignedByName",
-      options: {
-        filter: true,
-        sort: true,
-        viewColumns: false,
-        customHeadLabelRender: () => generateCustomHeaderName("Assigned By"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Assigned By",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "IsHasErrorlog",
@@ -977,6 +731,268 @@ const Datatable = ({
     },
   ];
 
+  const generateConditionalColumn = (
+    column: {
+      name: string;
+      label: string;
+      bodyRenderer: (arg0: any) => any;
+    },
+    rowDataIndex: number
+  ) => {
+    if (column.name === "Timer") {
+      return {
+        name: "Timer",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Timer"),
+          customBodyRender: (value: any, tableMeta: any) => {
+            const estimatedTime = tableMeta.rowData[14].includes(":")
+              ? tableMeta.rowData[14].split(":")
+              : "00:00:00".split(":");
+            const estimatedTimeInSeconds =
+              parseInt(estimatedTime[0]) * 60 * 60 +
+              parseInt(estimatedTime[1]) * 60 +
+              parseInt(estimatedTime[2]);
+
+            const timerValue =
+              value === 0 ? "00:00:00" : toHoursAndMinutes(value);
+
+            return (
+              <div className="w-40 h-7 flex items-center">
+                <ColorToolTip
+                  title={`Estimated Time: ${estimatedTime[0]}:${estimatedTime[1]}:${estimatedTime[2]}`}
+                  placement="top"
+                  arrow
+                >
+                  <span
+                    className={`w-16 text-center text-ellipsis overflow-hidden ${
+                      tableMeta.rowData[tableMeta.rowData.length - 2] === 3
+                        ? "text-primary"
+                        : ""
+                    }`}
+                  >
+                    {timerValue}
+                  </span>
+                </ColorToolTip>
+                {tableMeta.rowData[tableMeta.rowData.length - 4].toString() ===
+                  localStorage.getItem("UserId") &&
+                  tableMeta.rowData[tableMeta.rowData.length - 2] !== 3 &&
+                  (workItemData[tableMeta.rowIndex].IsManual === false ||
+                    !workItemData[tableMeta.rowIndex].IsManual ||
+                    workItemData[tableMeta.rowIndex].IsManual === null) &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 7 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 9 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 6 &&
+                  // tableMeta.rowData[tableMeta.rowData.length - 3] !== 10 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 8 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 4 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 11 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 1] !==
+                    isRunning &&
+                  (tableMeta.rowData[tableMeta.rowData.length - 2] === 0 ? (
+                    <ColorToolTip title="Start" placement="top" arrow>
+                      <span
+                        className="cursor-pointer"
+                        onClick={() => {
+                          handleTimer(
+                            1,
+                            tableMeta.rowData[tableMeta.rowData.length - 1],
+                            0
+                          );
+                          handleClearSelection();
+                        }}
+                      >
+                        <PlayButton />
+                      </span>
+                    </ColorToolTip>
+                  ) : (
+                    (workItemData[tableMeta.rowIndex].IsManual === false ||
+                      !workItemData[tableMeta.rowIndex].IsManual) &&
+                    tableMeta.rowData[tableMeta.rowData.length - 2] === 2 && (
+                      <ColorToolTip title="Resume" placement="top" arrow>
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => {
+                            handleTimer(
+                              1,
+                              tableMeta.rowData[tableMeta.rowData.length - 1],
+                              0
+                            );
+                            handleClearSelection();
+                          }}
+                        >
+                          <PlayPause />
+                        </span>
+                      </ColorToolTip>
+                    )
+                  ))}
+                {(tableMeta.rowData[tableMeta.rowData.length - 2] === 1 ||
+                  tableMeta.rowData[tableMeta.rowData.length - 1] ===
+                    isRunning) && (
+                  <div className="flex">
+                    <ColorToolTip title="Pause" placement="top" arrow>
+                      <span
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setRunning(
+                            tableMeta.rowData[tableMeta.rowData.length - 1]
+                          );
+                          handleTimer(
+                            2,
+                            tableMeta.rowData[tableMeta.rowData.length - 1],
+                            workitemTimeId
+                          );
+                          handleClearSelection();
+                        }}
+                      >
+                        <PauseButton />
+                      </span>
+                    </ColorToolTip>
+                    <ColorToolTip title="Stop" placement="top" arrow>
+                      <span
+                        className="cursor-pointer mt-[2px]"
+                        onClick={() => {
+                          handleSync(
+                            tableMeta.rowData[tableMeta.rowData.length - 1]
+                          );
+                          setRunning(
+                            tableMeta.rowData[tableMeta.rowData.length - 1]
+                          );
+                          // setRowId(tableMeta.rowIndex);
+                          setStopTimerDialog(true);
+                          value > estimatedTimeInSeconds
+                            ? setIsTimeExceed(true)
+                            : setIsTimeExceed(false);
+
+                          handleClearSelection();
+                        }}
+                      >
+                        <StopButton />
+                      </span>
+                    </ColorToolTip>
+                    <ColorToolTip title="Sync" placement="top" arrow>
+                      <span
+                        className="cursor-pointer"
+                        onClick={() => {
+                          handleSync(
+                            tableMeta.rowData[tableMeta.rowData.length - 1]
+                          );
+                          handleClearSelection();
+                        }}
+                      >
+                        <RestartButton />
+                      </span>
+                    </ColorToolTip>
+                  </div>
+                )}
+              </div>
+            );
+          },
+        },
+      };
+    } else if (column.name === "IsManual") {
+      return {
+        name: "IsManual",
+        options: {
+          display: false,
+          viewColumns: false,
+          filter: false,
+        },
+      };
+    } else if (column.name === "StatusColorCode") {
+      return {
+        name: "StatusColorCode",
+        options: {
+          filter: false,
+          sort: false,
+          display: false,
+          viewColumns: false,
+        },
+      };
+    } else if (column.name === "StatusName") {
+      return {
+        name: "StatusName",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Status"),
+          customBodyRender: (value: any, tableMeta: any) =>
+            generateStatusWithColor(value, tableMeta.rowData[rowDataIndex]),
+        },
+      };
+    } else if (column.name === "TaskName") {
+      return {
+        name: "TaskName",
+        options: {
+          filter: true,
+          sort: true,
+          customHeadLabelRender: () => generateCustomHeaderName("Task"),
+          customBodyRender: (value: any, tableMeta: any) => {
+            return generateCustomTaskNameBody(value, tableMeta);
+          },
+        },
+      };
+    } else if (column.name === "IsHasErrorlog") {
+      return {
+        name: "IsHasErrorlog",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
+    } else if (column.name === "IsRecurring") {
+      return {
+        name: "IsRecurring",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
+    } else if (column.name === "AssignedToId") {
+      return {
+        name: "AssignedToId",
+        options: {
+          display: false,
+          viewColumns: false,
+        },
+      };
+    } else if (column.name === "StatusId") {
+      return {
+        name: "StatusId",
+        options: {
+          display: false,
+        },
+      };
+    } else if (column.name === "State") {
+      return {
+        name: "State",
+        options: {
+          display: false,
+        },
+      };
+    } else if (column.name === "WorkitemId") {
+      return {
+        name: "WorkitemId",
+        options: {
+          display: false,
+        },
+      };
+    } else {
+      return generateCustomColumn(
+        column.name,
+        column.label,
+        column.bodyRenderer
+      );
+    }
+  };
+
+  const workLogsColumns: any = columnConfig.map((col: any) => {
+    return generateConditionalColumn(col, 10);
+  });
+
   const runningTimerData: any = workItemData.filter(
     (data: any) => data.WorkitemId === isRunning
   );
@@ -1006,7 +1022,7 @@ const Datatable = ({
         <ThemeProvider theme={getMuiTheme()}>
           <MUIDataTable
             data={workItemData}
-            columns={columns}
+            columns={workLogsColumns}
             title={undefined}
             options={{
               ...worklogs_Options,

@@ -1,60 +1,41 @@
-import axios from "axios";
-import { toast } from "react-toastify";
-import React, { useEffect, useState } from "react";
-import {
-  CircularProgress,
-  TablePagination,
-  ThemeProvider,
-} from "@mui/material";
 import MUIDataTable from "mui-datatables";
+import { useEffect, useState } from "react";
+import { callAPI } from "@/utils/API/callAPI";
+import { FieldsType } from "../types/FieldsType";
 import { options } from "@/utils/datatable/TableOptions";
-import { rating_InitialFilter } from "@/utils/reports/getFilters";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import ReportLoader from "@/components/common/ReportLoader";
+import { TablePagination, ThemeProvider } from "@mui/material";
+import { rating_InitialFilter } from "@/utils/reports/getFilters";
 import { reportsRatingCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 
 const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
-  const [loaded, setLoaded] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(0);
-  const [ratingData, setRatingData] = useState<any>([]);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [tableDataCount, setTableDataCount] = useState<number>(0);
+  const [ratingReportFields, setRatingReportFields] = useState<FieldsType>({
+    loaded: false,
+    page: 0,
+    data: [],
+    rowsPerPage: 10,
+    dataCount: 0,
+  });
 
   const getData = async (arg1: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
+    const url = `${process.env.report_api_url}/report/admin/rating`;
 
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/admin/rating`,
-        { ...arg1 },
-        { headers: { Authorization: `bearer ${token}`, org_token: Org_Token } }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus.toLowerCase() === "success") {
-          onHandleExport(
-            response.data.ResponseData.List.length > 0 ? true : false
-          );
-          setLoaded(true);
-          setRatingData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          setLoaded(true);
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else toast.error(data);
-        }
+    const successCallback = (data: any, error: any) => {
+      if (data !== null && error === false) {
+        onHandleExport(data.List.length > 0);
+        setRatingReportFields({
+          ...ratingReportFields,
+          loaded: true,
+          data: data.List,
+          dataCount: data.TotalCount,
+        });
       } else {
-        setLoaded(true);
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else toast.error(data);
+        setRatingReportFields({ ...ratingReportFields, loaded: false });
       }
-    } catch (error) {
-      setLoaded(true);
-      console.error(error);
-    }
+    };
+
+    callAPI(url, arg1, successCallback, "post");
   };
 
   // functions for handling pagination
@@ -62,14 +43,18 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setPage(newPage);
+    setRatingReportFields({ ...ratingReportFields, page: newPage });
     if (filteredData !== null) {
-      getData({ ...filteredData, pageNo: newPage + 1, pageSize: rowsPerPage });
+      getData({
+        ...filteredData,
+        pageNo: newPage + 1,
+        pageSize: ratingReportFields.rowsPerPage,
+      });
     } else {
       getData({
         ...rating_InitialFilter,
         pageNo: newPage + 1,
-        pageSize: rowsPerPage,
+        pageSize: ratingReportFields.rowsPerPage,
       });
     }
   };
@@ -77,10 +62,18 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
+    setRatingReportFields({
+      ...ratingReportFields,
+      rowsPerPage: parseInt(event.target.value),
+      page: 0,
+    });
+
     if (filteredData !== null) {
-      getData({ ...filteredData, pageNo: 1, pageSize: rowsPerPage });
+      getData({
+        ...filteredData,
+        pageNo: 1,
+        pageSize: ratingReportFields.rowsPerPage,
+      });
     } else {
       getData({
         ...rating_InitialFilter,
@@ -97,34 +90,35 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       getData({ ...filteredData, GlobalSearch: searchValue });
-      setPage(0);
-      setRowsPerPage(10);
+      setRatingReportFields({
+        ...ratingReportFields,
+        page: 0,
+        rowsPerPage: 10,
+      });
     } else {
       getData({ ...rating_InitialFilter, GlobalSearch: searchValue });
     }
   }, [filteredData, searchValue]);
 
-  return loaded ? (
+  return ratingReportFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title={undefined}
         columns={reportsRatingCols}
-        data={ratingData}
+        data={ratingReportFields.data}
         options={options}
       />
       <TablePagination
         component="div"
-        count={tableDataCount}
-        page={page}
+        count={ratingReportFields.dataCount}
+        page={ratingReportFields.page}
         onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
+        rowsPerPage={ratingReportFields.rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
   ) : (
-    <div className="h-screen w-full flex justify-center my-[20%]">
-      <CircularProgress />
-    </div>
+    <ReportLoader />
   );
 };
 

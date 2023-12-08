@@ -8,15 +8,16 @@ import Dropdown from "./Dropdown";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { handleLogoutUtil } from "@/utils/commonFunction";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Navbar = (props: any) => {
-  const router = useRouter();
-  const [orgData, setOrgData] = useState([]);
-  const [openLogout, setOpenLogout] = useState(false);
-  const [userData, setUserData] = useState<any>([]);
-  const [roleDropdownData, setRoleDropdownData] = useState([]);
-  const selectRef = useRef<HTMLDivElement>(null);
-  const [userName, setUserName] = useState("");
+  const routerNavbar = useRouter();
+  const [orgDataNavbar, setOrgDataNavbar] = useState([]);
+  const [openLogoutNavbar, setOpenLogoutNavbar] = useState(false);
+  const [userDataNavbar, setUserDataNavbar] = useState<any>([]);
+  const [roleDropdownDataNavbar, setRoleDropdownDataNavbar] = useState([]);
+  const selectRefNavbar = useRef<HTMLDivElement>(null);
+  const [userNameNavbar, setUserNameNavbar] = useState("");
 
   let token: any;
   if (typeof window !== "undefined") {
@@ -25,7 +26,23 @@ const Navbar = (props: any) => {
 
   let options: any[] = [];
 
-  const getData = async () => {
+  const getDataNavbar = async () => {
+    const url = `${process.env.report_api_url}/report/client/rating`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (
+        ResponseStatus === "Success" &&
+        ResponseData.length > 0 &&
+        error === false
+      ) {
+        setRoleDropdownDataNavbar(ResponseData);
+      }
+    };
+    callAPI(url, null, successCallback, "GET");
+
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -40,7 +57,7 @@ const Navbar = (props: any) => {
       );
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          setRoleDropdownData(response.data.ResponseData);
+          setRoleDropdownDataNavbar(response.data.ResponseData);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -77,9 +94,9 @@ const Navbar = (props: any) => {
           response.data.ResponseData?.FirstName +
           " " +
           response.data.ResponseData?.LastName;
-        setUserName(username);
-        setUserData(response.data.ResponseData);
-        setOrgData(response.data.ResponseData.Organizations);
+        setUserNameNavbar(username);
+        setUserDataNavbar(response.data.ResponseData);
+        setOrgDataNavbar(response.data.ResponseData.Organizations);
 
         localStorage.setItem(
           "IsHaveManageAssignee",
@@ -114,7 +131,7 @@ const Navbar = (props: any) => {
             response.data.ResponseData.Organizations[0].OrganizationName
           );
         }
-        getData();
+        getDataNavbar();
         const filteredOrganization =
           response.data.ResponseData.Organizations.filter(
             (org: any) =>
@@ -136,7 +153,7 @@ const Navbar = (props: any) => {
       }
     } catch (error: any) {
       if (error.response?.status === 401) {
-        router.push("/login");
+        routerNavbar.push("/login");
         localStorage.clear();
       }
     }
@@ -152,7 +169,7 @@ const Navbar = (props: any) => {
     getUserDetails();
   }, [token]);
 
-  orgData.map(({ Token, OrganizationName, OrganizationId }) => {
+  orgDataNavbar.map(({ Token, OrganizationName, OrganizationId }) => {
     return options.push({
       id: OrganizationId,
       label: OrganizationName,
@@ -161,17 +178,20 @@ const Navbar = (props: any) => {
   });
 
   const handleLogout = () => {
-    setOpenLogout(false);
+    setOpenLogoutNavbar(false);
     if (typeof window !== "undefined") {
       handleLogoutUtil();
     }
-    router.push("/login");
+    routerNavbar.push("/login");
   };
 
   useEffect(() => {
     const handleOutsideClick = (event: any) => {
-      if (selectRef.current && !selectRef.current.contains(event.target)) {
-        setOpenLogout(false);
+      if (
+        selectRefNavbar.current &&
+        !selectRefNavbar.current.contains(event.target)
+      ) {
+        setOpenLogoutNavbar(false);
       }
     };
 
@@ -184,10 +204,10 @@ const Navbar = (props: any) => {
 
   return (
     <div className="flex items-center justify-between px-[20px] py-[9px] border-b border-lightSilver z-5">
-      {userData.RoleId === 1 ? (
-        orgData.length > 0 ? (
+      {userDataNavbar.RoleId === 1 ? (
+        orgDataNavbar.length > 0 ? (
           <Dropdown
-            options={orgData.map(
+            options={orgDataNavbar.map(
               ({ Token, OrganizationName, OrganizationId, IsFavourite }) => {
                 return {
                   id: OrganizationId,
@@ -209,7 +229,7 @@ const Navbar = (props: any) => {
           <span className="cursor-pointer">
             <NotificationIcon />
           </span>
-          {userData.RoleId !== 1 ? (
+          {userDataNavbar.RoleId !== 1 ? (
             <span className="cursor-pointer">
               <Btn_Help />
             </span>
@@ -217,30 +237,30 @@ const Navbar = (props: any) => {
         </span> */}
         <div className="flex flex-col">
           <span className="inline-block text-base font-semibold text-darkCharcoal">
-            {userData?.FirstName} {userData?.LastName}
+            {userDataNavbar?.FirstName} {userDataNavbar?.LastName}
           </span>
           <span className="inline-block text-base font-semibold text-darkCharcoal">
-            {roleDropdownData.map((i: any) => {
-              return i.value === userData.RoleId && i.label;
+            {roleDropdownDataNavbar.map((i: any) => {
+              return i.value === userDataNavbar.RoleId && i.label;
             })}
           </span>
         </div>
         <div
-          ref={selectRef}
+          ref={selectRefNavbar}
           className="flex items-center justify-center flex-col relative"
         >
           <span
-            onClick={() => setOpenLogout(!openLogout)}
+            onClick={() => setOpenLogoutNavbar(!openLogoutNavbar)}
             className="cursor-pointer"
           >
             <Avatar sx={{ width: 34, height: 34, fontSize: 14 }}>
-              {userName
+              {userNameNavbar
                 .split(" ")
                 .map((word: any) => word.charAt(0).toUpperCase())
                 .join("")}
             </Avatar>
           </span>
-          {openLogout && (
+          {openLogoutNavbar && (
             <div className="absolute top-[55px] rounded-md -right-2 w-50 h-12 px-5 flex items-center justify-center bg-pureWhite shadow-xl z-50">
               <span
                 onClick={handleLogout}

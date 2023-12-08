@@ -9,7 +9,7 @@ import {
   handleChangeRowsPerPage,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
-import { dashboardOnHoldCols } from "@/utils/datatable/columns/ClientDatatableColumns";
+import { dashboardOnHoldAndOverdueCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 
 interface OnHoldProps {
   onSelectedProjectIds: number[];
@@ -134,7 +134,7 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={dashboardOnHoldCols}
+          columns={dashboardOnHoldAndOverdueCols}
           title={undefined}
           options={options}
           data-tableid="dashboard_OnHold_Datatable"

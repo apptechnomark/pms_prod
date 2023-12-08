@@ -10,7 +10,7 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
-import { dashboardTaskStatusInfoCols } from "@/utils/datatable/columns/ClientDatatableColumns";
+import { dashboardPriorityReturnTaskInfoCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 
 interface TaskStatusInfoProps {
   onSelectedProjectIds: number[];
@@ -84,7 +84,7 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={dashboardTaskStatusInfoCols}
+          columns={dashboardPriorityReturnTaskInfoCols}
           title={undefined}
           options={dashboard_Options}
           data-tableid="taskStatusInfo_Datatable"

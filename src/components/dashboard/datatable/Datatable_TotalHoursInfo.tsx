@@ -111,134 +111,85 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
   }
 
   // Table Columns
-  const columns = [
-    {
-      name: "ProjectName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "TaskName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ContractedTotalHours",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () =>
-          generateCustomHeaderName("Total Cont. Hours"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ContractedAccountingHrs",
-      options: {
-        filter: true,
-        sort: true,
-        display:
-          onSelectedWorkType === 0 || onSelectedWorkType === 1 ? true : false,
-        customHeadLabelRender: () =>
-          generateCustomHeaderName("Cont. Acc. Hours"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ContractedTaxHrs",
-      options: {
-        filter: true,
-        sort: true,
-        display:
-          onSelectedWorkType === 0 || onSelectedWorkType === 3 ? true : false,
-        customHeadLabelRender: () =>
-          generateCustomHeaderName("Cont. Tax Hours"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ContractedAuditHrs",
-      options: {
-        filter: true,
-        sort: true,
-        display:
-          onSelectedWorkType === 0 || onSelectedWorkType === 2 ? true : false,
-        customHeadLabelRender: () =>
-          generateCustomHeaderName("Cont. Audit Hours"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ActualAccountingHrs",
-      options: {
-        filter: true,
-        sort: true,
-        display:
-          onSelectedWorkType === 0 || onSelectedWorkType === 1 ? true : false,
-        customHeadLabelRender: () => generateCustomHeaderName("Account Hours"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ActualTaxHrs",
-      options: {
-        filter: true,
-        sort: true,
-        display:
-          onSelectedWorkType === 0 || onSelectedWorkType === 3 ? true : false,
-        customHeadLabelRender: () => generateCustomHeaderName("Tax Hours"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ActualAuditHrs",
-      options: {
-        filter: true,
-        sort: true,
-        display:
-          onSelectedWorkType === 0 || onSelectedWorkType === 2 ? true : false,
-        customHeadLabelRender: () => generateCustomHeaderName("Audit Hours"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
-      name: "ActualTotalHours",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Total Hours"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
+  const columnNames = [
+    "ProjectName",
+    "TaskName",
+    "ContractedTotalHours",
+    "ContractedAccountingHrs",
+    "ContractedTaxHrs",
+    "ContractedAuditHrs",
+    "ActualAccountingHrs",
+    "ActualTaxHrs",
+    "ActualAuditHrs",
+    "ActualTotalHours",
   ];
+
+  const columns = columnNames.map((columnName) => {
+    const displayCondition = (type: number) =>
+      onSelectedWorkType === 0 || onSelectedWorkType === type;
+
+    const options = {
+      filter: true,
+      sort: true,
+      customBodyRender: (value: any) => generateCommonBodyRender(value),
+    };
+
+    switch (columnName) {
+      case "ProjectName":
+        return {
+          name: columnName,
+          options: {
+            ...options,
+            customHeadLabelRender: () =>
+              generateCustomHeaderName("Project Name"),
+          },
+        };
+      case "TaskName":
+        return {
+          name: columnName,
+          options: {
+            ...options,
+            customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
+          },
+        };
+      case "ContractedTotalHours":
+      case "ActualTotalHours":
+        return {
+          name: columnName,
+          options: {
+            ...options,
+            customHeadLabelRender: () =>
+              generateCustomHeaderName(
+                `Total ${
+                  columnName === "ContractedTotalHours" ? "Cont. " : ""
+                }Hours`
+              ),
+          },
+        };
+      default:
+        return {
+          name: columnName,
+          options: {
+            ...options,
+            display: displayCondition(
+              columnName.includes("Accounting")
+                ? 1
+                : columnName.includes("Tax")
+                ? 3
+                : columnName.includes("Audit")
+                ? 2
+                : 0
+            ),
+            customHeadLabelRender: () =>
+              generateCustomHeaderName(
+                `${
+                  columnName.includes("Contracted") ? "Cont. " : ""
+                }${columnName.replace("Actual", "")}`
+              ),
+          },
+        };
+    }
+  });
 
   return (
     <div>

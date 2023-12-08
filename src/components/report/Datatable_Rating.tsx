@@ -10,12 +10,12 @@ import { reportDatatatbleRatingCols } from "@/utils/datatable/columns/ReportsDat
 
 const Data = new Date();
 
-const pageNo = 1;
-const pageSize = 10;
+const pageNoReportRating = 1;
+const pageSizeReportRating = 10;
 
-const initialFilter = {
-  PageNo: pageNo,
-  PageSize: pageSize,
+const initialReportRatingFilter = {
+  PageNo: pageNoReportRating,
+  PageSize: pageSizeReportRating,
   GlobalSearch: "",
   SortColumn: "",
   IsDesc: false,
@@ -35,31 +35,35 @@ const Datatable_Rating = ({
   onSearchData,
   onHandleExport,
 }: any) => {
-  const [allFields, setAllFields] = useState<any>({
-    loaded: false,
+  const [allReportRatingFields, setAllReportRatingFields] = useState<any>({
+    loaded: true,
     ratingData: [],
     page: 0,
-    rowsPerPage: pageSize,
+    rowsPerPage: pageSizeReportRating,
     tableDataCount: 0,
   });
-  const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
+  const [filteredObjectReportRating, setFilteredOjectReportRating] =
+    useState<any>(initialReportRatingFilter);
 
-  const handleChangePage = (
+  const handleChangePageReportRating = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setAllFields({
-      ...allFields,
+    setAllReportRatingFields({
+      ...allReportRatingFields,
       page: newPage,
     });
-    setFilteredOject({ ...filteredObject, PageNo: newPage + 1 });
+    setFilteredOjectReportRating({
+      ...filteredObjectReportRating,
+      PageNo: newPage + 1,
+    });
   };
 
-  const handleChangeRowsPerPage = (
+  const handleChangeRowsPerPageReportRating = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setFilteredOject({
-      ...filteredObject,
+    setFilteredOjectReportRating({
+      ...filteredObjectReportRating,
       PageNo: 1,
       PageSize: event.target.value,
     });
@@ -67,31 +71,43 @@ const Datatable_Rating = ({
 
   useEffect(() => {
     if (onSearchData) {
-      setAllFields({
-        ...allFields,
+      setAllReportRatingFields({
+        ...allReportRatingFields,
         ratingData: onSearchData,
       });
     } else {
-      getRatingList();
+      getReportRatingList();
     }
   }, [onSearchData]);
 
-  const getRatingList = async () => {
-    const params = filteredObject;
+  const getReportRatingList = async () => {
+    setAllReportRatingFields({
+      ...allReportRatingFields,
+      loaded: false,
+    });
+    const params = filteredObjectReportRating;
     const url = `${process.env.report_api_url}/report/client/rating`;
-    const successCallback = (ResponseData: any, error: any) => {
-      if (ResponseData !== null && error === false) {
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (
+        ResponseStatus === "Success" &&
+        ResponseData.List.length > 0 &&
+        error === false
+      ) {
         onHandleExport(ResponseData.List.length > 0);
-        setAllFields({
-          ...allFields,
+        setAllReportRatingFields({
+          ...allReportRatingFields,
           loaded: true,
           ratingData: ResponseData.List,
           tableDataCount: ResponseData.TotalCount,
         });
       } else {
-        setAllFields({
-          ...allFields,
-          loaded: false,
+        setAllReportRatingFields({
+          ...allReportRatingFields,
+          loaded: true,
         });
       }
     };
@@ -99,17 +115,20 @@ const Datatable_Rating = ({
   };
 
   useEffect(() => {
-    setFilteredOject({ ...filteredObject, ...currentFilterData });
+    setFilteredOjectReportRating({
+      ...filteredObjectReportRating,
+      ...currentFilterData,
+    });
   }, [currentFilterData]);
 
   useEffect(() => {
-    getRatingList();
-  }, [filteredObject]);
+    getReportRatingList();
+  }, [filteredObjectReportRating]);
 
-  return allFields.loaded ? (
+  return allReportRatingFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
-        data={allFields.ratingData}
+        data={allReportRatingFields.ratingData}
         columns={reportDatatatbleRatingCols}
         title={undefined}
         options={{
@@ -119,11 +138,11 @@ const Datatable_Rating = ({
       />
       <TablePagination
         component="div"
-        count={allFields.tableDataCount}
-        page={allFields.page}
-        onPageChange={handleChangePage}
-        rowsPerPage={allFields.rowsPerPage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        count={allReportRatingFields.tableDataCount}
+        page={allReportRatingFields.page}
+        onPageChange={handleChangePageReportRating}
+        rowsPerPage={allReportRatingFields.rowsPerPage}
+        onRowsPerPageChange={handleChangeRowsPerPageReportRating}
       />
     </ThemeProvider>
   ) : (

@@ -26,7 +26,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 
 // filter type
-import { FilterType } from "./types/ReportsFilterType";
+import { FilterType } from "../types/ReportsFilterType";
 
 // filter type enum
 import { user } from "../Enum/Filtertype";

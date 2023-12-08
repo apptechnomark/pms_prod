@@ -1,18 +1,16 @@
-import { callAPI } from "@/utils/API/callAPI";
-import React, { useEffect, useState } from "react";
-import {
-  CircularProgress,
-  TablePagination,
-  ThemeProvider,
-} from "@mui/material";
 import MUIDataTable from "mui-datatables";
+import { useEffect, useState } from "react";
+import { callAPI } from "@/utils/API/callAPI";
+import { FieldsType } from "../types/FieldsType";
 import { options } from "@/utils/datatable/TableOptions";
-import { audit_InitialFilter } from "@/utils/reports/getFilters";
+import ReportLoader from "@/components/common/ReportLoader";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { TablePagination, ThemeProvider } from "@mui/material";
+import { audit_InitialFilter } from "@/utils/reports/getFilters";
 import { reportsAuditCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 
 const Audit = ({ filteredData, searchValue, onHandleExport }: any) => {
-  const [auditFields, setAuditFields] = useState({
+  const [auditFields, setAuditFields] = useState<FieldsType>({
     loaded: false,
     page: 0,
     data: [],
@@ -108,9 +106,7 @@ const Audit = ({ filteredData, searchValue, onHandleExport }: any) => {
       />
     </ThemeProvider>
   ) : (
-    <div className="h-screen w-full flex justify-center my-[20%]">
-      <CircularProgress />
-    </div>
+    <ReportLoader />
   );
 };
 

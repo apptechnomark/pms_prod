@@ -22,7 +22,7 @@ import { DialogTransition } from "@/utils/style/DialogTransition";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
-import { FilterType } from "./types/ReportsFilterType";
+import { FilterType } from "../types/ReportsFilterType";
 import { user } from "../Enum/Filtertype";
 import { user_InitialFilter } from "@/utils/reports/getFilters";
 import { getDates, getFormattedDate } from "@/utils/timerFunctions";

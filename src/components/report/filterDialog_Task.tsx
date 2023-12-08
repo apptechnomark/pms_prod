@@ -25,7 +25,7 @@ interface FilterModalProps {
   currentFilterData?: any;
 }
 
-const initialFilter = {
+const initialTaskFilter = {
   ProjectIdsForFilter: [],
   WorkType: null,
   Priority: null,
@@ -38,75 +38,74 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
   onClose,
   currentFilterData,
 }) => {
-  const [anyFieldSelected, setAnyFieldSelected] = useState<any>(false);
-  const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
-  const [projectDropdownData, setProjectDropdownData] = useState([]);
-  const [typeOfWork, setTypeOfWork] = useState<null | number>(0);
-  const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState([]);
-  const [dueDate, setDueDate] = useState<null | string>(null);
-  const [startDate, setStartDate] = useState<null | string>(null);
-  const [endDate, setEndDate] = useState<null | string>(null);
+  const [anyTaskFieldSelected, setAnyTaskFieldSelected] = useState<any>(false);
+  const [currSelectedTaskFields, setCurrSelectedTaskFileds] = useState<any | any[]>([]);
+  const [projectFilterTaskDropdownData, setProjectFilterTaskDropdownData] = useState([]);
+  const [typeOfWorkFilterTask, setTypeOfWorkFilterTask] = useState<null | number>(0);
+  const [typeOfWorkFilterTaskDropdownData, setTypeOfWorkFilterTaskDropdownData] = useState([]);
+  const [dueDateFilterTask, setDueDateFilterTask] = useState<null | string>(null);
+  const [startDateFilterTask, setStartDateFilterTask] = useState<null | string>(null);
+  const [endDateFilterTask, setEndDateFilterTask] = useState<null | string>(null);
+  const [projectFilterTask, setProjectFilterTask] = useState<null | number>(0);
+  const [priorityFilterTask, setPriorityFilterTask] = useState<null | number>(0);
 
-  const [project, setProject] = useState<null | number>(0);
-  const [priority, setPriority] = useState<null | number>(0);
-
-  const handleClose = () => {
-    handleResetAll();
+  const handleTaskClose = () => {
+    handleTaskResetAll();
     onClose();
   };
 
-  const handleResetAll = () => {
-    setProject(0);
-    setTypeOfWork(0);
-    setPriority(0);
-    setDueDate(null);
-    setStartDate(null);
-    setEndDate(null);
-    currentFilterData(initialFilter);
+  const handleTaskResetAll = () => {
+    setProjectFilterTask(0);
+    setTypeOfWorkFilterTask(0);
+    setPriorityFilterTask(0);
+    setDueDateFilterTask(null);
+    setStartDateFilterTask(null);
+    setEndDateFilterTask(null);
+    currentFilterData(initialTaskFilter);
   };
 
   // Check if any field is selected
   useEffect(() => {
-    const isAnyFieldSelected =
-      project !== 0 ||
-      typeOfWork !== 0 ||
-      priority !== 0 ||
-      dueDate !== null ||
-      startDate !== null ||
-      endDate !== null;
+    const isAnyTaskFieldSelected =
+      projectFilterTask !== 0 ||
+      typeOfWorkFilterTask !== 0 ||
+      priorityFilterTask !== 0 ||
+      dueDateFilterTask !== null ||
+      startDateFilterTask !== null ||
+      endDateFilterTask !== null;
 
-    setAnyFieldSelected(isAnyFieldSelected);
-  }, [project, typeOfWork, priority, dueDate, startDate, endDate]);
+    setAnyTaskFieldSelected(isAnyTaskFieldSelected);
+  }, [projectFilterTask, typeOfWorkFilterTask, priorityFilterTask, dueDateFilterTask, startDateFilterTask, endDateFilterTask]);
 
   useEffect(() => {
     const selectedFields = {
-      ProjectIdsForFilter: project === 0 ? [] : [project] || null,
-      WorkType: typeOfWork || null,
-      Priority: priority || null,
+      ProjectIdsForFilter: projectFilterTask === 0 ? [] : [projectFilterTask] || null,
+      WorkType: typeOfWorkFilterTask || null,
+      Priority: priorityFilterTask || null,
       DueDate:
-        dueDate !== null
-          ? new Date(new Date(dueDate).getTime() + 24 * 60 * 60 * 1000)
+        dueDateFilterTask !== null
+          ? new Date(new Date(dueDateFilterTask).getTime() + 24 * 60 * 60 * 1000)
               .toISOString()
               .split("T")[0]
           : null,
       StartDate:
-        startDate !== null
-          ? new Date(new Date(startDate).getTime() + 24 * 60 * 60 * 1000)
+        startDateFilterTask !== null
+          ? new Date(new Date(startDateFilterTask).getTime() + 24 * 60 * 60 * 1000)
               .toISOString()
               .split("T")[0]
           : null,
       EndDate:
-        endDate !== null
-          ? new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000)
+        endDateFilterTask !== null
+          ? new Date(new Date(endDateFilterTask).getTime() + 24 * 60 * 60 * 1000)
               .toISOString()
               .split("T")[0]
           : null,
     };
-    setCurrSelectedFileds(selectedFields);
-  }, [project, typeOfWork, priority, dueDate, startDate, endDate]);
+    setCurrSelectedTaskFileds(selectedFields);
+  }, [projectFilterTask, typeOfWorkFilterTask, priorityFilterTask, dueDateFilterTask, startDateFilterTask, endDateFilterTask]);
 
-  const sendFilterToPage = () => {
-    currentFilterData(currSelectedFields);
+  const sendTaskFilterToPage = () => {
+    currentFilterData(currSelectedTaskFields);
     onClose();
   };
 
@@ -130,7 +129,7 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          setProjectDropdownData(response.data.ResponseData.List);
+          setProjectFilterTaskDropdownData(response.data.ResponseData.List);
           getWorkTypeData();
         } else {
           const data = response.data.Message;
@@ -173,7 +172,7 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          setTypeOfWorkDropdownData(response.data.ResponseData);
+          setTypeOfWorkFilterTaskDropdownData(response.data.ResponseData);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -206,11 +205,11 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
         TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="md"
-        onClose={handleClose}
+        onClose={handleTaskClose}
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
           <span className="text-lg font-medium">Filter</span>
-          <Button color="error" onClick={handleResetAll}>
+          <Button color="error" onClick={handleTaskResetAll}>
             Reset all
           </Button>
         </DialogTitle>
@@ -222,10 +221,10 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
                 <Select
                   labelId="project"
                   id="project"
-                  value={project === 0 ? "" : project}
-                  onChange={(e: any) => setProject(e.target.value)}
+                  value={projectFilterTask === 0 ? "" : projectFilterTask}
+                  onChange={(e: any) => setProjectFilterTask(e.target.value)}
                 >
-                  {projectDropdownData.map((i: any, index: number) => (
+                  {projectFilterTaskDropdownData.map((i: any, index: number) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
@@ -238,10 +237,10 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
                 <Select
                   labelId="workTypes-label"
                   id="workTypes-select"
-                  value={typeOfWork === 0 ? "" : typeOfWork}
-                  onChange={(e: any) => setTypeOfWork(e.target.value)}
+                  value={typeOfWorkFilterTask === 0 ? "" : typeOfWorkFilterTask}
+                  onChange={(e: any) => setTypeOfWorkFilterTask(e.target.value)}
                 >
-                  {typeOfWorkDropdownData.map((i: any, index: number) => (
+                  {typeOfWorkFilterTaskDropdownData.map((i: any, index: number) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
@@ -254,8 +253,8 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
                 <Select
                   labelId="priority"
                   id="priority"
-                  value={priority === 0 ? "" : priority}
-                  onChange={(e: any) => setPriority(e.target.value)}
+                  value={priorityFilterTask === 0 ? "" : priorityFilterTask}
+                  onChange={(e: any) => setPriorityFilterTask(e.target.value)}
                 >
                   <MenuItem value={1}>High</MenuItem>
                   <MenuItem value={2}>Medium</MenuItem>
@@ -290,8 +289,8 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
                     label="From"
                     shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
-                    value={startDate === null ? null : dayjs(startDate)}
-                    onChange={(newDate: any) => setStartDate(newDate.$d)}
+                    value={startDateFilterTask === null ? null : dayjs(startDateFilterTask)}
+                    onChange={(newDate: any) => setStartDateFilterTask(newDate.$d)}
                     slotProps={{
                       textField: {
                         readOnly: true,
@@ -307,8 +306,8 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
                     label="To"
                     shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
-                    value={endDate === null ? null : dayjs(endDate)}
-                    onChange={(newDate: any) => setEndDate(newDate.$d)}
+                    value={endDateFilterTask === null ? null : dayjs(endDateFilterTask)}
+                    onChange={(newDate: any) => setEndDateFilterTask(newDate.$d)}
                     slotProps={{
                       textField: {
                         readOnly: true,
@@ -324,14 +323,14 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
           <Button
             variant="contained"
             color="info"
-            className={`${anyFieldSelected && "!bg-secondary"}`}
-            disabled={!anyFieldSelected}
-            onClick={sendFilterToPage}
+            className={`${anyTaskFieldSelected && "!bg-secondary"}`}
+            disabled={!anyTaskFieldSelected}
+            onClick={sendTaskFilterToPage}
           >
             Apply Filter
           </Button>
 
-          <Button variant="outlined" color="info" onClick={handleClose}>
+          <Button variant="outlined" color="info" onClick={handleTaskClose}>
             Cancel
           </Button>
         </DialogActions>

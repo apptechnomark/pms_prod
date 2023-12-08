@@ -41,7 +41,12 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { MentionsInput, Mention } from "react-mentions";
 import mentionsInputStyle from "../../utils/worklog/mentionsInputStyle";
-import { hasPermissionWorklog, isWeekend } from "@/utils/commonFunction";
+import {
+  extractText,
+  getYears,
+  hasPermissionWorklog,
+  isWeekend,
+} from "@/utils/commonFunction";
 import {
   days,
   getAssigneeDropdownData,
@@ -70,6 +75,7 @@ const EditDrawer = ({
   onComment,
 }: any) => {
   const router = useRouter();
+  const yearDropdown = getYears();
   const [inputTypeReview, setInputTypeReview] = useState("text");
   const [inputTypePreperation, setInputTypePreperation] = useState("text");
   const [isCreatedByClient, setIsCreatedByClient] = useState(false);
@@ -251,13 +257,6 @@ const EditDrawer = ({
       setSelectedDays([...selectedDays, index]);
     }
   };
-
-  const currentYear = new Date().getFullYear();
-  const Years = [];
-
-  for (let year = 2010; year <= currentYear + 1; year++) {
-    Years.push({ label: String(year), value: year });
-  }
 
   useEffect(() => {
     onRecurring && scrollToPanel(4);
@@ -2805,16 +2804,6 @@ const EditDrawer = ({
     }
   };
 
-  const extractText = (inputString: any) => {
-    const regex = /@\[([^\]]+)\]\([^)]+\)|\[([^\]]+)\]|[^@\[\]]+/g;
-    const matches = [];
-    let match;
-    while ((match = regex.exec(inputString)) !== null) {
-      matches.push(match[1] || match[2] || match[0]);
-    }
-    return matches;
-  };
-
   const handleClose = () => {
     setEditData([]);
     setIsCreatedByClient(false);
@@ -3801,7 +3790,7 @@ const EditDrawer = ({
                                 }
                               }}
                             >
-                              {Years.map((i: any, index: number) => (
+                              {yearDropdown.map((i: any, index: number) => (
                                 <MenuItem value={i.value} key={index}>
                                   {i.label}
                                 </MenuItem>

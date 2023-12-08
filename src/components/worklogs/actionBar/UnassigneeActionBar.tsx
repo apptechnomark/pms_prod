@@ -18,7 +18,7 @@ import DateIcon from "@/assets/icons/worklogs/DateIcon";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import { hasPermissionWorklog } from "@/utils/commonFunction";
+import { getYears, hasPermissionWorklog } from "@/utils/commonFunction";
 import { toast } from "react-toastify";
 import axios from "axios";
 import {
@@ -49,6 +49,7 @@ const UnassigneeActionBar = ({
   workItemData,
   getWorkItemList,
 }: any) => {
+  const yearDropdown = getYears();
   const [searchQuery, setSearchQuery] = useState("");
   const [clientSearchQuery, setClientSearchQuery] = useState("");
   const [managerSearchQuery, setManagerSearchQuery] = useState("");
@@ -309,14 +310,6 @@ const UnassigneeActionBar = ({
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-
-  // getting years
-  const currentYear = new Date().getFullYear();
-  const Years = [];
-
-  for (let year = 2010; year <= currentYear + 1; year++) {
-    Years.push({ label: String(year), value: year });
-  }
 
   // function for getting weekends
   const isWeekend = (date: any) => {
@@ -1803,12 +1796,12 @@ const UnassigneeActionBar = ({
                 >
                   <nav className="!w-52">
                     <List>
-                      {Years.length === 0 ? (
+                      {yearDropdown.length === 0 ? (
                         <span className="flex flex-col py-2 px-4  text-sm">
                           No Data Available
                         </span>
                       ) : (
-                        Years.map((yr: any) => {
+                        yearDropdown.map((yr: any) => {
                           return (
                             <span
                               key={yr.value}

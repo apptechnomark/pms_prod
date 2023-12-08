@@ -10,7 +10,7 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
-import { dashboardSummaryListCols } from "@/utils/datatable/columns/ClientDatatableColumns";
+import { dashboardOverallProjectSumCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 
 interface SummaryListProps {
   onSelectedProjectIds: number[];
@@ -99,7 +99,7 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={dashboardSummaryListCols}
+          columns={dashboardOverallProjectSumCols}
           title={undefined}
           options={dashboard_Options}
           data-tableid="taskStatusInfo_Datatable"

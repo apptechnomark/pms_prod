@@ -22,7 +22,7 @@ import { DialogTransition } from "@/utils/style/DialogTransition";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { FilterType } from "./types/ReportsFilterType";
+import { FilterType } from "../types/ReportsFilterType";
 import { client, customReport } from "../Enum/Filtertype";
 import { customreport_InitialFilter } from "@/utils/reports/getFilters";
 import { getUserData } from "./api/getDropDownData";
@@ -42,6 +42,7 @@ const SIGNED_OFF = "signedoff";
 const ACCEPTED = "accept";
 const IN_REVIEW = "inreview";
 const IN_PROGRESS = "inprogress";
+const ALL = -1;
 
 const returnTypeDropdown = [
   {
@@ -375,7 +376,10 @@ const CustomReportFilter = ({
 
   useEffect(() => {
     const customDropdowns = async () => {
-      setClientDropdown(await getClientDropdownData());
+      setClientDropdown([
+        { label: "Select All", value: ALL },
+        ...(await getClientDropdownData()),
+      ]);
       setProjectDropdown(
         await getProjectDropdownData(clientName.length > 0 ? clientName[0] : 0)
       );
@@ -640,16 +644,35 @@ const CustomReportFilter = ({
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={clientDropdown.filter(
-                      (option) =>
-                        !clients.find((client) => client.value === option.value)
-                    )}
+                    options={
+                      clientDropdown.length - 1 === clients.length
+                        ? []
+                        : clientDropdown.filter(
+                            (option) =>
+                              !clients.find(
+                                (client) => client.value === option.value
+                              )
+                          )
+                    }
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setClients(data);
-                      setClientName(data.map((d: any) => d.value));
-                      setProjectName(0);
-                      setProcessName(0);
+                      if (data.some((d: any) => d.value === -1)) {
+                        setClients(
+                          clientDropdown.filter((d: any) => d.value !== -1)
+                        );
+                        setClientName(
+                          clientDropdown
+                            .filter((d: any) => d.value !== -1)
+                            .map((d: any) => d.value)
+                        );
+                        setProjectName(0);
+                        setProcessName(0);
+                      } else {
+                        setClients(data);
+                        setClientName(data.map((d: any) => d.value));
+                        setProjectName(0);
+                        setProcessName(0);
+                      }
                     }}
                     value={clients}
                     renderInput={(params: any) => (

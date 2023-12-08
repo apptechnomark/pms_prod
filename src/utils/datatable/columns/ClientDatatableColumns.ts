@@ -1,250 +1,94 @@
 import {
   generateCommonBodyRender,
   generateCustomFormatDate,
-  generateCustomHeaderName,
   generateDaysBodyRender,
   generatePriorityWithColor,
   generateStatusWithColor,
 } from "../CommonFunction";
+import {
+  generateCustomColumn,
+  generateStatusColumn,
+} from "./ColsGenerateFunctions";
 
-const dashboardOnHoldCols = [
+const dashboardDatatableColsConfig = [
   {
     name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "TaskName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "StartDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Start Date",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "DueDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Due Date",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "DueFrom",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Due From"),
-      customBodyRender: (value: any) => {
-        return generateDaysBodyRender(value);
-      },
-    },
+    label: "Due From",
+    bodyRenderer: generateDaysBodyRender,
   },
 ];
 
-const dashboardOverduCols = [
+const OverallProjectColsConfig = [
   {
     name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "TaskName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "CloseMonth",
-    options: {
-      filter: true,
-      sort: true,
-      display: false,
-      // display: onSelectedWorkType === 3 ? false : true,
-      customHeadLabelRender: () => generateCustomHeaderName("Month Close"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "StartDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
-  {
-    name: "DueDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
-  {
-    name: "DueFrom",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Due From"),
-      customBodyRender: (value: any) => {
-        return generateDaysBodyRender(value);
-      },
-    },
-  },
-];
-
-const dashboardOverallProjectSumCols = [
-  {
-    name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "TaskName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "TypeOfWorkName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Type of Work",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "TaxReturnTypeName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Return Type"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Return Type",
+    bodyRenderer: generateCommonBodyRender,
   },
-
   {
     name: "StatusName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Status"),
-      customBodyRender: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[10]),
-    },
+    label: "Status",
+    bodyRenderer: (value: any, tableMeta: any) =>
+      generateStatusWithColor(value, tableMeta.rowData[11]),
   },
   {
     name: "PriorityName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-      customBodyRender: (value: any) => generatePriorityWithColor(value),
-    },
+    label: "Priority",
+    bodyRenderer: generatePriorityWithColor,
   },
   {
     name: "StartDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Start Date",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "EndDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("End Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "End Date",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "EndDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Due Date",
+    bodyRenderer: generateCustomFormatDate,
   },
-
   {
     name: "AssignedToName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Assigned To",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "StatusColorCode",
@@ -256,329 +100,53 @@ const dashboardOverallProjectSumCols = [
   },
 ];
 
-const dashboardPriorityInfoCols = [
-  {
-    name: "TaskName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
+const PriorityInfoColsConfig = [
   {
     name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "TypeOfWorkName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "StartDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
-  {
-    name: "EndDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("End Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
-  {
-    name: "EndDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
-  {
-    name: "StatusName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Status"),
-      customBodyRender: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[9]),
-    },
-  },
-  {
-    name: "PriorityName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-      customBodyRender: (value: any) => generatePriorityWithColor(value),
-    },
-  },
-  {
-    name: "AssignedToName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "StatusColorCode",
-    options: {
-      filter: false,
-      sort: false,
-      display: false,
-    },
-  },
-];
-
-const dashboardReturnTypeCols = [
-  {
-    name: "TaskName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "TypeOfWorkName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "StartDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
-  {
-    name: "EndDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("End Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
-  {
-    name: "EndDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
-  {
-    name: "StatusName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Status"),
-      customBodyRender: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[9]),
-    },
-  },
-  {
-    name: "PriorityName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-      customBodyRender: (value: any) => generatePriorityWithColor(value),
-    },
-  },
-  {
-    name: "AssignedToName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "StatusColorCode",
-    options: {
-      filter: false,
-      sort: false,
-      display: false,
-    },
-  },
-];
-
-const dashboardSummaryListCols = [
-  {
-    name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "TaskName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "TypeOfWorkName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "TaxReturnTypeName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Return Type"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-
-  {
-    name: "StatusName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Status"),
-      customBodyRender: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[10]),
-    },
-  },
-  {
-    name: "PriorityName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-      customBodyRender: (value: any) => generatePriorityWithColor(value),
-    },
+    label: "Type of Work",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "StartDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Start Date",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "EndDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("End Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "End Date",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "EndDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Due Date",
+    bodyRenderer: generateCustomFormatDate,
+  },
+  {
+    name: "StatusName",
+    label: "Status",
+    bodyRenderer: (value: any, tableMeta: any) =>
+      generateStatusWithColor(value, tableMeta.rowData[11]),
+  },
+  {
+    name: "PriorityName",
+    label: "Priority",
+    bodyRenderer: generatePriorityWithColor,
   },
 
   {
     name: "AssignedToName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Assigned To",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "StatusColorCode",
@@ -590,213 +158,58 @@ const dashboardSummaryListCols = [
   },
 ];
 
-const dashboardTaskStatusInfoCols = [
-  {
-    name: "TaskName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "TypeOfWorkName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "StartDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
-  {
-    name: "EndDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("End Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
-  {
-    name: "EndDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
-  {
-    name: "StatusName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Status"),
-      customBodyRender: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[9]),
-    },
-  },
-  {
-    name: "PriorityName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-      customBodyRender: (value: any) => generatePriorityWithColor(value),
-    },
-  },
-  {
-    name: "AssignedToName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "StatusColorCode",
-    options: {
-      filter: false,
-      sort: false,
-      display: false,
-    },
-  },
-];
-
-const datatableWorklogCols = [
+const WorklogColsConfig = [
   {
     name: "WorkitemId",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Task ID",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "TaskName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "AssignedToName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Assigned To",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "PriorityName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-      customBodyRender: (value: any) => generatePriorityWithColor(value),
-    },
+    label: "Priority",
+    bodyRenderer: generatePriorityWithColor,
   },
   {
     name: "StatusName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Status"),
-      customBodyRender: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[9]),
-    },
+    label: "Status",
+    bodyRenderer: (value: any, tableMeta: any) =>
+      generateStatusWithColor(value, tableMeta.rowData[9]),
   },
   {
     name: "Quantity",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Qty."),
-    },
-    customBodyRender: (value: any) => {
-      return generateCommonBodyRender(value);
-    },
+    label: "Qty.",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "StartDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Start Date",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "EndDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Due Date",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "StatusColorCode",
     options: {
+      filter: false,
+      sort: false,
       display: false,
     },
   },
@@ -808,13 +221,25 @@ const datatableWorklogCols = [
   },
 ];
 
+const dashboardOnHoldAndOverdueCols = dashboardDatatableColsConfig.map(
+  (i: any) => generateCustomColumn(i.header, i.label, i.bodyRenderer)
+);
+
+const dashboardOverallProjectSumCols = OverallProjectColsConfig.map(
+  (column: any) => generateStatusColumn(column, 10)
+);
+
+const dashboardPriorityReturnTaskInfoCols = PriorityInfoColsConfig.map(
+  (column: any) => generateStatusColumn(column, 9)
+);
+
+const datatableWorklogCols = WorklogColsConfig.map((column: any) =>
+  generateStatusColumn(column, 9)
+);
+
 export {
-  dashboardOnHoldCols,
-  dashboardOverduCols,
+  dashboardOnHoldAndOverdueCols,
   dashboardOverallProjectSumCols,
-  dashboardPriorityInfoCols,
-  dashboardReturnTypeCols,
-  dashboardSummaryListCols,
-  dashboardTaskStatusInfoCols,
   datatableWorklogCols,
+  dashboardPriorityReturnTaskInfoCols,
 };

@@ -23,7 +23,7 @@ import { DialogTransition } from "@/utils/style/DialogTransition";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 
 // filter type
-import { FilterType } from "./types/ReportsFilterType";
+import { FilterType } from "../types/ReportsFilterType";
 
 // filter type enum
 import { audit } from "../Enum/Filtertype";

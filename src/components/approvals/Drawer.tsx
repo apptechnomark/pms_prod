@@ -38,7 +38,7 @@ import { useRouter } from "next/navigation";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import { hasPermissionWorklog, isWeekend } from "@/utils/commonFunction";
+import { extractText, getYears, hasPermissionWorklog, isWeekend } from "@/utils/commonFunction";
 import ImageUploader from "../common/ImageUploader";
 import { Mention, MentionsInput } from "react-mentions";
 import mentionsInputStyle from "../../utils/worklog/mentionsInputStyle";
@@ -73,6 +73,7 @@ const EditDrawer = ({
   onManualTime,
 }: any) => {
   const router = useRouter();
+  const yearDropdown = getYears();
   const [inputTypeReview, setInputTypeReview] = useState("text");
   const [inputTypePreperation, setInputTypePreperation] = useState("text");
 
@@ -583,13 +584,6 @@ const EditDrawer = ({
       setSelectedDays([...selectedDays, index]);
     }
   };
-
-  const currentYear = new Date().getFullYear();
-  const Years = [];
-
-  for (let year = 2010; year <= currentYear; year++) {
-    Years.push({ label: String(year), value: year });
-  }
 
   let Task = [
     hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "Task",
@@ -1590,16 +1584,6 @@ const EditDrawer = ({
         getCommentData(1);
       }
     }
-  };
-
-  const extractText = (inputString: any) => {
-    const regex = /@\[([^\]]+)\]\([^)]+\)|\[([^\]]+)\]|[^@\[\]]+/g;
-    const matches = [];
-    let match;
-    while ((match = regex.exec(inputString)) !== null) {
-      matches.push(match[1] || match[2] || match[0]);
-    }
-    return matches;
   };
 
   // Recurring
@@ -3743,7 +3727,7 @@ const EditDrawer = ({
                                 }
                               }}
                             >
-                              {Years.map((i: any, index: number) => (
+                              {yearDropdown.map((i: any, index: number) => (
                                 <MenuItem value={i.value} key={index}>
                                   {i.label}
                                 </MenuItem>

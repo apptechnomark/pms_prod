@@ -10,7 +10,7 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
-import { dashboardReturnTypeCols } from "@/utils/datatable/columns/ClientDatatableColumns";
+import { dashboardPriorityReturnTaskInfoCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 
 interface ReturnTypeDataProps {
   onSelectedProjectIds: number[];
@@ -86,7 +86,7 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
       <ThemeProvider theme={getMuiTheme()}>
         <MUIDataTable
           data={data}
-          columns={dashboardReturnTypeCols}
+          columns={dashboardPriorityReturnTaskInfoCols}
           title={undefined}
           options={dashboard_Options}
           data-tableid="priorityInfo_Datatable"

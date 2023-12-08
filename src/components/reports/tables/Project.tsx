@@ -1,15 +1,12 @@
-import axios from "axios";
-import { toast } from "react-toastify";
-import React, { useEffect, useState } from "react";
-import {
-  CircularProgress,
-  TablePagination,
-  ThemeProvider,
-} from "@mui/material";
 import MUIDataTable from "mui-datatables";
+import { useEffect, useState } from "react";
+import { callAPI } from "@/utils/API/callAPI";
+import { FieldsType } from "../types/FieldsType";
 import { options } from "@/utils/datatable/TableOptions";
-import { client_project_InitialFilter } from "@/utils/reports/getFilters";
+import ReportLoader from "@/components/common/ReportLoader";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { TablePagination, ThemeProvider } from "@mui/material";
+import { client_project_InitialFilter } from "@/utils/reports/getFilters";
 import { reportsProjectsCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 
 const project_InitialFilter = {
@@ -18,57 +15,32 @@ const project_InitialFilter = {
 };
 
 const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
-  const [loaded, setLoaded] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(0);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [projectData, setProjectData] = useState<any>([]);
-  const [tableDataCount, setTableDataCount] = useState<number>(0);
+  const [projectFields, setProjectFields] = useState<FieldsType>({
+    loaded: false,
+    page: 0,
+    rowsPerPage: 10,
+    data: [],
+    dataCount: 0,
+  });
 
   const getData = async (arg1: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
+    const url = `${process.env.report_api_url}/report/project`;
 
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/project`,
-        { ...arg1 },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          onHandleExport(
-            response.data.ResponseData.List.length > 0 ? true : false
-          );
-          setLoaded(true);
-          setProjectData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          setLoaded(true);
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+    const successCallback = (data: any, error: any) => {
+      if (data !== null && error === false) {
+        onHandleExport(data.List.length > 0);
+        setProjectFields({
+          ...projectFields,
+          loaded: true,
+          data: data.List,
+          dataCount: data.TotalCount,
+        });
       } else {
-        setLoaded(true);
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+        setProjectFields({ ...projectFields, loaded: false });
       }
-    } catch (error) {
-      setLoaded(true);
-      console.error(error);
-    }
+    };
+
+    callAPI(url, arg1, successCallback, "post");
   };
 
   // functions for handling pagination
@@ -76,14 +48,18 @@ const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setPage(newPage);
+    setProjectFields({ ...projectFields, page: newPage });
     if (filteredData !== null) {
-      getData({ ...filteredData, pageNo: newPage + 1, pageSize: rowsPerPage });
+      getData({
+        ...filteredData,
+        pageNo: newPage + 1,
+        pageSize: projectFields.rowsPerPage,
+      });
     } else {
       getData({
         ...project_InitialFilter,
         pageNo: newPage + 1,
-        pageSize: rowsPerPage,
+        pageSize: projectFields.rowsPerPage,
       });
     }
   };
@@ -91,10 +67,17 @@ const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
+    setProjectFields({
+      ...projectFields,
+      page: 0,
+      rowsPerPage: parseInt(event.target.value),
+    });
     if (filteredData !== null) {
-      getData({ ...filteredData, pageNo: 1, pageSize: rowsPerPage });
+      getData({
+        ...filteredData,
+        pageNo: 1,
+        pageSize: projectFields.rowsPerPage,
+      });
     } else {
       getData({
         ...project_InitialFilter,
@@ -111,34 +94,35 @@ const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       getData({ ...filteredData, globalSearch: searchValue });
-      setPage(0);
-      setRowsPerPage(10);
+      setProjectFields({
+        ...projectFields,
+        page: 0,
+        rowsPerPage: 10,
+      });
     } else {
       getData({ ...project_InitialFilter, globalSearch: searchValue });
     }
   }, [filteredData, searchValue]);
 
-  return loaded ? (
+  return projectFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={reportsProjectsCols}
-        data={projectData}
+        data={projectFields.data}
         title={undefined}
         options={options}
       />
       <TablePagination
         component="div"
-        count={tableDataCount}
-        page={page}
+        count={projectFields.dataCount}
+        page={projectFields.page}
         onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
+        rowsPerPage={projectFields.rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
   ) : (
-    <div className="h-screen w-full flex justify-center my-[20%]">
-      <CircularProgress />
-    </div>
+    <ReportLoader />
   );
 };
 

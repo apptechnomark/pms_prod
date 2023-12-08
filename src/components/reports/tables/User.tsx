@@ -1,77 +1,51 @@
-import axios from "axios";
-import { toast } from "react-toastify";
-import React, { useEffect, useState } from "react";
-import {
-  CircularProgress,
-  TablePagination,
-  ThemeProvider,
-} from "@mui/material";
-import MUIDataTable from "mui-datatables";
-import { options } from "@/utils/datatable/TableOptions";
-import { user_InitialFilter } from "@/utils/reports/getFilters";
-import { getDates } from "@/utils/timerFunctions";
-import { getColor } from "@/utils/reports/getColor";
 import dayjs from "dayjs";
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
+import MUIDataTable from "mui-datatables";
+import { useEffect, useState } from "react";
+import { userLegend } from "../Enum/Legend";
+import { callAPI } from "@/utils/API/callAPI";
+import { FieldsType } from "../types/FieldsType";
+import { getDates } from "@/utils/timerFunctions";
+import Legends from "@/components/common/Legends";
+import { getColor } from "@/utils/reports/getColor";
+import { options } from "@/utils/datatable/TableOptions";
+import ReportLoader from "@/components/common/ReportLoader";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { TablePagination, ThemeProvider } from "@mui/material";
+import { user_InitialFilter } from "@/utils/reports/getFilters";
 
 const User = ({ filteredData, searchValue, onHandleExport }: any) => {
-  const [loaded, setLoaded] = useState<boolean>(false);
-  const [dates, setDates] = useState<any>([]);
-  const [page, setPage] = useState<number>(0);
-  const [userData, setUserData] = useState<any>([]);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [tableDataCount, setTableDataCount] = useState<number>(0);
+  const [userDates, setUserDates] = useState<any>([]);
+  const [userFields, setUserFields] = useState<FieldsType>({
+    loaded: false,
+    page: 0,
+    rowsPerPage: 10,
+    data: [],
+    dataCount: 0,
+  });
 
   const getData = async (arg1: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
+    const url = `${process.env.report_api_url}/report/user`;
 
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/user`,
-        { ...arg1 },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          onHandleExport(
-            response.data.ResponseData.List.length > 0 ? true : false
-          );
-          setLoaded(true);
-          setUserData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          setLoaded(true);
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+    const successCallBack = (data: any, error: any) => {
+      if (data !== null && error === false) {
+        onHandleExport(data.List.length > 0);
+        setUserFields({
+          ...userFields,
+          loaded: true,
+          data: data.List,
+          dataCount: data.TotalCount,
+        });
       } else {
-        setLoaded(true);
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+        setUserFields({ ...userFields, loaded: false });
       }
-    } catch (error) {
-      setLoaded(true);
-      console.error(error);
-    }
+    };
+
+    callAPI(url, arg1, successCallBack, "post");
   };
 
   // functions for handling pagination
@@ -79,15 +53,22 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setPage(newPage);
-    getData({ ...filteredData, pageNo: newPage + 1, pageSize: rowsPerPage });
+    setUserFields({ ...userFields, page: newPage });
+    getData({
+      ...filteredData,
+      pageNo: newPage + 1,
+      pageSize: userFields.rowsPerPage,
+    });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
+    setUserFields({
+      ...userFields,
+      page: 0,
+      rowsPerPage: parseInt(event.target.value),
+    });
     getData({
       ...filteredData,
       pageNo: 1,
@@ -97,15 +78,14 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
 
   useEffect(() => {
     getData(user_InitialFilter);
-    setDates(getDates());
+    setUserDates(getDates());
   }, []);
 
   useEffect(() => {
     if (filteredData !== null) {
       getData({ ...filteredData, globalSearch: searchValue });
-      setPage(0);
-      setRowsPerPage(10);
-      setDates(
+      setUserFields({ ...userFields, page: 0, rowsPerPage: 10 });
+      setUserDates(
         getDates(
           filteredData.startDate === null ? "" : filteredData.startDate,
           filteredData.endDate === null ? "" : filteredData.endDate
@@ -129,7 +109,7 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
         ) : (
           <>
             <span>{bodyValue}</span>
-            <span>{userData[TableMeta.rowIndex].DepartmentName}</span>
+            <span>{userFields.data[TableMeta.rowIndex].DepartmentName}</span>
           </>
         )}
       </div>
@@ -149,17 +129,25 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
       },
     },
     {
+      name: "ReportingManager",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Reporting To"),
+      },
+    },
+    {
       name: "RoleType",
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Destination"),
+        customHeadLabelRender: () => generateCustomHeaderName("Designation"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },
       },
     },
-    ...dates.map(
+    ...userDates.map(
       (date: any) =>
         new Object({
           name: "DateTimeLogs",
@@ -261,50 +249,29 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
     },
   ];
 
-  return loaded ? (
+  return userFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={columns}
-        data={userData}
+        data={userFields.data}
         title={undefined}
         options={{
           ...options,
           tableBodyHeight: "67vh",
         }}
       />
-      <div className="w-full gap-5 flex items-center justify-center">
-        <div className="my-4 flex gap-2 items-center">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#1DA543]"></span>
-          <span className="text-sm font-normal capitalize">present</span>
-        </div>
-        <div className="my-4 flex gap-2 items-center">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#FB2424]"></span>
-          <span className="text-sm font-normal capitalize">absent</span>
-        </div>
-        <div className="my-4 flex gap-2 items-center">
-          <span className="h-2.5 w-2.5 rounded-full bg-secondary"></span>
-          <span className="text-sm font-normal capitalize">half day</span>
-        </div>
-        <div className="my-4 flex gap-2 items-center">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#FF9F43]"></span>
-          <span className="text-sm font-normal capitalize">
-            Incomplete hours
-          </span>
-        </div>
-      </div>
+      <Legends legends={userLegend} />
       <TablePagination
         component="div"
-        count={tableDataCount}
-        page={page}
+        count={userFields.dataCount}
+        page={userFields.page}
         onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
+        rowsPerPage={userFields.rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
   ) : (
-    <div className="h-screen w-full flex justify-center my-[20%]">
-      <CircularProgress />
-    </div>
+    <ReportLoader />
   );
 };
 

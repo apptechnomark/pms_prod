@@ -1,31 +1,29 @@
-import axios from "axios";
-import { toast } from "react-toastify";
-import React, { useEffect, useRef, useState } from "react";
-import {
-  CircularProgress,
-  Popover,
-  TablePagination,
-  ThemeProvider,
-} from "@mui/material";
-import MUIDataTable from "mui-datatables";
-import { options } from "@/utils/datatable/TableOptions";
-import { timeSheet_InitialFilter } from "@/utils/reports/getFilters";
-import { getDates, toSeconds } from "@/utils/timerFunctions";
-import { getColor } from "@/utils/reports/getColor";
-import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
 import dayjs from "dayjs";
 import { makeStyles } from "@mui/styles";
-import CloseIcon from "@/assets/icons/reports/CloseIcon";
-import { DialogTransition } from "@/utils/style/DialogTransition";
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,
   generateDateWithoutTime,
   generateInitialTimer,
 } from "@/utils/datatable/CommonFunction";
+import MUIDataTable from "mui-datatables";
+import { callAPI } from "@/utils/API/callAPI";
+import { FieldsType } from "../types/FieldsType";
+import { timesheetLegend } from "../Enum/Legend";
+import Legends from "@/components/common/Legends";
+import { useEffect, useRef, useState } from "react";
+import { getColor } from "@/utils/reports/getColor";
+import { options } from "@/utils/datatable/TableOptions";
+import CloseIcon from "@/assets/icons/reports/CloseIcon";
+import ReportLoader from "@/components/common/ReportLoader";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
+import { getDates, toSeconds } from "@/utils/timerFunctions";
+import { DialogTransition } from "@/utils/style/DialogTransition";
+import { timeSheet_InitialFilter } from "@/utils/reports/getFilters";
+import { Popover, TablePagination, ThemeProvider } from "@mui/material";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     flexDirection: "row",
@@ -414,54 +412,33 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
 };
 
 const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
-  const [loaded, setLoaded] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(0);
   const [dates, setDates] = useState<any>([]);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [timesheetData, setTimesheetData] = useState<any>([]);
-  const [tableDataCount, setTableDataCount] = useState<number>(0);
+  const [timesheetFields, setTimesheetFields] = useState<FieldsType>({
+    loaded: false,
+    page: 0,
+    rowsPerPage: 10,
+    data: [],
+    dataCount: 0,
+  });
 
   const getData = async (arg1: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
+    const url = `${process.env.report_api_url}/report/timesheet`;
 
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/timesheet`,
-        { ...arg1 },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_Token: Org_Token,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus.toLowerCase() === "success") {
-          onHandleExport(
-            response.data.ResponseData.List.length > 0 ? true : false
-          );
-          setLoaded(true);
-          setTimesheetData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          setLoaded(true);
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else toast.error(data);
-        }
+    const successCallback = (data: any, error: any) => {
+      if (data !== null && error === false) {
+        onHandleExport(data.List.length > 0);
+        setTimesheetFields({
+          ...timesheetFields,
+          loaded: true,
+          data: data.List,
+          dataCount: data.TotalCount,
+        });
       } else {
-        setLoaded(true);
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else toast.error(data);
+        setTimesheetFields({ ...timesheetFields, loaded: false });
       }
-    } catch (error) {
-      setLoaded(true);
-      console.error(error);
-    }
+    };
+
+    callAPI(url, arg1, successCallback, "post");
   };
 
   //functions for handling pagination
@@ -469,15 +446,23 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setPage(newPage);
-    getData({ ...filteredData, pageNo: newPage + 1, pageSize: rowsPerPage });
+    setTimesheetFields({ ...timesheetFields, page: newPage });
+    getData({
+      ...filteredData,
+      pageNo: newPage + 1,
+      pageSize: timesheetFields.rowsPerPage,
+    });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
+    setTimesheetFields({
+      ...timesheetFields,
+      page: 0,
+      rowsPerPage: parseInt(event.target.value),
+    });
+
     getData({
       ...filteredData,
       pageNo: 1,
@@ -499,8 +484,12 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
           filteredData.endDate === null ? "" : filteredData.endDate
         )
       );
-      setPage(0);
-      setRowsPerPage(10);
+
+      setTimesheetFields({
+        ...timesheetFields,
+        page: 0,
+        rowsPerPage: 10,
+      });
     } else {
       getData({ ...timeSheet_InitialFilter, globalSearch: searchValue });
     }
@@ -523,7 +512,7 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
     return (
       <div className="flex flex-col">
         <span>{bodyValue}</span>
-        <span>{timesheetData[TableMeta.rowIndex].DepartmentName}</span>
+        <span>{timesheetFields.data[TableMeta.rowIndex].DepartmentName}</span>
       </div>
     );
   };
@@ -695,44 +684,29 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
     },
   ];
 
-  return loaded ? (
+  return timesheetFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={columns}
-        data={timesheetData}
+        data={timesheetFields.data}
         title={undefined}
         options={{
           ...options,
           tableBodyHeight: "67vh",
         }}
       />
-      <div className="w-full gap-5 flex items-center justify-center">
-        <div className="my-4 flex gap-2 items-center">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#0CC6AA]"></span>
-          <span className="text-sm font-normal capitalize">Tracker Time</span>
-        </div>
-        <div className="my-4 flex gap-2 items-center">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#FDB663]"></span>
-          <span className="text-sm font-normal capitalize">manual time</span>
-        </div>
-        <div className="my-4 flex gap-2 items-center">
-          <span className="h-2.5 w-2.5 rounded-full bg-[#2323434D]"></span>
-          <span className="text-sm font-normal capitalize">break time</span>
-        </div>
-      </div>
+      <Legends legends={timesheetLegend} />
       <TablePagination
         component="div"
-        count={tableDataCount}
-        page={page}
+        count={timesheetFields.dataCount}
+        page={timesheetFields.page}
         onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
+        rowsPerPage={timesheetFields.rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
   ) : (
-    <div className="h-screen w-full flex justify-center my-[20%]">
-      <CircularProgress />
-    </div>
+    <ReportLoader />
   );
 };
 

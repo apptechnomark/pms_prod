@@ -27,7 +27,12 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Mention, MentionsInput } from "react-mentions";
 import { toast } from "react-toastify";
-import { hasPermissionWorklog, isWeekend } from "@/utils/commonFunction";
+import {
+  extractText,
+  getYears,
+  hasPermissionWorklog,
+  isWeekend,
+} from "@/utils/commonFunction";
 import {
   getCCDropdownData,
   getProcessDropdownData,
@@ -42,6 +47,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import mentionsInputStyle from "@/utils/worklog/mentionsInputStyle";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Drawer = ({
   onOpen,
@@ -54,10 +60,11 @@ const Drawer = ({
   isCompletedTaskClicked,
 }: any) => {
   const router = useRouter();
-  const [userId, setUserId] = useState(0);
-  const [isCreatedByClient, setIsCreatedByClient] = useState(true);
-  const [fieldsData, setFieldsData] = useState([]);
-  const [editData, setEditData] = useState<any>([]);
+  const yearDropdown = getYears();
+  const [clientWorklogUserId, setClientWorklogUserId] = useState(0);
+  const [isCreatedByClientWorklog, setIsCreatedByClientWorklog] = useState(true);
+  const [clientWorklogFieldsData, setClientWorklogFieldsData] = useState([]);
+  const [clientWorklogEditData, setClientWorklogEditData] = useState<any>([]);
   let Task;
   {
     onEdit > 0
@@ -67,324 +74,279 @@ const Drawer = ({
       : (Task = ["Task", "Sub-Task"]);
   }
 
-  const currentYear = new Date().getFullYear();
-  const Years: any = [];
-
-  for (let year = 2010; year <= currentYear + 1; year++) {
-    Years.push({ label: String(year), value: year });
-  }
-
-  const handleTabClick = (index: number) => {
-    scrollToPanel(index);
+  const handleTabClickClientWorklog = (index: number) => {
+    scrollToPanelClientWorklog(index);
   };
 
-  const scrollToPanel = (index: number) => {
+  const scrollToPanelClientWorklog = (index: number) => {
     const panel = document.getElementById(`tabpanel-${index}`);
     if (panel) {
       panel.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
-  const getFieldsByClient = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
+  const getFieldsByClientClientWorklog = async () => {
     const clientId = await localStorage.getItem("clientId");
-
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/client/GetFields`,
-        {
-          clientId: clientId || 0,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setFieldsData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Failed Please try again.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      clientId: clientId || 0,
+    };
+    const url = `${process.env.pms_api_url}/client/GetFields`;
+    const successCallback = (ResponseData: any, error: any) => {
+      if (ResponseData !== null && ResponseData.length > 0 && error === false) {
+        setClientWorklogFieldsData(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
-    onOpen && getFieldsByClient();
-    onComment && scrollToPanel(2);
-    onErrorLog && scrollToPanel(3);
+    onOpen && getFieldsByClientClientWorklog();
+    onComment && scrollToPanelClientWorklog(2);
+    onErrorLog && scrollToPanelClientWorklog(3);
     const userIdLocal: any = localStorage.getItem("UserId");
-    setUserId(parseInt(userIdLocal));
+    setClientWorklogUserId(parseInt(userIdLocal));
   }, [onOpen, onComment, onErrorLog]);
 
   // Task
-  const [taskDrawer, setTaskDrawer] = useState(true);
-  const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState([]);
-  const [typeOfWork, setTypeOfWork] = useState<any>(0);
-  const [projectDropdownData, setProjectDropdownData] = useState<any>([]);
-  const [projectName, setProjectName] = useState<any>(0);
-  const [processDropdownData, setProcessDropdownData] = useState([]);
-  const [processName, setProcessName] = useState<any>(0);
-  const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
-  const [subProcessName, setSubProcessName] = useState<any>(0);
-  const priorityDropdownData = [
+  const [taskClientWorklogDrawer, setTaskClientWorklogDrawer] = useState(true);
+  const [
+    typeOfWorkClientWorklogDropdownData,
+    setTypeOfWorkClientWorklogDropdownData,
+  ] = useState([]);
+  const [typeOfWorkClientWorklog, setTypeOfWorkClientWorklog] =
+    useState<any>(0);
+  const [
+    projectClientWorklogDropdownData,
+    setProjectClientWorklogDropdownData,
+  ] = useState<any>([]);
+  const [projectNameClientWorklog, setProjectNameClientWorklog] =
+    useState<any>(0);
+  const [
+    processClientWorklogDropdownData,
+    setProcessClientWorklogDropdownData,
+  ] = useState([]);
+  const [processNameClientWorklog, setProcessNameClientWorklog] =
+    useState<any>(0);
+  const [
+    subProcessClientWorklogDropdownData,
+    setSubProcessClientWorklogDropdownData,
+  ] = useState([]);
+  const [subProcessNameClientWorklog, setSubProcessNameClientWorklog] =
+    useState<any>(0);
+  const priorityClientWorklogDropdownData = [
     { label: "High", value: 1 },
     { label: "Medium", value: 2 },
     { label: "Low", value: 3 },
   ];
-  const [priority, setPriority] = useState<any>(0);
-  const [quantity, setQuantity] = useState<any>(1);
-  const [receiverDate, setReceiverDate] = useState<any>("");
-  const [dueDate, setDueDate] = useState<any>("");
-  const [clientTaskName, setClientTaskName] = useState<string>("");
-  const [clientTaskNameErr, setClientTaskNameErr] = useState(false);
-  const [editStatus, setEditStatus] = useState<any>(0);
-  const [returnYear, setReturnYear] = useState<any>(0);
-  const [status, setStatus] = useState<any>(0);
+  const [priorityClientWorklog, setPriorityClientWorklog] = useState<any>(0);
+  const [quantityClientWorklog, setQuantityClientWorklog] = useState<any>(1);
+  const [receiverDateClientWorklog, setReceiverDateClientWorklog] =
+    useState<any>("");
+  const [dueDateClientWorklog, setDueDateClientWorklog] = useState<any>("");
+  const [clientTaskNameClientWorklog, setClientTaskNameClientWorklog] =
+    useState<string>("");
+  const [clientTaskNameClientWorklogErr, setClientTaskNameClientWorklogErr] =
+    useState(false);
+  const [editStatusClientWorklog, setEditStatusClientWorklog] =
+    useState<any>(0);
+  const [returnYearClientWorklog, setReturnYearClientWorklog] =
+    useState<any>(0);
+  const [statusClientWorklog, setStatusClientWorklog] = useState<any>(0);
 
   // Sub-Task
-  const [subTaskSwitch, setSubTaskSwitch] = useState(false);
-  const [subTaskDrawer, setSubTaskDrawer] = useState(true);
-  const [subTaskFields, setSubTaskFields] = useState([
+  const [subTaskClientWorklogSwitch, setSubTaskClientWorklogSwitch] =
+    useState(false);
+  const [subTaskClientWorklogDrawer, setSubTaskClientWorklogDrawer] =
+    useState(true);
+  const [subTaskClientWorklogFields, setSubTaskClientWorklogFields] = useState([
     {
       SubtaskId: 0,
       Title: "",
       Description: "",
     },
   ]);
-  const [taskNameErr, setTaskNameErr] = useState([false]);
-  const [subTaskDescriptionErr, setSubTaskDescriptionErr] = useState([false]);
-  const [deletedSubTask, setDeletedSubTask] = useState<any>([]);
+  const [taskNameClientWorklogErr, setTaskNameClientWorklogErr] = useState([
+    false,
+  ]);
+  const [
+    subTaskDescriptionClientWorklogErr,
+    setSubTaskDescriptionClientWorklogErr,
+  ] = useState([false]);
+  const [deletedSubTaskClientWorklog, setDeletedSubTaskClientWorklog] =
+    useState<any>([]);
 
-  const addTaskField = () => {
-    setSubTaskFields([
-      ...subTaskFields,
+  const addTaskFieldClientWorklog = () => {
+    setSubTaskClientWorklogFields([
+      ...subTaskClientWorklogFields,
       {
         SubtaskId: 0,
         Title: "",
         Description: "",
       },
     ]);
-    setTaskNameErr([...taskNameErr, false]);
-    setSubTaskDescriptionErr([...subTaskDescriptionErr, false]);
+    setTaskNameClientWorklogErr([...taskNameClientWorklogErr, false]);
+    setSubTaskDescriptionClientWorklogErr([
+      ...subTaskDescriptionClientWorklogErr,
+      false,
+    ]);
   };
 
-  const removeTaskField = (index: number) => {
-    setDeletedSubTask([...deletedSubTask, subTaskFields[index].SubtaskId]);
+  const removeTaskFieldClientWorklog = (index: number) => {
+    setDeletedSubTaskClientWorklog([
+      ...deletedSubTaskClientWorklog,
+      subTaskClientWorklogFields[index].SubtaskId,
+    ]);
 
-    const newTaskFields = [...subTaskFields];
-    newTaskFields.splice(index, 1);
-    setSubTaskFields(newTaskFields);
+    const newTaskClientWorklogFields = [...subTaskClientWorklogFields];
+    newTaskClientWorklogFields.splice(index, 1);
+    setSubTaskClientWorklogFields(newTaskClientWorklogFields);
 
-    const newTaskErrors = [...taskNameErr];
-    newTaskErrors.splice(index, 1);
-    setTaskNameErr(newTaskErrors);
+    const newTaskClientWorklogErrors = [...taskNameClientWorklogErr];
+    newTaskClientWorklogErrors.splice(index, 1);
+    setTaskNameClientWorklogErr(newTaskClientWorklogErrors);
 
-    const newSubTaskDescriptionErrors = [...subTaskDescriptionErr];
-    newSubTaskDescriptionErrors.splice(index, 1);
-    setSubTaskDescriptionErr(newSubTaskDescriptionErrors);
+    const newSubTaskDescriptionClientWorklogErrors = [
+      ...subTaskDescriptionClientWorklogErr,
+    ];
+    newSubTaskDescriptionClientWorklogErrors.splice(index, 1);
+    setSubTaskDescriptionClientWorklogErr(
+      newSubTaskDescriptionClientWorklogErrors
+    );
   };
 
-  const handleSubTaskChange = (e: any, index: number) => {
-    const newTaskFields = [...subTaskFields];
-    newTaskFields[index].Title = e.target.value;
-    setSubTaskFields(newTaskFields);
+  const handleSubTaskClientWorklogChange = (e: any, index: number) => {
+    const newTaskClientWorklogFields = [...subTaskClientWorklogFields];
+    newTaskClientWorklogFields[index].Title = e.target.value;
+    setSubTaskClientWorklogFields(newTaskClientWorklogFields);
 
-    const newTaskErrors = [...taskNameErr];
+    const newTaskErrors = [...taskNameClientWorklogErr];
     newTaskErrors[index] = e.target.value.trim().length === 0;
-    setTaskNameErr(newTaskErrors);
+    setTaskNameClientWorklogErr(newTaskErrors);
   };
 
-  const handleSubTaskDescriptionChange = (e: any, index: number) => {
-    const newTaskFields = [...subTaskFields];
-    newTaskFields[index].Description = e.target.value;
-    setSubTaskFields(newTaskFields);
+  const handleSubTaskDescriptionClientWorklogChange = (
+    e: any,
+    index: number
+  ) => {
+    const newTaskClientWorklogFields = [...subTaskClientWorklogFields];
+    newTaskClientWorklogFields[index].Description = e.target.value;
+    setSubTaskClientWorklogFields(newTaskClientWorklogFields);
 
-    const newSubTaskDescErrors = [...subTaskDescriptionErr];
+    const newSubTaskDescErrors = [...subTaskDescriptionClientWorklogErr];
     newSubTaskDescErrors[index] = e.target.value.trim().length === 0;
-    setSubTaskDescriptionErr(newSubTaskDescErrors);
+    setSubTaskDescriptionClientWorklogErr(newSubTaskDescErrors);
   };
 
-  // getSubTaskData
-  const getSubTaskData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/subtask/getbyworkitem`,
-        {
-          WorkitemId: onEdit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          const data = await response.data.ResponseData;
-          setSubTaskSwitch(data.length <= 0 ? false : true);
-          setSubTaskFields(
-            data.length <= 0
-              ? [
-                  {
-                    SubTaskId: 0,
-                    Title: "",
-                    Description: "",
-                  },
-                ]
-              : data
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+  const getSubTaskDataClientWorklog = async () => {
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/subtask/getbyworkitem`;
+    const successCallback = (ResponseData: any, error: any) => {
+      if (ResponseData !== null && ResponseData.length > 0 && error === false) {
+        setSubTaskClientWorklogSwitch(ResponseData.length);
+        setSubTaskClientWorklogFields(ResponseData);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+        setSubTaskClientWorklogSwitch(false);
+        setSubTaskClientWorklogFields([
+          {
+            SubtaskId: 0,
+            Title: "",
+            Description: "",
+          },
+        ]);
       }
-    } catch (error: any) {
-      if (error.response && error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
-  // Save SubTask
-  const handleSubmitSubTask = async () => {
+  const handleSubmitSubTaskClientWorklog = async () => {
     let hasSubErrors = false;
-    const newTaskErrors = subTaskFields.map(
+    const newTaskErrors = subTaskClientWorklogFields.map(
       (field) =>
-        (subTaskSwitch && field.Title.trim().length < 5) ||
-        (subTaskSwitch && field.Title.trim().length > 50)
+        (subTaskClientWorklogSwitch && field.Title.trim().length < 5) ||
+        (subTaskClientWorklogSwitch && field.Title.trim().length > 50)
     );
-    subTaskSwitch && setTaskNameErr(newTaskErrors);
-    const newSubTaskDescErrors = subTaskFields.map(
+    subTaskClientWorklogSwitch && setTaskNameClientWorklogErr(newTaskErrors);
+    const newSubTaskDescErrors = subTaskClientWorklogFields.map(
       (field) =>
-        (subTaskSwitch && field.Description.trim().length < 5) ||
-        (subTaskSwitch && field.Description.trim().length > 500)
+        (subTaskClientWorklogSwitch && field.Description.trim().length < 5) ||
+        (subTaskClientWorklogSwitch && field.Description.trim().length > 500)
     );
-    subTaskSwitch && setSubTaskDescriptionErr(newSubTaskDescErrors);
+    subTaskClientWorklogSwitch &&
+      setSubTaskDescriptionClientWorklogErr(newSubTaskDescErrors);
     hasSubErrors =
       newTaskErrors.some((error) => error) ||
       newSubTaskDescErrors.some((error) => error);
     if (!hasSubErrors) {
       if (
-        (onEdit > 0 && editStatus === 4) ||
-        (onEdit > 0 && editStatus === 7) ||
-        (onEdit > 0 && editStatus === 8) ||
-        (onEdit > 0 && editStatus === 9) ||
-        (onEdit > 0 && editStatus === 13)
+        (onEdit > 0 && editStatusClientWorklog === 4) ||
+        (onEdit > 0 && editStatusClientWorklog === 7) ||
+        (onEdit > 0 && editStatusClientWorklog === 8) ||
+        (onEdit > 0 && editStatusClientWorklog === 9) ||
+        (onEdit > 0 && editStatusClientWorklog === 13)
       ) {
         toast.warning(
           "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
         );
-        onEdit > 0 && getSubTaskData();
+        onEdit > 0 && getSubTaskDataClientWorklog();
       } else {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`,
-            {
-              workitemId: onEdit,
-              subtasks: subTaskSwitch
-                ? subTaskFields.map(
-                    (i: any) =>
-                      new Object({
-                        SubtaskId: i.SubtaskId,
-                        Title: i.Title.trim(),
-                        Description: i.Description.trim(),
-                      })
-                  )
-                : null,
-              deletedWorkitemSubtaskIds: deletedSubTask,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
+        const params = {
+          workitemId: onEdit,
+          subtasks: subTaskClientWorklogSwitch
+            ? subTaskClientWorklogFields.map(
+                (i: any) =>
+                  new Object({
+                    SubtaskId: i.SubtaskId,
+                    Title: i.Title.trim(),
+                    Description: i.Description.trim(),
+                  })
+              )
+            : null,
+          deletedWorkitemSubtaskIds: deletedSubTaskClientWorklog,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success(`Sub Task Updated successfully.`);
+            setDeletedSubTaskClientWorklog([]);
+            setSubTaskClientWorklogFields([
+              {
+                SubtaskId: 0,
+                Title: "",
+                Description: "",
               },
-            }
-          );
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Sub Task Updated successfully.`);
-              setDeletedSubTask([]);
-              setSubTaskFields([
-                {
-                  SubtaskId: 0,
-                  Title: "",
-                  Description: "",
-                },
-              ]);
-              getSubTaskData();
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
+            ]);
+            getSubTaskDataClientWorklog();
           }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
+        };
+        callAPI(url, params, successCallback, "POST");
       }
     }
   };
 
   // Comments
-  const [commentsDrawer, setCommentsDrawer] = useState(true);
-  const [commentData, setCommentData] = useState<any>([]);
-  const [value, setValue] = useState("");
-  const [valueError, setValueError] = useState(false);
-  const [valueEdit, setValueEdit] = useState("");
-  const [valueEditError, setValueEditError] = useState(false);
-  const [mention, setMention] = useState<any>([]);
-  const [commentAttachment, setCommentAttachment] = useState([
+  const [commentsClientWorklogDrawer, setCommentsClientWorklogDrawer] =
+    useState(true);
+  const [commentDataClientWorklog, setCommentDataClientWorklog] = useState<any>(
+    []
+  );
+  const [commentValueClientWorklog, setCommentValueClientWorklog] =
+    useState("");
+  const [commentValueClientWorklogError, setCommentValueClientWorklogError] =
+    useState(false);
+  const [commentValueClientWorklogEdit, setCommentValueClientWorklogEdit] =
+    useState("");
+  const [
+    commentValueClientWorklogEditError,
+    setCommentValueClientWorklogEditError,
+  ] = useState(false);
+  const [mentionClientWorklog, setMentionClientWorklog] = useState<any>([]);
+  const [commentAttachmentClientWorklog, setCommentAttachmentClientWorklog] = useState([
     {
       AttachmentId: 0,
       UserFileName: "",
@@ -392,10 +354,10 @@ const Drawer = ({
       AttachmentPath: process.env.attachment,
     },
   ]);
-  const [editingCommentIndex, setEditingCommentIndex] = useState(-1);
-  const [commentDropdownData, setCommentDropdownData] = useState([]);
+  const [editingCommentIndexClientWorklog, setEditingCommentIndexClientWorklog] = useState(-1);
+  const [commentDropdownDataClientWorklog, setCommentDropdownDataClientWorklog] = useState([]);
 
-  const users: any = commentDropdownData.map(
+  const users: any = commentDropdownDataClientWorklog.map(
     (i: any) =>
       new Object({
         id: i.value,
@@ -403,18 +365,8 @@ const Drawer = ({
       })
   );
 
-  const extractText = (inputString: any) => {
-    const regex = /@\[([^\]]+)\]\([^)]+\)|\[([^\]]+)\]|[^@\[\]]+/g;
-    const matches = [];
-    let match;
-    while ((match = regex.exec(inputString)) !== null) {
-      matches.push(match[1] || match[2] || match[0]);
-    }
-    return matches;
-  };
-
-  const handleCommentChange = (e: any) => {
-    setMention(
+  const handleCommentChangeClientWorklog = (e: any) => {
+    setMentionClientWorklog(
       e
         .split("(")
         .map((i: any, index: number) => {
@@ -424,91 +376,66 @@ const Drawer = ({
         })
         .filter((i: any) => i !== undefined)
     );
-    setValueError(false);
+    setCommentValueClientWorklogError(false);
   };
 
-  const handleEditClick = (index: any, message: any) => {
-    setEditingCommentIndex(index);
-    setValueEdit(message);
+  const handleEditClickClientWorklog = (index: any, message: any) => {
+    setEditingCommentIndexClientWorklog(index);
+    setCommentValueClientWorklogEdit(message);
   };
 
-  const handleSaveClick = async (e: any, i: any) => {
+  const handleSaveClickClientWorklog = async (e: any, i: any) => {
     e.preventDefault();
-    setValueEditError(
-      valueEdit.trim().length < 5 || valueEdit.trim().length > 500
+    setCommentValueClientWorklogEditError(
+      commentValueClientWorklogEdit.trim().length < 5 ||
+        commentValueClientWorklogEdit.trim().length > 500
     );
     if (
-      valueEdit.trim().length > 5 &&
-      valueEdit.trim().length < 501 &&
-      !valueEditError
+      commentValueClientWorklogEdit.trim().length > 5 &&
+      commentValueClientWorklogEdit.trim().length < 501 &&
+      !commentValueClientWorklogEditError
     ) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`,
-            {
-              workitemId: onEdit,
-              CommentId: i.CommentId,
-              Message: valueEdit,
-              TaggedUsers: mention,
-              Attachment: commentAttachment,
-              type: 2,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
+        const params = {
+          workitemId: onEdit,
+          CommentId: i.CommentId,
+          Message: commentValueClientWorklogEdit,
+          TaggedUsers: mentionClientWorklog,
+          Attachment: commentAttachmentClientWorklog,
+          type: 2,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success(`Comment updated successfully.`);
+            setMentionClientWorklog([]);
+            setCommentAttachmentClientWorklog([
+              {
+                AttachmentId: 0,
+                UserFileName: "",
+                SystemFileName: "",
+                AttachmentPath: process.env.attachment,
               },
-            }
-          );
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Comment updated successfully.`);
-              setMention([]);
-              setCommentAttachment([
-                {
-                  AttachmentId: 0,
-                  UserFileName: "",
-                  SystemFileName: "",
-                  AttachmentPath: process.env.attachment,
-                },
-              ]);
-              setValueEditError(false);
-              setValueEdit("");
-              getCommentData();
-              setEditingCommentIndex(-1);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
+            ]);
+            setCommentValueClientWorklogEditError(false);
+            setCommentValueClientWorklogEdit("");
+            setEditingCommentIndexClientWorklog(-1);
+            getCommentDataClientWorklog();
           }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
+        };
+        callAPI(url, params, successCallback, "POST");
       } else {
         toast.error("User don't have permission to Update Task.");
-        getCommentData();
+        getCommentDataClientWorklog();
       }
     }
   };
 
-  const handleCommentAttachmentsChange = (
+  const handleCommentAttachmentsChangeClientWorklog = (
     data1: any,
     data2: any,
     commentAttachment: any
@@ -521,87 +448,81 @@ const Drawer = ({
         AttachmentPath: process.env.attachment,
       },
     ];
-    setCommentAttachment(Attachment);
+    setCommentAttachmentClientWorklog(Attachment);
   };
 
-  // Save Comment
-  const handleSubmitComment = async (e: { preventDefault: () => void }) => {
+  const getCommentDataClientWorklog = async () => {
+    const params = {
+      WorkitemId: onEdit,
+      type: 2,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/comment/getByWorkitem`;
+    const successCallback = (ResponseData: any, error: any) => {
+      if (ResponseData !== null && ResponseData.length > 0 && error === false) {
+        setCommentDataClientWorklog(ResponseData);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  const handleSubmitCommentClientWorklog = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    setValueError(value.trim().length < 5 || value.trim().length > 500);
-    if (value.trim().length >= 5 && value.trim().length < 501 && !valueError) {
+    setCommentValueClientWorklogError(
+      commentValueClientWorklog.trim().length < 5 ||
+        commentValueClientWorklog.trim().length > 500
+    );
+    if (
+      commentValueClientWorklog.trim().length >= 5 &&
+      commentValueClientWorklog.trim().length < 501 &&
+      !commentValueClientWorklogError
+    ) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`,
-            {
-              workitemId: onEdit,
-              CommentId: 0,
-              Message: value,
-              TaggedUsers: mention,
-              Attachment:
-                commentAttachment[0].SystemFileName.length > 0
-                  ? commentAttachment
-                  : null,
-              type: 2,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
+        const params = {
+          workitemId: onEdit,
+          CommentId: 0,
+          Message: commentValueClientWorklog,
+          TaggedUsers: mentionClientWorklog,
+          Attachment:
+            commentAttachmentClientWorklog[0].SystemFileName.length > 0
+              ? commentAttachmentClientWorklog
+              : null,
+          type: 2,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success(`Comment sent successfully.`);
+            setMentionClientWorklog([]);
+            setCommentAttachmentClientWorklog([
+              {
+                AttachmentId: 0,
+                UserFileName: "",
+                SystemFileName: "",
+                AttachmentPath: process.env.attachment,
               },
-            }
-          );
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Comment sent successfully.`);
-              setMention([]);
-              setCommentAttachment([
-                {
-                  AttachmentId: 0,
-                  UserFileName: "",
-                  SystemFileName: "",
-                  AttachmentPath: process.env.attachment,
-                },
-              ]);
-              setValueEditError(false);
-              setValueEdit("");
-              setValue("");
-              getCommentData();
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
+            ]);
+            setCommentValueClientWorklogEditError(false);
+            setCommentValueClientWorklogEdit("");
+            setCommentValueClientWorklog("");
+            getCommentDataClientWorklog();
           }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
+        };
+        callAPI(url, params, successCallback, "POST");
       } else {
         toast.error("User don't have permission to Update Task.");
-        getCommentData();
+        getCommentDataClientWorklog();
       }
     }
   };
 
   // Error Logs
-  const [errorLogDrawer, setErrorLogDrawer] = useState(true);
-  const [cCDropdownData, setCCDropdownData] = useState<any>([]);
-  const [errorLogFields, setErrorLogFields] = useState([
+  const [errorLogClientWorklogDrawer, setErrorLogClientWorklogDrawer] = useState(true);
+  const [cCDropdownClientWorklogData, setCCDropdownClientWorklogData] = useState<any>([]);
+  const [errorLogClientWorklogFields, setErrorLogClientWorklogFields] = useState([
     {
       SubmitedBy: "",
       SubmitedOn: "",
@@ -623,12 +544,12 @@ const Drawer = ({
       isSolved: false,
     },
   ]);
-  const [remarkErr, setRemarkErr] = useState([false]);
-  const [deletedErrorLog, setDeletedErrorLog] = useState<any>([]);
+  const [remarkClientWorklogErr, setRemarkClientWorklogErr] = useState([false]);
+  const [deletedErrorLogClientWorklog, setDeletedErrorLogClientWorklog] = useState<any>([]);
 
-  const addErrorLogField = () => {
-    setErrorLogFields([
-      ...errorLogFields,
+  const addErrorLogFieldClientWorklog = () => {
+    setErrorLogClientWorklogFields([
+      ...errorLogClientWorklogFields,
       {
         SubmitedBy: "",
         SubmitedOn: "",
@@ -650,35 +571,35 @@ const Drawer = ({
         isSolved: false,
       },
     ]);
-    setRemarkErr([...remarkErr, false]);
+    setRemarkClientWorklogErr([...remarkClientWorklogErr, false]);
   };
 
-  const removeErrorLogField = (index: number) => {
-    setDeletedErrorLog([...deletedErrorLog, errorLogFields[index].ErrorLogId]);
-    const newErrorLogFields = [...errorLogFields];
-    newErrorLogFields.splice(index, 1);
-    setErrorLogFields(newErrorLogFields);
-    const newRemarkErrors = [...remarkErr];
-    newRemarkErrors.splice(index, 1);
-    setRemarkErr(newRemarkErrors);
+  const removeErrorLogFieldClientWorklog = (index: number) => {
+    setDeletedErrorLogClientWorklog([...deletedErrorLogClientWorklog, errorLogClientWorklogFields[index].ErrorLogId]);
+    const newErrorLogClientWorklogFields = [...errorLogClientWorklogFields];
+    newErrorLogClientWorklogFields.splice(index, 1);
+    setErrorLogClientWorklogFields(newErrorLogClientWorklogFields);
+    const newRemarkClientWorklogErrors = [...remarkClientWorklogErr];
+    newRemarkClientWorklogErrors.splice(index, 1);
+    setRemarkClientWorklogErr(newRemarkClientWorklogErrors);
   };
 
-  const handleRemarksChange = (e: any, index: number) => {
-    const newFields = [...errorLogFields];
-    newFields[index].Remark = e.target.value;
-    setErrorLogFields(newFields);
-    const newErrors = [...remarkErr];
-    newErrors[index] = e.target.value.trim().length <= 0;
-    setRemarkErr(newErrors);
+  const handleRemarksChangeClientWorklog = (e: any, index: number) => {
+    const newClientWorklogFields = [...errorLogClientWorklogFields];
+    newClientWorklogFields[index].Remark = e.target.value;
+    setErrorLogClientWorklogFields(newClientWorklogFields);
+    const newClientWorklogErrors = [...remarkClientWorklogErr];
+    newClientWorklogErrors[index] = e.target.value.trim().length <= 0;
+    setRemarkClientWorklogErr(newClientWorklogErrors);
   };
 
-  const handleAttachmentsChange = (
+  const handleAttachmentsChangeClientWorklog = (
     data1: any,
     data2: any,
     Attachments: any,
     index: number
   ) => {
-    const newFields = [...errorLogFields];
+    const newFields = [...errorLogClientWorklogFields];
     newFields[index].Attachments = [
       {
         AttachmentId: Attachments[0].AttachmentId,
@@ -687,93 +608,143 @@ const Drawer = ({
         AttachmentPath: process.env.attachment,
       },
     ];
-    setErrorLogFields(newFields);
+    setErrorLogClientWorklogFields(newFields);
   };
 
-  const handleSubmitErrorLog = async (e: { preventDefault: () => void }) => {
+  const getErrorLogDataClientWorklog = async () => {
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/errorlog/getByWorkitem`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (
+        ResponseStatus === "Success" &&
+        ResponseData.length > 0 &&
+        error === false
+      ) {
+        setErrorLogClientWorklogFields(
+          ResponseData.map(
+            (i: any) =>
+              new Object({
+                SubmitedBy: i.SubmitedBy,
+                SubmitedOn: i.SubmitedOn,
+                ErrorLogId: i.ErrorLogId,
+                ErrorType: i.ErrorType,
+                RootCause: i.RootCause,
+                Priority: i.Priority,
+                ErrorCount: i.ErrorCount,
+                NatureOfError: i.NatureOfError,
+                CC: i.CC.map((i: any) =>
+                  cCDropdownClientWorklogData.find((j: { value: any }) => j.value === i)
+                ).filter(Boolean),
+                Remark: i.Remark,
+                Attachments:
+                  i.Attachment === null || i.Attachment.length <= 0
+                    ? [
+                        {
+                          AttachmentId: 0,
+                          UserFileName: "",
+                          SystemFileName: "",
+                          AttachmentPath: process.env.attachment,
+                        },
+                      ]
+                    : i.Attachment,
+                isSolved: i.IsSolved,
+              })
+          )
+        );
+      } else {
+        setErrorLogClientWorklogFields([
+          {
+            SubmitedBy: "",
+            SubmitedOn: "",
+            ErrorLogId: 0,
+            ErrorType: 0,
+            RootCause: 0,
+            Priority: 0,
+            ErrorCount: 0,
+            NatureOfError: 0,
+            Remark: "",
+            Attachments: [
+              {
+                AttachmentId: 0,
+                UserFileName: "",
+                SystemFileName: "",
+                AttachmentPath: process.env.attachment,
+              },
+            ],
+            isSolved: false,
+          },
+        ]);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  const handleSubmitErrorLogClientWorklog = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     let hasErrorLogErrors = false;
-    const newRemarkErrors = errorLogFields.map(
+    const newRemarkClientWorklogErrors = errorLogClientWorklogFields.map(
       (field) =>
         field.Remark.trim().length < 5 || field.Remark.trim().length > 500
     );
-    setRemarkErr(newRemarkErrors);
+    setRemarkClientWorklogErr(newRemarkClientWorklogErrors);
 
-    hasErrorLogErrors = newRemarkErrors.some((error) => error);
+    hasErrorLogErrors = newRemarkClientWorklogErrors.some((error) => error);
 
     if (!hasErrorLogErrors) {
       if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`,
-            {
-              WorkItemId: onEdit,
-              Errors: errorLogFields.map(
-                (i: any) =>
-                  new Object({
-                    ErrorLogId: i.ErrorLogId,
-                    ErrorType: 2,
-                    RootCause: 0,
-                    Priority: 0,
-                    ErrorCount: 0,
-                    NatureOfError: 0,
-                    CC: [],
-                    Remark: i.Remark,
-                    Attachments:
-                      i.Attachments[0].SystemFileName.length > 0
-                        ? i.Attachments
-                        : null,
-                  })
-              ),
-              IsClientWorklog: true,
-              SubmissionId: null,
-              DeletedErrorlogIds: deletedErrorLog,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`ErrorLog Updated successfully.`);
-              setDeletedErrorLog([]);
-              getErrorLogData();
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
+        const params = {
+          WorkItemId: onEdit,
+          Errors: errorLogClientWorklogFields.map(
+            (i: any) =>
+              new Object({
+                ErrorLogId: i.ErrorLogId,
+                ErrorType: 2,
+                RootCause: 0,
+                Priority: 0,
+                ErrorCount: 0,
+                NatureOfError: 0,
+                CC: [],
+                Remark: i.Remark,
+                Attachments:
+                  i.Attachments[0].SystemFileName.length > 0
+                    ? i.Attachments
+                    : null,
+              })
+          ),
+          IsClientWorklog: true,
+          SubmissionId: null,
+          DeletedErrorlogIds: deletedErrorLogClientWorklog,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success(`ErrorLog Updated successfully.`);
+            setDeletedErrorLogClientWorklog([]);
+            getErrorLogDataClientWorklog();
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
+            setDeletedErrorLogClientWorklog([]);
           }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
+        };
+        callAPI(url, params, successCallback, "POST");
       } else {
         toast.error("User don't have permission to Update Task.");
-        getErrorLogData();
+        getErrorLogDataClientWorklog();
       }
     }
   };
 
   // Submit Task
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmitClientWorklog = (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
     const validateField = (value: any) => {
@@ -789,39 +760,46 @@ const Drawer = ({
     };
 
     const typeChecked = (type: any) => {
-      return fieldsData
+      return clientWorklogFieldsData
         .map((field: any) => field.Type === type && field.IsChecked)
         .some((result: boolean) => result === true);
     };
 
     const fieldValidations = {
-      clientTaskName: typeChecked("TaskName") && validateField(clientTaskName),
+      clientTaskName:
+        typeChecked("TaskName") && validateField(clientTaskNameClientWorklog),
     };
 
-    fieldsData.map((field: any) => {
+    clientWorklogFieldsData.map((field: any) => {
       field.Type === "TaskName" &&
         field.IsChecked &&
-        setClientTaskNameErr(fieldValidations.clientTaskName);
+        setClientTaskNameClientWorklogErr(fieldValidations.clientTaskName);
     });
 
     const hasErrors = Object.values(fieldValidations).some((error) => error);
 
     // Sub-Task
     let hasSubErrors = false;
-    const newTaskErrors = subTaskFields.map(
-      (field) =>
-        (onEdit === 0 && subTaskSwitch && field.Title.trim().length < 5) ||
-        (onEdit === 0 && subTaskSwitch && field.Title.trim().length > 500)
-    );
-    setTaskNameErr(newTaskErrors);
-    const newSubTaskDescErrors = subTaskFields.map(
+    const newTaskErrors = subTaskClientWorklogFields.map(
       (field) =>
         (onEdit === 0 &&
-          subTaskSwitch &&
-          field.Description.trim().length < 5) ||
-        (onEdit === 0 && subTaskSwitch && field.Description.trim().length > 500)
+          subTaskClientWorklogSwitch &&
+          field.Title.trim().length < 5) ||
+        (onEdit === 0 &&
+          subTaskClientWorklogSwitch &&
+          field.Title.trim().length > 500)
     );
-    setSubTaskDescriptionErr(newSubTaskDescErrors);
+    setTaskNameClientWorklogErr(newTaskErrors);
+    const newSubTaskDescErrors = subTaskClientWorklogFields.map(
+      (field) =>
+        (onEdit === 0 &&
+          subTaskClientWorklogSwitch &&
+          field.Description.trim().length < 5) ||
+        (onEdit === 0 &&
+          subTaskClientWorklogSwitch &&
+          field.Description.trim().length > 500)
+    );
+    setSubTaskDescriptionClientWorklogErr(newSubTaskDescErrors);
     hasSubErrors =
       newTaskErrors.some((error) => error) ||
       newSubTaskDescErrors.some((error) => error);
@@ -836,26 +814,41 @@ const Drawer = ({
           {
             ClientId: clientId,
             WorkItemId: onEdit > 0 ? onEdit : 0,
-            taskName: clientTaskName.length <= 0 ? null : clientTaskName,
-            WorkTypeId: typeOfWork === 0 ? null : typeOfWork,
-            ProjectId: projectName === 0 ? null : projectName,
-            ProcessId: processName === 0 ? null : processName,
-            SubProcessId: subProcessName === 0 ? null : subProcessName,
-            Priority: priority === 0 ? null : priority,
-            Quantity: quantity <= 0 ? null : quantity,
-            ReceiverDate:
-              receiverDate.length === 0
+            taskName:
+              clientTaskNameClientWorklog.length <= 0
                 ? null
-                : dayjs(receiverDate).format("YYYY/MM/DD"),
+                : clientTaskNameClientWorklog,
+            WorkTypeId:
+              typeOfWorkClientWorklog === 0 ? null : typeOfWorkClientWorklog,
+            ProjectId:
+              projectNameClientWorklog === 0 ? null : projectNameClientWorklog,
+            ProcessId:
+              processNameClientWorklog === 0 ? null : processNameClientWorklog,
+            SubProcessId:
+              subProcessNameClientWorklog === 0
+                ? null
+                : subProcessNameClientWorklog,
+            Priority:
+              priorityClientWorklog === 0 ? null : priorityClientWorklog,
+            Quantity: quantityClientWorklog <= 0 ? null : quantityClientWorklog,
+            ReceiverDate:
+              receiverDateClientWorklog.length === 0
+                ? null
+                : dayjs(receiverDateClientWorklog).format("YYYY/MM/DD"),
             DueDate:
-              dueDate.length === 0 ? null : dayjs(dueDate).format("YYYY/MM/DD"),
+              dueDateClientWorklog.length === 0
+                ? null
+                : dayjs(dueDateClientWorklog).format("YYYY/MM/DD"),
             TaxReturnType: null,
             TypeOfReturnId: null,
             TaxCustomFields:
-              typeOfWork !== 3
+              typeOfWorkClientWorklog !== 3
                 ? null
                 : {
-                    ReturnYear: returnYear === 0 ? null : returnYear,
+                    ReturnYear:
+                      returnYearClientWorklog === 0
+                        ? null
+                        : returnYearClientWorklog,
                     Complexity: null,
                     CountYear: null,
                     NoOfPages: null,
@@ -863,8 +856,8 @@ const Drawer = ({
             SubTaskList:
               onEdit > 0
                 ? null
-                : subTaskSwitch
-                ? subTaskFields.map(
+                : subTaskClientWorklogSwitch
+                ? subTaskClientWorklogFields.map(
                     (i: any) =>
                       new Object({
                         SubtaskId: i.SubtaskId,
@@ -887,7 +880,7 @@ const Drawer = ({
             toast.success(
               `Worklog ${onEdit > 0 ? "Updated" : "created"} successfully.`
             );
-            onEdit === 0 && handleClose();
+            onEdit === 0 && handleCloseClientWorklog();
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -915,250 +908,95 @@ const Drawer = ({
     if (!hasErrors && !hasSubErrors) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         if (
-          (onEdit > 0 && editStatus === 4) ||
-          (onEdit > 0 && editStatus === 7) ||
-          (onEdit > 0 && editStatus === 8) ||
-          (onEdit > 0 && editStatus === 9) ||
-          (onEdit > 0 && editStatus === 13)
+          (onEdit > 0 && editStatusClientWorklog === 4) ||
+          (onEdit > 0 && editStatusClientWorklog === 7) ||
+          (onEdit > 0 && editStatusClientWorklog === 8) ||
+          (onEdit > 0 && editStatusClientWorklog === 9) ||
+          (onEdit > 0 && editStatusClientWorklog === 13)
         ) {
           toast.warning(
             "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
           );
-          onEdit > 0 && getEditData();
+          onEdit > 0 && getEditDataClientWorklog();
         } else {
           saveWorklog();
         }
       } else {
         toast.error("User don't have permission to Update Task.");
-        onEdit > 0 && getEditData();
+        onEdit > 0 && getEditDataClientWorklog();
       }
     }
   };
 
-  // getCommentData
-  const getCommentData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/comment/getByWorkitem`,
-        {
-          WorkitemId: onEdit,
-          type: 2,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setCommentData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+  // getData
+  const getEditDataClientWorklog = async () => {
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.worklog_api_url}/ClientWorkitem/getbyid`;
+    const successCallback = (ResponseData: any, error: any) => {
+      if (ResponseData !== null && error === false) {
+        setClientWorklogEditData(ResponseData);
+        setIsCreatedByClientWorklog(ResponseData.IsCreatedByClient);
+        setTypeOfWorkClientWorklog(
+          ResponseData.WorkTypeId === null ? 0 : ResponseData.WorkTypeId
+        );
+        setProjectNameClientWorklog(
+          ResponseData.ProjectId === null ? 0 : ResponseData.ProjectId
+        );
+        setProcessNameClientWorklog(
+          ResponseData.ProcessId === null ? 0 : ResponseData.ProcessId
+        );
+        setSubProcessNameClientWorklog(
+          ResponseData.SubProcessId === null ? 0 : ResponseData.SubProcessId
+        );
+        setPriorityClientWorklog(
+          ResponseData.Priority === null || ResponseData.Priority === 0
+            ? 0
+            : ResponseData.Priority
+        );
+        setQuantityClientWorklog(
+          ResponseData.Quantity === null || ResponseData.Quantity === 0
+            ? 0
+            : ResponseData.Quantity
+        );
+        setReceiverDateClientWorklog(
+          ResponseData.ReceiverDate === null ? 0 : ResponseData.ReceiverDate
+        );
+        setDueDateClientWorklog(
+          ResponseData.DueDate === null ? 0 : ResponseData.DueDate
+        );
+        setClientTaskNameClientWorklog(
+          ResponseData.TaskName === null ? "" : ResponseData.TaskName
+        );
+        setStatusClientWorklog(
+          ResponseData.StatusId === null ? 0 : ResponseData.StatusId
+        );
+        setReturnYearClientWorklog(
+          ResponseData.TaxCustomFields.ReturnYear === null ||
+            ResponseData.TaxCustomFields.ReturnYear === 0
+            ? 0
+            : ResponseData.TaxCustomFields.ReturnYear
+        );
+        setEditStatusClientWorklog(
+          ResponseData.StatusId === null || ResponseData.StatusId === 0
+            ? 0
+            : ResponseData.StatusId
+        );
       }
-    } catch (error: any) {
-      if (error.response && error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
-
-  // getErrorlogData
-  const getErrorLogData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/errorlog/getByWorkitem`,
-        {
-          WorkitemId: onEdit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          response.data.ResponseData.length <= 0
-            ? setErrorLogFields([
-                {
-                  SubmitedBy: "",
-                  SubmitedOn: "",
-                  ErrorLogId: 0,
-                  ErrorType: 0,
-                  RootCause: 0,
-                  Priority: 0,
-                  ErrorCount: 0,
-                  NatureOfError: 0,
-                  Remark: "",
-                  Attachments: [
-                    {
-                      AttachmentId: 0,
-                      UserFileName: "",
-                      SystemFileName: "",
-                      AttachmentPath: process.env.attachment,
-                    },
-                  ],
-                  isSolved: false,
-                },
-              ])
-            : setErrorLogFields(
-                response.data.ResponseData.map(
-                  (i: any) =>
-                    new Object({
-                      SubmitedBy: i.SubmitedBy,
-                      SubmitedOn: i.SubmitedOn,
-                      ErrorLogId: i.ErrorLogId,
-                      ErrorType: i.ErrorType,
-                      RootCause: i.RootCause,
-                      Priority: i.Priority,
-                      ErrorCount: i.ErrorCount,
-                      NatureOfError: i.NatureOfError,
-                      CC: i.CC.map((i: any) =>
-                        cCDropdownData.find(
-                          (j: { value: any }) => j.value === i
-                        )
-                      ).filter(Boolean),
-                      Remark: i.Remark,
-                      Attachments:
-                        i.Attachment === null || i.Attachment.length <= 0
-                          ? [
-                              {
-                                AttachmentId: 0,
-                                UserFileName: "",
-                                SystemFileName: "",
-                                AttachmentPath: process.env.attachment,
-                              },
-                            ]
-                          : i.Attachment,
-                      isSolved: i.IsSolved,
-                    })
-                )
-              );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
-  };
-
-  const getEditData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/ClientWorkitem/getbyid`,
-        {
-          WorkitemId: onEdit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          const data = await response.data.ResponseData;
-          setEditData(data);
-          setIsCreatedByClient(data.IsCreatedByClient);
-          setTypeOfWork(data.WorkTypeId === null ? 0 : data.WorkTypeId);
-          setProjectName(data.ProjectId === null ? 0 : data.ProjectId);
-          setProcessName(data.ProcessId === null ? 0 : data.ProcessId);
-          setSubProcessName(data.SubProcessId === null ? 0 : data.SubProcessId);
-          setPriority(
-            data.Priority === null || data.Priority === 0 ? 0 : data.Priority
-          );
-          setQuantity(
-            data.Quantity === null || data.Quantity === 0 ? 0 : data.Quantity
-          );
-          setReceiverDate(data.ReceiverDate === null ? 0 : data.ReceiverDate);
-          setDueDate(data.DueDate === null ? 0 : data.DueDate);
-          setClientTaskName(data.TaskName === null ? "" : data.TaskName);
-          setStatus(data.StatusId === null ? 0 : data.StatusId);
-          setReturnYear(
-            data.TaxCustomFields.ReturnYear === null ||
-              data.TaxCustomFields.ReturnYear === 0
-              ? 0
-              : data.TaxCustomFields.ReturnYear
-          );
-          setEditStatus(
-            data.StatusId === null || data.StatusId === 0 ? 0 : data.StatusId
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error: any) {
-      if (error.response && error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
-  };
-
-  // getDropdownData
   useEffect(() => {
     const getData = async () => {
       const clientId: any = await localStorage.getItem("clientId");
       const workTypeData: any =
         clientId > 0 && (await getTypeOfWorkDropdownData(clientId));
-      workTypeData.length > 0 && setTypeOfWorkDropdownData(workTypeData);
+      workTypeData.length > 0 &&
+        setTypeOfWorkClientWorklogDropdownData(workTypeData);
       workTypeData.length > 0 &&
         onEdit === 0 &&
-        setTypeOfWork(
+        setTypeOfWorkClientWorklog(
           workTypeData.map((i: any) => i.value).includes(3)
             ? 3
             : workTypeData.map((i: any) => i.value).includes(1)
@@ -1169,127 +1007,102 @@ const Drawer = ({
         );
       const projectData: any =
         clientId > 0 && (await getProjectDropdownData(clientId));
-      projectData.length > 0 && setProjectDropdownData(projectData);
+      projectData.length > 0 &&
+        setProjectClientWorklogDropdownData(projectData);
       const processData: any =
         clientId > 0 && (await getProcessDropdownData(clientId));
-      setProcessDropdownData(
+      setProcessClientWorklogDropdownData(
         processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
       );
       const subProcessData: any =
         clientId > 0 &&
-        processName !== 0 &&
-        (await getSubProcessDropdownData(clientId, processName));
+        processNameClientWorklog !== 0 &&
+        (await getSubProcessDropdownData(clientId, processNameClientWorklog));
       subProcessData.length > 0 &&
-        setSubProcessDropdownData(
+        setSubProcessClientWorklogDropdownData(
           subProcessData.map(
             (i: any) => new Object({ label: i.Name, value: i.Id })
           )
         );
-      setCCDropdownData(await getCCDropdownData());
+      setCCDropdownClientWorklogData(await getCCDropdownData());
     };
 
     if (onEdit > 0) {
-      getEditData();
-      getSubTaskData();
-      getCommentData();
-      getErrorLogData();
+      getEditDataClientWorklog();
+      getSubTaskDataClientWorklog();
+      getCommentDataClientWorklog();
+      getErrorLogDataClientWorklog();
       getData();
     }
 
     onOpen && getData();
-  }, [onOpen, onEdit, processName]);
+  }, [onOpen, onEdit, processNameClientWorklog]);
 
   useEffect(() => {
-    const getData = async () => {
+    const getSubTaskDropdownData = async () => {
       const clientId = await localStorage.getItem("clientId");
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        let response = await axios.post(
-          `${process.env.api_url}/user/GetClientCommentUserDropdown`,
-          {
-            clientId: clientId,
-            WorktypeId: typeOfWork,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setCommentDropdownData(response.data.ResponseData);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again.");
-          } else {
-            toast.error(data);
-          }
+      const params = {
+        clientId: clientId,
+        WorktypeId: typeOfWorkClientWorklog,
+      };
+      const url = `${process.env.api_url}/user/GetClientCommentUserDropdown`;
+      const successCallback = (ResponseData: any, error: any) => {
+        if (
+          ResponseData !== null &&
+          ResponseData.length > 0 &&
+          error === false
+        ) {
+          setCommentDropdownDataClientWorklog(ResponseData);
         }
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     };
-    typeOfWork !== 0 && onEdit > 0 && getData();
-  }, [typeOfWork]);
 
-  const handleClose = () => {
-    setEditData([]);
-    setIsCreatedByClient(true);
-    setUserId(0);
-    setTaskDrawer(true);
-    setTypeOfWork(0);
-    setProjectName(0);
-    setProcessName(0);
-    setSubProcessName(0);
-    setPriority(0);
-    setQuantity(0);
-    setReceiverDate("");
-    setDueDate("");
-    setClientTaskName("");
-    setClientTaskNameErr(false);
-    setReturnYear(0);
-    setEditStatus(0);
-    setStatus(0);
-    setSubProcessDropdownData([]);
+    typeOfWorkClientWorklog !== 0 && onEdit > 0 && getSubTaskDropdownData();
+  }, [typeOfWorkClientWorklog]);
+
+  const handleCloseClientWorklog = () => {
+    setClientWorklogEditData([]);
+    setIsCreatedByClientWorklog(true);
+    setClientWorklogUserId(0);
+    setTaskClientWorklogDrawer(true);
+    setTypeOfWorkClientWorklog(0);
+    setProjectNameClientWorklog(0);
+    setProcessNameClientWorklog(0);
+    setSubProcessNameClientWorklog(0);
+    setPriorityClientWorklog(0);
+    setQuantityClientWorklog(0);
+    setReceiverDateClientWorklog("");
+    setDueDateClientWorklog("");
+    setClientTaskNameClientWorklog("");
+    setClientTaskNameClientWorklogErr(false);
+    setReturnYearClientWorklog(0);
+    setEditStatusClientWorklog(0);
+    setStatusClientWorklog(0);
+    setSubProcessClientWorklogDropdownData([]);
 
     // Sub-Task
-    setSubTaskDrawer(true);
-    setSubTaskSwitch(false);
-    setSubTaskFields([
+    setSubTaskClientWorklogDrawer(true);
+    setSubTaskClientWorklogSwitch(false);
+    setSubTaskClientWorklogFields([
       {
         SubtaskId: 0,
         Title: "",
         Description: "",
       },
     ]);
-    setTaskNameErr([false]);
-    setSubTaskDescriptionErr([false]);
+    setTaskNameClientWorklogErr([false]);
+    setSubTaskDescriptionClientWorklogErr([false]);
 
     // Comments
-    setCommentsDrawer(true);
-    setCommentData([]);
-    setValue("");
-    setValueError(false);
-    setValueEdit("");
-    setValueEditError(false);
-    setMention([]);
-    setCommentAttachment([
+    setCommentsClientWorklogDrawer(true);
+    setCommentDataClientWorklog([]);
+    setCommentValueClientWorklog("");
+    setCommentValueClientWorklogError(false);
+    setCommentValueClientWorklogEdit("");
+    setCommentValueClientWorklogEditError(false);
+    setMentionClientWorklog([]);
+    setCommentAttachmentClientWorklog([
       {
         AttachmentId: 0,
         UserFileName: "",
@@ -1297,12 +1110,12 @@ const Drawer = ({
         AttachmentPath: process.env.attachment,
       },
     ]);
-    setEditingCommentIndex(-1);
-    setCommentDropdownData([]);
+    setEditingCommentIndexClientWorklog(-1);
+    setCommentDropdownDataClientWorklog([]);
 
     // ErrorLogs
-    setErrorLogDrawer(true);
-    setErrorLogFields([
+    setErrorLogClientWorklogDrawer(true);
+    setErrorLogClientWorklogFields([
       {
         SubmitedBy: "",
         SubmitedOn: "",
@@ -1324,8 +1137,8 @@ const Drawer = ({
         isSolved: false,
       },
     ]);
-    setRemarkErr([false]);
-    setDeletedErrorLog([]);
+    setRemarkClientWorklogErr([false]);
+    setDeletedErrorLogClientWorklog([]);
 
     onDataFetch();
     onClose();
@@ -1348,14 +1161,14 @@ const Drawer = ({
                   className={`my-2 px-3 text-[14px] ${
                     index !== Task.length - 1 && "border-r border-r-lightSilver"
                   } cursor-pointer font-bold hover:text-[#0592C6] text-slatyGrey`}
-                  onClick={() => handleTabClick(index)}
+                  onClick={() => handleTabClickClientWorklog(index)}
                 >
                   {task}
                 </div>
               ))}
           </div>
           <Tooltip title="Close" placement="left" arrow>
-            <IconButton className="mr-[10px]" onClick={handleClose}>
+            <IconButton className="mr-[10px]" onClick={handleCloseClientWorklog}>
               <Close />
             </IconButton>
           </Tooltip>
@@ -1363,7 +1176,7 @@ const Drawer = ({
       </div>
       <div className={`${onEdit > 0 && "overflow-y-scroll"} !h-[91%]`}>
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmitClientWorklog}
           className="flex flex-col justify-between h-[100%]"
         >
           <div>
@@ -1375,35 +1188,39 @@ const Drawer = ({
                 </span>
                 <div className="flex gap-4">
                   {onEdit > 0 && (
-                    <span>Created By : {editData.CreatedByName}</span>
+                    <span>
+                      Created By : {clientWorklogEditData.CreatedByName}
+                    </span>
                   )}
                   <span
                     className={`cursor-pointer ${
-                      taskDrawer ? "rotate-180" : ""
+                      taskClientWorklogDrawer ? "rotate-180" : ""
                     }`}
-                    onClick={() => setTaskDrawer(!taskDrawer)}
+                    onClick={() =>
+                      setTaskClientWorklogDrawer(!taskClientWorklogDrawer)
+                    }
                   >
                     <ChevronDownIcon />
                   </span>
                 </div>
               </div>
-              {taskDrawer && (
+              {taskClientWorklogDrawer && (
                 <Grid container className="px-8">
-                  {fieldsData.map((type: any) => (
+                  {clientWorklogFieldsData.map((type: any) => (
                     <>
                       {type.Type === "TypeOfWork" &&
                         type.IsChecked &&
-                        typeOfWorkDropdownData.length > 1 && (
+                        typeOfWorkClientWorklogDropdownData.length > 1 && (
                           <Grid item xs={3} className="pt-4">
                             <FormControl
                               variant="standard"
                               sx={{ width: 300, mt: -0.3 }}
                               disabled={
-                                !isCreatedByClient ||
+                                !isCreatedByClientWorklog ||
                                 (isCompletedTaskClicked &&
                                   onEdit > 0 &&
-                                  !isCreatedByClient) ||
-                                status > 1
+                                  !isCreatedByClientWorklog) ||
+                                statusClientWorklog > 1
                               }
                             >
                               <InputLabel id="demo-simple-select-standard-label">
@@ -1412,12 +1229,16 @@ const Drawer = ({
                               <Select
                                 labelId="demo-simple-select-standard-label"
                                 id="demo-simple-select-standard"
-                                value={typeOfWork === 0 ? "" : typeOfWork}
+                                value={
+                                  typeOfWorkClientWorklog === 0
+                                    ? ""
+                                    : typeOfWorkClientWorklog
+                                }
                                 onChange={(e) => {
-                                  setTypeOfWork(e.target.value);
+                                  setTypeOfWorkClientWorklog(e.target.value);
                                 }}
                               >
-                                {typeOfWorkDropdownData.map(
+                                {typeOfWorkClientWorklogDropdownData.map(
                                   (i: any, index: number) => (
                                     <MenuItem value={i.value} key={index}>
                                       {i.label}
@@ -1434,20 +1255,20 @@ const Drawer = ({
                             disablePortal
                             id="combo-box-demo"
                             disabled={
-                              !isCreatedByClient ||
+                              !isCreatedByClientWorklog ||
                               (isCompletedTaskClicked &&
                                 onEdit > 0 &&
-                                !isCreatedByClient) ||
-                              status > 1
+                                !isCreatedByClientWorklog) ||
+                              statusClientWorklog > 1
                             }
-                            options={projectDropdownData}
+                            options={projectClientWorklogDropdownData}
                             value={
-                              projectDropdownData.find(
-                                (i: any) => i.value === projectName
+                              projectClientWorklogDropdownData.find(
+                                (i: any) => i.value === projectNameClientWorklog
                               ) || null
                             }
                             onChange={(e, value: any) => {
-                              value && setProjectName(value.value);
+                              value && setProjectNameClientWorklog(value.value);
                             }}
                             sx={{ width: 300 }}
                             renderInput={(params) => (
@@ -1466,20 +1287,20 @@ const Drawer = ({
                             disablePortal
                             id="combo-box-demo"
                             disabled={
-                              !isCreatedByClient ||
+                              !isCreatedByClientWorklog ||
                               (isCompletedTaskClicked &&
                                 onEdit > 0 &&
-                                !isCreatedByClient) ||
-                              status > 1
+                                !isCreatedByClientWorklog) ||
+                              statusClientWorklog > 1
                             }
-                            options={processDropdownData}
+                            options={processClientWorklogDropdownData}
                             value={
-                              processDropdownData.find(
-                                (i: any) => i.value === processName
+                              processClientWorklogDropdownData.find(
+                                (i: any) => i.value === processNameClientWorklog
                               ) || null
                             }
                             onChange={(e, value: any) => {
-                              value && setProcessName(value.value);
+                              value && setProcessNameClientWorklog(value.value);
                             }}
                             sx={{ width: 300 }}
                             renderInput={(params) => (
@@ -1498,20 +1319,22 @@ const Drawer = ({
                             disablePortal
                             id="combo-box-demo"
                             disabled={
-                              !isCreatedByClient ||
+                              !isCreatedByClientWorklog ||
                               (isCompletedTaskClicked &&
                                 onEdit > 0 &&
-                                !isCreatedByClient) ||
-                              status > 1
+                                !isCreatedByClientWorklog) ||
+                              statusClientWorklog > 1
                             }
-                            options={subProcessDropdownData}
+                            options={subProcessClientWorklogDropdownData}
                             value={
-                              subProcessDropdownData.find(
-                                (i: any) => i.value === subProcessName
+                              subProcessClientWorklogDropdownData.find(
+                                (i: any) =>
+                                  i.value === subProcessNameClientWorklog
                               ) || null
                             }
                             onChange={(e, value: any) => {
-                              value && setSubProcessName(value.value);
+                              value &&
+                                setSubProcessNameClientWorklog(value.value);
                             }}
                             sx={{ width: 300 }}
                             renderInput={(params) => (
@@ -1536,43 +1359,44 @@ const Drawer = ({
                               </span>
                             }
                             disabled={
-                              !isCreatedByClient ||
+                              !isCreatedByClientWorklog ||
                               (isCompletedTaskClicked &&
                                 onEdit > 0 &&
-                                !isCreatedByClient) ||
-                              status > 1
+                                !isCreatedByClientWorklog) ||
+                              statusClientWorklog > 1
                             }
                             fullWidth
                             value={
-                              clientTaskName?.trim().length <= 0
+                              clientTaskNameClientWorklog?.trim().length <= 0
                                 ? ""
-                                : clientTaskName
+                                : clientTaskNameClientWorklog
                             }
                             onChange={(e) => {
-                              setClientTaskName(e.target.value);
-                              setClientTaskNameErr(false);
+                              setClientTaskNameClientWorklog(e.target.value);
+                              setClientTaskNameClientWorklogErr(false);
                             }}
                             onBlur={(e: any) => {
                               if (e.target.value.trim().length > 4) {
-                                setClientTaskNameErr(false);
+                                setClientTaskNameClientWorklogErr(false);
                               }
                               if (
                                 e.target.value.trim().length > 4 &&
                                 e.target.value.trim().length < 50
                               ) {
-                                setClientTaskNameErr(false);
+                                setClientTaskNameClientWorklogErr(false);
                               }
                             }}
-                            error={clientTaskNameErr}
+                            error={clientTaskNameClientWorklogErr}
                             helperText={
-                              clientTaskNameErr &&
-                              clientTaskName?.trim().length > 0 &&
-                              clientTaskName?.trim().length < 4
+                              clientTaskNameClientWorklogErr &&
+                              clientTaskNameClientWorklog?.trim().length > 0 &&
+                              clientTaskNameClientWorklog?.trim().length < 4
                                 ? "Minimum 4 characters required."
-                                : clientTaskNameErr &&
-                                  clientTaskName?.trim().length > 50
+                                : clientTaskNameClientWorklogErr &&
+                                  clientTaskNameClientWorklog?.trim().length >
+                                    50
                                 ? "Maximum 50 characters allowed."
-                                : clientTaskNameErr
+                                : clientTaskNameClientWorklogErr
                                 ? "This is a required field."
                                 : ""
                             }
@@ -1588,20 +1412,20 @@ const Drawer = ({
                             disablePortal
                             id="combo-box-demo"
                             disabled={
-                              !isCreatedByClient ||
+                              !isCreatedByClientWorklog ||
                               (isCompletedTaskClicked &&
                                 onEdit > 0 &&
-                                !isCreatedByClient) ||
-                              status > 1
+                                !isCreatedByClientWorklog) ||
+                              statusClientWorklog > 1
                             }
-                            options={priorityDropdownData}
+                            options={priorityClientWorklogDropdownData}
                             value={
-                              priorityDropdownData.find(
-                                (i: any) => i.value === priority
+                              priorityClientWorklogDropdownData.find(
+                                (i: any) => i.value === priorityClientWorklog
                               ) || null
                             }
                             onChange={(e, value: any) => {
-                              value && setPriority(value.value);
+                              value && setPriorityClientWorklog(value.value);
                             }}
                             sx={{ width: 300 }}
                             renderInput={(params) => (
@@ -1628,16 +1452,18 @@ const Drawer = ({
                               )
                             }
                             disabled={
-                              !isCreatedByClient ||
+                              !isCreatedByClientWorklog ||
                               (isCompletedTaskClicked &&
                                 onEdit > 0 &&
-                                !isCreatedByClient) ||
-                              status > 1
+                                !isCreatedByClientWorklog) ||
+                              statusClientWorklog > 1
                             }
                             type="number"
                             fullWidth
-                            value={quantity}
-                            onChange={(e) => setQuantity(e.target.value)}
+                            value={quantityClientWorklog}
+                            onChange={(e) =>
+                              setQuantityClientWorklog(e.target.value)
+                            }
                             margin="normal"
                             variant="standard"
                             sx={{ width: 300, mt: 0 }}
@@ -1653,21 +1479,21 @@ const Drawer = ({
                               <DatePicker
                                 label="Received Date"
                                 value={
-                                  receiverDate === ""
+                                  receiverDateClientWorklog === ""
                                     ? null
-                                    : dayjs(receiverDate)
+                                    : dayjs(receiverDateClientWorklog)
                                 }
                                 disabled={
-                                  !isCreatedByClient ||
+                                  !isCreatedByClientWorklog ||
                                   (isCompletedTaskClicked &&
                                     onEdit > 0 &&
-                                    !isCreatedByClient) ||
-                                  status > 1
+                                    !isCreatedByClientWorklog) ||
+                                  statusClientWorklog > 1
                                 }
                                 shouldDisableDate={isWeekend}
                                 maxDate={dayjs(Date.now())}
                                 onChange={(newDate: any) => {
-                                  setReceiverDate(newDate.$d);
+                                  setReceiverDateClientWorklog(newDate.$d);
                                   const selectedDate = dayjs(newDate.$d);
                                   let nextDate: any = selectedDate;
                                   if (
@@ -1680,7 +1506,7 @@ const Drawer = ({
                                       .add(2, "day")
                                       .toDate();
                                   }
-                                  setDueDate(nextDate);
+                                  setDueDateClientWorklog(nextDate);
                                 }}
                                 slotProps={{
                                   textField: {
@@ -1700,10 +1526,14 @@ const Drawer = ({
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                               <DatePicker
                                 label="Due Date"
-                                value={dueDate === "" ? null : dayjs(dueDate)}
+                                value={
+                                  dueDateClientWorklog === ""
+                                    ? null
+                                    : dayjs(dueDateClientWorklog)
+                                }
                                 disabled
                                 onChange={(newDate: any) => {
-                                  setDueDate(newDate.$d);
+                                  setDueDateClientWorklog(newDate.$d);
                                 }}
                                 slotProps={{
                                   textField: {
@@ -1717,17 +1547,17 @@ const Drawer = ({
                       )}
                       {type.Type === "ReturnYear" &&
                         type.IsChecked &&
-                        typeOfWork === 3 && (
+                        typeOfWorkClientWorklog === 3 && (
                           <Grid item xs={3} className="pt-4">
                             <FormControl
                               variant="standard"
                               sx={{ width: 300, mt: -0.4, mx: 0.75 }}
                               disabled={
-                                !isCreatedByClient ||
+                                !isCreatedByClientWorklog ||
                                 (isCompletedTaskClicked &&
                                   onEdit > 0 &&
-                                  !isCreatedByClient) ||
-                                status > 1
+                                  !isCreatedByClientWorklog) ||
+                                statusClientWorklog > 1
                               }
                             >
                               <InputLabel id="demo-simple-select-standard-label">
@@ -1736,10 +1566,16 @@ const Drawer = ({
                               <Select
                                 labelId="demo-simple-select-standard-label"
                                 id="demo-simple-select-standard"
-                                value={returnYear === 0 ? "" : returnYear}
-                                onChange={(e) => setReturnYear(e.target.value)}
+                                value={
+                                  returnYearClientWorklog === 0
+                                    ? ""
+                                    : returnYearClientWorklog
+                                }
+                                onChange={(e) =>
+                                  setReturnYearClientWorklog(e.target.value)
+                                }
                               >
-                                {Years.map((i: any, index: number) => (
+                                {yearDropdown.map((i: any, index: number) => (
                                   <MenuItem value={i.value} key={index}>
                                     {i.label}
                                   </MenuItem>
@@ -1753,7 +1589,9 @@ const Drawer = ({
                 </Grid>
               )}
             </div>
-            {fieldsData.map((field: any) => field.IsChecked).includes(true) && (
+            {clientWorklogFieldsData
+              .map((field: any) => field.IsChecked)
+              .includes(true) && (
               <div className="mt-14" id="tabpanel-1">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
@@ -1761,53 +1599,60 @@ const Drawer = ({
                     <span className="ml-[21px]">Sub-Task</span>
                   </span>
                   <span className="flex items-center">
-                    {onEdit > 0 && subTaskSwitch && isCreatedByClient && (
-                      <Button
-                        variant="contained"
-                        className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
-                        onClick={handleSubmitSubTask}
-                      >
-                        Update
-                      </Button>
-                    )}
+                    {onEdit > 0 &&
+                      subTaskClientWorklogSwitch &&
+                      isCreatedByClientWorklog && (
+                        <Button
+                          variant="contained"
+                          className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
+                          onClick={handleSubmitSubTaskClientWorklog}
+                        >
+                          Update
+                        </Button>
+                      )}
                     <Switch
-                      checked={subTaskSwitch}
+                      checked={subTaskClientWorklogSwitch}
                       disabled={
-                        !isCreatedByClient ||
+                        !isCreatedByClientWorklog ||
                         (isCompletedTaskClicked &&
                           onEdit > 0 &&
-                          !isCreatedByClient) ||
-                        status > 1
+                          !isCreatedByClientWorklog) ||
+                        statusClientWorklog > 1
                       }
                       onChange={(e) => {
-                        setSubTaskSwitch(e.target.checked);
+                        setSubTaskClientWorklogSwitch(e.target.checked);
                         onEdit === 0 &&
-                          setSubTaskFields([
+                          setSubTaskClientWorklogFields([
                             {
                               SubtaskId: 0,
                               Title: "",
                               Description: "",
                             },
                           ]);
-                        onEdit === 0 && setTaskNameErr([false]);
-                        onEdit === 0 && setSubTaskDescriptionErr([false]);
-                        onEdit === 0 && setDeletedSubTask([]);
+                        onEdit === 0 && setTaskNameClientWorklogErr([false]);
+                        onEdit === 0 &&
+                          setSubTaskDescriptionClientWorklogErr([false]);
+                        onEdit === 0 && setDeletedSubTaskClientWorklog([]);
                       }}
                     />
                     <span
                       className={`cursor-pointer ${
-                        subTaskDrawer ? "rotate-180" : ""
+                        subTaskClientWorklogDrawer ? "rotate-180" : ""
                       }`}
-                      onClick={() => setSubTaskDrawer(!subTaskDrawer)}
+                      onClick={() =>
+                        setSubTaskClientWorklogDrawer(
+                          !subTaskClientWorklogDrawer
+                        )
+                      }
                     >
                       <ChevronDownIcon />
                     </span>
                   </span>
                 </div>
-                {subTaskDrawer && (
+                {subTaskClientWorklogDrawer && (
                   <>
                     <div className="mt-3 pl-6">
-                      {subTaskFields.map((field, index) => (
+                      {subTaskClientWorklogFields.map((field, index) => (
                         <div className="w-[100%] flex" key={index}>
                           <TextField
                             label={
@@ -1819,31 +1664,38 @@ const Drawer = ({
                               </span>
                             }
                             disabled={
-                              !isCreatedByClient ||
+                              !isCreatedByClientWorklog ||
                               (isCompletedTaskClicked &&
                                 onEdit > 0 &&
-                                !isCreatedByClient) ||
-                              status > 1
+                                !isCreatedByClientWorklog) ||
+                              statusClientWorklog > 1
                             }
                             fullWidth
                             value={field.Title}
-                            onChange={(e) => handleSubTaskChange(e, index)}
+                            onChange={(e) =>
+                              handleSubTaskClientWorklogChange(e, index)
+                            }
                             onBlur={(e: any) => {
                               if (e.target.value.trim().length > 0) {
-                                const newTaskNameErrors = [...taskNameErr];
-                                newTaskNameErrors[index] = false;
-                                setTaskNameErr(newTaskNameErrors);
+                                const newTaskNameClientWorklogErrors = [
+                                  ...taskNameClientWorklogErr,
+                                ];
+                                newTaskNameClientWorklogErrors[index] = false;
+                                setTaskNameClientWorklogErr(
+                                  newTaskNameClientWorklogErrors
+                                );
                               }
                             }}
-                            error={taskNameErr[index]}
+                            error={taskNameClientWorklogErr[index]}
                             helperText={
-                              taskNameErr[index] &&
+                              taskNameClientWorklogErr[index] &&
                               field.Title.length > 0 &&
                               field.Title.length < 5
                                 ? "Minumum 5 characters required."
-                                : taskNameErr[index] && field.Title.length > 50
+                                : taskNameClientWorklogErr[index] &&
+                                  field.Title.length > 50
                                 ? "Maximum 50 characters allowed."
-                                : taskNameErr[index]
+                                : taskNameClientWorklogErr[index]
                                 ? "This is a required field."
                                 : ""
                             }
@@ -1861,36 +1713,41 @@ const Drawer = ({
                               </span>
                             }
                             disabled={
-                              !isCreatedByClient ||
+                              !isCreatedByClientWorklog ||
                               (isCompletedTaskClicked &&
                                 onEdit > 0 &&
-                                !isCreatedByClient) ||
-                              status > 1
+                                !isCreatedByClientWorklog) ||
+                              statusClientWorklog > 1
                             }
                             fullWidth
                             value={field.Description}
                             onChange={(e) =>
-                              handleSubTaskDescriptionChange(e, index)
+                              handleSubTaskDescriptionClientWorklogChange(
+                                e,
+                                index
+                              )
                             }
                             onBlur={(e: any) => {
                               if (e.target.value.trim().length > 0) {
                                 const newSubTaskDescErrors = [
-                                  ...subTaskDescriptionErr,
+                                  ...subTaskDescriptionClientWorklogErr,
                                 ];
                                 newSubTaskDescErrors[index] = false;
-                                setSubTaskDescriptionErr(newSubTaskDescErrors);
+                                setSubTaskDescriptionClientWorklogErr(
+                                  newSubTaskDescErrors
+                                );
                               }
                             }}
-                            error={subTaskDescriptionErr[index]}
+                            error={subTaskDescriptionClientWorklogErr[index]}
                             helperText={
-                              subTaskDescriptionErr[index] &&
+                              subTaskDescriptionClientWorklogErr[index] &&
                               field.Description.length > 0 &&
                               field.Description.length < 5
                                 ? "Minumum 5 characters required."
-                                : subTaskDescriptionErr[index] &&
+                                : subTaskDescriptionClientWorklogErr[index] &&
                                   field.Description.length > 500
                                 ? "Maximum 500 characters allowed."
-                                : subTaskDescriptionErr[index]
+                                : subTaskDescriptionClientWorklogErr[index]
                                 ? "This is a required field."
                                 : ""
                             }
@@ -1900,10 +1757,10 @@ const Drawer = ({
                           />
                           {index === 0
                             ? (onEdit === 0 || !isCompletedTaskClicked) &&
-                              isCreatedByClient && (
+                              isCreatedByClientWorklog && (
                                 <span
                                   className="cursor-pointer"
-                                  onClick={addTaskField}
+                                  onClick={addTaskFieldClientWorklog}
                                 >
                                   <svg
                                     className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
@@ -1917,10 +1774,10 @@ const Drawer = ({
                                 </span>
                               )
                             : (onEdit === 0 || !isCompletedTaskClicked) &&
-                              isCreatedByClient && (
+                              isCreatedByClientWorklog && (
                                 <span
                                   className="cursor-pointer"
-                                  onClick={() => removeTaskField(index)}
+                                  onClick={() => removeTaskFieldClientWorklog(index)}
                                 >
                                   <svg
                                     className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
@@ -1949,18 +1806,22 @@ const Drawer = ({
                   </span>
                   <span
                     className={`cursor-pointer ${
-                      commentsDrawer ? "rotate-180" : ""
+                      commentsClientWorklogDrawer ? "rotate-180" : ""
                     }`}
-                    onClick={() => setCommentsDrawer(!commentsDrawer)}
+                    onClick={() =>
+                      setCommentsClientWorklogDrawer(
+                        !commentsClientWorklogDrawer
+                      )
+                    }
                   >
                     <ChevronDownIcon />
                   </span>
                 </div>
                 <div className="my-5 px-16">
                   <div className="flex flex-col gap-4">
-                    {commentsDrawer &&
-                      commentData.length > 0 &&
-                      commentData.map((i: any, index: number) => (
+                    {commentsClientWorklogDrawer &&
+                      commentDataClientWorklog.length > 0 &&
+                      commentDataClientWorklog.map((i: any, index: number) => (
                         <div className="flex gap-4" key={index}>
                           {i.UserName.length > 0 ? (
                             <Avatar>
@@ -1985,18 +1846,22 @@ const Drawer = ({
                               })}
                             </Typography>
                             <div className="flex items-center gap-2">
-                              {editingCommentIndex === index ? (
+                              {editingCommentIndexClientWorklog === index ? (
                                 <div className="flex items-center gap-2">
                                   <div className="flex flex-col items-start">
                                     <div className="flex items-start justify-center">
                                       <MentionsInput
                                         style={mentionsInputStyle}
                                         className="!w-[100%] textareaOutlineNoneEdit"
-                                        value={valueEdit}
+                                        value={commentValueClientWorklogEdit}
                                         onChange={(e) => {
-                                          setValueEdit(e.target.value);
-                                          setValueEditError(false);
-                                          handleCommentChange(e.target.value);
+                                          setCommentValueClientWorklogEdit(
+                                            e.target.value
+                                          );
+                                          setCommentValueClientWorklogEditError(
+                                            false
+                                          );
+                                          handleCommentChangeClientWorklog(e.target.value);
                                         }}
                                         placeholder="Type a next message OR type @ if you want to mention anyone in the message."
                                       >
@@ -2011,28 +1876,28 @@ const Drawer = ({
                                           <ImageUploader
                                             className="!mt-0"
                                             getData={(data1: any, data2: any) =>
-                                              handleCommentAttachmentsChange(
+                                              handleCommentAttachmentsChangeClientWorklog(
                                                 data1,
                                                 data2,
-                                                commentAttachment
+                                                commentAttachmentClientWorklog
                                               )
                                             }
                                             isDisable={false}
                                           />
                                         </div>
                                       </div>
-                                      {commentAttachment[0]?.SystemFileName
+                                      {commentAttachmentClientWorklog[0]?.SystemFileName
                                         .length > 0 && (
                                         <div className="flex items-center justify-center gap-2">
                                           <span className="ml-2 cursor-pointer">
-                                            {commentAttachment[0]?.UserFileName}
+                                            {commentAttachmentClientWorklog[0]?.UserFileName}
                                           </span>
                                           <span
                                             onClick={() =>
                                               getFileFromBlob(
-                                                commentAttachment[0]
+                                                commentAttachmentClientWorklog[0]
                                                   ?.SystemFileName,
-                                                commentAttachment[0]
+                                                commentAttachmentClientWorklog[0]
                                                   ?.UserFileName
                                               )
                                             }
@@ -2049,19 +1914,22 @@ const Drawer = ({
                                       )}
                                     </div>
                                     <div className="flex flex-col">
-                                      {valueEditError &&
-                                      valueEdit.trim().length > 1 &&
-                                      valueEdit.trim().length < 5 ? (
+                                      {commentValueClientWorklogEditError &&
+                                      commentValueClientWorklogEdit.trim()
+                                        .length > 1 &&
+                                      commentValueClientWorklogEdit.trim()
+                                        .length < 5 ? (
                                         <span className="text-defaultRed text-[14px]">
                                           Minimum 5 characters required.
                                         </span>
-                                      ) : valueEditError &&
-                                        valueEdit.trim().length > 500 ? (
+                                      ) : commentValueClientWorklogEditError &&
+                                        commentValueClientWorklogEdit.trim()
+                                          .length > 500 ? (
                                         <span className="text-defaultRed text-[14px]">
                                           Maximum 500 characters allowed.
                                         </span>
                                       ) : (
-                                        valueEditError && (
+                                        commentValueClientWorklogEditError && (
                                           <span className="text-defaultRed text-[14px]">
                                             This is a required field.
                                           </span>
@@ -2072,7 +1940,7 @@ const Drawer = ({
                                   <button
                                     type="button"
                                     className="!bg-secondary text-white border rounded-md px-[4px]"
-                                    onClick={(e) => handleSaveClick(e, i)}
+                                    onClick={(e) => handleSaveClickClientWorklog(e, i)}
                                   >
                                     <Save className="w-4 h-4" />
                                   </button>
@@ -2082,7 +1950,7 @@ const Drawer = ({
                                   <span className="hidden"></span>
                                   <div className="flex items-start">
                                     {extractText(i.Message).map((i: any) => {
-                                      const assignee = commentDropdownData.map(
+                                      const assignee = commentDropdownDataClientWorklog.map(
                                         (j: any) => j.label
                                       );
                                       return assignee.includes(i) ? (
@@ -2121,7 +1989,7 @@ const Drawer = ({
                                       </span>
                                     </div>
                                   )}
-                                  {userId === i.UserId &&
+                                  {clientWorklogUserId === i.UserId &&
                                     hasPermissionWorklog(
                                       "Comment",
                                       "save",
@@ -2131,8 +1999,8 @@ const Drawer = ({
                                         type="button"
                                         className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
                                         onClick={() => {
-                                          handleEditClick(index, i.Message);
-                                          setCommentAttachment([
+                                          handleEditClickClientWorklog(index, i.Message);
+                                          setCommentAttachmentClientWorklog([
                                             {
                                               AttachmentId:
                                                 i.Attachment[0].AttachmentId,
@@ -2157,18 +2025,18 @@ const Drawer = ({
                       ))}
                   </div>
                 </div>
-                {commentsDrawer &&
+                {commentsClientWorklogDrawer &&
                   hasPermissionWorklog("Comment", "save", "WorkLogs") && (
                     <>
                       <div className="border border-slatyGrey gap-2 py-2 rounded-lg my-2 ml-16 mr-8 flex items-center justify-center">
                         <MentionsInput
                           style={mentionsInputStyle}
                           className="!w-[92%] textareaOutlineNone"
-                          value={value}
+                          value={commentValueClientWorklog}
                           onChange={(e) => {
-                            setValue(e.target.value);
-                            setValueError(false);
-                            handleCommentChange(e.target.value);
+                            setCommentValueClientWorklog(e.target.value);
+                            setCommentValueClientWorklogError(false);
+                            handleCommentChangeClientWorklog(e.target.value);
                           }}
                           placeholder="Type a next message OR type @ if you want to mention anyone in the message."
                         >
@@ -2183,10 +2051,10 @@ const Drawer = ({
                             <ImageUploader
                               className="!mt-0"
                               getData={(data1: any, data2: any) =>
-                                handleCommentAttachmentsChange(
+                                handleCommentAttachmentsChangeClientWorklog(
                                   data1,
                                   data2,
-                                  commentAttachment
+                                  commentAttachmentClientWorklog
                                 )
                               }
                               isDisable={false}
@@ -2196,42 +2064,43 @@ const Drawer = ({
                         <button
                           type="button"
                           className="!bg-secondary text-white p-[6px] rounded-md cursor-pointer mr-2"
-                          onClick={handleSubmitComment}
+                          onClick={handleSubmitCommentClientWorklog}
                         >
                           <SendIcon />
                         </button>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                          {valueError &&
-                          value.trim().length > 1 &&
-                          value.trim().length < 5 ? (
+                          {commentValueClientWorklogError &&
+                          commentValueClientWorklog.trim().length > 1 &&
+                          commentValueClientWorklog.trim().length < 5 ? (
                             <span className="text-defaultRed text-[14px] ml-20">
                               Minimum 5 characters required.
                             </span>
-                          ) : valueError && value.trim().length > 500 ? (
+                          ) : commentValueClientWorklogError &&
+                            commentValueClientWorklog.trim().length > 500 ? (
                             <span className="text-defaultRed text-[14px] ml-20">
                               Maximum 500 characters allowed.
                             </span>
                           ) : (
-                            valueError && (
+                            commentValueClientWorklogError && (
                               <span className="text-defaultRed text-[14px] ml-20">
                                 This is a required field.
                               </span>
                             )
                           )}
                         </div>
-                        {commentAttachment[0].AttachmentId === 0 &&
-                          commentAttachment[0]?.SystemFileName.length > 0 && (
+                        {commentAttachmentClientWorklog[0].AttachmentId === 0 &&
+                          commentAttachmentClientWorklog[0]?.SystemFileName.length > 0 && (
                             <div className="flex items-center justify-center gap-2 mr-6">
                               <span className="ml-2 cursor-pointer">
-                                {commentAttachment[0]?.UserFileName}
+                                {commentAttachmentClientWorklog[0]?.UserFileName}
                               </span>
                               <span
                                 onClick={() =>
                                   getFileFromBlob(
-                                    commentAttachment[0]?.SystemFileName,
-                                    commentAttachment[0]?.UserFileName
+                                    commentAttachmentClientWorklog[0]?.SystemFileName,
+                                    commentAttachmentClientWorklog[0]?.UserFileName
                                   )
                                 }
                               >
@@ -2262,26 +2131,26 @@ const Drawer = ({
                       <Button
                         variant="contained"
                         className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
-                        onClick={handleSubmitErrorLog}
+                        onClick={handleSubmitErrorLogClientWorklog}
                       >
                         Update
                       </Button>
                     )}
                     <span
                       className={`cursor-pointer ${
-                        errorLogDrawer ? "rotate-180" : ""
+                        errorLogClientWorklogDrawer ? "rotate-180" : ""
                       }`}
-                      onClick={() => setErrorLogDrawer(!errorLogDrawer)}
+                      onClick={() => setErrorLogClientWorklogDrawer(!errorLogClientWorklogDrawer)}
                     >
                       <ChevronDownIcon />
                     </span>
                   </span>
                 </div>
-                {errorLogDrawer &&
+                {errorLogClientWorklogDrawer &&
                   hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && (
                     <>
                       <div className="mt-3 pl-6">
-                        {errorLogFields.map((field: any, index: any) => (
+                        {errorLogClientWorklogFields.map((field: any, index: any) => (
                           <div className="w-[100%] mt-4" key={index}>
                             {field.SubmitedBy.length > 0 && (
                               <div className="ml-1 mt-8 mb-3">
@@ -2310,24 +2179,24 @@ const Drawer = ({
                                     : field.Remark
                                 }
                                 disabled={field.isSolved}
-                                onChange={(e) => handleRemarksChange(e, index)}
+                                onChange={(e) => handleRemarksChangeClientWorklog(e, index)}
                                 onBlur={(e: any) => {
                                   if (e.target.value.length > 0) {
-                                    const newRemarkErrors = [...remarkErr];
-                                    newRemarkErrors[index] = false;
-                                    setRemarkErr(newRemarkErrors);
+                                    const newRemarkClientWorklogErrors = [...remarkClientWorklogErr];
+                                    newRemarkClientWorklogErrors[index] = false;
+                                    setRemarkClientWorklogErr(newRemarkClientWorklogErrors);
                                   }
                                 }}
-                                error={remarkErr[index]}
+                                error={remarkClientWorklogErr[index]}
                                 helperText={
-                                  remarkErr[index] &&
+                                  remarkClientWorklogErr[index] &&
                                   field.Remark.length > 0 &&
                                   field.Remark.length < 5
                                     ? "Minumum 5 characters required."
-                                    : remarkErr[index] &&
+                                    : remarkClientWorklogErr[index] &&
                                       field.Remark.length > 500
                                     ? "Maximum 500 characters allowed."
-                                    : remarkErr[index]
+                                    : remarkClientWorklogErr[index]
                                     ? "This is a required field."
                                     : ""
                                 }
@@ -2339,7 +2208,7 @@ const Drawer = ({
                                 <div className="flex">
                                   <ImageUploader
                                     getData={(data1: any, data2: any) =>
-                                      handleAttachmentsChange(
+                                      handleAttachmentsChangeClientWorklog(
                                         data1,
                                         data2,
                                         field.Attachments,
@@ -2396,7 +2265,7 @@ const Drawer = ({
                                       "Save",
                                       "WorkLogs"
                                     )
-                                      ? addErrorLogField
+                                      ? addErrorLogFieldClientWorklog
                                       : undefined
                                   }
                                 >
@@ -2424,7 +2293,7 @@ const Drawer = ({
                                       "Save",
                                       "WorkLogs"
                                     )
-                                      ? () => removeErrorLogField(index)
+                                      ? () => removeErrorLogFieldClientWorklog(index)
                                       : undefined
                                   }
                                 >
@@ -2453,15 +2322,15 @@ const Drawer = ({
               <Button
                 variant="outlined"
                 className="rounded-[4px] !h-[36px] !text-secondary"
-                onClick={handleClose}
+                onClick={handleCloseClientWorklog}
               >
                 <span className="flex items-center justify-center gap-[10px] px-[5px]">
                   Close
                 </span>
               </Button>
-              {isCreatedByClient &&
+              {isCreatedByClientWorklog &&
                 !isCompletedTaskClicked &&
-                fieldsData
+                clientWorklogFieldsData
                   .map((field: any) => field.IsChecked)
                   .includes(true) && (
                   <Button

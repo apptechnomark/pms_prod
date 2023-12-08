@@ -22,6 +22,7 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import UnassigneeActionBar from "./actionBar/UnassigneeActionBar";
+import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -253,73 +254,36 @@ const UnassigneeDatatable = ({
   };
 
   // Table Columns
-  const columns = [
+  const columnConfig = [
     {
       name: "WorkitemId",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Task ID",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "ClientName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Client"),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return generateCustomClientNameBody(value, tableMeta);
-        },
-      },
+      label: "Client",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "ProjectName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Project"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Project",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "TaskName",
-      options: {
-        filter: true,
-        sort: true,
-        // viewColumns: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Task"),
-        customBodyRender: (value: any, tableMeta: any) => {
-          return generateCustomTaskNameBody(value, tableMeta);
-        },
-      },
+      label: "Task",
+      bodyRenderer: generateCustomTaskNameBody,
     },
     {
       name: "ProcessName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Process"),
-        customBodyRender: (value: any) => {
-          return generateShortProcessNameBody(value);
-        },
-      },
+      label: "Process",
+      bodyRenderer: generateShortProcessNameBody,
     },
     {
       name: "SubProcessName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Sub-Process",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "IsManual",
@@ -329,23 +293,13 @@ const UnassigneeDatatable = ({
     },
     {
       name: "AssignedToName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Assigned To",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "PriorityName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-        customBodyRender: (value: any) => generatePriorityWithColor(value),
-      },
+      label: "Priority",
+      bodyRenderer: generatePriorityWithColor,
     },
     {
       name: "StatusColorCode",
@@ -353,95 +307,49 @@ const UnassigneeDatatable = ({
         filter: false,
         sort: false,
         display: false,
+        viewColumns: false,
       },
     },
     {
       name: "StatusName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Status"),
-        customBodyRender: (value: any, tableMeta: any) =>
-          generateStatusWithColor(value, tableMeta.rowData[9]),
-      },
+      label: "Status",
+      bodyRenderer: (value: any, tableMeta: any) =>
+        generateStatusWithColor(value, tableMeta.rowData[9]),
     },
-
     {
       name: "EstimateTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Est. Time"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Est. Time",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "Quantity",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Qty."),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Qty.",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "ActualTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Actual Time"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Actual Time",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "STDTime",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Total Time",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "StartDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
+      label: "Start Date",
+      bodyRenderer: generateCustomFormatDate,
     },
     {
       name: "EndDate",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("End Date"),
-        customBodyRender: (value: any) => {
-          return generateCustomFormatDate(value);
-        },
-      },
+      label: "End Date",
+      bodyRenderer: generateCustomFormatDate,
     },
     {
       name: "AssignedByName",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Assigned By"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
+      label: "Assigned By",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "IsHasErrorlog",
@@ -475,6 +383,101 @@ const UnassigneeDatatable = ({
     },
   ];
 
+  const generateConditionalColumn = (
+    column: {
+      name: string;
+      label: string;
+      bodyRenderer: (arg0: any) => any;
+    },
+    rowDataIndex: number
+  ) => {
+    if (column.name === "IsManual") {
+      return {
+        name: "IsManual",
+        options: {
+          display: false,
+        },
+      };
+    } else if (column.name === "StatusColorCode") {
+      return {
+        name: "StatusColorCode",
+        options: {
+          filter: false,
+          sort: false,
+          display: false,
+        },
+      };
+    } else if (column.name === "StatusName") {
+      return {
+        name: "StatusName",
+        options: {
+          filter: true,
+          sort: true,
+          customHeadLabelRender: () => generateCustomHeaderName("Status"),
+          customBodyRender: (value: any, tableMeta: any) =>
+            generateStatusWithColor(value, tableMeta.rowData[rowDataIndex]),
+        },
+      };
+    } else if (column.name === "TaskName") {
+      return {
+        name: "TaskName",
+        options: {
+          filter: true,
+          sort: true,
+          customHeadLabelRender: () => generateCustomHeaderName("Task"),
+          customBodyRender: (value: any, tableMeta: any) => {
+            return generateCustomTaskNameBody(value, tableMeta);
+          },
+        },
+      };
+    } else if (column.name === "IsHasErrorlog") {
+      return {
+        name: "IsHasErrorlog",
+        options: {
+          display: false,
+        },
+      };
+    } else if (column.name === "IsRecurring") {
+      return {
+        name: "IsRecurring",
+        options: {
+          display: false,
+        },
+      };
+    } else if (column.name === "StatusId") {
+      return {
+        name: "StatusId",
+        options: {
+          display: false,
+        },
+      };
+    } else if (column.name === "State") {
+      return {
+        name: "State",
+        options: {
+          display: false,
+        },
+      };
+    } else if (column.name === "WorkitemId") {
+      return {
+        name: "WorkitemId",
+        options: {
+          display: false,
+        },
+      };
+    } else {
+      return generateCustomColumn(
+        column.name,
+        column.label,
+        column.bodyRenderer
+      );
+    }
+  };
+
+  const UnassigneeTaskColumns: any = columnConfig.map((col: any) => {
+    return generateConditionalColumn(col, 9);
+  });
+
   // props for actionbar
   const propsForActionBar = {
     selectedRowsCount,
@@ -498,7 +501,7 @@ const UnassigneeDatatable = ({
         <ThemeProvider theme={getMuiTheme()}>
           <MUIDataTable
             data={workItemData}
-            columns={columns}
+            columns={UnassigneeTaskColumns}
             title={undefined}
             options={{
               ...worklogs_Options,

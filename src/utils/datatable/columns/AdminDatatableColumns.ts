@@ -2,375 +2,107 @@ import {
   generateBillingStatusBodyRender,
   generateCommonBodyRender,
   generateCustomFormatDate,
-  generateCustomHeaderName,
   generateDashboardReportBodyRender,
   generatePriorityWithColor,
-  generateRatingsBodyRender,
   generateStatusWithColor,
 } from "../CommonFunction";
+import {
+  generateCustomColumn,
+  generateStatusColumn,
+} from "./ColsGenerateFunctions";
 
-const adminDashboardReportCols: any = [
-  {
-    name: "ClientName",
-    options: {
-      filter: true,
-      sort: true,
-      viewColumns: false,
-      customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
-      customBodyRender: (value: any) => {
-        return generateDashboardReportBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "Accept",
-    options: {
-      filter: true,
-      sort: true,
-      viewColumns: false,
-      customHeadLabelRender: () => generateCustomHeaderName("Accept"),
-      customBodyRender: (value: any) => {
-        return generateDashboardReportBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "AcceptWithNotes",
-    options: {
-      filter: true,
-      sort: true,
-      viewColumns: false,
-      customHeadLabelRender: () =>
-        generateCustomHeaderName("Accept With Notes"),
-      customBodyRender: (value: any) => {
-        return generateDashboardReportBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "Errorlogs",
-    options: {
-      filter: true,
-      sort: true,
-      viewColumns: false,
-      customHeadLabelRender: () => generateCustomHeaderName("Errorlogs"),
-      customBodyRender: (value: any) => {
-        return generateDashboardReportBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "InProgress",
-    options: {
-      filter: true,
-      sort: true,
-      viewColumns: false,
-      customHeadLabelRender: () => generateCustomHeaderName("In Progress"),
-      customBodyRender: (value: any) => {
-        return generateDashboardReportBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "InReview",
-    options: {
-      filter: true,
-      sort: true,
-      viewColumns: false,
-      customHeadLabelRender: () => generateCustomHeaderName("In Review"),
-      customBodyRender: (value: any) => {
-        return generateDashboardReportBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "NotStarted",
-    options: {
-      filter: true,
-      sort: true,
-      viewColumns: false,
-      customHeadLabelRender: () => generateCustomHeaderName("Not Started"),
-      customBodyRender: (value: any) => {
-        return generateDashboardReportBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "OnHoldFromClient",
-    options: {
-      filter: true,
-      sort: true,
-      viewColumns: false,
-      customHeadLabelRender: () =>
-        generateCustomHeaderName("On Hold From Client"),
-      customBodyRender: (value: any) => {
-        return generateDashboardReportBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "PartialSubmitted",
-    options: {
-      filter: true,
-      sort: true,
-      viewColumns: false,
-      customHeadLabelRender: () =>
-        generateCustomHeaderName("Partial Submitted"),
-      customBodyRender: (value: any) => {
-        return generateDashboardReportBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "Rework",
-    options: {
-      filter: true,
-      sort: true,
-      viewColumns: false,
-      customHeadLabelRender: () => generateCustomHeaderName("Rework"),
-      customBodyRender: (value: any) => {
-        return generateDashboardReportBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "SignedOff",
-    options: {
-      filter: true,
-      sort: true,
-      viewColumns: false,
-      customHeadLabelRender: () => generateCustomHeaderName("Signed Off"),
-      customBodyRender: (value: any) => {
-        return generateDashboardReportBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "Stop",
-    options: {
-      filter: true,
-      sort: true,
-      viewColumns: false,
-      customHeadLabelRender: () => generateCustomHeaderName("Stop"),
-      customBodyRender: (value: any) => {
-        return generateDashboardReportBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "WithDraw",
-    options: {
-      filter: true,
-      sort: true,
-      viewColumns: false,
-      customHeadLabelRender: () => generateCustomHeaderName("WithDraw"),
-      customBodyRender: (value: any) => {
-        return generateDashboardReportBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "Total",
-    options: {
-      filter: true,
-      sort: true,
-      viewColumns: false,
-      customHeadLabelRender: () => generateCustomHeaderName("Total"),
-      customBodyRender: (value: any) => {
-        return generateDashboardReportBodyRender(value);
-      },
-    },
-  },
-];
+const adminDashboardReportCols = [
+  { header: "ClientName", label: "Client Name" },
+  { header: "Accept", label: "Accept" },
+  { header: "AcceptWithNotes", label: "Accept With Notes" },
+  { header: "Errorlogs", label: "Errorlogs" },
+  { header: "InProgress", label: "In Progress" },
+  { header: "InReview", label: "In Review" },
+  { header: "NotStarted", label: "Not Started" },
+  { header: "OnHoldFromClient", label: "On Hold From Client" },
+  { header: "PartialSubmitted", label: "Partial Submitted" },
+  { header: "Rework", label: "Rework" },
+  { header: "SignedOff", label: "Signed Off" },
+  { header: "Stop", label: "Stop" },
+  { header: "WithDraw", label: "WithDraw" },
+  { header: "Total", label: "Total" },
+].map((i: any) =>
+  generateCustomColumn(i.header, i.label, generateDashboardReportBodyRender)
+);
 
-const adminDashboardBillingTypeCols: any = [
-  {
-    name: "ClientName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "TypeOfWorkName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "BillingTypeName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Billing Type"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "Status",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Status"),
-      customBodyRender: (value: any) => {
-        return generateBillingStatusBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "ContractedHours",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Contracted Hours"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "InternalHours",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Internal Hours"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-];
+const adminDashboardBillingTypeCols = [
+  { header: "ClientName", label: "Client Name" },
+  { header: "TypeOfWorkName", label: "Type of Work" },
+  { header: "BillingTypeName", label: "Billing Type" },
+  { header: "Status", label: "Status" },
+  { header: "ContractedHours", label: "Contracted Hours" },
+  { header: "InternalHours", label: "Internal Hours" },
+].map((i: any) =>
+  generateCustomColumn(
+    i.header,
+    i.label,
+    i.header === "Status"
+      ? generateBillingStatusBodyRender
+      : generateDashboardReportBodyRender
+  )
+);
 
-const adminDashboardSummaryCols: any = [
+const SummaryColConfig = [
   {
     name: "TaskName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Project Name",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "ClientName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "StatusName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Status"),
-      customBodyRender: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[11]),
-    },
+    label: "Status",
+    bodyRenderer: (value: any, tableMeta: any) =>
+      generateStatusWithColor(value, tableMeta.rowData[11]),
   },
   {
     name: "TaxReturnTypeName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Return Type"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Return Type",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "WorkTypeName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Type of Work",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "StartDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Start Date",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "EndDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Due Date",
+    bodyRenderer: generateCustomFormatDate,
   },
-
   {
     name: "PriorityName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-      customBodyRender: (value: any) => generatePriorityWithColor(value),
-    },
+    label: "Priority",
+    bodyRenderer: generatePriorityWithColor,
   },
   {
     name: "AssignedByName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Assigned By"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Assigned By",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "AssignedToName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Assigned To",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "StatusColorCode",
@@ -382,266 +114,17 @@ const adminDashboardSummaryCols: any = [
   },
 ];
 
-const adminDashboardProjectStatusCols = [
-  {
-    name: "TaskName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "ClientName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "StatusName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Status"),
-      customBodyRender: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[11]),
-    },
-  },
-  {
-    name: "TaxReturnTypeName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Return Type"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "WorkTypeName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "StartDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
-  {
-    name: "EndDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
+const adminDashboardSummaryCols = SummaryColConfig.map((column: any) =>
+  generateStatusColumn(column, 11)
+);
 
-  {
-    name: "PriorityName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-      customBodyRender: (value: any) => generatePriorityWithColor(value),
-    },
-  },
-  {
-    name: "AssignedByName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Assigned By"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "AssignedToName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "StatusColorCode",
-    options: {
-      filter: false,
-      sort: false,
-      display: false,
-    },
-  },
-];
+const adminDashboardProjectStatusCols = SummaryColConfig.map((column: any) =>
+  generateStatusColumn(column, 11)
+);
 
-const adminDashboardTaskStatusCols = [
-  {
-    name: "TaskName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "ClientName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "StatusName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Status"),
-      customBodyRender: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[11]),
-    },
-  },
-  {
-    name: "TaxReturnTypeName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Return Type"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "WorkTypeName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "StartDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
-  {
-    name: "EndDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
-  },
-  {
-    name: "PriorityName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-      customBodyRender: (value: any) => generatePriorityWithColor(value),
-    },
-  },
-  {
-    name: "AssignedByName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Assigned By"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "AssignedToName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "StatusColorCode",
-    options: {
-      filter: false,
-      sort: false,
-      display: false,
-    },
-  },
-];
-
-
+const adminDashboardTaskStatusCols = SummaryColConfig.map((column: any) =>
+  generateStatusColumn(column, 11)
+);
 
 export {
   adminDashboardReportCols,

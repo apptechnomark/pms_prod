@@ -32,14 +32,14 @@ export const callAPI = async (
     const { ResponseStatus, ResponseData, Message } = response.data;
     if (response.status === 200) {
       if (ResponseStatus === "Success") {
-        successCallback(ResponseData, false);
+        successCallback(ResponseData, false, ResponseStatus);
       } else {
         if (Message === null) {
           toast.error("Please try again later.");
         } else {
           toast.error(Message);
         }
-        successCallback(null, true);
+        successCallback(null, true, ResponseStatus);
       }
     } else {
       if (Message === null) {
@@ -47,7 +47,7 @@ export const callAPI = async (
       } else {
         toast.error(Message);
       }
-      successCallback(null, true);
+      successCallback(null, true, ResponseStatus);
     }
   } catch (error: any) {
     if (error.response && error.response.status === 401) {

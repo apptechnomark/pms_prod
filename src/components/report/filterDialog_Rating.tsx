@@ -25,7 +25,7 @@ interface FilterModalProps {
   currentFilterData?: any;
 }
 
-const initialFilter = {
+const initialRatingFilter = {
   Projects: [],
   ReturnTypeId: null,
   StartDate: null,
@@ -38,65 +38,64 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
   onClose,
   currentFilterData,
 }) => {
-  const [anyFieldSelected, setAnyFieldSelected] = useState<any>(false);
-  const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
-  const [projectDropdownData, setProjectDropdownData] = useState([]);
-  const [returnType, setReturnType] = useState<null | number>(0);
-  const [startDate, setStartDate] = useState<null | string>(null);
-  const [endDate, setEndDate] = useState<null | string>(null);
+  const [anyRatingFieldSelected, setAnyRatingFieldSelected] = useState<any>(false);
+  const [currSelectedRatingFields, setCurrSelectedRatingFileds] = useState<any | any[]>([]);
+  const [projectFilterRatingDropdownData, setProjectFilterRatingDropdownData] = useState([]);
+  const [returnTypeFilterRating, setReturnTypeFilterRating] = useState<null | number>(0);
+  const [startDateFilterRating, setStartDateFilterRating] = useState<null | string>(null);
+  const [endDateFilterRating, setEndDateFilterRating] = useState<null | string>(null);
+  const [projectFilterRating, setProjectFilterRating] = useState<null | number>(0);
+  const [ratingsFilterRating, setRatingsFilterRating] = useState<null | number>(0);
 
-  const [project, setProject] = useState<null | number>(0);
-  const [ratings, setRatings] = useState<null | number>(0);
-
-  const handleClose = () => {
-    handleResetAll();
+  const handleRatingClose = () => {
+    handleRatingResetAll();
     onClose();
   };
 
-  const handleResetAll = () => {
-    setProject(0);
-    setReturnType(0);
-    setRatings(0);
-    setStartDate(null);
-    setEndDate(null);
-    currentFilterData(initialFilter);
+  const handleRatingResetAll = () => {
+    setProjectFilterRating(0);
+    setReturnTypeFilterRating(0);
+    setRatingsFilterRating(0);
+    setStartDateFilterRating(null);
+    setEndDateFilterRating(null);
+    currentFilterData(initialRatingFilter);
   };
 
   // Check if any field is selected
   useEffect(() => {
-    const isAnyFieldSelected =
-      project !== 0 ||
-      returnType !== 0 ||
-      ratings !== 0 ||
-      startDate !== null ||
-      endDate !== null;
+    const isAnyRatingFieldSelected =
+      projectFilterRating !== 0 ||
+      returnTypeFilterRating !== 0 ||
+      ratingsFilterRating !== 0 ||
+      startDateFilterRating !== null ||
+      endDateFilterRating !== null;
 
-    setAnyFieldSelected(isAnyFieldSelected);
-  }, [project, returnType, ratings, startDate, endDate]);
+    setAnyRatingFieldSelected(isAnyRatingFieldSelected);
+  }, [projectFilterRating, returnTypeFilterRating, ratingsFilterRating, startDateFilterRating, endDateFilterRating]);
 
   useEffect(() => {
     const selectedFields = {
-      Projects: project === 0 ? [] : [project] || null,
-      ReturnTypeId: returnType || null,
-      Ratings: ratings || null,
+      Projects: projectFilterRating === 0 ? [] : [projectFilterRating] || null,
+      ReturnTypeId: returnTypeFilterRating || null,
+      Ratings: ratingsFilterRating || null,
       StartDate:
-        startDate !== null
-          ? new Date(new Date(startDate).getTime() + 24 * 60 * 60 * 1000)
+        startDateFilterRating !== null
+          ? new Date(new Date(startDateFilterRating).getTime() + 24 * 60 * 60 * 1000)
               .toISOString()
               .split("T")[0]
           : null,
       EndDate:
-        endDate !== null
-          ? new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000)
+        endDateFilterRating !== null
+          ? new Date(new Date(endDateFilterRating).getTime() + 24 * 60 * 60 * 1000)
               .toISOString()
               .split("T")[0]
           : null,
     };
-    setCurrSelectedFileds(selectedFields);
-  }, [project, returnType, ratings, startDate, endDate]);
+    setCurrSelectedRatingFileds(selectedFields);
+  }, [projectFilterRating, returnTypeFilterRating, ratingsFilterRating, startDateFilterRating, endDateFilterRating]);
 
   const sendFilterToPage = () => {
-    currentFilterData(currSelectedFields);
+    currentFilterData(currSelectedRatingFields);
     onClose();
   };
 
@@ -120,7 +119,7 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          setProjectDropdownData(response.data.ResponseData.List);
+          setProjectFilterRatingDropdownData(response.data.ResponseData.List);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -153,11 +152,11 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
         TransitionComponent={DialogTransition}
         keepMounted
         maxWidth="md"
-        onClose={handleClose}
+        onClose={handleRatingClose}
       >
         <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
           <span className="text-lg font-medium">Filter</span>
-          <Button color="error" onClick={handleResetAll}>
+          <Button color="error" onClick={handleRatingResetAll}>
             Reset all
           </Button>
         </DialogTitle>
@@ -169,10 +168,10 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
                 <Select
                   labelId="project"
                   id="project"
-                  value={project === 0 ? "" : project}
-                  onChange={(e: any) => setProject(e.target.value)}
+                  value={projectFilterRating === 0 ? "" : projectFilterRating}
+                  onChange={(e: any) => setProjectFilterRating(e.target.value)}
                 >
-                  {projectDropdownData.map((i: any, index: number) => (
+                  {projectFilterRatingDropdownData.map((i: any, index: number) => (
                     <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
@@ -185,8 +184,8 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
                 <Select
                   labelId="workTypes-label"
                   id="workTypes-select"
-                  value={returnType === 0 ? "" : returnType}
-                  onChange={(e: any) => setReturnType(e.target.value)}
+                  value={returnTypeFilterRating === 0 ? "" : returnTypeFilterRating}
+                  onChange={(e: any) => setReturnTypeFilterRating(e.target.value)}
                 >
                   <MenuItem value={1}>Individual Return</MenuItem>
                   <MenuItem value={2}>Business Return</MenuItem>
@@ -199,8 +198,8 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
                     label="From"
                     shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
-                    value={startDate === null ? null : dayjs(startDate)}
-                    onChange={(newDate: any) => setStartDate(newDate.$d)}
+                    value={startDateFilterRating === null ? null : dayjs(startDateFilterRating)}
+                    onChange={(newDate: any) => setStartDateFilterRating(newDate.$d)}
                     slotProps={{
                       textField: {
                         readOnly: true,
@@ -217,8 +216,8 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
                     label="To"
                     shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
-                    value={endDate === null ? null : dayjs(endDate)}
-                    onChange={(newDate: any) => setEndDate(newDate.$d)}
+                    value={endDateFilterRating === null ? null : dayjs(endDateFilterRating)}
+                    onChange={(newDate: any) => setEndDateFilterRating(newDate.$d)}
                     slotProps={{
                       textField: {
                         readOnly: true,
@@ -233,8 +232,8 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
                 <Select
                   labelId="ratings"
                   id="ratings"
-                  value={ratings === 0 ? "" : ratings}
-                  onChange={(e: any) => setRatings(e.target.value)}
+                  value={ratingsFilterRating === 0 ? "" : ratingsFilterRating}
+                  onChange={(e: any) => setRatingsFilterRating(e.target.value)}
                 >
                   <MenuItem value={1}>1</MenuItem>
                   <MenuItem value={2}>2</MenuItem>
@@ -250,14 +249,14 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
           <Button
             variant="contained"
             color="info"
-            className={`${anyFieldSelected && "!bg-secondary"}`}
-            disabled={!anyFieldSelected}
+            className={`${anyRatingFieldSelected && "!bg-secondary"}`}
+            disabled={!anyRatingFieldSelected}
             onClick={sendFilterToPage}
           >
             Apply Filter
           </Button>
 
-          <Button variant="outlined" color="info" onClick={handleClose}>
+          <Button variant="outlined" color="info" onClick={handleRatingClose}>
             Cancel
           </Button>
         </DialogActions>

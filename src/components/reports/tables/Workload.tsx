@@ -1,76 +1,57 @@
-import axios from "axios";
 import { toast } from "react-toastify";
-import React, { useEffect, useState } from "react";
-import {
-  CircularProgress,
-  Popover,
-  TablePagination,
-  ThemeProvider,
-} from "@mui/material";
-import MUIDataTable from "mui-datatables";
-import { options } from "@/utils/datatable/TableOptions";
-import { workLoad_InitialFilter } from "@/utils/reports/getFilters";
-import { DialogTransition } from "@/utils/style/DialogTransition";
-import LineIcon from "@/assets/icons/reports/LineIcon";
-import CloseIcon from "@/assets/icons/reports/CloseIcon";
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,
   generateInitialTimer,
   generateDateWithoutTime,
 } from "@/utils/datatable/CommonFunction";
+import MUIDataTable from "mui-datatables";
+import { callAPI } from "@/utils/API/callAPI";
+import { FieldsType } from "../types/FieldsType";
+import React, { useEffect, useState } from "react";
+import LineIcon from "@/assets/icons/reports/LineIcon";
+import { options } from "@/utils/datatable/TableOptions";
+import CloseIcon from "@/assets/icons/reports/CloseIcon";
+import ReportLoader from "@/components/common/ReportLoader";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { DialogTransition } from "@/utils/style/DialogTransition";
+import { workLoad_InitialFilter } from "@/utils/reports/getFilters";
+import { Popover, TablePagination, ThemeProvider } from "@mui/material";
 
 const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
-  const [loaded, setLoaded] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(0);
-  const [workloadData, setWorkloadData] = useState<any>([]);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [tableDataCount, setTableDataCount] = useState<number>(0);
+  const workloadAnchorElFilter: HTMLButtonElement | null = null;
+  const openWorkloadFilter = Boolean(workloadAnchorElFilter);
+  const workloadIdFilter = openWorkloadFilter ? "simple-popover" : undefined;
 
-  const anchorElFilter: HTMLButtonElement | null = null;
+  const [isWorkloadExpanded, setIsWorkloadExpanded] = useState<boolean>(false);
+  const [clickedWorkloadRowId, setClickedWorkloadRowId] = useState<number>(-1);
 
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
-  const [clickedRowId, setClickedRowId] = useState<number>(-1);
-  const openFilter = Boolean(anchorElFilter);
-  const idFilter = openFilter ? "simple-popover" : undefined;
+  const [workloadFields, setWorkloadFields] = useState<FieldsType>({
+    loaded: false,
+    page: 0,
+    rowsPerPage: 10,
+    data: [],
+    dataCount: 0,
+  });
 
   const getData = async (arg1: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
+    const url = `${process.env.report_api_url}/report/workLoad`;
 
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/workLoad`,
-        { ...arg1 },
-        { headers: { Authorization: `bearer ${token}`, org_token: Org_Token } }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus.toLowerCase() === "success") {
-          onHandleExport(
-            response.data.ResponseData.List.length > 0 ? true : false
-          );
-          setLoaded(true);
-          setWorkloadData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          setLoaded(true);
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later");
-          } else toast.error(data);
-        }
+    const successCallBack = (data: any, error: any) => {
+      if (data !== null && error === false) {
+        onHandleExport(data.List.length > 0);
+        setWorkloadFields({
+          ...workloadFields,
+          loaded: true,
+          data: data.List,
+          dataCount: data.TotalCount,
+        });
       } else {
-        setLoaded(true);
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later");
-        } else toast.error(data);
+        setWorkloadFields({ ...workloadFields, loaded: false });
       }
-    } catch (error) {
-      setLoaded(true);
-      console.error(error);
-    }
+    };
+
+    callAPI(url, arg1, successCallBack, "post");
   };
 
   // functions for handling pagination
@@ -78,15 +59,23 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setPage(newPage);
-    getData({ ...filteredData, pageNo: newPage + 1, pageSize: rowsPerPage });
+    setWorkloadFields({ ...workloadFields, page: newPage });
+    getData({
+      ...filteredData,
+      pageNo: newPage + 1,
+      pageSize: workloadFields.rowsPerPage,
+    });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
+    setWorkloadFields({
+      ...workloadFields,
+      rowsPerPage: parseInt(event.target.value),
+      page: 0,
+    });
+
     getData({
       ...filteredData,
       pageNo: 1,
@@ -101,8 +90,11 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       getData({ ...filteredData, globalSearch: searchValue });
-      setPage(0);
-      setRowsPerPage(10);
+      setWorkloadFields({
+        ...workloadFields,
+        rowsPerPage: 10,
+        page: 0,
+      });
     } else {
       getData({ ...workLoad_InitialFilter, globalSearch: searchValue });
     }
@@ -113,10 +105,11 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
       <div
         className="flex flex-col cursor-pointer"
         onClick={
-          workloadData[TableMeta.rowIndex].workLoadWorkItemData.length > 0
+          workloadFields.data[TableMeta.rowIndex].workLoadWorkItemData.length >
+          0
             ? () => {
-                setIsExpanded(true);
-                setClickedRowId(TableMeta.rowIndex);
+                setIsWorkloadExpanded(true);
+                setClickedWorkloadRowId(TableMeta.rowIndex);
               }
             : () => {
                 toast.error("There is no workitem data available!");
@@ -128,7 +121,9 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
         ) : (
           <>
             <span>{bodyValue}</span>
-            <span>{workloadData[TableMeta.rowIndex].DepartmentName}</span>
+            <span>
+              {workloadFields.data[TableMeta.rowIndex].DepartmentName}
+            </span>
           </>
         )}
       </div>
@@ -145,6 +140,14 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
         customBodyRender: (value: any, tableMeta: any) => {
           return generateUserNameBodyRender(value, tableMeta);
         },
+      },
+    },
+    {
+      name: "ReportingManager",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Reporting To"),
       },
     },
     {
@@ -248,29 +251,29 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
     },
   ];
 
-  return loaded ? (
+  return workloadFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title={undefined}
         columns={columns}
-        data={workloadData}
+        data={workloadFields.data}
         options={options}
       />
       <TablePagination
         component="div"
-        count={tableDataCount}
-        page={page}
+        count={workloadFields.dataCount}
+        page={workloadFields.page}
         onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
+        rowsPerPage={workloadFields.rowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
 
       <Popover
-        id={idFilter}
-        open={isExpanded}
-        anchorEl={anchorElFilter}
+        id={workloadIdFilter}
+        open={isWorkloadExpanded}
+        anchorEl={workloadAnchorElFilter}
         TransitionComponent={DialogTransition}
-        onClose={() => setIsExpanded(false)}
+        onClose={() => setIsWorkloadExpanded(false)}
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "center",
@@ -287,7 +290,7 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
                 username:
               </label>
               <label className="text-sm font-bold font-proxima capitalize">
-                {workloadData[clickedRowId]?.UserName}
+                {workloadFields.data[clickedWorkloadRowId]?.UserName}
               </label>
             </div>
             <LineIcon />
@@ -296,7 +299,7 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
                 Designation:
               </label>
               <label className="text-sm font-normal font-proxima text-slatyGrey capitalize">
-                {workloadData[clickedRowId]?.DepartmentName}
+                {workloadFields.data[clickedWorkloadRowId]?.DepartmentName}
               </label>
             </div>
             <LineIcon />
@@ -305,7 +308,7 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
                 Standard Time:
               </label>
               <label className="text-sm font-normal font-proxima text-slatyGrey capitalize">
-                {workloadData[clickedRowId]?.TotalStandardTime}
+                {workloadFields.data[clickedWorkloadRowId]?.TotalStandardTime}
               </label>
             </div>
             <LineIcon />
@@ -314,11 +317,14 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
                 total time:
               </label>
               <label className="text-sm font-normal font-proxima text-slatyGrey capitalize">
-                {workloadData[clickedRowId]?.TotalTime}
+                {workloadFields.data[clickedWorkloadRowId]?.TotalTime}
               </label>
             </div>
           </div>
-          <div className="cursor-pointer" onClick={() => setIsExpanded(false)}>
+          <div
+            className="cursor-pointer"
+            onClick={() => setIsWorkloadExpanded(false)}
+          >
             <CloseIcon />
           </div>
         </div>
@@ -326,8 +332,8 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
           title={undefined}
           columns={expandableColumns}
           data={
-            workloadData.length > 0 && clickedRowId !== -1
-              ? workloadData[clickedRowId].workLoadWorkItemData
+            workloadFields.data.length > 0 && clickedWorkloadRowId !== -1
+              ? workloadFields.data[clickedWorkloadRowId].workLoadWorkItemData
               : []
           }
           options={{ ...options, tableBodyHeight: "276px" }}
@@ -335,9 +341,7 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
       </Popover>
     </ThemeProvider>
   ) : (
-    <div className="h-screen w-full flex justify-center my-[20%]">
-      <CircularProgress />
-    </div>
+    <ReportLoader />
   );
 };
 
