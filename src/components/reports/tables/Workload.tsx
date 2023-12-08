@@ -7,22 +7,12 @@ import {
   TablePagination,
   ThemeProvider,
 } from "@mui/material";
-
 import MUIDataTable from "mui-datatables";
-//MUIDataTable Options
 import { options } from "@/utils/datatable/TableOptions";
-
-//filter for workload
 import { workLoad_InitialFilter } from "@/utils/reports/getFilters";
-
-//transition for popover
-import { Transition } from "../Filter/Transition/Transition";
-
-//icons
+import { DialogTransition } from "@/utils/style/DialogTransition";
 import LineIcon from "@/assets/icons/reports/LineIcon";
 import CloseIcon from "@/assets/icons/reports/CloseIcon";
-
-// common functions for datatable
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,
@@ -279,7 +269,7 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
         id={idFilter}
         open={isExpanded}
         anchorEl={anchorElFilter}
-        TransitionComponent={Transition}
+        TransitionComponent={DialogTransition}
         onClose={() => setIsExpanded(false)}
         anchorOrigin={{
           vertical: "bottom",

@@ -2,15 +2,10 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import { TablePagination, ThemeProvider } from "@mui/material";
-
 import MUIDataTable from "mui-datatables";
-//MUIDataTable Options
 import { options } from "@/utils/datatable/TableOptions";
-
 import { customreport_InitialFilter } from "@/utils/reports/getFilters";
 import { haveSameData } from "@/utils/reports/commonFunctions";
-
-// common functions for datatable
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,

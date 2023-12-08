@@ -6,20 +6,12 @@ import {
   TablePagination,
   ThemeProvider,
 } from "@mui/material";
-
 import MUIDataTable from "mui-datatables";
-//MUIDataTable Options
 import { options } from "@/utils/datatable/TableOptions";
-
-//filter for user
 import { user_InitialFilter } from "@/utils/reports/getFilters";
-
-//common functions
 import { getDates } from "@/utils/timerFunctions";
 import { getColor } from "@/utils/reports/getColor";
 import dayjs from "dayjs";
-
-// common functions for datatable
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,

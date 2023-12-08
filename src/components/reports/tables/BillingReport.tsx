@@ -10,16 +10,10 @@ import {
   TextField,
   ThemeProvider,
 } from "@mui/material";
-
 import MUIDataTable from "mui-datatables";
-//MUIDataTable Options
 import { options } from "@/utils/datatable/TableOptions";
-
-//filter for billing report
 import { billingreport_InitialFilter } from "@/utils/reports/getFilters";
 import { toSeconds } from "@/utils/timerFunctions";
-
-// common functions for datatable
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,

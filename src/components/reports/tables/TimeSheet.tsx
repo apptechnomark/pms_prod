@@ -7,26 +7,16 @@ import {
   TablePagination,
   ThemeProvider,
 } from "@mui/material";
-
 import MUIDataTable from "mui-datatables";
-//MUIDataTable Options
 import { options } from "@/utils/datatable/TableOptions";
-
-//filter for client
 import { timeSheet_InitialFilter } from "@/utils/reports/getFilters";
-
-//common function
 import { getDates, toSeconds } from "@/utils/timerFunctions";
 import { getColor } from "@/utils/reports/getColor";
-
-//icons
 import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
 import dayjs from "dayjs";
 import { makeStyles } from "@mui/styles";
 import CloseIcon from "@/assets/icons/reports/CloseIcon";
-import { Transition } from "../Filter/Transition/Transition";
-
-// common functions for datatable
+import { DialogTransition } from "@/utils/style/DialogTransition";
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,
@@ -391,7 +381,7 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         id={idFilter}
         open={showDateWiseLogs && tableMeta.columnIndex === clickedColumnIndex}
         anchorEl={anchorElFilter}
-        TransitionComponent={Transition}
+        TransitionComponent={DialogTransition}
         onClose={() => setShowDateWiseLogs(false)}
         anchorOrigin={{
           vertical: "bottom",

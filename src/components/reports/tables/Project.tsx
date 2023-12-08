@@ -6,15 +6,9 @@ import {
   TablePagination,
   ThemeProvider,
 } from "@mui/material";
-
 import MUIDataTable from "mui-datatables";
-//MUIDataTable Options
 import { options } from "@/utils/datatable/TableOptions";
-
-//filter for project
 import { client_project_InitialFilter } from "@/utils/reports/getFilters";
-
-// common functions for datatable
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { reportsProjectsCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
 
