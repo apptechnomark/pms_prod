@@ -28,7 +28,7 @@ const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
           ...userlogFields,
           loaded: true,
           data: data.List,
-          dataCount: data.TableCount,
+          dataCount: data.TotalCount,
         });
       } else {
         setUserlogFields({ ...userlogFields, loaded: false });
