@@ -14,7 +14,6 @@ import FilterIcon from "@/assets/icons/FilterIcon";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import SearchIcon from "@/assets/icons/SearchIcon";
-import Client from "@/components/reports/tables/Client";
 import Project from "@/components/reports/tables/Project";
 import User from "@/components/reports/tables/User";
 import TimeSheet from "@/components/reports/tables/TimeSheet";
@@ -29,7 +28,6 @@ import {
   customreport_InitialFilter,
   getCurrentTabDetails,
 } from "@/utils/reports/getFilters";
-import ClientFilter from "@/components/reports/Filter/ClientFilter";
 import ProjectFilter from "@/components/reports/Filter/ProjectFilter";
 import UserFilter from "@/components/reports/Filter/UserFilter";
 import WorkLoadFilter from "@/components/reports/Filter/WorkLoadFilter";
@@ -398,7 +396,6 @@ const Page = () => {
         </div>
 
         {/* tabs */}
-        {activeTab === 0 && <Client filteredData={filteredData} />}
         {activeTab === 1 && (
           <Project
             searchValue={searchValue}
@@ -469,14 +466,6 @@ const Page = () => {
       </div>
 
       {/* tabs filter */}
-      {activeTab === 0 && (
-        <ClientFilter
-          isFiltering={isFiltering}
-          sendFilterToPage={handleFilterData}
-          onDialogClose={handleFilter}
-        />
-      )}
-
       {activeTab === 1 && (
         <ProjectFilter
           isFiltering={isFiltering}
