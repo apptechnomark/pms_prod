@@ -673,15 +673,34 @@ const WorklogsActionBar = ({
         [7, 8, 9, 13].includes(statusId)
       );
 
+      const isRunning = workItemData
+        .map((item: any) =>
+          id.includes(item.WorkitemId) && item.IsActive === true
+            ? item.WorkitemId
+            : false
+        )
+        .filter((j: any) => j !== false);
+
+      const isNotRunning = workItemData
+        .map((item: any) =>
+          id.includes(item.WorkitemId) && item.IsActive !== true
+            ? item.WorkitemId
+            : false
+        )
+        .filter((j: any) => j !== false);
+      console.log(isRunning, isNotRunning);
+
       if (selectedRowsCount >= 1 && isInvalidStatus) {
         toast.warning(
           "Cannot change Assignee for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
         );
-      } else {
+      } else if (isRunning.length > 0) {
+        toast.warning("Cannot change Assignee for Running tasks.");
+      } else if (isNotRunning.length > 0) {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdateAssignee`,
           {
-            workitemIds: id,
+            workitemIds: isNotRunning,
             assigneeId: assigneeId,
           },
           {
