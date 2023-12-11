@@ -45,6 +45,7 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
     onClose();
     setStatus(0);
     setClickedStatusName("");
+    setSearchValue("");
   };
 
   //   function to extract values from label/type/name
@@ -59,6 +60,11 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
       return 0;
     }
   }
+
+  const handleChangeValue = (e: any) => {
+    setStatus(e.target.value);
+    setSearchValue("");
+  };
 
   useEffect(() => {
     setClickedStatusName(onSelectedStatusName);
@@ -151,7 +157,7 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
                 labelId="status"
                 id="status"
                 value={status ? status : 0}
-                onChange={(e) => setStatus(e.target.value)}
+                onChange={handleChangeValue}
                 sx={{ height: "36px" }}
               >
                 <MenuItem value={0}>All</MenuItem>

@@ -18,11 +18,11 @@ const Page = () => {
         </div>
         <div className="mx-4 px-5 flex justify-between items-center w-[97%] h-28 bg-whiteSmoke rounded-lg shadow-xl">
           <span>PMS EXE (Version 1.0) 12-05-2023</span>
-          {/* <Button variant="contained" className="!bg-secondary">
+          <Button variant="contained" className="!bg-secondary">
             <a href="https://pmsaea8.blob.core.windows.net/prod-help-video-setup/PGCTimeTracker.msi">
               Download
             </a>
-          </Button> */}
+          </Button>
         </div>
       </div>
     </Wrapper>

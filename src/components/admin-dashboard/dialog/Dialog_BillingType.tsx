@@ -45,6 +45,7 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
     onClose();
     setBillingType(0);
     setClickedStatusName("");
+    setSearchValue("");
   };
 
   //   function to extract values from label/type/name
@@ -65,6 +66,11 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
     const billingTypeValue: number = getValueByLabelOrType(clickedStatusName);
     setBillingType(billingTypeValue);
   }, [clickedStatusName, onSelectedStatusName]);
+
+  const handleChangeValue = (e: any) => {
+    setBillingType(e.target.value);
+    setSearchValue("");
+  };
 
   // API for billingType dropdown list
   const getAllStatus = async () => {
@@ -151,7 +157,7 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
                 labelId="Billing Type"
                 id="Billing Type"
                 value={billingType ? billingType : 0}
-                onChange={(e) => setBillingType(e.target.value)}
+                onChange={handleChangeValue}
                 sx={{ height: "36px" }}
               >
                 <MenuItem value={0}>All</MenuItem>
