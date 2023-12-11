@@ -16,11 +16,13 @@ import { customreport_InitialFilter } from "@/utils/reports/getFilters";
 
 const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [customReportFields, setCustomReportFields] = useState({
-    page: 0,
     data: [],
-    rowsPerPage: 10,
     dataCount: 0,
   });
+  const [customReportCurrentPage, setCustomReportCurrentPage] =
+    useState<number>(0);
+  const [customReportRowsPerPage, setCustomReportRowsPerPage] =
+    useState<number>(10);
 
   const getData = async (arg1: any) => {
     const url = `${process.env.report_api_url}/report/custom`;
@@ -43,13 +45,14 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setCustomReportFields({ ...customReportFields, page: newPage });
+    setCustomReportCurrentPage(newPage);
+
     if (filteredData !== null) {
       if (!haveSameData(customreport_InitialFilter, filteredData)) {
         getData({
           ...filteredData,
           pageNo: newPage + 1,
-          pageSize: customReportFields.rowsPerPage,
+          pageSize: customReportRowsPerPage,
         });
       }
     }
@@ -58,11 +61,8 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setCustomReportFields({
-      ...customReportFields,
-      page: 0,
-      rowsPerPage: parseInt(event.target.value),
-    });
+    setCustomReportCurrentPage(0);
+    setCustomReportRowsPerPage(parseInt(event.target.value));
 
     if (filteredData !== null) {
       if (!haveSameData(customreport_InitialFilter, filteredData)) {
@@ -485,9 +485,9 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       <TablePagination
         component="div"
         count={customReportFields.dataCount}
-        page={customReportFields.page}
+        page={customReportCurrentPage}
         onPageChange={handleChangePage}
-        rowsPerPage={customReportFields.rowsPerPage}
+        rowsPerPage={customReportRowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>

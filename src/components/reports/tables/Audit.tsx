@@ -12,17 +12,21 @@ import { reportsAuditCols } from "@/utils/datatable/columns/ReportsDatatableColu
 const Audit = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [auditFields, setAuditFields] = useState<FieldsType>({
     loaded: false,
-    page: 0,
     data: [],
-    rowsPerPage: 10,
     dataCount: 0,
   });
+  const [auditCurrentPage, setAuditCurrentPage] = useState<number>(0);
+  const [auditRowsPerPage, setAuditRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
     const url = `${process.env.report_api_url}/report/audit`;
 
-    const successCallback = (ResponseData: any, error: any) => {
-      if (ResponseData !== null && error === false) {
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0);
         setAuditFields({
           ...auditFields,
@@ -44,26 +48,19 @@ const Audit = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setAuditFields({
-      ...auditFields,
-      page: newPage,
-    });
+    setAuditCurrentPage(newPage);
     getData({
       ...audit_InitialFilter,
       pageNo: newPage + 1,
-      pageSize: auditFields.rowsPerPage,
+      pageSize: auditRowsPerPage,
     });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setAuditFields({
-      ...auditFields,
-      page: 0,
-      rowsPerPage: parseInt(event.target.value),
-    });
-
+    setAuditCurrentPage(0);
+    setAuditRowsPerPage(parseInt(event.target.value));
     getData({
       ...audit_InitialFilter,
       pageNo: 1,
@@ -78,11 +75,8 @@ const Audit = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       getData({ ...filteredData, GlobalSearch: searchValue });
-      setAuditFields({
-        ...auditFields,
-        page: 0,
-        rowsPerPage: 10,
-      });
+      setAuditCurrentPage(0);
+      setAuditRowsPerPage(10);
     } else {
       getData({ ...audit_InitialFilter, GlobalSearch: searchValue });
     }
@@ -99,9 +93,9 @@ const Audit = ({ filteredData, searchValue, onHandleExport }: any) => {
       <TablePagination
         component="div"
         count={auditFields.dataCount}
-        page={auditFields.page}
+        page={auditCurrentPage}
         onPageChange={handleChangePage}
-        rowsPerPage={auditFields.rowsPerPage}
+        rowsPerPage={auditRowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>

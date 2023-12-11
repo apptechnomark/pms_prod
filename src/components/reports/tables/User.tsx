@@ -22,11 +22,11 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [userDates, setUserDates] = useState<any>([]);
   const [userFields, setUserFields] = useState<FieldsType>({
     loaded: false,
-    page: 0,
-    rowsPerPage: 10,
     data: [],
     dataCount: 0,
   });
+  const [userCurrentPage, setUserCurrentPage] = useState<number>(0);
+  const [userRowsPerPage, setUserRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
     const url = `${process.env.report_api_url}/report/user`;
@@ -53,22 +53,20 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setUserFields({ ...userFields, page: newPage });
+    setUserCurrentPage(newPage);
     getData({
       ...filteredData,
       pageNo: newPage + 1,
-      pageSize: userFields.rowsPerPage,
+      pageSize: userRowsPerPage,
     });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setUserFields({
-      ...userFields,
-      page: 0,
-      rowsPerPage: parseInt(event.target.value),
-    });
+    setUserCurrentPage(0);
+    setUserRowsPerPage(parseInt(event.target.value));
+
     getData({
       ...filteredData,
       pageNo: 1,
@@ -84,7 +82,8 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       getData({ ...filteredData, globalSearch: searchValue });
-      setUserFields({ ...userFields, page: 0, rowsPerPage: 10 });
+      setUserCurrentPage(0);
+      setUserRowsPerPage(10);
       setUserDates(
         getDates(
           filteredData.startDate === null ? "" : filteredData.startDate,
@@ -264,9 +263,9 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
       <TablePagination
         component="div"
         count={userFields.dataCount}
-        page={userFields.page}
+        page={userCurrentPage}
         onPageChange={handleChangePage}
-        rowsPerPage={userFields.rowsPerPage}
+        rowsPerPage={userRowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>

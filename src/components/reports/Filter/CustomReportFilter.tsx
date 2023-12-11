@@ -27,6 +27,7 @@ import { client, customReport } from "../Enum/Filtertype";
 import { customreport_InitialFilter } from "@/utils/reports/getFilters";
 import { getUserData } from "./api/getDropDownData";
 import {
+  getAllProcessDropdownData,
   getClientDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
@@ -384,7 +385,8 @@ const CustomReportFilter = ({
         await getProjectDropdownData(clientName.length > 0 ? clientName[0] : 0)
       );
       setProcessDropdown(
-        await getProcessDropdownData(clientName.length > 0 ? clientName[0] : 0)
+        // await getProcessDropdownData(clientName.length > 0 ? clientName[0] : 0)
+        await getAllProcessDropdownData()
       );
       setUserDropdown(await getUserData());
       setStatusDropdown(await getStatusDropdownData());
@@ -671,7 +673,6 @@ const CustomReportFilter = ({
                         setClients(data);
                         setClientName(data.map((d: any) => d.value));
                         setProjectName(0);
-                        setProcessName(0);
                       }
                     }}
                     value={clients}
@@ -713,11 +714,10 @@ const CustomReportFilter = ({
                     id="processName"
                     value={processName === 0 ? "" : processName}
                     onChange={(e) => setProcessName(e.target.value)}
-                    disabled={clients.length > 1}
                   >
                     {processDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.Id} key={i.Id}>
-                        {i.Name}
+                      <MenuItem value={i.value} key={i.value}>
+                        {i.label}
                       </MenuItem>
                     ))}
                   </Select>

@@ -415,11 +415,11 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [dates, setDates] = useState<any>([]);
   const [timesheetFields, setTimesheetFields] = useState<FieldsType>({
     loaded: false,
-    page: 0,
-    rowsPerPage: 10,
     data: [],
     dataCount: 0,
   });
+  const [timesheetCurrentPage, setTimesheetCurrentPage] = useState<number>(0);
+  const [timesheetRowsPerPage, setTimesheetRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
     const url = `${process.env.report_api_url}/report/timesheet`;
@@ -446,22 +446,19 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setTimesheetFields({ ...timesheetFields, page: newPage });
+    setTimesheetCurrentPage(newPage);
     getData({
       ...filteredData,
       pageNo: newPage + 1,
-      pageSize: timesheetFields.rowsPerPage,
+      pageSize: timesheetRowsPerPage,
     });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setTimesheetFields({
-      ...timesheetFields,
-      page: 0,
-      rowsPerPage: parseInt(event.target.value),
-    });
+    setTimesheetCurrentPage(0);
+    setTimesheetRowsPerPage(parseInt(event.target.value));
 
     getData({
       ...filteredData,
@@ -485,11 +482,8 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
         )
       );
 
-      setTimesheetFields({
-        ...timesheetFields,
-        page: 0,
-        rowsPerPage: 10,
-      });
+      setTimesheetCurrentPage(0);
+      setTimesheetRowsPerPage(10);
     } else {
       getData({ ...timeSheet_InitialFilter, globalSearch: searchValue });
     }
@@ -699,9 +693,9 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
       <TablePagination
         component="div"
         count={timesheetFields.dataCount}
-        page={timesheetFields.page}
+        page={timesheetCurrentPage}
         onPageChange={handleChangePage}
-        rowsPerPage={timesheetFields.rowsPerPage}
+        rowsPerPage={timesheetRowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>

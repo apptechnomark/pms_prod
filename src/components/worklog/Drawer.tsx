@@ -62,7 +62,8 @@ const Drawer = ({
   const router = useRouter();
   const yearDropdown = getYears();
   const [clientWorklogUserId, setClientWorklogUserId] = useState(0);
-  const [isCreatedByClientWorklog, setIsCreatedByClientWorklog] = useState(true);
+  const [isCreatedByClientWorklog, setIsCreatedByClientWorklog] =
+    useState(true);
   const [clientWorklogFieldsData, setClientWorklogFieldsData] = useState([]);
   const [clientWorklogEditData, setClientWorklogEditData] = useState<any>([]);
   let Task;
@@ -244,7 +245,7 @@ const Drawer = ({
     const url = `${process.env.worklog_api_url}/workitem/subtask/getbyworkitem`;
     const successCallback = (ResponseData: any, error: any) => {
       if (ResponseData !== null && ResponseData.length > 0 && error === false) {
-        setSubTaskClientWorklogSwitch(ResponseData.length);
+        setSubTaskClientWorklogSwitch(hasPermissionWorklog("Task/SubTask", "view", "WorkLogs"));
         setSubTaskClientWorklogFields(ResponseData);
       } else {
         setSubTaskClientWorklogSwitch(false);
@@ -278,54 +279,60 @@ const Drawer = ({
     hasSubErrors =
       newTaskErrors.some((error) => error) ||
       newSubTaskDescErrors.some((error) => error);
-    if (!hasSubErrors) {
-      if (
-        (onEdit > 0 && editStatusClientWorklog === 4) ||
-        (onEdit > 0 && editStatusClientWorklog === 7) ||
-        (onEdit > 0 && editStatusClientWorklog === 8) ||
-        (onEdit > 0 && editStatusClientWorklog === 9) ||
-        (onEdit > 0 && editStatusClientWorklog === 13)
-      ) {
-        toast.warning(
-          "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-        );
-        onEdit > 0 && getSubTaskDataClientWorklog();
-      } else {
-        const params = {
-          workitemId: onEdit,
-          subtasks: subTaskClientWorklogSwitch
-            ? subTaskClientWorklogFields.map(
-                (i: any) =>
-                  new Object({
-                    SubtaskId: i.SubtaskId,
-                    Title: i.Title.trim(),
-                    Description: i.Description.trim(),
-                  })
-              )
-            : null,
-          deletedWorkitemSubtaskIds: deletedSubTaskClientWorklog,
-        };
-        const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
-        const successCallback = (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
-        ) => {
-          if (ResponseStatus === "Success" && error === false) {
-            toast.success(`Sub Task Updated successfully.`);
-            setDeletedSubTaskClientWorklog([]);
-            setSubTaskClientWorklogFields([
-              {
-                SubtaskId: 0,
-                Title: "",
-                Description: "",
-              },
-            ]);
-            getSubTaskDataClientWorklog();
-          }
-        };
-        callAPI(url, params, successCallback, "POST");
+
+    if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
+      if (!hasSubErrors) {
+        if (
+          (onEdit > 0 && editStatusClientWorklog === 4) ||
+          (onEdit > 0 && editStatusClientWorklog === 7) ||
+          (onEdit > 0 && editStatusClientWorklog === 8) ||
+          (onEdit > 0 && editStatusClientWorklog === 9) ||
+          (onEdit > 0 && editStatusClientWorklog === 13)
+        ) {
+          toast.warning(
+            "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+          );
+          onEdit > 0 && getSubTaskDataClientWorklog();
+        } else {
+          const params = {
+            workitemId: onEdit,
+            subtasks: subTaskClientWorklogSwitch
+              ? subTaskClientWorklogFields.map(
+                  (i: any) =>
+                    new Object({
+                      SubtaskId: i.SubtaskId,
+                      Title: i.Title.trim(),
+                      Description: i.Description.trim(),
+                    })
+                )
+              : null,
+            deletedWorkitemSubtaskIds: deletedSubTaskClientWorklog,
+          };
+          const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
+          const successCallback = (
+            ResponseData: any,
+            error: any,
+            ResponseStatus: any
+          ) => {
+            if (ResponseStatus === "Success" && error === false) {
+              toast.success(`Sub Task Updated successfully.`);
+              setDeletedSubTaskClientWorklog([]);
+              setSubTaskClientWorklogFields([
+                {
+                  SubtaskId: 0,
+                  Title: "",
+                  Description: "",
+                },
+              ]);
+              getSubTaskDataClientWorklog();
+            }
+          };
+          callAPI(url, params, successCallback, "POST");
+        }
       }
+    } else {
+      toast.error("User don't have permission to Update Sub-Task.");
+      getSubTaskDataClientWorklog();
     }
   };
 
@@ -346,16 +353,23 @@ const Drawer = ({
     setCommentValueClientWorklogEditError,
   ] = useState(false);
   const [mentionClientWorklog, setMentionClientWorklog] = useState<any>([]);
-  const [commentAttachmentClientWorklog, setCommentAttachmentClientWorklog] = useState([
-    {
-      AttachmentId: 0,
-      UserFileName: "",
-      SystemFileName: "",
-      AttachmentPath: process.env.attachment,
-    },
-  ]);
-  const [editingCommentIndexClientWorklog, setEditingCommentIndexClientWorklog] = useState(-1);
-  const [commentDropdownDataClientWorklog, setCommentDropdownDataClientWorklog] = useState([]);
+  const [commentAttachmentClientWorklog, setCommentAttachmentClientWorklog] =
+    useState([
+      {
+        AttachmentId: 0,
+        UserFileName: "",
+        SystemFileName: "",
+        AttachmentPath: process.env.attachment,
+      },
+    ]);
+  const [
+    editingCommentIndexClientWorklog,
+    setEditingCommentIndexClientWorklog,
+  ] = useState(-1);
+  const [
+    commentDropdownDataClientWorklog,
+    setCommentDropdownDataClientWorklog,
+  ] = useState([]);
 
   const users: any = commentDropdownDataClientWorklog.map(
     (i: any) =>
@@ -429,7 +443,7 @@ const Drawer = ({
         };
         callAPI(url, params, successCallback, "POST");
       } else {
-        toast.error("User don't have permission to Update Task.");
+        toast.error("User don't have permission to Update Comment.");
         getCommentDataClientWorklog();
       }
     }
@@ -465,7 +479,9 @@ const Drawer = ({
     callAPI(url, params, successCallback, "POST");
   };
 
-  const handleSubmitCommentClientWorklog = async (e: { preventDefault: () => void }) => {
+  const handleSubmitCommentClientWorklog = async (e: {
+    preventDefault: () => void;
+  }) => {
     e.preventDefault();
     setCommentValueClientWorklogError(
       commentValueClientWorklog.trim().length < 5 ||
@@ -513,39 +529,43 @@ const Drawer = ({
         };
         callAPI(url, params, successCallback, "POST");
       } else {
-        toast.error("User don't have permission to Update Task.");
+        toast.error("User don't have permission to Update Comment.");
         getCommentDataClientWorklog();
       }
     }
   };
 
   // Error Logs
-  const [errorLogClientWorklogDrawer, setErrorLogClientWorklogDrawer] = useState(true);
-  const [cCDropdownClientWorklogData, setCCDropdownClientWorklogData] = useState<any>([]);
-  const [errorLogClientWorklogFields, setErrorLogClientWorklogFields] = useState([
-    {
-      SubmitedBy: "",
-      SubmitedOn: "",
-      ErrorLogId: 0,
-      ErrorType: 1,
-      RootCause: 0,
-      Priority: 0,
-      ErrorCount: 0,
-      NatureOfError: 0,
-      Remark: "",
-      Attachments: [
-        {
-          AttachmentId: 0,
-          UserFileName: "",
-          SystemFileName: "",
-          AttachmentPath: process.env.attachment,
-        },
-      ],
-      isSolved: false,
-    },
-  ]);
+  const [errorLogClientWorklogDrawer, setErrorLogClientWorklogDrawer] =
+    useState(true);
+  const [cCDropdownClientWorklogData, setCCDropdownClientWorklogData] =
+    useState<any>([]);
+  const [errorLogClientWorklogFields, setErrorLogClientWorklogFields] =
+    useState([
+      {
+        SubmitedBy: "",
+        SubmitedOn: "",
+        ErrorLogId: 0,
+        ErrorType: 1,
+        RootCause: 0,
+        Priority: 0,
+        ErrorCount: 0,
+        NatureOfError: 0,
+        Remark: "",
+        Attachments: [
+          {
+            AttachmentId: 0,
+            UserFileName: "",
+            SystemFileName: "",
+            AttachmentPath: process.env.attachment,
+          },
+        ],
+        isSolved: false,
+      },
+    ]);
   const [remarkClientWorklogErr, setRemarkClientWorklogErr] = useState([false]);
-  const [deletedErrorLogClientWorklog, setDeletedErrorLogClientWorklog] = useState<any>([]);
+  const [deletedErrorLogClientWorklog, setDeletedErrorLogClientWorklog] =
+    useState<any>([]);
 
   const addErrorLogFieldClientWorklog = () => {
     setErrorLogClientWorklogFields([
@@ -575,7 +595,10 @@ const Drawer = ({
   };
 
   const removeErrorLogFieldClientWorklog = (index: number) => {
-    setDeletedErrorLogClientWorklog([...deletedErrorLogClientWorklog, errorLogClientWorklogFields[index].ErrorLogId]);
+    setDeletedErrorLogClientWorklog([
+      ...deletedErrorLogClientWorklog,
+      errorLogClientWorklogFields[index].ErrorLogId,
+    ]);
     const newErrorLogClientWorklogFields = [...errorLogClientWorklogFields];
     newErrorLogClientWorklogFields.splice(index, 1);
     setErrorLogClientWorklogFields(newErrorLogClientWorklogFields);
@@ -639,7 +662,9 @@ const Drawer = ({
                 ErrorCount: i.ErrorCount,
                 NatureOfError: i.NatureOfError,
                 CC: i.CC.map((i: any) =>
-                  cCDropdownClientWorklogData.find((j: { value: any }) => j.value === i)
+                  cCDropdownClientWorklogData.find(
+                    (j: { value: any }) => j.value === i
+                  )
                 ).filter(Boolean),
                 Remark: i.Remark,
                 Attachments:
@@ -685,7 +710,9 @@ const Drawer = ({
     callAPI(url, params, successCallback, "POST");
   };
 
-  const handleSubmitErrorLogClientWorklog = async (e: { preventDefault: () => void }) => {
+  const handleSubmitErrorLogClientWorklog = async (e: {
+    preventDefault: () => void;
+  }) => {
     e.preventDefault();
     let hasErrorLogErrors = false;
     const newRemarkClientWorklogErrors = errorLogClientWorklogFields.map(
@@ -737,7 +764,7 @@ const Drawer = ({
         };
         callAPI(url, params, successCallback, "POST");
       } else {
-        toast.error("User don't have permission to Update Task.");
+        toast.error("User don't have permission to Update ErrorLog.");
         getErrorLogDataClientWorklog();
       }
     }
@@ -934,8 +961,12 @@ const Drawer = ({
       WorkitemId: onEdit,
     };
     const url = `${process.env.worklog_api_url}/ClientWorkitem/getbyid`;
-    const successCallback = (ResponseData: any, error: any) => {
-      if (ResponseData !== null && error === false) {
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
         setClientWorklogEditData(ResponseData);
         setIsCreatedByClientWorklog(ResponseData.IsCreatedByClient);
         setTypeOfWorkClientWorklog(
@@ -1168,7 +1199,10 @@ const Drawer = ({
               ))}
           </div>
           <Tooltip title="Close" placement="left" arrow>
-            <IconButton className="mr-[10px]" onClick={handleCloseClientWorklog}>
+            <IconButton
+              className="mr-[10px]"
+              onClick={handleCloseClientWorklog}
+            >
               <Close />
             </IconButton>
           </Tooltip>
@@ -1777,7 +1811,9 @@ const Drawer = ({
                               isCreatedByClientWorklog && (
                                 <span
                                   className="cursor-pointer"
-                                  onClick={() => removeTaskFieldClientWorklog(index)}
+                                  onClick={() =>
+                                    removeTaskFieldClientWorklog(index)
+                                  }
                                 >
                                   <svg
                                     className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
@@ -1861,7 +1897,9 @@ const Drawer = ({
                                           setCommentValueClientWorklogEditError(
                                             false
                                           );
-                                          handleCommentChangeClientWorklog(e.target.value);
+                                          handleCommentChangeClientWorklog(
+                                            e.target.value
+                                          );
                                         }}
                                         placeholder="Type a next message OR type @ if you want to mention anyone in the message."
                                       >
@@ -1886,11 +1924,14 @@ const Drawer = ({
                                           />
                                         </div>
                                       </div>
-                                      {commentAttachmentClientWorklog[0]?.SystemFileName
-                                        .length > 0 && (
+                                      {commentAttachmentClientWorklog[0]
+                                        ?.SystemFileName.length > 0 && (
                                         <div className="flex items-center justify-center gap-2">
                                           <span className="ml-2 cursor-pointer">
-                                            {commentAttachmentClientWorklog[0]?.UserFileName}
+                                            {
+                                              commentAttachmentClientWorklog[0]
+                                                ?.UserFileName
+                                            }
                                           </span>
                                           <span
                                             onClick={() =>
@@ -1940,7 +1981,9 @@ const Drawer = ({
                                   <button
                                     type="button"
                                     className="!bg-secondary text-white border rounded-md px-[4px]"
-                                    onClick={(e) => handleSaveClickClientWorklog(e, i)}
+                                    onClick={(e) =>
+                                      handleSaveClickClientWorklog(e, i)
+                                    }
                                   >
                                     <Save className="w-4 h-4" />
                                   </button>
@@ -1950,9 +1993,10 @@ const Drawer = ({
                                   <span className="hidden"></span>
                                   <div className="flex items-start">
                                     {extractText(i.Message).map((i: any) => {
-                                      const assignee = commentDropdownDataClientWorklog.map(
-                                        (j: any) => j.label
-                                      );
+                                      const assignee =
+                                        commentDropdownDataClientWorklog.map(
+                                          (j: any) => j.label
+                                        );
                                       return assignee.includes(i) ? (
                                         <span
                                           className="text-secondary"
@@ -1999,7 +2043,10 @@ const Drawer = ({
                                         type="button"
                                         className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
                                         onClick={() => {
-                                          handleEditClickClientWorklog(index, i.Message);
+                                          handleEditClickClientWorklog(
+                                            index,
+                                            i.Message
+                                          );
                                           setCommentAttachmentClientWorklog([
                                             {
                                               AttachmentId:
@@ -2091,16 +2138,22 @@ const Drawer = ({
                           )}
                         </div>
                         {commentAttachmentClientWorklog[0].AttachmentId === 0 &&
-                          commentAttachmentClientWorklog[0]?.SystemFileName.length > 0 && (
+                          commentAttachmentClientWorklog[0]?.SystemFileName
+                            .length > 0 && (
                             <div className="flex items-center justify-center gap-2 mr-6">
                               <span className="ml-2 cursor-pointer">
-                                {commentAttachmentClientWorklog[0]?.UserFileName}
+                                {
+                                  commentAttachmentClientWorklog[0]
+                                    ?.UserFileName
+                                }
                               </span>
                               <span
                                 onClick={() =>
                                   getFileFromBlob(
-                                    commentAttachmentClientWorklog[0]?.SystemFileName,
-                                    commentAttachmentClientWorklog[0]?.UserFileName
+                                    commentAttachmentClientWorklog[0]
+                                      ?.SystemFileName,
+                                    commentAttachmentClientWorklog[0]
+                                      ?.UserFileName
                                   )
                                 }
                               >
@@ -2140,7 +2193,11 @@ const Drawer = ({
                       className={`cursor-pointer ${
                         errorLogClientWorklogDrawer ? "rotate-180" : ""
                       }`}
-                      onClick={() => setErrorLogClientWorklogDrawer(!errorLogClientWorklogDrawer)}
+                      onClick={() =>
+                        setErrorLogClientWorklogDrawer(
+                          !errorLogClientWorklogDrawer
+                        )
+                      }
                     >
                       <ChevronDownIcon />
                     </span>
@@ -2150,167 +2207,185 @@ const Drawer = ({
                   hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && (
                     <>
                       <div className="mt-3 pl-6">
-                        {errorLogClientWorklogFields.map((field: any, index: any) => (
-                          <div className="w-[100%] mt-4" key={index}>
-                            {field.SubmitedBy.length > 0 && (
-                              <div className="ml-1 mt-8 mb-3">
-                                <span className="font-bold">Correction By</span>
-                                <span className="ml-3 mr-10 text-[14px]">
-                                  {field.SubmitedBy}
-                                </span>
-                                <span className="font-bold">Reviewer Date</span>
-                                <span className="ml-3">{field.SubmitedOn}</span>
-                              </div>
-                            )}
-                            <div className="flex !ml-0">
-                              <TextField
-                                label={
-                                  <span>
-                                    Remarks
-                                    <span className="text-defaultRed">
-                                      &nbsp;*
-                                    </span>
+                        {errorLogClientWorklogFields.map(
+                          (field: any, index: any) => (
+                            <div className="w-[100%] mt-4" key={index}>
+                              {field.SubmitedBy.length > 0 && (
+                                <div className="ml-1 mt-8 mb-3">
+                                  <span className="font-bold">
+                                    Correction By
                                   </span>
-                                }
-                                fullWidth
-                                value={
-                                  field.Remark.trim().length === 0
-                                    ? ""
-                                    : field.Remark
-                                }
-                                disabled={field.isSolved}
-                                onChange={(e) => handleRemarksChangeClientWorklog(e, index)}
-                                onBlur={(e: any) => {
-                                  if (e.target.value.length > 0) {
-                                    const newRemarkClientWorklogErrors = [...remarkClientWorklogErr];
-                                    newRemarkClientWorklogErrors[index] = false;
-                                    setRemarkClientWorklogErr(newRemarkClientWorklogErrors);
-                                  }
-                                }}
-                                error={remarkClientWorklogErr[index]}
-                                helperText={
-                                  remarkClientWorklogErr[index] &&
-                                  field.Remark.length > 0 &&
-                                  field.Remark.length < 5
-                                    ? "Minumum 5 characters required."
-                                    : remarkClientWorklogErr[index] &&
-                                      field.Remark.length > 500
-                                    ? "Maximum 500 characters allowed."
-                                    : remarkClientWorklogErr[index]
-                                    ? "This is a required field."
-                                    : ""
-                                }
-                                margin="normal"
-                                variant="standard"
-                                sx={{ mx: 0.75, maxWidth: 492, mt: 1, mr: 2 }}
-                              />
-                              <div className="flex flex-col">
-                                <div className="flex">
-                                  <ImageUploader
-                                    getData={(data1: any, data2: any) =>
-                                      handleAttachmentsChangeClientWorklog(
-                                        data1,
-                                        data2,
-                                        field.Attachments,
-                                        index
-                                      )
-                                    }
-                                    isDisable={field.isSolved}
-                                  />
-                                  {field.Attachments[0]?.SystemFileName.length >
-                                    0 && (
-                                    <div className="flex items-center justify-center gap-2">
-                                      <span className="mt-6 ml-2 cursor-pointer">
-                                        {field.Attachments[0]?.UserFileName}
-                                      </span>
-                                      <span
-                                        className="mt-6"
-                                        onClick={() =>
-                                          getFileFromBlob(
-                                            field.Attachments[0]
-                                              ?.SystemFileName,
-                                            field.Attachments[0]?.UserFileName
-                                          )
-                                        }
-                                      >
-                                        <ColorToolTip
-                                          title="Download"
-                                          placement="top"
-                                          arrow
-                                        >
-                                          <Download />
-                                        </ColorToolTip>
-                                      </span>
-                                    </div>
-                                  )}
+                                  <span className="ml-3 mr-10 text-[14px]">
+                                    {field.SubmitedBy}
+                                  </span>
+                                  <span className="font-bold">
+                                    Reviewer Date
+                                  </span>
+                                  <span className="ml-3">
+                                    {field.SubmitedOn}
+                                  </span>
                                 </div>
-                              </div>
-                              {field.isSolved && (
-                                <FormGroup>
-                                  <FormControlLabel
-                                    className="mt-4 ml-2"
-                                    control={
-                                      <Checkbox checked={field.isSolved} />
+                              )}
+                              <div className="flex !ml-0">
+                                <TextField
+                                  label={
+                                    <span>
+                                      Remarks
+                                      <span className="text-defaultRed">
+                                        &nbsp;*
+                                      </span>
+                                    </span>
+                                  }
+                                  fullWidth
+                                  value={
+                                    field.Remark.trim().length === 0
+                                      ? ""
+                                      : field.Remark
+                                  }
+                                  disabled={field.isSolved}
+                                  onChange={(e) =>
+                                    handleRemarksChangeClientWorklog(e, index)
+                                  }
+                                  onBlur={(e: any) => {
+                                    if (e.target.value.length > 0) {
+                                      const newRemarkClientWorklogErrors = [
+                                        ...remarkClientWorklogErr,
+                                      ];
+                                      newRemarkClientWorklogErrors[index] =
+                                        false;
+                                      setRemarkClientWorklogErr(
+                                        newRemarkClientWorklogErrors
+                                      );
                                     }
-                                    label="Is Resolved"
-                                  />
-                                </FormGroup>
-                              )}
-                              {index === 0 ? (
-                                <span
-                                  className="cursor-pointer"
-                                  onClick={
-                                    hasPermissionWorklog(
-                                      "ErrorLog",
-                                      "Save",
-                                      "WorkLogs"
-                                    )
-                                      ? addErrorLogFieldClientWorklog
-                                      : undefined
+                                  }}
+                                  error={remarkClientWorklogErr[index]}
+                                  helperText={
+                                    remarkClientWorklogErr[index] &&
+                                    field.Remark.length > 0 &&
+                                    field.Remark.length < 5
+                                      ? "Minumum 5 characters required."
+                                      : remarkClientWorklogErr[index] &&
+                                        field.Remark.length > 500
+                                      ? "Maximum 500 characters allowed."
+                                      : remarkClientWorklogErr[index]
+                                      ? "This is a required field."
+                                      : ""
                                   }
-                                >
-                                  <svg
-                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                    focusable="false"
-                                    aria-hidden="true"
-                                    viewBox="0 0 24 24"
-                                    data-testid="AddIcon"
+                                  margin="normal"
+                                  variant="standard"
+                                  sx={{ mx: 0.75, maxWidth: 492, mt: 1, mr: 2 }}
+                                />
+                                <div className="flex flex-col">
+                                  <div className="flex">
+                                    <ImageUploader
+                                      getData={(data1: any, data2: any) =>
+                                        handleAttachmentsChangeClientWorklog(
+                                          data1,
+                                          data2,
+                                          field.Attachments,
+                                          index
+                                        )
+                                      }
+                                      isDisable={field.isSolved}
+                                    />
+                                    {field.Attachments[0]?.SystemFileName
+                                      .length > 0 && (
+                                      <div className="flex items-center justify-center gap-2">
+                                        <span className="mt-6 ml-2 cursor-pointer">
+                                          {field.Attachments[0]?.UserFileName}
+                                        </span>
+                                        <span
+                                          className="mt-6"
+                                          onClick={() =>
+                                            getFileFromBlob(
+                                              field.Attachments[0]
+                                                ?.SystemFileName,
+                                              field.Attachments[0]?.UserFileName
+                                            )
+                                          }
+                                        >
+                                          <ColorToolTip
+                                            title="Download"
+                                            placement="top"
+                                            arrow
+                                          >
+                                            <Download />
+                                          </ColorToolTip>
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                {field.isSolved && (
+                                  <FormGroup>
+                                    <FormControlLabel
+                                      className="mt-4 ml-2"
+                                      control={
+                                        <Checkbox checked={field.isSolved} />
+                                      }
+                                      label="Is Resolved"
+                                    />
+                                  </FormGroup>
+                                )}
+                                {index === 0 ? (
+                                  <span
+                                    className="cursor-pointer"
+                                    onClick={
+                                      hasPermissionWorklog(
+                                        "ErrorLog",
+                                        "Save",
+                                        "WorkLogs"
+                                      )
+                                        ? addErrorLogFieldClientWorklog
+                                        : undefined
+                                    }
                                   >
-                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
-                                  </svg>
-                                </span>
-                              ) : (
-                                <span
-                                  className="cursor-pointer"
-                                  onClick={
-                                    hasPermissionWorklog(
-                                      "ErrorLog",
-                                      "Delete",
-                                      "WorkLogs"
-                                    ) ||
-                                    hasPermissionWorklog(
-                                      "ErrorLog",
-                                      "Save",
-                                      "WorkLogs"
-                                    )
-                                      ? () => removeErrorLogFieldClientWorklog(index)
-                                      : undefined
-                                  }
-                                >
-                                  <svg
-                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                    focusable="false"
-                                    aria-hidden="true"
-                                    viewBox="0 0 24 24"
-                                    data-testid="RemoveIcon"
+                                    <svg
+                                      className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                      focusable="false"
+                                      aria-hidden="true"
+                                      viewBox="0 0 24 24"
+                                      data-testid="AddIcon"
+                                    >
+                                      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                                    </svg>
+                                  </span>
+                                ) : (
+                                  <span
+                                    className="cursor-pointer"
+                                    onClick={
+                                      hasPermissionWorklog(
+                                        "ErrorLog",
+                                        "Delete",
+                                        "WorkLogs"
+                                      ) &&
+                                      hasPermissionWorklog(
+                                        "ErrorLog",
+                                        "Save",
+                                        "WorkLogs"
+                                      )
+                                        ? () =>
+                                            removeErrorLogFieldClientWorklog(
+                                              index
+                                            )
+                                        : undefined
+                                    }
                                   >
-                                    <path d="M19 13H5v-2h14v2z"></path>
-                                  </svg>
-                                </span>
-                              )}
+                                    <svg
+                                      className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                      focusable="false"
+                                      aria-hidden="true"
+                                      viewBox="0 0 24 24"
+                                      data-testid="RemoveIcon"
+                                    >
+                                      <path d="M19 13H5v-2h14v2z"></path>
+                                    </svg>
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          )
+                        )}
                       </div>
                     </>
                   )}

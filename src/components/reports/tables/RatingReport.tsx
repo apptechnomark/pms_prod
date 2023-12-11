@@ -12,11 +12,11 @@ import { reportsRatingCols } from "@/utils/datatable/columns/ReportsDatatableCol
 const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [ratingReportFields, setRatingReportFields] = useState<FieldsType>({
     loaded: false,
-    page: 0,
     data: [],
-    rowsPerPage: 10,
     dataCount: 0,
   });
+  const [ratingCurrentPage, setRatingCurrentPage] = useState<number>(0);
+  const [ratingRowsPerPage, setRatingRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
     const url = `${process.env.report_api_url}/report/admin/rating`;
@@ -43,18 +43,18 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setRatingReportFields({ ...ratingReportFields, page: newPage });
+    setRatingCurrentPage(newPage);
     if (filteredData !== null) {
       getData({
         ...filteredData,
         pageNo: newPage + 1,
-        pageSize: ratingReportFields.rowsPerPage,
+        pageSize: ratingRowsPerPage,
       });
     } else {
       getData({
         ...rating_InitialFilter,
         pageNo: newPage + 1,
-        pageSize: ratingReportFields.rowsPerPage,
+        pageSize: ratingRowsPerPage,
       });
     }
   };
@@ -62,17 +62,14 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setRatingReportFields({
-      ...ratingReportFields,
-      rowsPerPage: parseInt(event.target.value),
-      page: 0,
-    });
+    setRatingCurrentPage(0);
+    setRatingRowsPerPage(parseInt(event.target.value));
 
     if (filteredData !== null) {
       getData({
         ...filteredData,
         pageNo: 1,
-        pageSize: ratingReportFields.rowsPerPage,
+        pageSize: ratingRowsPerPage,
       });
     } else {
       getData({
@@ -90,11 +87,8 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       getData({ ...filteredData, GlobalSearch: searchValue });
-      setRatingReportFields({
-        ...ratingReportFields,
-        page: 0,
-        rowsPerPage: 10,
-      });
+      setRatingCurrentPage(0);
+      setRatingRowsPerPage(10);
     } else {
       getData({ ...rating_InitialFilter, GlobalSearch: searchValue });
     }
@@ -111,9 +105,9 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       <TablePagination
         component="div"
         count={ratingReportFields.dataCount}
-        page={ratingReportFields.page}
+        page={ratingCurrentPage}
         onPageChange={handleChangePage}
-        rowsPerPage={ratingReportFields.rowsPerPage}
+        rowsPerPage={ratingRowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>

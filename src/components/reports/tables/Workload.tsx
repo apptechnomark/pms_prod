@@ -26,10 +26,10 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [isWorkloadExpanded, setIsWorkloadExpanded] = useState<boolean>(false);
   const [clickedWorkloadRowId, setClickedWorkloadRowId] = useState<number>(-1);
 
+  const [workloadCurrentPage, setWorkloadCurrentPage] = useState<number>(0);
+  const [workloadRowsPerPage, setWorkloadRowsPerPage] = useState<number>(10);
   const [workloadFields, setWorkloadFields] = useState<FieldsType>({
     loaded: false,
-    page: 0,
-    rowsPerPage: 10,
     data: [],
     dataCount: 0,
   });
@@ -59,22 +59,19 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setWorkloadFields({ ...workloadFields, page: newPage });
+    setWorkloadCurrentPage(newPage);
     getData({
       ...filteredData,
       pageNo: newPage + 1,
-      pageSize: workloadFields.rowsPerPage,
+      pageSize: workloadRowsPerPage,
     });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setWorkloadFields({
-      ...workloadFields,
-      rowsPerPage: parseInt(event.target.value),
-      page: 0,
-    });
+    setWorkloadCurrentPage(0);
+    setWorkloadRowsPerPage(parseInt(event.target.value));
 
     getData({
       ...filteredData,
@@ -90,11 +87,8 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       getData({ ...filteredData, globalSearch: searchValue });
-      setWorkloadFields({
-        ...workloadFields,
-        rowsPerPage: 10,
-        page: 0,
-      });
+      setWorkloadCurrentPage(0);
+      setWorkloadRowsPerPage(10);
     } else {
       getData({ ...workLoad_InitialFilter, globalSearch: searchValue });
     }
@@ -262,9 +256,9 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
       <TablePagination
         component="div"
         count={workloadFields.dataCount}
-        page={workloadFields.page}
+        page={workloadCurrentPage}
         onPageChange={handleChangePage}
-        rowsPerPage={workloadFields.rowsPerPage}
+        rowsPerPage={workloadRowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
 

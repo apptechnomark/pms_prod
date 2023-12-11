@@ -17,11 +17,11 @@ const project_InitialFilter = {
 const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [projectFields, setProjectFields] = useState<FieldsType>({
     loaded: false,
-    page: 0,
-    rowsPerPage: 10,
     data: [],
     dataCount: 0,
   });
+  const [projectCurrentPage, setProjectCurrentPage] = useState<number>(0);
+  const [projectRowsPerPage, setProjectRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
     const url = `${process.env.report_api_url}/report/project`;
@@ -48,18 +48,18 @@ const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setProjectFields({ ...projectFields, page: newPage });
+    setProjectCurrentPage(newPage);
     if (filteredData !== null) {
       getData({
         ...filteredData,
         pageNo: newPage + 1,
-        pageSize: projectFields.rowsPerPage,
+        pageSize: projectRowsPerPage,
       });
     } else {
       getData({
         ...project_InitialFilter,
         pageNo: newPage + 1,
-        pageSize: projectFields.rowsPerPage,
+        pageSize: projectRowsPerPage,
       });
     }
   };
@@ -67,16 +67,14 @@ const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setProjectFields({
-      ...projectFields,
-      page: 0,
-      rowsPerPage: parseInt(event.target.value),
-    });
+    setProjectCurrentPage(0);
+    setProjectRowsPerPage(parseInt(event.target.value));
+
     if (filteredData !== null) {
       getData({
         ...filteredData,
         pageNo: 1,
-        pageSize: projectFields.rowsPerPage,
+        pageSize: projectRowsPerPage,
       });
     } else {
       getData({
@@ -94,11 +92,8 @@ const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
   useEffect(() => {
     if (filteredData !== null) {
       getData({ ...filteredData, globalSearch: searchValue });
-      setProjectFields({
-        ...projectFields,
-        page: 0,
-        rowsPerPage: 10,
-      });
+      setProjectCurrentPage(0);
+      setProjectRowsPerPage(10);
     } else {
       getData({ ...project_InitialFilter, globalSearch: searchValue });
     }
@@ -115,9 +110,9 @@ const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
       <TablePagination
         component="div"
         count={projectFields.dataCount}
-        page={projectFields.page}
+        page={projectCurrentPage}
         onPageChange={handleChangePage}
-        rowsPerPage={projectFields.rowsPerPage}
+        rowsPerPage={projectRowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>

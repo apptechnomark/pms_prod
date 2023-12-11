@@ -1,7 +1,5 @@
-import dayjs from "dayjs";
 import axios from "axios";
-import { toast } from "react-toastify";
-import React, { useEffect, useState } from "react";
+import dayjs from "dayjs";
 import {
   Autocomplete,
   Button,
@@ -15,38 +13,28 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-
-//custom components
-import { DialogTransition } from "@/utils/style/DialogTransition";
-import DeleteDialog from "@/components/common/workloags/DeleteDialog";
-
-// filter type
-import { FilterType } from "../types/ReportsFilterType";
-
-// filter type enum
+import { toast } from "react-toastify";
 import { audit } from "../Enum/Filtertype";
-
-//filter body for audit
-import { audit_InitialFilter } from "@/utils/reports/getFilters";
-
-//dropdown api
-import { getClientData, getUserData } from "./api/getDropDownData";
-
-//icons
-import SearchIcon from "@/assets/icons/SearchIcon";
+import { useEffect, useState } from "react";
 import { Edit, Delete } from "@mui/icons-material";
-import { getFormattedDate } from "@/utils/timerFunctions";
+import SearchIcon from "@/assets/icons/SearchIcon";
 import { isWeekend } from "@/utils/commonFunction";
+import { FilterType } from "../types/ReportsFilterType";
+import { getFormattedDate } from "@/utils/timerFunctions";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { audit_InitialFilter } from "@/utils/reports/getFilters";
+import { DialogTransition } from "@/utils/style/DialogTransition";
+import { getClientData, getUserData } from "./api/getDropDownData";
+import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 
 const AuditFilter = ({
   isFiltering,
   onDialogClose,
   sendFilterToPage,
 }: FilterType) => {
-  const [clients, setClients] = useState<any[]>([]);
-  const [clientName, setClientName] = useState<any[]>([]);
+  const [auditClients, setAuditClients] = useState<any[]>([]);
+  const [auditClientName, setAuditClientName] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [userName, setUserName] = useState<any[]>([]);
   const [startDate, setStartDate] = useState<string | number>("");
@@ -71,8 +59,8 @@ const AuditFilter = ({
   const idFilter = openFilter ? "simple-popover" : undefined;
 
   const handleResetAll = () => {
-    setClientName([]);
-    setClients([]);
+    setAuditClientName([]);
+    setAuditClients([]);
     setUserName([]);
     setUsers([]);
     setStartDate("");
@@ -90,8 +78,8 @@ const AuditFilter = ({
     onDialogClose(false);
     setDefaultFilter(false);
 
-    setClientName([]);
-    setClients([]);
+    setAuditClientName([]);
+    setAuditClients([]);
     setUserName([]);
     setUsers([]);
     setStartDate("");
@@ -102,7 +90,7 @@ const AuditFilter = ({
   const handleFilterApply = () => {
     sendFilterToPage({
       ...audit_InitialFilter,
-      Clients: clientName.length > 0 ? clientName : [],
+      Clients: auditClientName.length > 0 ? auditClientName : [],
       Users: userName.length > 0 ? userName : [],
       StartDate:
         startDate.toString().trim().length <= 0
@@ -162,7 +150,7 @@ const AuditFilter = ({
           filterId: !!currentFilterId ?? currentFilterId,
           name: filterName,
           AppliedFilter: {
-            clients: clientName,
+            clients: auditClientName,
             users: userName,
             startDate:
               startDate.toString().trim().length <= 0
@@ -215,7 +203,7 @@ const AuditFilter = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      clientName.length > 0 ||
+      auditClientName.length > 0 ||
       userName.length > 0 ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0;
@@ -223,7 +211,7 @@ const AuditFilter = ({
     setAnyFieldSelected(isAnyFieldSelected);
     setSaveFilter(false);
     setResetting(false);
-  }, [clientName, userName, startDate, endDate]);
+  }, [auditClientName, userName, startDate, endDate]);
 
   useEffect(() => {
     const filterDropdowns = async () => {
@@ -232,10 +220,10 @@ const AuditFilter = ({
     };
     filterDropdowns();
 
-    if (clientName.length > 0 || resetting) {
+    if (auditClientName.length > 0 || resetting) {
       onDialogClose(true);
     }
-  }, [clientName]);
+  }, [auditClientName]);
 
   const getFilterList = async () => {
     const token = await localStorage.getItem("token");
@@ -284,14 +272,14 @@ const AuditFilter = ({
     setFilterName(savedFilters[index].Name);
     setCurrentFilterId(savedFilters[index].FilterId);
 
-    setClients(
+    setAuditClients(
       savedFilters[index].AppliedFilter.clients === null
         ? []
         : clientDropdown.filter((client: any) =>
             savedFilters[index].AppliedFilter.clients.includes(client.value)
           )
     );
-    setClientName(
+    setAuditClientName(
       savedFilters[index].AppliedFilter.clients === null
         ? []
         : savedFilters[index].AppliedFilter.clients
@@ -477,14 +465,16 @@ const AuditFilter = ({
                     id="tags-standard"
                     options={clientDropdown.filter(
                       (option) =>
-                        !clients.find((client) => client.value === option.value)
+                        !auditClients.find(
+                          (client) => client.value === option.value
+                        )
                     )}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setClients(data);
-                      setClientName(data.map((d: any) => d.value));
+                      setAuditClients(data);
+                      setAuditClientName(data.map((d: any) => d.value));
                     }}
-                    value={clients}
+                    value={auditClients}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}

@@ -12,11 +12,11 @@ import { reportsUserLogsCols } from "@/utils/datatable/columns/ReportsDatatableC
 const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [userlogFields, setUserlogFields] = useState<FieldsType>({
     loaded: false,
-    page: 0,
-    rowsPerPage: 10,
     data: [],
     dataCount: 0,
   });
+  const [userCurrentPage, setUserCurrentPage] = useState<number>(0);
+  const [userRowsPerPage, setUserRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
     const url = `${process.env.report_api_url}/report/userLog`;
@@ -43,22 +43,20 @@ const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setUserlogFields({ ...userlogFields, page: newPage });
+    setUserCurrentPage(newPage);
     getData({
       ...filteredData,
       pageNo: newPage + 1,
-      pageSize: userlogFields.rowsPerPage,
+      pageSize: userRowsPerPage,
     });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setUserlogFields({
-      ...userlogFields,
-      page: 0,
-      rowsPerPage: parseInt(event.target.value),
-    });
+    setUserCurrentPage(0);
+    setUserRowsPerPage(parseInt(event.target.value));
+
     getData({
       ...filteredData,
       pageNo: 1,
@@ -72,12 +70,9 @@ const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
 
   useEffect(() => {
     if (filteredData !== null) {
+      setUserCurrentPage(0);
+      setUserRowsPerPage(10);
       getData({ ...filteredData, globalSearch: searchValue });
-      setUserlogFields({
-        ...userlogFields,
-        page: 0,
-        rowsPerPage: 10,
-      });
     } else {
       getData({ ...userLogs_InitialFilter, globalSearch: searchValue });
     }
@@ -94,9 +89,9 @@ const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
       <TablePagination
         component="div"
         count={userlogFields.dataCount}
-        page={userlogFields.page}
+        page={userCurrentPage}
         onPageChange={handleChangePage}
-        rowsPerPage={userlogFields.rowsPerPage}
+        rowsPerPage={userRowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>

@@ -94,8 +94,6 @@ const BillingReport = ({
   const [billingReportFields, setBillingReportFields] =
     useState<BillingReportFieldsType>({
       loaded: false,
-      page: 0,
-      rowsPerPage: 10,
       dataCount: 0,
     });
   const [btcData, setBTCData] = useState<any>([]);
@@ -103,12 +101,18 @@ const BillingReport = ({
   const [isBTCSaved, setBTCSaved] = useState<boolean>(false);
   const [raisedInvoice, setRaisedInvoice] = useState<any>([]);
   const [billingReportData, setBiliingReportData] = useState<any>([]);
+  const [billingCurrentPage, setBiliingCurrentPage] = useState<number>(0);
+  const [billingRowsPerPage, setBillingRowsPerPage] = useState<any>(10);
 
   const getData = async (arg1: any) => {
     const url = `${process.env.report_api_url}/report/billing`;
 
-    const successCallback = (ResponseData: any, error: any) => {
-      if (ResponseData !== null && error === false) {
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0);
         setBiliingReportData(ResponseData.List);
 
@@ -181,22 +185,21 @@ const BillingReport = ({
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
   ) => {
-    setBillingReportFields({ ...billingReportFields, page: newPage });
+    setBiliingCurrentPage(newPage);
+
     getData({
       ...filteredData,
       pageNo: newPage + 1,
-      pageSize: billingReportFields.rowsPerPage,
+      pageSize: billingRowsPerPage,
     });
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setBillingReportFields({
-      ...billingReportFields,
-      page: 0,
-      rowsPerPage: parseInt(event.target.value),
-    });
+    setBiliingCurrentPage(0);
+    setBillingRowsPerPage(parseInt(event.target.value));
+
     getData({
       ...filteredData,
       pageNo: 1,
@@ -271,11 +274,8 @@ const BillingReport = ({
   useEffect(() => {
     if (filteredData !== null) {
       getData({ ...filteredData, globalSearch: searchValue });
-      setBillingReportFields({
-        ...billingReportFields,
-        page: 0,
-        rowsPerPage: 10,
-      });
+      setBiliingCurrentPage(0);
+      setBillingRowsPerPage(10);
     } else {
       getData({ ...billingreport_InitialFilter, globalSearch: searchValue });
     }
@@ -565,9 +565,9 @@ const BillingReport = ({
       <TablePagination
         component="div"
         count={billingReportFields.dataCount}
-        page={billingReportFields.page}
+        page={billingCurrentPage}
         onPageChange={handleChangePage}
-        rowsPerPage={billingReportFields.rowsPerPage}
+        rowsPerPage={billingRowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
