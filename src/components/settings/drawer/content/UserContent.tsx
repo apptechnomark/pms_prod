@@ -35,6 +35,7 @@ const UserContent = forwardRef<
   const [value, setValue] = useState("Employee");
   const [emailConfirmed, setEmailConfirmed] = useState(false);
   const [addMoreClicked, setAddMoreClicked] = useState(false);
+  const roleIdAdmin: any = localStorage.getItem("roleId");
 
   // for Employee
   const [userId, setUserId] = useState(0);
@@ -488,10 +489,13 @@ const UserContent = forwardRef<
         email.trim().length !== 0 &&
         role !== 0 &&
         department !== 0 &&
-        report !== 0 &&
         group.length !== 0
       ) {
-        saveUser();
+        if (parseInt(roleIdAdmin) > 1) {
+          report !== 0 && saveUser();
+        } else {
+          saveUser();
+        }
       }
     } else if (value === "Client") {
       clientName <= 0 && setClientNameHasError(true);
@@ -666,7 +670,7 @@ const UserContent = forwardRef<
               label="Report Manager"
               id="reporting_manager"
               placeholder="Add Reporting Manager"
-              validate
+              validate={parseInt(roleIdAdmin) > 1}
               defaultValue={report === 0 ? "" : report}
               errorClass="!-mt-[15px]"
               hasError={reportHasError}

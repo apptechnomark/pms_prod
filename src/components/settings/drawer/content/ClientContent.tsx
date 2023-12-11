@@ -193,30 +193,30 @@ const ClientContent = forwardRef<
     const checked = e.target.checked;
     setIsAccountingOpen((prevIsOpen) => !prevIsOpen);
     setAccounting(checked);
-    setAccBillingHasErr(checked);
-    setAccGroupHasErr(checked);
-    setAccContHrsHasErr(checked);
-    setAccActHrsHasErr(checked);
+    setAccBillingHasErr(!checked);
+    setAccGroupHasErr(!checked);
+    setAccContHrsHasErr(!checked);
+    setAccActHrsHasErr(!checked);
   };
 
   const toggleAuditAccordion = (e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
     setIsAuditOpen((prevIsOpen) => !prevIsOpen);
     setAudit(checked);
-    setAuditBillingHasErr(checked);
-    setAuditGroupHasErr(checked);
-    setAuditContHrsHasErr(checked);
-    setAuditActHrsHasErr(checked);
+    setAuditBillingHasErr(!checked);
+    setAuditGroupHasErr(!checked);
+    setAuditContHrsHasErr(!checked);
+    setAuditActHrsHasErr(!checked);
   };
 
   const toggleTaxAccordion = (e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
     setIsTaxOpen((prevIsOpen) => !prevIsOpen);
     setTax(checked);
-    setTaxBillingHasErr(checked);
-    setTaxGroupHasErr(checked);
-    setTaxContHrsHasErr(checked);
-    setTaxActHrsHasErr(checked);
+    setTaxBillingHasErr(!checked);
+    setTaxGroupHasErr(!checked);
+    setTaxContHrsHasErr(!checked);
+    setTaxActHrsHasErr(!checked);
   };
 
   useEffect(() => {
