@@ -43,6 +43,7 @@ import { MentionsInput, Mention } from "react-mentions";
 import mentionsInputStyle from "../../utils/worklog/mentionsInputStyle";
 import {
   extractText,
+  getTimeDifference,
   getYears,
   hasPermissionWorklog,
   isWeekend,
@@ -65,6 +66,7 @@ import {
 import ImageUploader from "../common/ImageUploader";
 import { getFileFromBlob } from "@/utils/downloadFile";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import { callAPI } from "@/utils/API/callAPI";
 
 const EditDrawer = ({
   onOpen,
@@ -75,188 +77,17 @@ const EditDrawer = ({
   onComment,
 }: any) => {
   const router = useRouter();
-  const yearDropdown = getYears();
-  const [inputTypeReview, setInputTypeReview] = useState("text");
-  const [inputTypePreperation, setInputTypePreperation] = useState("text");
-  const [isCreatedByClient, setIsCreatedByClient] = useState(false);
-  const [editData, setEditData] = useState<any>([]);
-
-  const [taskDrawer, setTaskDrawer] = useState(true);
-  const [subTaskDrawer, setSubTaskDrawer] = useState(true);
-  const [recurringDrawer, setRecurringDrawer] = useState(true);
-  const [manualTimeDrawer, setManualTimeDrawer] = useState(true);
-  const [reminderDrawer, setReminderDrawer] = useState(true);
-  const [checkListDrawer, setCheckListDrawer] = useState(true);
-  const [commentsDrawer, setCommentsDrawer] = useState(true);
-  const [reasonDrawer, setReasonDrawer] = useState(true);
-  const [reviewerErrDrawer, setReviewerErrDrawer] = useState(true);
-
-  // Task
-  const [clientName, setClientName] = useState<any>(0);
-  const [clientNameErr, setClientNameErr] = useState(false);
-  const [typeOfWork, setTypeOfWork] = useState<string | number>(0);
-  const [typeOfWorkErr, setTypeOfWorkErr] = useState(false);
-  const [projectName, setProjectName] = useState<any>(0);
-  const [projectNameErr, setProjectNameErr] = useState(false);
-  const [clientTaskName, setClientTaskName] = useState<string>("");
-  const [clientTaskNameErr, setClientTaskNameErr] = useState(false);
-  const [processName, setProcessName] = useState<any>(0);
-  const [processNameErr, setProcessNameErr] = useState(false);
-  const [subProcess, setSubProcess] = useState<any>(0);
-  const [subProcessErr, setSubProcessErr] = useState(false);
-  const [manager, setManager] = useState<any>(0);
-  const [managerErr, setManagerErr] = useState(false);
-  const [status, setStatus] = useState<any>(0);
-  const [editStatus, setEditStatus] = useState<any>(0);
-  const [statusErr, setStatusErr] = useState(false);
-  const [description, setDescription] = useState<string>("");
-  const [priority, setPriority] = useState<string | number>(0);
-  const [quantity, setQuantity] = useState<any>(1);
-  const [quantityErr, setQuantityErr] = useState(false);
-  const [receiverDate, setReceiverDate] = useState<any>("");
-  const [receiverDateErr, setReceiverDateErr] = useState(false);
-  const [dueDate, setDueDate] = useState<any>("");
-  const [allInfoDate, setAllInfoDate] = useState<any>("");
-  const [assignee, setAssignee] = useState<any>([]);
-  const [assigneeErr, setAssigneeErr] = useState(false);
-  const [reviewer, setReviewer] = useState<any>([]);
-  const [reviewerErr, setReviewerErr] = useState(false);
-  const [dateOfReview, setDateOfReview] = useState<string>("");
-  const [dateOfPreperation, setDateOfPreperation] = useState<string>("");
-  const [assigneeDisable, setAssigneeDisable] = useState<any>(true);
-  const [estTimeData, setEstTimeData] = useState([]);
-  const [userId, setUserId] = useState(0);
-
-  // Selected Taxation
-  const [returnYear, setReturnYear] = useState<string | number>(0);
-  const [returnYearErr, setReturnYearErr] = useState(false);
-  const [noOfPages, setNoOfPages] = useState<any>(0);
-  const [checklistWorkpaper, setChecklistWorkpaper] = useState<any>(0);
-  const [checklistWorkpaperErr, setChecklistWorkpaperErr] = useState(false);
-
-  // Sub-Task
-  const [subTaskSwitch, setSubTaskSwitch] = useState(false);
-  const [subTaskFields, setSubTaskFields] = useState([
-    {
-      SubtaskId: 0,
-      Title: "",
-      Description: "",
-    },
-  ]);
-  const [taskNameErr, setTaskNameErr] = useState([false]);
-  const [subTaskDescriptionErr, setSubTaskDescriptionErr] = useState([false]);
-  const [deletedSubTask, setDeletedSubTask] = useState<any>([]);
-
-  const addTaskField = () => {
-    setSubTaskFields([
-      ...subTaskFields,
-      {
-        SubtaskId: 0,
-        Title: "",
-        Description: "",
-      },
-    ]);
-    setTaskNameErr([...taskNameErr, false]);
-    setSubTaskDescriptionErr([...subTaskDescriptionErr, false]);
-  };
-
-  const removeTaskField = (index: number) => {
-    setDeletedSubTask([...deletedSubTask, subTaskFields[index].SubtaskId]);
-
-    const newTaskFields = [...subTaskFields];
-    newTaskFields.splice(index, 1);
-    setSubTaskFields(newTaskFields);
-
-    const newTaskErrors = [...taskNameErr];
-    newTaskErrors.splice(index, 1);
-    setTaskNameErr(newTaskErrors);
-
-    const newSubTaskDescriptionErrors = [...subTaskDescriptionErr];
-    newSubTaskDescriptionErrors.splice(index, 1);
-    setSubTaskDescriptionErr(newSubTaskDescriptionErrors);
-  };
-
-  const handleSubTaskChange = (e: any, index: number) => {
-    const newTaskFields = [...subTaskFields];
-    newTaskFields[index].Title = e.target.value;
-    setSubTaskFields(newTaskFields);
-
-    const newTaskErrors = [...taskNameErr];
-    newTaskErrors[index] = e.target.value.trim().length === 0;
-    setTaskNameErr(newTaskErrors);
-  };
-
-  const handleSubTaskDescriptionChange = (e: any, index: number) => {
-    const newTaskFields = [...subTaskFields];
-    newTaskFields[index].Description = e.target.value;
-    setSubTaskFields(newTaskFields);
-
-    const newSubTaskDescErrors = [...subTaskDescriptionErr];
-    newSubTaskDescErrors[index] = e.target.value.trim().length === 0;
-    setSubTaskDescriptionErr(newSubTaskDescErrors);
-  };
-
-  // Recurring
-  const [recurringSwitch, setRecurringSwitch] = useState(false);
-  const [recurringStartDate, setRecurringStartDate] = useState("");
-  const [recurringStartDateErr, setRecurringStartDateErr] = useState(false);
-  const [recurringEndDate, setRecurringEndDate] = useState("");
-  const [recurringEndDateErr, setRecurringEndDateErr] = useState(false);
-  const [recurringTime, setRecurringTime] = useState<any>(1);
-  const [recurringMonth, setRecurringMonth] = useState<any>(0);
-  const [recurringMonthErr, setRecurringMonthErr] = useState(false);
-  const [recurringWeekErr, setRecurringWeekErr] = useState(false);
-
-  // Manula
-  const [manualSwitch, setManualSwitch] = useState(false);
-  const [deletedManualTime, setDeletedManualTime] = useState<any>([]);
-
+  const yearWorklogsDrawerDropdown = getYears();
+  const [inputTypeReviewWorklogsDrawer, setInputTypeReviewWorklogsDrawer] =
+    useState("text");
+  const [
+    inputTypePreperationWorklogsDrawer,
+    setInputTypePreperationWorklogsDrawer,
+  ] = useState("text");
+  const [isCreatedByClientWorklogsDrawer, setIsCreatedByClientWorklogsDrawer] =
+    useState(false);
+  const [editDataWorklogs, setEditDataWorklogs] = useState<any>([]);
   const [isManual, setIsManual] = useState<any>(null);
-
-  // Reminder
-  const [reminderSwitch, setReminderSwitch] = useState(false);
-  const [reminderDate, setReminderDate] = useState("");
-  const [reminderDateErr, setReminderDateErr] = useState(false);
-  const [reminderTime, setReminderTime] = useState<any>(0);
-  const [reminderTimeErr, setReminderTimeErr] = useState(false);
-  const [reminderNotification, setReminderNotification] = useState<any>([]);
-  const [reminderNotificationErr, setReminderNotificationErr] = useState(false);
-  const [reminderCheckboxValue, setReminderCheckboxValue] = useState<any>(1);
-  const [reminderId, setReminderId] = useState(0);
-
-  // CheclkList
-  const [checkListName, setCheckListName] = useState("");
-  const [checkListNameError, setCheckListNameError] = useState(false);
-  const [checkListData, setCheckListData] = useState([]);
-  const [itemStates, setItemStates] = useState<any>({});
-
-  // Comments
-  const [commentSelect, setCommentSelect] = useState<number | string>(1);
-
-  // Dropdowns
-  const [clientDropdownData, setClientDropdownData] = useState<any>([]);
-  const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState<any>([]);
-  const [projectDropdownData, setProjectDropdownData] = useState<any>([]);
-  const [processDropdownData, setProcessDropdownData] = useState<any>([]);
-  const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
-  const [statusDropdownData, setStatusDropdownData] = useState<any>([]);
-  const [managerDropdownData, setManagerDropdownData] = useState<any>([]);
-  const [statusDropdownDataUse, setStatusDropdownDataUse] = useState([]);
-  const [assigneeDropdownData, setAssigneeDropdownData] = useState<any>([]);
-  const [reviewerDropdownData, setReviewerDropdownData] = useState([]);
-  const [cCDropdownData, setCCDropdownData] = useState<any>([]);
-
-  const [selectedDays, setSelectedDays] = useState<any>([]);
-
-  const toggleColor = (index: any) => {
-    if (selectedDays.includes(index)) {
-      setSelectedDays(
-        selectedDays.filter((dayIndex: any) => dayIndex !== index)
-      );
-    } else {
-      setSelectedDays([...selectedDays, index]);
-    }
-  };
 
   useEffect(() => {
     onRecurring && scrollToPanel(4);
@@ -300,11 +131,414 @@ const EditDrawer = ({
     }
   };
 
-  // Reviewer note
-  const [reviewerNote, setReviewerNoteData] = useState([]);
+  const handleMultiSelect = (e: React.SyntheticEvent, value: any) => {
+    if (value !== undefined) {
+      setReminderNotification(value);
+    } else {
+      setReminderNotification([]);
+    }
+  };
 
-  // Manuals
-  const [manualFields, setManualFields] = useState([
+  const handleMultiSelectMonth = (e: React.SyntheticEvent, value: any) => {
+    if (value !== undefined) {
+      setRecurringMonth(value);
+    } else {
+      setRecurringMonth([]);
+    }
+  };
+
+  // Task
+  const [taskWorklogsDrawer, setTaskWorklogsDrawer] = useState(true);
+  const [clientWorklogsDropdownData, setClientWorklogsDropdownData] =
+    useState<any>([]);
+  const [clientNameWorklogs, setClientNameWorklogs] = useState<any>(0);
+  const [clientNameWorklogsErr, setClientNameWorklogsErr] = useState(false);
+  const [typeOfWorkWorklogsDropdownData, setTypeOfWorkWorklogsDropdownData] =
+    useState<any>([]);
+  const [typeOfWorkWorklogs, setTypeOfWorkWorklogs] = useState<string | number>(
+    0
+  );
+  const [typeOfWorkWorklogsErr, setTypeOfWorkWorklogsErr] = useState(false);
+  const [projectWorklogsDropdownData, setProjectWorklogsDropdownData] =
+    useState<any>([]);
+  const [projectNameWorklogs, setProjectNameWorklogs] = useState<any>(0);
+  const [projectNameWorklogsErr, setProjectNameWorklogsErr] = useState(false);
+  const [processWorklogsDropdownData, setProcessWorklogsDropdownData] =
+    useState<any>([]);
+  const [processNameWorklogs, setProcessNameWorklogs] = useState<any>(0);
+  const [processNameWorklogsErr, setProcessNameWorklogsErr] = useState(false);
+  const [subProcessWorklogsDropdownData, setSubProcessWorklogsDropdownData] =
+    useState([]);
+  const [subProcessWorklogs, setSubProcessWorklogs] = useState<any>(0);
+  const [subProcessWorklogsErr, setSubProcessWorklogsErr] = useState(false);
+  const [clientTaskNameWorklogs, setClientTaskNameWorklogs] =
+    useState<string>("");
+  const [clientTaskNameWorklogsErr, setClientTaskNameWorklogsErr] =
+    useState(false);
+  const [managerWorklogsDropdownData, setManagerWorklogsDropdownData] =
+    useState<any>([]);
+  const [managerWorklogs, setManagerWorklogs] = useState<any>(0);
+  const [managerWorklogsErr, setManagerWorklogsErr] = useState(false);
+  const [statusWorklogsDropdownData, setStatusWorklogsDropdownData] =
+    useState<any>([]);
+  const [statusWorklogsDropdownDataUse, setStatusWorklogsDropdownDataUse] =
+    useState([]);
+  const [statusWorklogs, setStatusWorklogs] = useState<any>(0);
+  const [editStatusWorklogs, setEditStatusWorklogs] = useState<any>(0);
+  const [statusWorklogsErr, setStatusWorklogsErr] = useState(false);
+  const [descriptionWorklogs, setDescriptionWorklogs] = useState<string>("");
+  const [priorityWorklogs, setPriorityWorklogs] = useState<string | number>(0);
+  const [quantityWorklogs, setQuantityWorklogs] = useState<any>(1);
+  const [quantityWorklogsErr, setQuantityWorklogsErr] = useState(false);
+  const [receiverDateWorklogs, setReceiverDateWorklogs] = useState<any>("");
+  const [receiverDateWorklogsErr, setReceiverDateWorklogsErr] = useState(false);
+  const [dueDateWorklogs, setDueDateWorklogs] = useState<any>("");
+  const [allInfoDateWorklogs, setAllInfoDateWorklogs] = useState<any>("");
+  const [assigneeWorklogsDropdownData, setAssigneeWorklogsDropdownData] =
+    useState<any>([]);
+  const [assigneeWorklogs, setAssigneeWorklogs] = useState<any>([]);
+  const [assigneeWorklogsErr, setAssigneeWorklogsErr] = useState(false);
+  const [assigneeWorklogsDisable, setAssigneeWorklogsDisable] =
+    useState<any>(true);
+  const [reviewerWorklogsDropdownData, setReviewerWorklogsDropdownData] =
+    useState([]);
+  const [reviewerWorklogs, setReviewerWorklogs] = useState<any>([]);
+  const [reviewerWorklogsErr, setReviewerWorklogsErr] = useState(false);
+  const [dateOfReviewWorklogs, setDateOfReviewWorklogs] = useState<string>("");
+  const [dateOfPreperationWorklogs, setDateOfPreperationWorklogs] =
+    useState<string>("");
+  const [estTimeDataWorklogs, setEstTimeDataWorklogs] = useState([]);
+  const [userId, setUserId] = useState(0);
+  const [returnYearWorklogs, setReturnYearWorklogs] = useState<string | number>(
+    0
+  );
+  const [returnYearWorklogsErr, setReturnYearWorklogsErr] = useState(false);
+  const [noOfPagesWorklogs, setNoOfPagesWorklogs] = useState<any>(0);
+  const [checklistWorkpaperWorklogs, setChecklistWorkpaperWorklogs] =
+    useState<any>(0);
+  const [checklistWorkpaperWorklogsErr, setChecklistWorkpaperWorklogsErr] =
+    useState(false);
+
+  // Sub-Task
+  const [subTaskWorklogsDrawer, setSubTaskWorklogsDrawer] = useState(true);
+  const [subTaskSwitchWorklogs, setSubTaskSwitchWorklogs] = useState(false);
+  const [subTaskFieldsWorklogs, setSubTaskFieldsWorklogs] = useState([
+    {
+      SubtaskId: 0,
+      Title: "",
+      Description: "",
+    },
+  ]);
+  const [taskNameWorklogsErr, setTaskNameWorklogsErr] = useState([false]);
+  const [subTaskDescriptionWorklogsErr, setSubTaskDescriptionWorklogsErr] =
+    useState([false]);
+  const [deletedSubTaskWorklogs, setDeletedSubTaskWorklogs] = useState<any>([]);
+
+  const addTaskFieldWorklogs = () => {
+    setSubTaskFieldsWorklogs([
+      ...subTaskFieldsWorklogs,
+      {
+        SubtaskId: 0,
+        Title: "",
+        Description: "",
+      },
+    ]);
+    setTaskNameWorklogsErr([...taskNameWorklogsErr, false]);
+    setSubTaskDescriptionWorklogsErr([...subTaskDescriptionWorklogsErr, false]);
+  };
+
+  const removeTaskFieldWorklogs = (index: number) => {
+    setDeletedSubTaskWorklogs([
+      ...deletedSubTaskWorklogs,
+      subTaskFieldsWorklogs[index].SubtaskId,
+    ]);
+
+    const newTaskWorklogsFields = [...subTaskFieldsWorklogs];
+    newTaskWorklogsFields.splice(index, 1);
+    setSubTaskFieldsWorklogs(newTaskWorklogsFields);
+
+    const newTaskWorklogsErrors = [...taskNameWorklogsErr];
+    newTaskWorklogsErrors.splice(index, 1);
+    setTaskNameWorklogsErr(newTaskWorklogsErrors);
+
+    const newSubTaskDescriptionWorklogsErrors = [
+      ...subTaskDescriptionWorklogsErr,
+    ];
+    newSubTaskDescriptionWorklogsErrors.splice(index, 1);
+    setSubTaskDescriptionWorklogsErr(newSubTaskDescriptionWorklogsErrors);
+  };
+
+  const handleSubTaskChangeWorklogs = (e: any, index: number) => {
+    const newTaskWorklogsFields = [...subTaskFieldsWorklogs];
+    newTaskWorklogsFields[index].Title = e.target.value;
+    setSubTaskFieldsWorklogs(newTaskWorklogsFields);
+
+    const newTaskWorklogsErrors = [...taskNameWorklogsErr];
+    newTaskWorklogsErrors[index] = e.target.value.trim().length === 0;
+    setTaskNameWorklogsErr(newTaskWorklogsErrors);
+  };
+
+  const handleSubTaskDescriptionChangeWorklogs = (e: any, index: number) => {
+    const newTaskWorklogsFields = [...subTaskFieldsWorklogs];
+    newTaskWorklogsFields[index].Description = e.target.value;
+    setSubTaskFieldsWorklogs(newTaskWorklogsFields);
+
+    const newSubTaskDescWorklogsErrors = [...subTaskDescriptionWorklogsErr];
+    newSubTaskDescWorklogsErrors[index] = e.target.value.trim().length === 0;
+    setSubTaskDescriptionWorklogsErr(newSubTaskDescWorklogsErrors);
+  };
+
+  const getSubTaskDataWorklogs = async () => {
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/subtask/getbyworkitem`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (
+        ResponseStatus === "Success" &&
+        ResponseData.length > 0 &&
+        error === false
+      ) {
+        setSubTaskSwitchWorklogs(
+          hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")
+        );
+        setSubTaskFieldsWorklogs(ResponseData);
+      } else {
+        setSubTaskSwitchWorklogs(false);
+        setSubTaskFieldsWorklogs([
+          {
+            SubtaskId: 0,
+            Title: "",
+            Description: "",
+          },
+        ]);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  const handleSubmitSubTaskWorklogs = async () => {
+    let hasSubErrors = false;
+    const newTaskErrors = subTaskFieldsWorklogs.map(
+      (field) =>
+        (subTaskSwitchWorklogs && field.Title.trim().length < 5) ||
+        (subTaskSwitchWorklogs && field.Title.trim().length > 500)
+    );
+    subTaskSwitchWorklogs && setTaskNameWorklogsErr(newTaskErrors);
+    const newSubTaskDescErrors = subTaskFieldsWorklogs.map(
+      (field) =>
+        (subTaskSwitchWorklogs && field.Description.trim().length < 5) ||
+        (subTaskSwitchWorklogs && field.Description.trim().length > 500)
+    );
+    subTaskSwitchWorklogs &&
+      setSubTaskDescriptionWorklogsErr(newSubTaskDescErrors);
+    hasSubErrors =
+      newTaskErrors.some((error) => error) ||
+      newSubTaskDescErrors.some((error) => error);
+
+    if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
+      if (
+        editStatusWorklogs === 4 ||
+        editStatusWorklogs === 5 ||
+        statusWorklogs === 7 ||
+        statusWorklogs === 8 ||
+        statusWorklogs === 9 ||
+        statusWorklogs === 13
+      ) {
+        toast.warning(
+          "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+        );
+        onEdit > 0 && getSubTaskDataWorklogs();
+      } else {
+        if (!hasSubErrors) {
+          const params = {
+            workitemId: onEdit,
+            subtasks: subTaskSwitchWorklogs
+              ? subTaskFieldsWorklogs.map(
+                  (i: any) =>
+                    new Object({
+                      SubtaskId: i.SubtaskId,
+                      Title: i.Title.trim(),
+                      Description: i.Description.trim(),
+                    })
+                )
+              : null,
+            deletedWorkitemSubtaskIds: deletedSubTaskWorklogs,
+          };
+          const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
+          const successCallback = (
+            ResponseData: any,
+            error: any,
+            ResponseStatus: any
+          ) => {
+            if (ResponseStatus === "Success" && error === false) {
+              toast.success(`Sub Task Updated successfully.`);
+              setDeletedSubTaskWorklogs([]);
+              setSubTaskFieldsWorklogs([
+                {
+                  SubtaskId: 0,
+                  Title: "",
+                  Description: "",
+                },
+              ]);
+              getSubTaskDataWorklogs();
+            }
+          };
+          callAPI(url, params, successCallback, "POST");
+        }
+      }
+    } else {
+      toast.error("User don't have permission to Update Sub-Task.");
+      getSubTaskDataWorklogs();
+    }
+  };
+
+  // Recurring
+  const [recurringWorklogsDrawer, setRecurringWorklogsDrawer] = useState(true);
+  const [recurringSwitch, setRecurringSwitch] = useState(false);
+  const [recurringStartDate, setRecurringStartDate] = useState("");
+  const [recurringStartDateErr, setRecurringStartDateErr] = useState(false);
+  const [recurringEndDate, setRecurringEndDate] = useState("");
+  const [recurringEndDateErr, setRecurringEndDateErr] = useState(false);
+  const [recurringTime, setRecurringTime] = useState<any>(1);
+  const [selectedDays, setSelectedDays] = useState<any>([]);
+  const [recurringMonth, setRecurringMonth] = useState<any>(0);
+  const [recurringMonthErr, setRecurringMonthErr] = useState(false);
+  const [recurringWeekErr, setRecurringWeekErr] = useState(false);
+
+  const toggleColor = (index: any) => {
+    if (selectedDays.includes(index)) {
+      setSelectedDays(
+        selectedDays.filter((dayIndex: any) => dayIndex !== index)
+      );
+    } else {
+      setSelectedDays([...selectedDays, index]);
+    }
+  };
+
+  const getRecurringDataWorklogs = async () => {
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/recurring/getbyworkitem`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (
+        ResponseStatus === "Success" &&
+        ResponseData !== null &&
+        error === false
+      ) {
+        setRecurringSwitch(
+          hasPermissionWorklog("Reccuring", "save", "WorkLogs")
+        );
+        setRecurringStartDate(ResponseData.StartDate);
+        setRecurringEndDate(ResponseData.EndDate);
+        setRecurringTime(ResponseData.Type);
+        ResponseData.Type === 2
+          ? setSelectedDays(ResponseData.Triggers)
+          : ResponseData.Type === 3
+          ? setRecurringMonth(
+              ResponseData.Triggers.map((trigger: any) =>
+                months.find((month) => month.value === trigger)
+              ).filter(Boolean)
+            )
+          : [];
+      } else {
+        setRecurringSwitch(false);
+        setRecurringStartDate("");
+        setRecurringEndDate("");
+        setRecurringTime(0);
+        setSelectedDays([]);
+        setRecurringMonth(0);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  const handleSubmitRecurringWorklogs = async () => {
+    const validateField = (value: any) => {
+      if (
+        value === 0 ||
+        value === "" ||
+        value === null ||
+        (Array.isArray(value) && value.length === 0)
+      ) {
+        return true;
+      }
+      return false;
+    };
+
+    const fieldValidations = {
+      recurringStartDate: recurringSwitch && validateField(recurringStartDate),
+      recurringEndDate: recurringSwitch && validateField(recurringEndDate),
+      recurringMonth:
+        recurringSwitch && recurringTime === 3 && validateField(recurringMonth),
+      selectedDays:
+        recurringSwitch && recurringTime === 2 && validateField(selectedDays),
+    };
+
+    recurringSwitch &&
+      setRecurringStartDateErr(fieldValidations.recurringStartDate);
+    recurringSwitch &&
+      setRecurringEndDateErr(fieldValidations.recurringEndDate);
+    recurringSwitch &&
+      recurringTime === 3 &&
+      setRecurringMonthErr(fieldValidations.recurringMonth);
+    recurringSwitch &&
+      recurringTime === 2 &&
+      setRecurringWeekErr(fieldValidations.selectedDays);
+
+    const hasErrors = Object.values(fieldValidations).some((error) => error);
+
+    if (hasPermissionWorklog("Reccuring", "save", "WorkLogs")) {
+      if (!hasErrors) {
+        const params = {
+          WorkitemId: onEdit,
+          Type: recurringTime,
+          StartDate: dayjs(recurringStartDate).format("YYYY/MM/DD"),
+          EndDate: dayjs(recurringEndDate).format("YYYY/MM/DD"),
+          Triggers:
+            recurringTime === 1
+              ? []
+              : recurringTime === 2
+              ? selectedDays
+              : recurringMonth.map((i: any) => i.value),
+        };
+        const url = `${process.env.worklog_api_url}/workitem/recurring/savebyworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success(`Recurring Updated successfully.`);
+            setDeletedSubTaskWorklogs([]);
+            getRecurringDataWorklogs();
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
+      }
+    } else {
+      toast.error("User don't have permission to Update Recurring.");
+      setDeletedSubTaskWorklogs([]);
+      getRecurringDataWorklogs();
+    }
+  };
+
+  // Manula
+  const [manualTimeWorklogsDrawer, setManualTimeWorklogsDrawer] =
+    useState(true);
+  const [manualSwitchWorklogs, setManualSwitchWorklogs] = useState(false);
+  const [deletedManualTimeWorklogs, setDeletedManualTimeWorklogs] =
+    useState<any>([]);
+  const [manualFieldsWorklogs, setManualFieldsWorklogs] = useState([
     {
       AssigneeId: 0,
       Id: 0,
@@ -316,17 +550,28 @@ const EditDrawer = ({
       IsApproved: false,
     },
   ]);
-  const [inputDateErrors, setInputDateErrors] = useState([false]);
-  const [startTimeErrors, setStartTimeErrors] = useState([false]);
-  const [endTimeErrors, setEndTimeErrors] = useState([false]);
-  const [manualDescErrors, setManualDescErrors] = useState([false]);
-  const [inputTypeDate, setInputTypeDate] = useState(["text"]);
-  const [inputTypeStartTime, setInputTypeStartTime] = useState(["text"]);
-  const [inputTypeEndTime, setInputTypeEndTime] = useState(["text"]);
-  const [manualSubmitDisable, setManualSubmitDisable] = useState(true);
+  const [inputDateWorklogsErrors, setInputDateWorklogsErrors] = useState([
+    false,
+  ]);
+  const [startTimeWorklogsErrors, setStartTimeWorklogsErrors] = useState([
+    false,
+  ]);
+  const [endTimeWorklogsErrors, setEndTimeWorklogsErrors] = useState([false]);
+  const [manualDescWorklogsErrors, setManualDescWorklogsErrors] = useState([
+    false,
+  ]);
+  const [inputTypeWorklogsDate, setInputTypeWorklogsDate] = useState(["text"]);
+  const [inputTypeStartWorklogsTime, setInputTypeStartWorklogsTime] = useState([
+    "text",
+  ]);
+  const [inputTypeEndWorklogsTime, setInputTypeEndWorklogsTime] = useState([
+    "text",
+  ]);
+  const [manualSubmitWorklogsDisable, setManualSubmitWorklogsDisable] =
+    useState(true);
 
   const setManualDisableData = (manualField: any) => {
-    setManualSubmitDisable(
+    setManualSubmitWorklogsDisable(
       manualField
         .map((i: any) => (i.IsApproved === false ? false : true))
         .includes(false)
@@ -335,9 +580,9 @@ const EditDrawer = ({
     );
   };
 
-  const addManulaField = async () => {
-    await setManualFields([
-      ...manualFields,
+  const addManulaFieldWorklogs = async () => {
+    await setManualFieldsWorklogs([
+      ...manualFieldsWorklogs,
       {
         AssigneeId: 0,
         Id: 0,
@@ -349,15 +594,15 @@ const EditDrawer = ({
         IsApproved: false,
       },
     ]);
-    setInputDateErrors([...inputDateErrors, false]);
-    setStartTimeErrors([...startTimeErrors, false]);
-    setEndTimeErrors([...endTimeErrors, false]);
-    setManualDescErrors([...manualDescErrors, false]);
-    setInputTypeDate([...inputTypeDate, "text"]);
-    setInputTypeStartTime([...inputTypeStartTime, "text"]);
-    setInputTypeEndTime([...inputTypeEndTime, "text"]);
+    setInputDateWorklogsErrors([...inputDateWorklogsErrors, false]);
+    setStartTimeWorklogsErrors([...startTimeWorklogsErrors, false]);
+    setEndTimeWorklogsErrors([...endTimeWorklogsErrors, false]);
+    setManualDescWorklogsErrors([...manualDescWorklogsErrors, false]);
+    setInputTypeWorklogsDate([...inputTypeWorklogsDate, "text"]);
+    setInputTypeStartWorklogsTime([...inputTypeStartWorklogsTime, "text"]);
+    setInputTypeEndWorklogsTime([...inputTypeEndWorklogsTime, "text"]);
     setManualDisableData([
-      ...manualFields,
+      ...manualFieldsWorklogs,
       {
         AssigneeId: 0,
         Id: 0,
@@ -371,47 +616,50 @@ const EditDrawer = ({
     ]);
   };
 
-  const removePhoneField = (index: number) => {
-    setDeletedManualTime([...deletedManualTime, manualFields[index].Id]);
+  const removePhoneFieldWorklogs = (index: number) => {
+    setDeletedManualTimeWorklogs([
+      ...deletedManualTimeWorklogs,
+      manualFieldsWorklogs[index].Id,
+    ]);
 
-    const newManualFields = [...manualFields];
-    newManualFields.splice(index, 1);
-    setManualFields(newManualFields);
+    const newManualWorklogsFields = [...manualFieldsWorklogs];
+    newManualWorklogsFields.splice(index, 1);
+    setManualFieldsWorklogs(newManualWorklogsFields);
 
-    const newInputDateErrors = [...inputDateErrors];
-    newInputDateErrors.splice(index, 1);
-    setInputDateErrors(newInputDateErrors);
+    const newInputDateWorklogsErrors = [...inputDateWorklogsErrors];
+    newInputDateWorklogsErrors.splice(index, 1);
+    setInputDateWorklogsErrors(newInputDateWorklogsErrors);
 
-    const newStartTimeErrors = [...startTimeErrors];
-    newStartTimeErrors.splice(index, 1);
-    setStartTimeErrors(newStartTimeErrors);
+    const newStartTimeWorklogsErrors = [...startTimeWorklogsErrors];
+    newStartTimeWorklogsErrors.splice(index, 1);
+    setStartTimeWorklogsErrors(newStartTimeWorklogsErrors);
 
-    const newEndTimeErrors = [...endTimeErrors];
-    newEndTimeErrors.splice(index, 1);
-    setEndTimeErrors(newEndTimeErrors);
+    const newEndTimeWorklogsErrors = [...endTimeWorklogsErrors];
+    newEndTimeWorklogsErrors.splice(index, 1);
+    setEndTimeWorklogsErrors(newEndTimeWorklogsErrors);
 
-    const newManualDescErrors = [...manualDescErrors];
-    newManualDescErrors.splice(index, 1);
-    setManualDescErrors(newManualDescErrors);
+    const newManualDescWorklogsErrors = [...manualDescWorklogsErrors];
+    newManualDescWorklogsErrors.splice(index, 1);
+    setManualDescWorklogsErrors(newManualDescWorklogsErrors);
 
-    const newManualDate = [...inputTypeDate];
-    newManualDate.splice(index, 1);
-    setInputTypeDate(newManualDate);
+    const newManualWorklogsDate = [...inputTypeWorklogsDate];
+    newManualWorklogsDate.splice(index, 1);
+    setInputTypeWorklogsDate(newManualWorklogsDate);
 
-    setManualDisableData(newManualFields);
+    setManualDisableData(newManualWorklogsFields);
   };
 
-  const handleInputDateChange = (e: any, index: number) => {
-    const newManualFields = [...manualFields];
-    newManualFields[index].inputDate = e;
-    setManualFields(newManualFields);
+  const handleInputDateChangeWorklogs = (e: any, index: number) => {
+    const newManualWorklogsFields = [...manualFieldsWorklogs];
+    newManualWorklogsFields[index].inputDate = e;
+    setManualFieldsWorklogs(newManualWorklogsFields);
 
-    const newInputDateErrors = [...inputDateErrors];
-    newInputDateErrors[index] = e.length === 0;
-    setInputDateErrors(newInputDateErrors);
+    const newInputDateWorklogsErrors = [...inputDateWorklogsErrors];
+    newInputDateWorklogsErrors[index] = e.length === 0;
+    setInputDateWorklogsErrors(newInputDateWorklogsErrors);
   };
 
-  const handleEstTimeChange = (e: any) => {
+  const handleEstTimeChangeWorklogs = (e: any) => {
     let newValue = e.target.value;
     newValue = newValue.replace(/\D/g, "");
     if (newValue.length > 8) {
@@ -448,16 +696,16 @@ const EditDrawer = ({
     return formattedValue;
   };
 
-  const handleStartTimeChange = (e: any, index: number) => {
-    const newManualFields: any = [...manualFields];
-    newManualFields[index].startTime = handleEstTimeChange(e);
-    setManualFields(newManualFields);
+  const handleStartTimeChangeWorklogs = (e: any, index: number) => {
+    const newManualWorklogsFields: any = [...manualFieldsWorklogs];
+    newManualWorklogsFields[index].startTime = handleEstTimeChangeWorklogs(e);
+    setManualFieldsWorklogs(newManualWorklogsFields);
 
-    const startDate = newManualFields[index].startTime;
-    const endDate = newManualFields[index].endTime;
+    const startDate = newManualWorklogsFields[index].startTime;
+    const endDate = newManualWorklogsFields[index].endTime;
     if (startDate && endDate) {
-      const startTime = newManualFields[index].startTime;
-      const endTime = newManualFields[index].endTime;
+      const startTime = newManualWorklogsFields[index].startTime;
+      const endTime = newManualWorklogsFields[index].endTime;
       if (startTime && endTime) {
         const startTimeArray = startTime.split(":");
         const endTimeArray = endTime.split(":");
@@ -484,23 +732,23 @@ const EditDrawer = ({
             .toString()
             .padStart(2, "0")}`;
 
-          newManualFields[index].totalTime = formattedTotalTime;
-          setManualFields(newManualFields);
+          newManualWorklogsFields[index].totalTime = formattedTotalTime;
+          setManualFieldsWorklogs(newManualWorklogsFields);
         }
       }
     }
   };
 
-  const handleEndTimeChange = (e: any, index: number) => {
-    const newManualFields: any = [...manualFields];
-    newManualFields[index].endTime = handleEstTimeChange(e);
-    setManualFields(newManualFields);
+  const handleEndTimeChangeWorklogs = (e: any, index: number) => {
+    const newManualWorklogsFields: any = [...manualFieldsWorklogs];
+    newManualWorklogsFields[index].endTime = handleEstTimeChangeWorklogs(e);
+    setManualFieldsWorklogs(newManualWorklogsFields);
 
-    const startDate = newManualFields[index].startTime;
-    const endDate = newManualFields[index].endTime;
+    const startDate = newManualWorklogsFields[index].startTime;
+    const endDate = newManualWorklogsFields[index].endTime;
     if (startDate && endDate) {
-      const startTime = newManualFields[index].startTime;
-      const endTime = newManualFields[index].endTime;
+      const startTime = newManualWorklogsFields[index].startTime;
+      const endTime = newManualWorklogsFields[index].endTime;
       if (startTime && endTime) {
         const startTimeArray = startTime.split(":");
         const endTimeArray = endTime.split(":");
@@ -527,24 +775,325 @@ const EditDrawer = ({
             .toString()
             .padStart(2, "0")}`;
 
-          newManualFields[index].totalTime = formattedTotalTime;
-          setManualFields(newManualFields);
+          newManualWorklogsFields[index].totalTime = formattedTotalTime;
+          setManualFieldsWorklogs(newManualWorklogsFields);
         }
       }
     }
   };
 
-  const handleManualDescChange = (e: any, index: number) => {
-    const newManualFields = [...manualFields];
-    newManualFields[index].manualDesc = e.target.value;
-    setManualFields(newManualFields);
+  const handleManualDescChangeWorklogs = (e: any, index: number) => {
+    const newManualWorklogsFields = [...manualFieldsWorklogs];
+    newManualWorklogsFields[index].manualDesc = e.target.value;
+    setManualFieldsWorklogs(newManualWorklogsFields);
 
-    const newManualDescErrors = [...manualDescErrors];
-    newManualDescErrors[index] = e.target.value.trim().length === 0;
-    setManualDescErrors(newManualDescErrors);
+    const newManualDescWorklogsErrors = [...manualDescWorklogsErrors];
+    newManualDescWorklogsErrors[index] = e.target.value.trim().length === 0;
+    setManualDescWorklogsErrors(newManualDescWorklogsErrors);
   };
+
+  const getManualDataWorklogs = async () => {
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/timelog/getManuallogByWorkitem`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (
+        ResponseStatus === "Success" &&
+        ResponseData.length > 0 &&
+        error === false
+      ) {
+        setManualSwitchWorklogs(true);
+        setManualSubmitWorklogsDisable(
+          ResponseData.map(
+            (i: any) => i.IsApproved === false && i.assignee !== userId
+          ).includes(true)
+            ? false
+            : true
+        );
+        setManualFieldsWorklogs(
+          ResponseData.map(
+            (i: any) =>
+              new Object({
+                AssigneeId: i.AssigneeId,
+                Id: i.Id,
+                inputDate: i.Date,
+                startTime: i.StartTime,
+                endTime: i.EndTime,
+                totalTime: getTimeDifference(i.StartTime, i.EndTime),
+                manualDesc: i.Comment,
+                IsApproved: i.IsApproved,
+              })
+          )
+        );
+      } else {
+        setManualSwitchWorklogs(false);
+        setManualSubmitWorklogsDisable(true);
+        setManualFieldsWorklogs([
+          {
+            AssigneeId: 0,
+            Id: 0,
+            inputDate: "",
+            startTime: "",
+            endTime: "",
+            totalTime: "",
+            manualDesc: "",
+            IsApproved: false,
+          },
+        ]);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  const handleSubmitManualWorklogs = async () => {
+    const local: any = await localStorage.getItem("UserId");
+    if (assigneeWorklogs === parseInt(local)) {
+      let hasManualErrors = false;
+      const newInputDateWorklogsErrors = manualFieldsWorklogs.map(
+        (field) => manualSwitchWorklogs && field.inputDate === ""
+      );
+      manualSwitchWorklogs &&
+        setInputDateWorklogsErrors(newInputDateWorklogsErrors);
+      const newStartTimeWorklogsErrors = manualFieldsWorklogs.map(
+        (field) =>
+          (manualSwitchWorklogs && field.startTime.trim().length === 0) ||
+          (manualSwitchWorklogs && field.startTime.trim().length < 8)
+      );
+      manualSwitchWorklogs &&
+        setStartTimeWorklogsErrors(newStartTimeWorklogsErrors);
+      const newEndTimeWorklogsErrors = manualFieldsWorklogs.map(
+        (field) =>
+          (manualSwitchWorklogs && field.endTime.trim().length === 0) ||
+          (manualSwitchWorklogs && field.endTime.trim().length < 8) ||
+          (manualSwitchWorklogs && field.endTime <= field.startTime) ||
+          field.startTime
+            .split(":")
+            .reduce(
+              (acc, timePart, index) =>
+                acc + parseInt(timePart) * [3600, 60, 1][index],
+              0
+            ) +
+            "07:59:59"
+              .split(":")
+              .reduce(
+                (acc, timePart, index) =>
+                  acc + parseInt(timePart) * [3600, 60, 1][index],
+                0
+              ) <
+            field.endTime
+              .split(":")
+              .reduce(
+                (acc, timePart, index) =>
+                  acc + parseInt(timePart) * [3600, 60, 1][index],
+                0
+              )
+      );
+      manualSwitchWorklogs &&
+        setEndTimeWorklogsErrors(newEndTimeWorklogsErrors);
+      const newManualDescWorklogsErrors = manualFieldsWorklogs.map(
+        (field) =>
+          (manualSwitchWorklogs && field.manualDesc.trim().length < 5) ||
+          (manualSwitchWorklogs && field.manualDesc.trim().length > 500)
+      );
+      manualSwitchWorklogs &&
+        setManualDescWorklogsErrors(newManualDescWorklogsErrors);
+      hasManualErrors =
+        newInputDateWorklogsErrors.some((error) => error) ||
+        newStartTimeWorklogsErrors.some((error) => error) ||
+        newEndTimeWorklogsErrors.some((error) => error) ||
+        newManualDescWorklogsErrors.some((error) => error);
+
+      if (!hasManualErrors) {
+        const params = {
+          workItemId: onEdit,
+          timelogs: manualFieldsWorklogs.map(
+            (i: any) =>
+              new Object({
+                id: i.Id,
+                startTime:
+                  dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.startTime,
+                endTime:
+                  dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.endTime,
+                assigneeId:
+                  i.AssigneeId === 0 ? assigneeWorklogs : i.AssigneeId,
+                comment: i.manualDesc,
+              })
+          ),
+          deletedTimelogIds: deletedManualTimeWorklogs,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/timelog/saveManuallogByworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success(`Manual Time Updated successfully.`);
+            setDeletedManualTimeWorklogs([]);
+            getEditDataWorklogs();
+            getManualDataWorklogs();
+          } else {
+            getManualDataWorklogs();
+            getEditDataWorklogs();
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
+      }
+    } else {
+      toast.warning("Only Assingnee can Edit Manual time.");
+      getManualDataWorklogs();
+    }
+  };
+
+  // Reminder
+  const [reminderWorklogsDrawer, setReminderWorklogsDrawer] = useState(true);
+  const [reminderSwitch, setReminderSwitch] = useState(false);
+  const [reminderDate, setReminderDate] = useState("");
+  const [reminderDateErr, setReminderDateErr] = useState(false);
+  const [reminderTime, setReminderTime] = useState<any>(0);
+  const [reminderTimeErr, setReminderTimeErr] = useState(false);
+  const [reminderNotification, setReminderNotification] = useState<any>([]);
+  const [reminderNotificationErr, setReminderNotificationErr] = useState(false);
+  const [reminderCheckboxValue, setReminderCheckboxValue] = useState<any>(1);
+  const [reminderId, setReminderId] = useState(0);
+
+  const getReminderDataWorklogs = async () => {
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/reminder/getbyworkitem`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (
+        ResponseStatus === "Success" &&
+        ResponseData !== null &&
+        error === false
+      ) {
+        setReminderId(ResponseData.ReminderId);
+        setReminderSwitch(hasPermissionWorklog("Reminder", "save", "WorkLogs"));
+        setReminderCheckboxValue(ResponseData.ReminderType);
+        setReminderDate(ResponseData.ReminderDate);
+        setReminderTime(ResponseData.ReminderTime);
+        setReminderNotification(
+          ResponseData.ReminderUserIds.map((reminderUserId: any) =>
+            assigneeWorklogsDropdownData.find(
+              (assignee: { value: any }) => assignee.value === reminderUserId
+            )
+          ).filter(Boolean)
+        );
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  const handleSubmitReminderWorklogs = async () => {
+    const validateField = (value: any) => {
+      if (
+        value === 0 ||
+        value === "" ||
+        value === null ||
+        (Array.isArray(value) && value.length === 0)
+      ) {
+        return true;
+      }
+      return false;
+    };
+
+    const fieldValidations = {
+      reminderTime: reminderSwitch && validateField(reminderTime),
+      reminderNotification:
+        reminderSwitch && validateField(reminderNotification),
+      reminderDate:
+        reminderSwitch &&
+        reminderCheckboxValue === 2 &&
+        validateField(reminderDate),
+    };
+
+    reminderSwitch && setReminderTimeErr(fieldValidations.reminderTime);
+    reminderSwitch &&
+      setReminderNotificationErr(fieldValidations.reminderNotification);
+    reminderSwitch &&
+      reminderCheckboxValue === 2 &&
+      setReminderDateErr(fieldValidations.reminderDate);
+
+    const hasErrors = Object.values(fieldValidations).some((error) => error);
+
+    if (hasPermissionWorklog("Reminder", "save", "WorkLogs")) {
+      if (
+        editStatusWorklogs === 4 ||
+        statusWorklogs === 7 ||
+        statusWorklogs === 8 ||
+        statusWorklogs === 9 ||
+        statusWorklogs === 13
+      ) {
+        toast.warning(
+          "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+        );
+        getReminderDataWorklogs();
+      } else {
+        if (!hasErrors) {
+          const params = {
+            ReminderId: reminderId,
+            ReminderType: reminderCheckboxValue,
+            WorkitemId: onEdit,
+            ReminderDate:
+              reminderCheckboxValue === 2
+                ? dayjs(reminderDate).format("YYYY/MM/DD")
+                : null,
+            ReminderTime: reminderTime,
+            ReminderUserIds: reminderNotification.map((i: any) => i.value),
+          };
+          const url = `${process.env.worklog_api_url}/workitem/reminder/savebyworkitem`;
+          const successCallback = (
+            ResponseData: any,
+            error: any,
+            ResponseStatus: any
+          ) => {
+            if (ResponseStatus === "Success" && error === false) {
+              toast.success(`Reminder Updated successfully.`);
+              getReminderDataWorklogs();
+              setReminderId(0);
+            }
+          };
+          callAPI(url, params, successCallback, "POST");
+        }
+      }
+    } else {
+      toast.error("User don't have permission to Update Recurring.");
+      setDeletedSubTaskWorklogs([]);
+      getRecurringDataWorklogs();
+    }
+  };
+
+  // CheclkList
+  const [checkListWorklogsDrawer, setCheckListWorklogsDrawer] = useState(true);
+  const [checkListName, setCheckListName] = useState("");
+  const [checkListNameError, setCheckListNameError] = useState(false);
+  const [checkListData, setCheckListData] = useState([]);
+  const [itemStates, setItemStates] = useState<any>({});
+
+  // Comments
+  const [commentsWorklogsDrawer, setCommentsWorklogsDrawer] = useState(true);
+  const [commentSelect, setCommentSelect] = useState<number | string>(1);
+
+  // Dropdowns
+  const [cCDropdownData, setCCDropdownData] = useState<any>([]);
+
+  // Reviewer note
+  const [reasonWorklogsDrawer, setReasonWorklogsDrawer] = useState(true);
+  const [reviewerNote, setReviewerNoteData] = useState([]);
 
   // Error Logs
+  const [reviewerErrWorklogsDrawer, setReviewerErrWorklogsDrawer] =
+    useState(true);
   const [errorLogFields, setErrorLogFields] = useState([
     {
       SubmitedBy: "",
@@ -787,19 +1336,20 @@ const EditDrawer = ({
     };
 
     const fieldValidations = {
-      clientName: validateField(clientName),
-      typeOfWork: validateField(typeOfWork),
-      projectName: validateField(projectName),
-      processName: validateField(processName),
-      subProcess: validateField(subProcess),
-      clientTaskName: validateField(clientTaskName),
-      quantity: validateField(quantity),
-      receiverDate: validateField(receiverDate),
-      assignee: assigneeDisable && validateField(assignee),
-      reviewer: validateField(reviewer),
-      manager: validateField(manager),
-      returnYear: typeOfWork === 3 && validateField(returnYear),
-      checklistWorkpaper: typeOfWork === 3 && validateField(checklistWorkpaper),
+      clientName: validateField(clientNameWorklogs),
+      typeOfWork: validateField(typeOfWorkWorklogs),
+      projectName: validateField(projectNameWorklogs),
+      processName: validateField(processNameWorklogs),
+      subProcess: validateField(subProcessWorklogs),
+      clientTaskName: validateField(clientTaskNameWorklogs),
+      quantity: validateField(quantityWorklogs),
+      receiverDate: validateField(receiverDateWorklogs),
+      assignee: assigneeWorklogsDisable && validateField(assigneeWorklogs),
+      reviewer: validateField(reviewerWorklogs),
+      manager: validateField(managerWorklogs),
+      returnYear: typeOfWorkWorklogs === 3 && validateField(returnYearWorklogs),
+      checklistWorkpaper:
+        typeOfWorkWorklogs === 3 && validateField(checklistWorkpaperWorklogs),
       recurringStartDate: recurringSwitch && validateField(recurringStartDate),
       recurringEndDate: recurringSwitch && validateField(recurringEndDate),
       recurringMonth:
@@ -815,20 +1365,22 @@ const EditDrawer = ({
         validateField(reminderDate),
     };
 
-    setClientNameErr(fieldValidations.clientName);
-    setTypeOfWorkErr(fieldValidations.typeOfWork);
-    setProjectNameErr(fieldValidations.projectName);
-    setProcessNameErr(fieldValidations.processName);
-    setSubProcessErr(fieldValidations.subProcess);
-    setClientTaskNameErr(fieldValidations.clientTaskName);
-    setQuantityErr(fieldValidations.quantity);
-    setReceiverDateErr(fieldValidations.receiverDate);
-    assigneeDisable && setAssigneeErr(fieldValidations.assignee);
-    setReviewerErr(fieldValidations.reviewer);
-    setManagerErr(fieldValidations.manager);
-    typeOfWork === 3 && setReturnYearErr(fieldValidations.returnYear);
-    typeOfWork === 3 &&
-      setChecklistWorkpaperErr(fieldValidations.checklistWorkpaper);
+    setClientNameWorklogsErr(fieldValidations.clientName);
+    setTypeOfWorkWorklogsErr(fieldValidations.typeOfWork);
+    setProjectNameWorklogsErr(fieldValidations.projectName);
+    setProcessNameWorklogsErr(fieldValidations.processName);
+    setSubProcessWorklogsErr(fieldValidations.subProcess);
+    setClientTaskNameWorklogsErr(fieldValidations.clientTaskName);
+    setQuantityWorklogsErr(fieldValidations.quantity);
+    setReceiverDateWorklogsErr(fieldValidations.receiverDate);
+    assigneeWorklogsDisable &&
+      setAssigneeWorklogsErr(fieldValidations.assignee);
+    setReviewerWorklogsErr(fieldValidations.reviewer);
+    setManagerWorklogsErr(fieldValidations.manager);
+    typeOfWorkWorklogs === 3 &&
+      setReturnYearWorklogsErr(fieldValidations.returnYear);
+    typeOfWorkWorklogs === 3 &&
+      setChecklistWorkpaperWorklogsErr(fieldValidations.checklistWorkpaper);
     onEdit === 0 &&
       recurringSwitch &&
       setRecurringStartDateErr(fieldValidations.recurringStartDate);
@@ -854,34 +1406,36 @@ const EditDrawer = ({
       reminderCheckboxValue === 2 &&
       setReminderDateErr(fieldValidations.reminderDate);
 
-    setClientTaskNameErr(
-      clientTaskName.trim().length < 4 || clientTaskName.trim().length > 50
+    setClientTaskNameWorklogsErr(
+      clientTaskNameWorklogs.trim().length < 4 ||
+        clientTaskNameWorklogs.trim().length > 50
     );
-    setQuantityErr(
-      quantity.length <= 0 ||
-        quantity.length > 4 ||
-        quantity <= 0 ||
-        quantity.toString().includes(".")
+    setQuantityWorklogsErr(
+      quantityWorklogs.length <= 0 ||
+        quantityWorklogs.length > 4 ||
+        quantityWorklogs <= 0 ||
+        quantityWorklogs.toString().includes(".")
     );
 
     const hasErrors = Object.values(fieldValidations).some((error) => error);
 
     const fieldValidationsEdit = {
-      clientName: validateField(clientName),
-      typeOfWork: validateField(typeOfWork),
-      projectName: validateField(projectName),
-      processName: validateField(processName),
-      subProcess: validateField(subProcess),
-      clientTaskName: validateField(clientTaskName),
-      status: validateField(status),
-      quantity: validateField(quantity),
-      receiverDate: validateField(receiverDate),
-      dueDate: validateField(dueDate),
-      assignee: validateField(assignee),
-      reviewer: validateField(reviewer),
-      manager: validateField(manager),
-      returnYear: typeOfWork === 3 && validateField(returnYear),
-      checklistWorkpaper: typeOfWork === 3 && validateField(checklistWorkpaper),
+      clientName: validateField(clientNameWorklogs),
+      typeOfWork: validateField(typeOfWorkWorklogs),
+      projectName: validateField(projectNameWorklogs),
+      processName: validateField(processNameWorklogs),
+      subProcess: validateField(subProcessWorklogs),
+      clientTaskName: validateField(clientTaskNameWorklogs),
+      status: validateField(statusWorklogs),
+      quantity: validateField(quantityWorklogs),
+      receiverDate: validateField(receiverDateWorklogs),
+      dueDate: validateField(dueDateWorklogs),
+      assignee: validateField(assigneeWorklogs),
+      reviewer: validateField(reviewerWorklogs),
+      manager: validateField(managerWorklogs),
+      returnYear: typeOfWorkWorklogs === 3 && validateField(returnYearWorklogs),
+      checklistWorkpaper:
+        typeOfWorkWorklogs === 3 && validateField(checklistWorkpaperWorklogs),
     };
 
     const hasEditErrors = Object.values(fieldValidationsEdit).some(
@@ -890,41 +1444,60 @@ const EditDrawer = ({
 
     // Sub-Task
     let hasSubErrors = false;
-    const newTaskErrors = subTaskFields.map(
-      (field) =>
-        (onEdit === 0 && subTaskSwitch && field.Title.trim().length < 5) ||
-        (onEdit === 0 && subTaskSwitch && field.Title.trim().length > 500)
-    );
-    subTaskSwitch && setTaskNameErr(newTaskErrors);
-    const newSubTaskDescErrors = subTaskFields.map(
+    const newTaskErrors = subTaskFieldsWorklogs.map(
       (field) =>
         (onEdit === 0 &&
-          subTaskSwitch &&
-          field.Description.trim().length < 5) ||
-        (onEdit === 0 && subTaskSwitch && field.Description.trim().length > 500)
+          subTaskSwitchWorklogs &&
+          field.Title.trim().length < 5) ||
+        (onEdit === 0 &&
+          subTaskSwitchWorklogs &&
+          field.Title.trim().length > 500)
     );
-    subTaskSwitch && setSubTaskDescriptionErr(newSubTaskDescErrors);
+    subTaskSwitchWorklogs && setTaskNameWorklogsErr(newTaskErrors);
+    const newSubTaskDescErrors = subTaskFieldsWorklogs.map(
+      (field) =>
+        (onEdit === 0 &&
+          subTaskSwitchWorklogs &&
+          field.Description.trim().length < 5) ||
+        (onEdit === 0 &&
+          subTaskSwitchWorklogs &&
+          field.Description.trim().length > 500)
+    );
+    subTaskSwitchWorklogs &&
+      setSubTaskDescriptionWorklogsErr(newSubTaskDescErrors);
     hasSubErrors =
       newTaskErrors.some((error) => error) ||
       newSubTaskDescErrors.some((error) => error);
 
     // Maual
     let hasManualErrors = false;
-    const newInputDateErrors = manualFields.map(
-      (field) => onEdit === 0 && manualSwitch && field.inputDate === ""
+    const newInputDateWorklogsErrors = manualFieldsWorklogs.map(
+      (field) => onEdit === 0 && manualSwitchWorklogs && field.inputDate === ""
     );
-    manualSwitch && setInputDateErrors(newInputDateErrors);
-    const newStartTimeErrors = manualFields.map(
+    manualSwitchWorklogs &&
+      setInputDateWorklogsErrors(newInputDateWorklogsErrors);
+    const newStartTimeWorklogsErrors = manualFieldsWorklogs.map(
       (field) =>
-        (onEdit === 0 && manualSwitch && field.startTime.trim().length === 0) ||
-        (onEdit === 0 && manualSwitch && field.startTime.trim().length < 8)
+        (onEdit === 0 &&
+          manualSwitchWorklogs &&
+          field.startTime.trim().length === 0) ||
+        (onEdit === 0 &&
+          manualSwitchWorklogs &&
+          field.startTime.trim().length < 8)
     );
-    manualSwitch && setStartTimeErrors(newStartTimeErrors);
-    const newEndTimeErrors = manualFields.map(
+    manualSwitchWorklogs &&
+      setStartTimeWorklogsErrors(newStartTimeWorklogsErrors);
+    const newEndTimeWorklogsErrors = manualFieldsWorklogs.map(
       (field) =>
-        (onEdit === 0 && manualSwitch && field.endTime.trim().length === 0) ||
-        (onEdit === 0 && manualSwitch && field.endTime.trim().length < 8) ||
-        (onEdit === 0 && manualSwitch && field.endTime <= field.startTime) ||
+        (onEdit === 0 &&
+          manualSwitchWorklogs &&
+          field.endTime.trim().length === 0) ||
+        (onEdit === 0 &&
+          manualSwitchWorklogs &&
+          field.endTime.trim().length < 8) ||
+        (onEdit === 0 &&
+          manualSwitchWorklogs &&
+          field.endTime <= field.startTime) ||
         field.startTime
           .split(":")
           .reduce(
@@ -947,61 +1520,66 @@ const EditDrawer = ({
               0
             )
     );
-    manualSwitch && setEndTimeErrors(newEndTimeErrors);
-    const newManualDescErrors = manualFields.map(
+    manualSwitchWorklogs && setEndTimeWorklogsErrors(newEndTimeWorklogsErrors);
+    const newManualDescWorklogsErrors = manualFieldsWorklogs.map(
       (field) =>
-        (onEdit === 0 && manualSwitch && field.manualDesc.trim().length < 5) ||
-        (onEdit === 0 && manualSwitch && field.manualDesc.trim().length > 500)
+        (onEdit === 0 &&
+          manualSwitchWorklogs &&
+          field.manualDesc.trim().length < 5) ||
+        (onEdit === 0 &&
+          manualSwitchWorklogs &&
+          field.manualDesc.trim().length > 500)
     );
-    manualSwitch && setManualDescErrors(newManualDescErrors);
+    manualSwitchWorklogs &&
+      setManualDescWorklogsErrors(newManualDescWorklogsErrors);
     hasManualErrors =
-      newInputDateErrors.some((error) => error) ||
-      newStartTimeErrors.some((error) => error) ||
-      newEndTimeErrors.some((error) => error) ||
-      newManualDescErrors.some((error) => error);
+      newInputDateWorklogsErrors.some((error) => error) ||
+      newStartTimeWorklogsErrors.some((error) => error) ||
+      newEndTimeWorklogsErrors.some((error) => error) ||
+      newManualDescWorklogsErrors.some((error) => error);
 
     const data = {
       WorkItemId: onEdit > 0 ? onEdit : 0,
-      ClientId: clientName,
-      WorkTypeId: typeOfWork,
-      taskName: clientTaskName,
-      ProjectId: projectName === 0 ? null : projectName,
-      ProcessId: processName === 0 ? null : processName,
-      SubProcessId: subProcess === 0 ? null : subProcess,
-      StatusId: status,
-      Priority: priority === 0 ? 0 : priority,
-      Quantity: quantity,
+      ClientId: clientNameWorklogs,
+      WorkTypeId: typeOfWorkWorklogs,
+      taskName: clientTaskNameWorklogs,
+      ProjectId: projectNameWorklogs === 0 ? null : projectNameWorklogs,
+      ProcessId: processNameWorklogs === 0 ? null : processNameWorklogs,
+      SubProcessId: subProcessWorklogs === 0 ? null : subProcessWorklogs,
+      StatusId: statusWorklogs,
+      Priority: priorityWorklogs === 0 ? 0 : priorityWorklogs,
+      Quantity: quantityWorklogs,
       Description:
-        description.toString().length <= 0
+        descriptionWorklogs.toString().length <= 0
           ? null
-          : description.toString().trim(),
-      ReceiverDate: dayjs(receiverDate).format("YYYY/MM/DD"),
-      DueDate: dayjs(dueDate).format("YYYY/MM/DD"),
-      allInfoDate: allInfoDate === "" ? null : allInfoDate,
-      AssignedId: assignee,
-      ReviewerId: reviewer,
-      managerId: manager,
+          : descriptionWorklogs.toString().trim(),
+      ReceiverDate: dayjs(receiverDateWorklogs).format("YYYY/MM/DD"),
+      DueDate: dayjs(dueDateWorklogs).format("YYYY/MM/DD"),
+      allInfoDate: allInfoDateWorklogs === "" ? null : allInfoDateWorklogs,
+      AssignedId: assigneeWorklogs,
+      ReviewerId: reviewerWorklogs,
+      managerId: managerWorklogs,
       TaxReturnType: null,
       TaxCustomFields:
-        typeOfWork !== 3
+        typeOfWorkWorklogs !== 3
           ? null
           : {
-              ReturnYear: returnYear,
+              ReturnYear: returnYearWorklogs,
               Complexity: null,
               CountYear: null,
-              NoOfPages: noOfPages,
+              NoOfPages: noOfPagesWorklogs,
             },
       checklistWorkpaper:
-        checklistWorkpaper === 1
+        checklistWorkpaperWorklogs === 1
           ? true
-          : checklistWorkpaper === 2
+          : checklistWorkpaperWorklogs === 2
           ? false
           : null,
       ManualTimeList:
         onEdit > 0
           ? null
-          : manualSwitch
-          ? manualFields.map(
+          : manualSwitchWorklogs
+          ? manualFieldsWorklogs.map(
               (i: any) =>
                 new Object({
                   Date: i.inputDate,
@@ -1016,8 +1594,8 @@ const EditDrawer = ({
       SubTaskList:
         onEdit > 0
           ? null
-          : subTaskSwitch
-          ? subTaskFields.map(
+          : subTaskSwitchWorklogs
+          ? subTaskFieldsWorklogs.map(
               (i: any) =>
                 new Object({
                   SubtaskId: i.SubtaskId,
@@ -1077,13 +1655,13 @@ const EditDrawer = ({
             toast.success(
               `Worklog ${onEdit > 0 ? "Updated" : "created"} successfully.`
             );
-            onEdit > 0 && getEditData();
-            onEdit > 0 && typeOfWork === 3 && getCheckListData();
+            onEdit > 0 && getEditDataWorklogs();
+            onEdit > 0 && typeOfWorkWorklogs === 3 && getCheckListData();
             onEdit === 0 && onClose();
             onEdit === 0 && handleClose();
           } else {
             const data = response.data.Message;
-            onEdit > 0 && getEditData();
+            onEdit > 0 && getEditDataWorklogs();
             if (data === null) {
               toast.error("Please try again later.");
             } else {
@@ -1108,16 +1686,16 @@ const EditDrawer = ({
 
     if (
       onEdit === 0 &&
-      typeOfWork !== 3 &&
+      typeOfWorkWorklogs !== 3 &&
       !hasErrors &&
       !hasSubErrors &&
       !hasManualErrors &&
-      clientTaskName.trim().length > 3 &&
-      clientTaskName.trim().length < 50 &&
-      !quantityErr &&
-      quantity > 0 &&
-      quantity < 10000 &&
-      !quantity.toString().includes(".")
+      clientTaskNameWorklogs.trim().length > 3 &&
+      clientTaskNameWorklogs.trim().length < 50 &&
+      !quantityWorklogsErr &&
+      quantityWorklogs > 0 &&
+      quantityWorklogs < 10000 &&
+      !quantityWorklogs.toString().includes(".")
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
@@ -1128,16 +1706,16 @@ const EditDrawer = ({
 
     if (
       onEdit === 0 &&
-      typeOfWork === 3 &&
+      typeOfWorkWorklogs === 3 &&
       !hasErrors &&
       !hasSubErrors &&
       !hasManualErrors &&
-      clientTaskName.trim().length > 3 &&
-      clientTaskName.trim().length < 50 &&
-      !quantityErr &&
-      quantity > 0 &&
-      quantity < 10000 &&
-      !quantity.toString().includes(".")
+      clientTaskNameWorklogs.trim().length > 3 &&
+      clientTaskNameWorklogs.trim().length < 50 &&
+      !quantityWorklogsErr &&
+      quantityWorklogs > 0 &&
+      quantityWorklogs < 10000 &&
+      !quantityWorklogs.toString().includes(".")
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
@@ -1147,355 +1725,67 @@ const EditDrawer = ({
     }
 
     if (
-      (onEdit > 0 && editStatus === 4) ||
-      (onEdit > 0 && editStatus === 5) ||
-      (onEdit > 0 && status === 7) ||
-      (onEdit > 0 && status === 8) ||
-      (onEdit > 0 && status === 9) ||
-      (onEdit > 0 && status === 13)
+      (onEdit > 0 && editStatusWorklogs === 4) ||
+      (onEdit > 0 && editStatusWorklogs === 5) ||
+      (onEdit > 0 && statusWorklogs === 7) ||
+      (onEdit > 0 && statusWorklogs === 8) ||
+      (onEdit > 0 && statusWorklogs === 9) ||
+      (onEdit > 0 && statusWorklogs === 13)
     ) {
       toast.warning(
         "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
       );
-      getEditData();
+      getEditDataWorklogs();
     } else if (
       onEdit > 0 &&
-      editStatus !== 4 &&
-      editStatus !== 5 &&
-      status !== 7 &&
-      status !== 8 &&
-      status !== 9 &&
-      status !== 13 &&
-      typeOfWork !== 3 &&
+      editStatusWorklogs !== 4 &&
+      editStatusWorklogs !== 5 &&
+      statusWorklogs !== 7 &&
+      statusWorklogs !== 8 &&
+      statusWorklogs !== 9 &&
+      statusWorklogs !== 13 &&
+      typeOfWorkWorklogs !== 3 &&
       !hasEditErrors &&
-      clientTaskName.trim().length > 3 &&
-      clientTaskName.trim().length < 50 &&
-      quantity > 0 &&
-      quantity < 10000 &&
-      !quantityErr &&
-      !quantity.toString().includes(".")
+      clientTaskNameWorklogs.trim().length > 3 &&
+      clientTaskNameWorklogs.trim().length < 50 &&
+      quantityWorklogs > 0 &&
+      quantityWorklogs < 10000 &&
+      !quantityWorklogsErr &&
+      !quantityWorklogs.toString().includes(".")
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
       } else {
         toast.error("User don't have permission to Update Task.");
-        getEditData();
+        getEditDataWorklogs();
       }
     } else if (
       onEdit > 0 &&
-      editStatus !== 4 &&
-      editStatus !== 5 &&
-      status !== 7 &&
-      status !== 8 &&
-      status !== 9 &&
-      status !== 13 &&
-      typeOfWork === 3 &&
+      editStatusWorklogs !== 4 &&
+      editStatusWorklogs !== 5 &&
+      statusWorklogs !== 7 &&
+      statusWorklogs !== 8 &&
+      statusWorklogs !== 9 &&
+      statusWorklogs !== 13 &&
+      typeOfWorkWorklogs === 3 &&
       !hasEditErrors &&
-      clientTaskName.trim().length > 3 &&
-      clientTaskName.trim().length < 50 &&
-      quantity > 0 &&
-      quantity < 10000 &&
-      !quantityErr &&
-      !quantity.toString().includes(".")
+      clientTaskNameWorklogs.trim().length > 3 &&
+      clientTaskNameWorklogs.trim().length < 50 &&
+      quantityWorklogs > 0 &&
+      quantityWorklogs < 10000 &&
+      !quantityWorklogsErr &&
+      !quantityWorklogs.toString().includes(".")
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
       } else {
         toast.error("User don't have permission to Update Task.");
-        getEditData();
+        getEditDataWorklogs();
       }
-    }
-  };
-
-  const handleMultiSelect = (e: React.SyntheticEvent, value: any) => {
-    if (value !== undefined) {
-      setReminderNotification(value);
-    } else {
-      setReminderNotification([]);
-    }
-  };
-
-  const handleMultiSelectMonth = (e: React.SyntheticEvent, value: any) => {
-    if (value !== undefined) {
-      setRecurringMonth(value);
-    } else {
-      setRecurringMonth([]);
     }
   };
 
   // OnEdit
-  const getWorklogData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/subtask/getbyworkitem`,
-        {
-          WorkitemId: onEdit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          const data = await response.data.ResponseData;
-          setSubTaskSwitch(
-            data.length <= 0 &&
-              !hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")
-              ? false
-              : true
-          );
-          setSubTaskFields(
-            data.length <= 0
-              ? [
-                  {
-                    SubTaskId: 0,
-                    Title: "",
-                    Description: "",
-                  },
-                ]
-              : data
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error: any) {
-      if (error.response && error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
-  };
-
-  const getRecurringData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/recurring/getbyworkitem`,
-        {
-          WorkitemId: onEdit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          const data = await response.data.ResponseData;
-          setRecurringSwitch(
-            data.length <= 0 &&
-              !hasPermissionWorklog("Reccuring", "save", "WorkLogs")
-              ? false
-              : true
-          );
-          setRecurringStartDate(data.length <= 0 ? "" : data.StartDate);
-          setRecurringEndDate(data.length <= 0 ? "" : data.EndDate);
-          setRecurringTime(data.length <= 0 ? 0 : data.Type);
-          data.Type === 2
-            ? setSelectedDays(data.Triggers)
-            : data.Type === 3
-            ? setRecurringMonth(
-                data.Triggers.map((trigger: any) =>
-                  months.find((month) => month.value === trigger)
-                ).filter(Boolean)
-              )
-            : [];
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error: any) {
-      if (error.response && error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
-  };
-
-  const getManualData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/timelog/getManuallogByWorkitem`,
-        {
-          WorkitemId: onEdit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          const data = await response.data.ResponseData;
-          const getTimeDifference = (startTime: any, endTime: any) => {
-            const [s, e, s_sec] = startTime.split(":").map(Number);
-            const [t, r, e_sec] = endTime.split(":").map(Number);
-            const d = t * 60 + r - s * 60 - e;
-            return `${String(Math.floor(d / 60)).padStart(2, "0")}:${String(
-              d % 60
-            ).padStart(2, "0")}:${(e_sec - s_sec).toString().padStart(2, "0")}`;
-          };
-          setManualSwitch(data.length <= 0 ? false : true);
-          setManualSubmitDisable(
-            data
-              .map((i: any) => i.IsApproved === false && i.assignee !== userId)
-              .includes(true)
-              ? false
-              : true
-          );
-          setManualFields(
-            data.length <= 0
-              ? [
-                  {
-                    AssigneeId: 0,
-                    Id: 0,
-                    inputDate: "",
-                    startTime: "",
-                    endTime: "",
-                    totalTime: "",
-                    manualDesc: "",
-                    IsApproved: false,
-                  },
-                ]
-              : data.map(
-                  (i: any) =>
-                    new Object({
-                      AssigneeId: i.AssigneeId,
-                      Id: i.Id,
-                      inputDate: i.Date,
-                      startTime: i.StartTime,
-                      endTime: i.EndTime,
-                      totalTime: getTimeDifference(i.StartTime, i.EndTime),
-                      manualDesc: i.Comment,
-                      IsApproved: i.IsApproved,
-                    })
-                )
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error: any) {
-      if (error.response && error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
-  };
-
-  const getReminderData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/reminder/getbyworkitem`,
-        {
-          WorkitemId: onEdit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          const data = await response.data.ResponseData;
-          setReminderId(data.ReminderId);
-          setReminderSwitch(
-            data === null &&
-              !hasPermissionWorklog("Reminder", "save", "WorkLogs")
-              ? false
-              : true
-          );
-          setReminderCheckboxValue(data.ReminderType);
-          setReminderDate(data.ReminderDate);
-          setReminderTime(data.ReminderTime);
-          setReminderNotification(
-            data.ReminderUserIds.map((reminderUserId: any) =>
-              assigneeDropdownData.find(
-                (assignee: { value: any }) => assignee.value === reminderUserId
-              )
-            ).filter(Boolean)
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error: any) {
-      if (error.response && error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
-  };
-
   const getCommentData = async (type: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -1735,115 +2025,107 @@ const EditDrawer = ({
     }
   };
 
-  const getEditData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/getbyid`,
-        {
-          WorkitemId: onEdit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          const data = await response.data.ResponseData;
-          setEditData(data);
-          setIsCreatedByClient(data.IsCreatedByClient);
-          setIsManual(data.IsManual);
-          setClientName(data.ClientId);
-          setTypeOfWork(data.WorkTypeId);
-          setProjectName(data.ProjectId === null ? "" : data.ProjectId);
-          setProcessName(data.ProcessId === null ? "" : data.ProcessId);
-          setSubProcess(data.SubProcessId === null ? "" : data.SubProcessId);
-          setClientTaskName(data.TaskName === null ? "" : data.TaskName);
-          setEditStatus(data.StatusId);
-          setStatus(data.StatusId);
-          setAllInfoDate(data.AllInfoDate === null ? "" : data.AllInfoDate);
-          data.StatusId === 2 && data.IsManual === true
-            ? setStatusDropdownDataUse(
-                statusDropdownData
-                  .map((i: any) =>
-                    i.Type === "OnHoldFromClient" ||
-                    i.Type === "WithDraw" ||
-                    i.Type === "Stop" ||
-                    i.value === data.StatusId
-                      ? i
-                      : ""
-                  )
-                  .filter((i: any) => i !== "")
-              )
-            : setStatusDropdownDataUse(
-                statusDropdownData
-                  .map((i: any) =>
-                    i.Type === "OnHoldFromClient" ||
-                    i.Type === "WithDraw" ||
-                    i.value === data.StatusId
-                      ? i
-                      : ""
-                  )
-                  .filter((i: any) => i !== "")
-              );
-          setPriority(data.Priority === null ? 0 : data.Priority);
-          setQuantity(data.Quantity);
-          setDescription(data.Description === null ? "" : data.Description);
-          setReceiverDate(data.ReceiverDate);
-          setDueDate(data.DueDate);
-          setDateOfReview(data.ReviewerDate);
-          setDateOfPreperation(data.PreparationDate);
-          setAssignee(data.AssignedId);
-          setReviewer(data.ReviewerId);
-          setManager(data.ManagerId === null ? 0 : data.ManagerId);
-          setReturnYear(
-            data.TypeOfReturnId === 0 ? null : data.TaxCustomFields.ReturnYear
-          );
-          setNoOfPages(
-            data.TypeOfReturnId === 0 ? null : data.TaxCustomFields.NoOfPages
-          );
-          setChecklistWorkpaper(
-            data.ChecklistWorkpaper === true
-              ? 1
-              : data.ChecklistWorkpaper === false
-              ? 2
-              : 0
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+  const getEditDataWorklogs = async () => {
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/getbyid`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setEditDataWorklogs(ResponseData);
+        setIsCreatedByClientWorklogsDrawer(ResponseData.IsCreatedByClient);
+        setIsManual(ResponseData.IsManual);
+        setClientNameWorklogs(ResponseData.ClientId);
+        setTypeOfWorkWorklogs(ResponseData.WorkTypeId);
+        setProjectNameWorklogs(
+          ResponseData.ProjectId === null ? "" : ResponseData.ProjectId
+        );
+        setProcessNameWorklogs(
+          ResponseData.ProcessId === null ? "" : ResponseData.ProcessId
+        );
+        setSubProcessWorklogs(
+          ResponseData.SubProcessId === null ? "" : ResponseData.SubProcessId
+        );
+        setClientTaskNameWorklogs(
+          ResponseData.TaskName === null ? "" : ResponseData.TaskName
+        );
+        setEditStatusWorklogs(ResponseData.StatusId);
+        setStatusWorklogs(ResponseData.StatusId);
+        setAllInfoDateWorklogs(
+          ResponseData.AllInfoDate === null ? "" : ResponseData.AllInfoDate
+        );
+        ResponseData.StatusId === 2 && ResponseData.IsManual === true
+          ? setStatusWorklogsDropdownDataUse(
+              statusWorklogsDropdownData
+                .map((i: any) =>
+                  i.Type === "OnHoldFromClient" ||
+                  i.Type === "WithDraw" ||
+                  i.Type === "Stop" ||
+                  i.value === ResponseData.StatusId
+                    ? i
+                    : ""
+                )
+                .filter((i: any) => i !== "")
+            )
+          : setStatusWorklogsDropdownDataUse(
+              statusWorklogsDropdownData
+                .map((i: any) =>
+                  i.Type === "OnHoldFromClient" ||
+                  i.Type === "WithDraw" ||
+                  i.value === ResponseData.StatusId
+                    ? i
+                    : ""
+                )
+                .filter((i: any) => i !== "")
+            );
+        setPriorityWorklogs(
+          ResponseData.Priority === null ? 0 : ResponseData.Priority
+        );
+        setQuantityWorklogs(ResponseData.Quantity);
+        setDescriptionWorklogs(
+          ResponseData.Description === null ? "" : ResponseData.Description
+        );
+        setReceiverDateWorklogs(ResponseData.ReceiverDate);
+        setDueDateWorklogs(ResponseData.DueDate);
+        setDateOfReviewWorklogs(ResponseData.ReviewerDate);
+        setDateOfPreperationWorklogs(ResponseData.PreparationDate);
+        setAssigneeWorklogs(ResponseData.AssignedId);
+        setReviewerWorklogs(ResponseData.ReviewerId);
+        setManagerWorklogs(
+          ResponseData.ManagerId === null ? 0 : ResponseData.ManagerId
+        );
+        setReturnYearWorklogs(
+          ResponseData.TypeOfReturnId === 0
+            ? null
+            : ResponseData.TaxCustomFields.ReturnYear
+        );
+        setNoOfPagesWorklogs(
+          ResponseData.TypeOfReturnId === 0
+            ? null
+            : ResponseData.TaxCustomFields.NoOfPages
+        );
+        setChecklistWorkpaperWorklogs(
+          ResponseData.ChecklistWorkpaper === true
+            ? 1
+            : ResponseData.ChecklistWorkpaper === false
+            ? 2
+            : 0
+        );
       }
-    } catch (error: any) {
-      if (error.response && error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
-  const onEditData = () => {
+  const onEditDataWorklogs = () => {
     if (onEdit > 0) {
-      getEditData();
-      getWorklogData();
-      getRecurringData();
-      getManualData();
+      getEditDataWorklogs();
+      getSubTaskDataWorklogs();
+      getRecurringDataWorklogs();
+      getManualDataWorklogs();
       getCheckListData();
       getCommentData(1);
       getReviewerNoteData();
@@ -1851,426 +2133,16 @@ const EditDrawer = ({
   };
 
   useEffect(() => {
-    onEdit > 0 && assigneeDropdownData.length > 0 && getErrorLogData();
-    onEdit > 0 && assigneeDropdownData.length > 0 && getReminderData();
-  }, [assigneeDropdownData]);
-
-  // Edit Update Button Click
-  const handleSubmitSubTask = async () => {
-    if (
-      editStatus === 4 ||
-      editStatus === 5 ||
-      status === 7 ||
-      status === 8 ||
-      status === 9 ||
-      status === 13
-    ) {
-      toast.warning(
-        "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-      );
-      getWorklogData();
-    } else {
-      let hasSubErrors = false;
-      const newTaskErrors = subTaskFields.map(
-        (field) =>
-          (subTaskSwitch && field.Title.trim().length < 5) ||
-          (subTaskSwitch && field.Title.trim().length > 500)
-      );
-      subTaskSwitch && setTaskNameErr(newTaskErrors);
-      const newSubTaskDescErrors = subTaskFields.map(
-        (field) =>
-          (subTaskSwitch && field.Description.trim().length < 5) ||
-          (subTaskSwitch && field.Description.trim().length > 500)
-      );
-      subTaskSwitch && setSubTaskDescriptionErr(newSubTaskDescErrors);
-      hasSubErrors =
-        newTaskErrors.some((error) => error) ||
-        newSubTaskDescErrors.some((error) => error);
-
-      if (!hasSubErrors) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`,
-            {
-              workitemId: onEdit,
-              subtasks: subTaskSwitch
-                ? subTaskFields.map(
-                    (i: any) =>
-                      new Object({
-                        SubtaskId: i.SubtaskId,
-                        Title: i.Title.trim(),
-                        Description: i.Description.trim(),
-                      })
-                  )
-                : null,
-              deletedWorkitemSubtaskIds: deletedSubTask,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Sub Task Updated successfully.`);
-              setDeletedSubTask([]);
-              setSubTaskFields([
-                {
-                  SubtaskId: 0,
-                  Title: "",
-                  Description: "",
-                },
-              ]);
-              getWorklogData();
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
-      }
-    }
-  };
-
-  const handleSubmitRecurring = async () => {
-    const validateField = (value: any) => {
-      if (
-        value === 0 ||
-        value === "" ||
-        value === null ||
-        (Array.isArray(value) && value.length === 0)
-      ) {
-        return true;
-      }
-      return false;
-    };
-
-    const fieldValidations = {
-      recurringStartDate: recurringSwitch && validateField(recurringStartDate),
-      recurringEndDate: recurringSwitch && validateField(recurringEndDate),
-      recurringMonth:
-        recurringSwitch && recurringTime === 3 && validateField(recurringMonth),
-      selectedDays:
-        recurringSwitch && recurringTime === 2 && validateField(selectedDays),
-    };
-
-    recurringSwitch &&
-      setRecurringStartDateErr(fieldValidations.recurringStartDate);
-    recurringSwitch &&
-      setRecurringEndDateErr(fieldValidations.recurringEndDate);
-    recurringSwitch &&
-      recurringTime === 3 &&
-      setRecurringMonthErr(fieldValidations.recurringMonth);
-    recurringSwitch &&
-      recurringTime === 2 &&
-      setRecurringWeekErr(fieldValidations.selectedDays);
-
-    const hasErrors = Object.values(fieldValidations).some((error) => error);
-
-    if (!hasErrors) {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/recurring/savebyworkitem`,
-          {
-            WorkitemId: onEdit,
-            Type: recurringTime,
-            StartDate: dayjs(recurringStartDate).format("YYYY/MM/DD"),
-            EndDate: dayjs(recurringEndDate).format("YYYY/MM/DD"),
-            Triggers:
-              recurringTime === 1
-                ? []
-                : recurringTime === 2
-                ? selectedDays
-                : recurringMonth.map((i: any) => i.value),
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            toast.success(`Recurring Updated successfully.`);
-            setDeletedSubTask([]);
-            getRecurringData();
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Failed Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
-      }
-    }
-  };
-
-  const handleSubmitManual = async () => {
-    const local: any = await localStorage.getItem("UserId");
-    if (assignee === parseInt(local)) {
-      let hasManualErrors = false;
-      const newInputDateErrors = manualFields.map(
-        (field) => manualSwitch && field.inputDate === ""
-      );
-      manualSwitch && setInputDateErrors(newInputDateErrors);
-      const newStartTimeErrors = manualFields.map(
-        (field) =>
-          (manualSwitch && field.startTime.trim().length === 0) ||
-          (manualSwitch && field.startTime.trim().length < 8)
-      );
-      manualSwitch && setStartTimeErrors(newStartTimeErrors);
-      const newEndTimeErrors = manualFields.map(
-        (field) =>
-          (manualSwitch && field.endTime.trim().length === 0) ||
-          (manualSwitch && field.endTime.trim().length < 8) ||
-          (manualSwitch && field.endTime <= field.startTime) ||
-          field.startTime
-            .split(":")
-            .reduce(
-              (acc, timePart, index) =>
-                acc + parseInt(timePart) * [3600, 60, 1][index],
-              0
-            ) +
-            "07:59:59"
-              .split(":")
-              .reduce(
-                (acc, timePart, index) =>
-                  acc + parseInt(timePart) * [3600, 60, 1][index],
-                0
-              ) <
-            field.endTime
-              .split(":")
-              .reduce(
-                (acc, timePart, index) =>
-                  acc + parseInt(timePart) * [3600, 60, 1][index],
-                0
-              )
-      );
-      manualSwitch && setEndTimeErrors(newEndTimeErrors);
-      const newManualDescErrors = manualFields.map(
-        (field) =>
-          (manualSwitch && field.manualDesc.trim().length < 5) ||
-          (manualSwitch && field.manualDesc.trim().length > 500)
-      );
-      manualSwitch && setManualDescErrors(newManualDescErrors);
-      hasManualErrors =
-        newInputDateErrors.some((error) => error) ||
-        newStartTimeErrors.some((error) => error) ||
-        newEndTimeErrors.some((error) => error) ||
-        newManualDescErrors.some((error) => error);
-
-      if (!hasManualErrors) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/timelog/saveManuallogByworkitem`,
-            {
-              workItemId: onEdit,
-              timelogs: manualFields.map(
-                (i: any) =>
-                  new Object({
-                    id: i.Id,
-                    startTime:
-                      dayjs(i.inputDate).format("YYYY/MM/DD") +
-                      " " +
-                      i.startTime,
-                    endTime:
-                      dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.endTime,
-                    assigneeId: i.AssigneeId === 0 ? assignee : i.AssigneeId,
-                    comment: i.manualDesc,
-                  })
-              ),
-              deletedTimelogIds: deletedManualTime,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Manual Time Updated successfully.`);
-              setDeletedManualTime([]);
-              getEditData();
-              getManualData();
-            } else {
-              getManualData();
-              getEditData();
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
-      }
-    } else {
-      toast.warning("Only Assingnee can Edit Manual time.");
-      getManualData();
-    }
-  };
-
-  const handleSubmitReminder = async () => {
-    if (
-      editStatus === 4 ||
-      status === 7 ||
-      status === 8 ||
-      status === 9 ||
-      status === 13
-    ) {
-      toast.warning(
-        "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-      );
-      getReminderData();
-    } else {
-      const validateField = (value: any) => {
-        if (
-          value === 0 ||
-          value === "" ||
-          value === null ||
-          (Array.isArray(value) && value.length === 0)
-        ) {
-          return true;
-        }
-        return false;
-      };
-
-      const fieldValidations = {
-        reminderTime: reminderSwitch && validateField(reminderTime),
-        reminderNotification:
-          reminderSwitch && validateField(reminderNotification),
-        reminderDate:
-          reminderSwitch &&
-          reminderCheckboxValue === 2 &&
-          validateField(reminderDate),
-      };
-
-      reminderSwitch && setReminderTimeErr(fieldValidations.reminderTime);
-      reminderSwitch &&
-        setReminderNotificationErr(fieldValidations.reminderNotification);
-      reminderSwitch &&
-        reminderCheckboxValue === 2 &&
-        setReminderDateErr(fieldValidations.reminderDate);
-
-      const hasErrors = Object.values(fieldValidations).some((error) => error);
-
-      if (!hasErrors) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/reminder/savebyworkitem`,
-            {
-              ReminderId: reminderId,
-              ReminderType: reminderCheckboxValue,
-              WorkitemId: onEdit,
-              ReminderDate:
-                reminderCheckboxValue === 2
-                  ? dayjs(reminderDate).format("YYYY/MM/DD")
-                  : null,
-              ReminderTime: reminderTime,
-              ReminderUserIds: reminderNotification.map((i: any) => i.value),
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Reminder Updated successfully.`);
-              getReminderData();
-              setReminderId(0);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
-      }
-    }
-  };
+    onEdit > 0 && assigneeWorklogsDropdownData.length > 0 && getErrorLogData();
+    onEdit > 0 &&
+      assigneeWorklogsDropdownData.length > 0 &&
+      getReminderDataWorklogs();
+  }, [assigneeWorklogsDropdownData]);
 
   // GEtDropdownData
   useEffect(() => {
     const getData = async () => {
-      await setStatusDropdownData(await getStatusDropdownData());
+      await setStatusWorklogsDropdownData(await getStatusDropdownData());
       await setCCDropdownData(await getCCDropdownData());
     };
     getData();
@@ -2279,34 +2151,36 @@ const EditDrawer = ({
   useEffect(() => {
     const getData = async () => {
       onOpen &&
-        statusDropdownData.length === 0 &&
-        (await setStatusDropdownData(await getStatusDropdownData()));
+        statusWorklogsDropdownData.length === 0 &&
+        (await setStatusWorklogsDropdownData(await getStatusDropdownData()));
       onOpen &&
         onEdit === 0 &&
-        setStatus(
-          statusDropdownData
+        setStatusWorklogs(
+          statusWorklogsDropdownData
             .map((i: any) => (i.Type === "NotStarted" ? i.value : undefined))
             .filter((i: any) => i !== undefined)[0]
         );
       onOpen &&
-        statusDropdownData.length === 0 &&
+        statusWorklogsDropdownData.length === 0 &&
         (await setCCDropdownData(await getCCDropdownData()));
-      statusDropdownData.length > 0 && (await onEditData());
+      statusWorklogsDropdownData.length > 0 && (await onEditDataWorklogs());
     };
     getData();
-  }, [onEdit, onOpen, statusDropdownData]);
+  }, [onEdit, onOpen, statusWorklogsDropdownData]);
 
   useEffect(() => {
     const getData = async () => {
       getUserDetails();
-      setClientDropdownData(await getClientDropdownData());
-      setManagerDropdownData(await getManagerDropdownData());
+      setClientWorklogsDropdownData(await getClientDropdownData());
+      setManagerWorklogsDropdownData(await getManagerDropdownData());
       const workTypeData: any =
-        clientName > 0 && (await getTypeOfWorkDropdownData(clientName));
-      workTypeData.length > 0 && setTypeOfWorkDropdownData(workTypeData);
+        clientNameWorklogs > 0 &&
+        (await getTypeOfWorkDropdownData(clientNameWorklogs));
+      workTypeData.length > 0 &&
+        setTypeOfWorkWorklogsDropdownData(workTypeData);
       workTypeData.length > 0 &&
         onEdit === 0 &&
-        setTypeOfWork(
+        setTypeOfWorkWorklogs(
           workTypeData.map((i: any) => i.value).includes(3)
             ? 3
             : workTypeData.map((i: any) => i.value).includes(1)
@@ -2316,61 +2190,68 @@ const EditDrawer = ({
             : 0
         );
       const projectData: any =
-        clientName > 0 && (await getProjectDropdownData(clientName));
-      projectData.length > 0 && setProjectDropdownData(projectData);
+        clientNameWorklogs > 0 &&
+        (await getProjectDropdownData(clientNameWorklogs));
+      projectData.length > 0 && setProjectWorklogsDropdownData(projectData);
       projectData.length > 0 &&
         projectData.length === 1 &&
         onEdit === 0 &&
-        setProjectName(projectData.map((i: any) => i.value)[0]);
+        setProjectNameWorklogs(projectData.map((i: any) => i.value)[0]);
       const processData: any =
-        clientName > 0 && (await getProcessDropdownData(clientName));
-      setProcessDropdownData(
+        clientNameWorklogs > 0 &&
+        (await getProcessDropdownData(clientNameWorklogs));
+      setProcessWorklogsDropdownData(
         processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
       );
     };
 
     onOpen && getData();
-  }, [clientName, onOpen]);
+  }, [clientNameWorklogs, onOpen]);
 
   useEffect(() => {
     const getData = async () => {
       const data: any =
-        processName !== 0 &&
-        (await getSubProcessDropdownData(clientName, processName));
-      data.length > 0 && setEstTimeData(data);
+        processNameWorklogs !== 0 &&
+        (await getSubProcessDropdownData(
+          clientNameWorklogs,
+          processNameWorklogs
+        ));
+      data.length > 0 && setEstTimeDataWorklogs(data);
       data.length > 0 &&
-        setSubProcessDropdownData(
+        setSubProcessWorklogsDropdownData(
           data.map((i: any) => new Object({ label: i.Name, value: i.Id }))
         );
     };
 
     getData();
-  }, [processName]);
+  }, [processNameWorklogs]);
 
   useEffect(() => {
     const getData = async () => {
       const assigneeData = await getAssigneeDropdownData(
-        clientName,
-        typeOfWork
+        clientNameWorklogs,
+        typeOfWorkWorklogs
       );
-      assigneeData.length > 0 && setAssigneeDropdownData(assigneeData);
+      assigneeData.length > 0 && setAssigneeWorklogsDropdownData(assigneeData);
       const assigneeId =
         onEdit > 0 &&
-        assignee > 0 &&
+        assigneeWorklogs > 0 &&
         assigneeData.length > 0 &&
         assigneeData
-          .map((i: any) => (i.value === assignee ? assignee : false))
+          .map((i: any) =>
+            i.value === assigneeWorklogs ? assigneeWorklogs : false
+          )
           .filter((j: any) => j !== false)[0];
       onEdit > 0 &&
-        assignee > 0 &&
+        assigneeWorklogs > 0 &&
         assigneeData.length > 0 &&
-        setAssignee(assigneeId !== undefined ? assigneeId : 0);
+        setAssigneeWorklogs(assigneeId !== undefined ? assigneeId : 0);
 
       const reviewerData = await getReviewerDropdownData(
-        clientName,
-        typeOfWork
+        clientNameWorklogs,
+        typeOfWorkWorklogs
       );
-      reviewerData.length > 0 && setReviewerDropdownData(reviewerData);
+      reviewerData.length > 0 && setReviewerWorklogsDropdownData(reviewerData);
       const UserId: any = await localStorage.getItem("UserId");
       const reviwerId =
         reviewerData.length > 0 &&
@@ -2379,11 +2260,11 @@ const EditDrawer = ({
           .filter((i: any) => i !== undefined)[0];
       reviewerData.length > 0 &&
         onEdit === 0 &&
-        setReviewer(reviwerId === false ? 0 : reviwerId);
+        setReviewerWorklogs(reviwerId === false ? 0 : reviwerId);
     };
 
-    typeOfWork !== 0 && getData();
-  }, [typeOfWork, clientName]);
+    typeOfWorkWorklogs !== 0 && getData();
+  }, [typeOfWorkWorklogs, clientNameWorklogs]);
 
   // Add Checklist
   const toggleGeneralOpen = (index: any) => {
@@ -2402,11 +2283,11 @@ const EditDrawer = ({
 
   const handleSaveCheckListName = async (Category: any, index: number) => {
     if (
-      editStatus === 4 ||
-      status === 7 ||
-      status === 8 ||
-      status === 9 ||
-      status === 13
+      editStatusWorklogs === 4 ||
+      statusWorklogs === 7 ||
+      statusWorklogs === 8 ||
+      statusWorklogs === 9 ||
+      statusWorklogs === 13
     ) {
       toast.warning(
         "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
@@ -2479,11 +2360,11 @@ const EditDrawer = ({
     Title: any
   ) => {
     if (
-      editStatus === 4 ||
-      status === 7 ||
-      status === 8 ||
-      status === 9 ||
-      status === 13
+      editStatusWorklogs === 4 ||
+      statusWorklogs === 7 ||
+      statusWorklogs === 8 ||
+      statusWorklogs === 9 ||
+      statusWorklogs === 13
     ) {
       toast.warning(
         "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
@@ -2555,10 +2436,12 @@ const EditDrawer = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          setAssigneeDisable(response.data.ResponseData.IsHaveManageAssignee);
+          setAssigneeWorklogsDisable(
+            response.data.ResponseData.IsHaveManageAssignee
+          );
           setUserId(response.data.ResponseData.UserId);
           !response.data.ResponseData.IsHaveManageAssignee &&
-            setAssignee(response.data.ResponseData.UserId);
+            setAssigneeWorklogs(response.data.ResponseData.UserId);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -2601,8 +2484,8 @@ const EditDrawer = ({
   ]);
 
   const users =
-    assigneeDropdownData?.length > 0 &&
-    assigneeDropdownData.map(
+    assigneeWorklogsDropdownData?.length > 0 &&
+    assigneeWorklogsDropdownData.map(
       (i: any) =>
         new Object({
           id: i.value,
@@ -2805,60 +2688,59 @@ const EditDrawer = ({
   };
 
   const handleClose = () => {
-    setEditData([]);
-    setIsCreatedByClient(false);
+    setEditDataWorklogs([]);
+    setIsCreatedByClientWorklogsDrawer(false);
     setUserId(0);
-    setClientName(0);
-    setClientNameErr(false);
-    setTypeOfWork(0);
-    setTypeOfWorkErr(false);
-    setProjectName(0);
-    setProjectNameErr(false);
-    setClientTaskName("");
-    setClientTaskNameErr(false);
-    setProcessName(0);
-    setProcessNameErr(false);
-    setSubProcess(0);
-    setSubProcessErr(false);
-    setManager(0);
-    setManagerErr(false);
-    setEditStatus(0);
-    setStatus(0);
-    setStatusErr(false);
-    setDescription("");
-    setPriority(0);
-    setQuantity(1);
-    setQuantityErr(false);
-    setReceiverDate("");
-    setReceiverDateErr(false);
-    setDueDate("");
-    setAllInfoDate("");
-    setAssignee(0);
-    setAssigneeErr(false);
-    setAssigneeDisable(true);
-    setReviewer(0);
-    setReviewerErr(false);
-    setDateOfReview("");
-    setDateOfPreperation("");
-    setAssigneeDisable(true);
-    setEstTimeData([]);
-    setReturnYear(0);
-    setReturnYearErr(false);
-    setNoOfPages(0);
-    setChecklistWorkpaper(0);
-    setChecklistWorkpaperErr(false);
+    setClientNameWorklogs(0);
+    setClientNameWorklogsErr(false);
+    setTypeOfWorkWorklogs(0);
+    setTypeOfWorkWorklogsErr(false);
+    setProjectNameWorklogs(0);
+    setProjectNameWorklogsErr(false);
+    setClientTaskNameWorklogs("");
+    setClientTaskNameWorklogsErr(false);
+    setProcessNameWorklogs(0);
+    setProcessNameWorklogsErr(false);
+    setSubProcessWorklogs(0);
+    setSubProcessWorklogsErr(false);
+    setManagerWorklogs(0);
+    setManagerWorklogsErr(false);
+    setEditStatusWorklogs(0);
+    setStatusWorklogs(0);
+    setStatusWorklogsErr(false);
+    setDescriptionWorklogs("");
+    setPriorityWorklogs(0);
+    setQuantityWorklogs(1);
+    setQuantityWorklogsErr(false);
+    setReceiverDateWorklogs("");
+    setReceiverDateWorklogsErr(false);
+    setDueDateWorklogs("");
+    setAllInfoDateWorklogs("");
+    setAssigneeWorklogs(0);
+    setAssigneeWorklogsErr(false);
+    setAssigneeWorklogsDisable(true);
+    setReviewerWorklogs(0);
+    setReviewerWorklogsErr(false);
+    setDateOfReviewWorklogs("");
+    setDateOfPreperationWorklogs("");
+    setEstTimeDataWorklogs([]);
+    setReturnYearWorklogs(0);
+    setReturnYearWorklogsErr(false);
+    setNoOfPagesWorklogs(0);
+    setChecklistWorkpaperWorklogs(0);
+    setChecklistWorkpaperWorklogsErr(false);
 
     // Sub-Task
-    setSubTaskSwitch(false);
-    setSubTaskFields([
+    setSubTaskSwitchWorklogs(false);
+    setSubTaskFieldsWorklogs([
       {
         SubtaskId: 0,
         Title: "",
         Description: "",
       },
     ]);
-    setTaskNameErr([false]);
-    setSubTaskDescriptionErr([false]);
+    setTaskNameWorklogsErr([false]);
+    setSubTaskDescriptionWorklogsErr([false]);
 
     // Recurring
     setRecurringSwitch(false);
@@ -2872,8 +2754,8 @@ const EditDrawer = ({
 
     // Manual
     setIsManual(null);
-    setManualSwitch(false);
-    setManualFields([
+    setManualSwitchWorklogs(false);
+    setManualFieldsWorklogs([
       {
         AssigneeId: 0,
         Id: 0,
@@ -2885,12 +2767,12 @@ const EditDrawer = ({
         IsApproved: false,
       },
     ]);
-    setInputDateErrors([false]);
-    setStartTimeErrors([false]);
-    setEndTimeErrors([false]);
-    setManualDescErrors([false]);
-    setDeletedManualTime([]);
-    setManualSubmitDisable(true);
+    setInputDateWorklogsErrors([false]);
+    setStartTimeWorklogsErrors([false]);
+    setEndTimeWorklogsErrors([false]);
+    setManualDescWorklogsErrors([false]);
+    setDeletedManualTimeWorklogs([]);
+    setManualSubmitWorklogsDisable(true);
 
     // Reminder
     setReminderSwitch(false);
@@ -2963,14 +2845,14 @@ const EditDrawer = ({
     setReviewerNoteData([]);
 
     // Dropdown
-    setClientDropdownData([]);
-    setTypeOfWorkDropdownData([]);
-    setProjectDropdownData([]);
-    setProcessDropdownData([]);
-    setSubProcessDropdownData([]);
-    setStatusDropdownDataUse([]);
-    setAssigneeDropdownData([]);
-    setReviewerDropdownData([]);
+    setClientWorklogsDropdownData([]);
+    setTypeOfWorkWorklogsDropdownData([]);
+    setProjectWorklogsDropdownData([]);
+    setProcessWorklogsDropdownData([]);
+    setSubProcessWorklogsDropdownData([]);
+    setStatusWorklogsDropdownDataUse([]);
+    setAssigneeWorklogsDropdownData([]);
+    setReviewerWorklogsDropdownData([]);
 
     // Others
     scrollToPanel(0);
@@ -3030,54 +2912,58 @@ const EditDrawer = ({
                   </span>
                   <div className="flex gap-4">
                     {onEdit > 0 && (
-                      <span>Created By : {editData.CreatedByName}</span>
+                      <span>Created By : {editDataWorklogs.CreatedByName}</span>
                     )}
                     <span
                       className={`cursor-pointer ${
-                        taskDrawer ? "rotate-180" : ""
+                        taskWorklogsDrawer ? "rotate-180" : ""
                       }`}
-                      onClick={() => setTaskDrawer(!taskDrawer)}
+                      onClick={() => setTaskWorklogsDrawer(!taskWorklogsDrawer)}
                     >
                       <ChevronDownIcon />
                     </span>
                   </div>
                 </div>
-                {taskDrawer && (
+                {taskWorklogsDrawer && (
                   <Grid container className="px-8">
                     <Grid item xs={3} className="pt-4">
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={clientDropdownData}
+                        options={clientWorklogsDropdownData}
                         value={
-                          clientDropdownData.find(
-                            (i: any) => i.value === clientName
+                          clientWorklogsDropdownData.find(
+                            (i: any) => i.value === clientNameWorklogs
                           ) || null
                         }
                         onChange={(e, value: any) => {
-                          value && setClientName(value.value);
-                          setTypeOfWorkErr(false);
-                          setProjectName(0);
-                          setProjectNameErr(false);
-                          setProcessName(0);
-                          setProcessNameErr(false);
-                          setSubProcess(0);
-                          setSubProcessErr(false);
-                          setDescription("");
-                          setManager(0);
-                          setManagerErr(false);
-                          setPriority(0);
-                          setQuantity(1);
-                          setQuantityErr(false);
-                          setReceiverDate("");
-                          setReceiverDateErr(false);
-                          setDueDate("");
-                          assigneeDisable && setAssignee(0);
-                          assigneeDisable && setAssigneeErr(false);
-                          setReviewer(0);
-                          setReviewerErr(false);
+                          value && setClientNameWorklogs(value.value);
+                          setTypeOfWorkWorklogsErr(false);
+                          setProjectNameWorklogs(0);
+                          setProjectNameWorklogsErr(false);
+                          setProcessNameWorklogs(0);
+                          setProcessNameWorklogsErr(false);
+                          setSubProcessWorklogs(0);
+                          setSubProcessWorklogsErr(false);
+                          setDescriptionWorklogs("");
+                          setManagerWorklogs(0);
+                          setManagerWorklogsErr(false);
+                          setPriorityWorklogs(0);
+                          setQuantityWorklogs(1);
+                          setQuantityWorklogsErr(false);
+                          setReceiverDateWorklogs("");
+                          setReceiverDateWorklogsErr(false);
+                          setDueDateWorklogs("");
+                          assigneeWorklogsDisable && setAssigneeWorklogs(0);
+                          assigneeWorklogsDisable &&
+                            setAssigneeWorklogsErr(false);
+                          setReviewerWorklogs(0);
+                          setReviewerWorklogsErr(false);
                         }}
-                        disabled={isCreatedByClient && editData.ClientId > 0}
+                        disabled={
+                          isCreatedByClientWorklogsDrawer &&
+                          editDataWorklogs.ClientId > 0
+                        }
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
                           <TextField
@@ -3089,14 +2975,16 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={clientNameErr}
+                            error={clientNameWorklogsErr}
                             onBlur={(e) => {
-                              if (clientName > 0) {
-                                setClientNameErr(false);
+                              if (clientNameWorklogs > 0) {
+                                setClientNameWorklogsErr(false);
                               }
                             }}
                             helperText={
-                              clientNameErr ? "This is a required field." : ""
+                              clientNameWorklogsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
@@ -3106,8 +2994,11 @@ const EditDrawer = ({
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -0.3 }}
-                        error={typeOfWorkErr}
-                        disabled={isCreatedByClient && editData.WorkTypeId > 0}
+                        error={typeOfWorkWorklogsErr}
+                        disabled={
+                          isCreatedByClientWorklogsDrawer &&
+                          editDataWorklogs.WorkTypeId > 0
+                        }
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Type of Work
@@ -3116,38 +3007,40 @@ const EditDrawer = ({
                         <Select
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
-                          value={typeOfWork === 0 ? "" : typeOfWork}
+                          value={
+                            typeOfWorkWorklogs === 0 ? "" : typeOfWorkWorklogs
+                          }
                           onChange={(e) => {
-                            onEdit === 0 && setProjectName(0);
-                            onEdit === 0 && setProjectNameErr(false);
-                            onEdit === 0 && setProcessName(0);
-                            onEdit === 0 && setProcessNameErr(false);
-                            onEdit === 0 && setSubProcess(0);
-                            onEdit === 0 && setSubProcessErr(false);
-                            onEdit === 0 && setDescription("");
-                            onEdit === 0 && setManager(0);
-                            onEdit === 0 && setManagerErr(false);
-                            onEdit === 0 && setPriority(0);
-                            onEdit === 0 && setQuantity(1);
-                            onEdit === 0 && setQuantityErr(false);
-                            onEdit === 0 && setReceiverDate("");
-                            onEdit === 0 && setReceiverDateErr(false);
-                            onEdit === 0 && setDueDate("");
-                            assigneeDisable && setAssignee(0);
-                            setReviewer(0);
-                            setTypeOfWork(e.target.value);
-                            onEdit === 0 && setDateOfReview("");
-                            onEdit === 0 && setDateOfPreperation("");
-                            onEdit === 0 && setReturnYear(0);
-                            onEdit === 0 && setNoOfPages(0);
+                            onEdit === 0 && setProjectNameWorklogs(0);
+                            onEdit === 0 && setProjectNameWorklogsErr(false);
+                            onEdit === 0 && setProcessNameWorklogs(0);
+                            onEdit === 0 && setProcessNameWorklogsErr(false);
+                            onEdit === 0 && setSubProcessWorklogs(0);
+                            onEdit === 0 && setSubProcessWorklogsErr(false);
+                            onEdit === 0 && setDescriptionWorklogs("");
+                            onEdit === 0 && setManagerWorklogs(0);
+                            onEdit === 0 && setManagerWorklogsErr(false);
+                            onEdit === 0 && setPriorityWorklogs(0);
+                            onEdit === 0 && setQuantityWorklogs(1);
+                            onEdit === 0 && setQuantityWorklogsErr(false);
+                            onEdit === 0 && setReceiverDateWorklogs("");
+                            onEdit === 0 && setReceiverDateWorklogsErr(false);
+                            onEdit === 0 && setDueDateWorklogs("");
+                            assigneeWorklogsDisable && setAssigneeWorklogs(0);
+                            setReviewerWorklogs(0);
+                            setTypeOfWorkWorklogs(e.target.value);
+                            onEdit === 0 && setDateOfReviewWorklogs("");
+                            onEdit === 0 && setDateOfPreperationWorklogs("");
+                            onEdit === 0 && setReturnYearWorklogs(0);
+                            onEdit === 0 && setNoOfPagesWorklogs(0);
                           }}
                           onBlur={(e: any) => {
                             if (e.target.value > 0) {
-                              setTypeOfWorkErr(false);
+                              setTypeOfWorkWorklogsErr(false);
                             }
                           }}
                         >
-                          {typeOfWorkDropdownData.map(
+                          {typeOfWorkWorklogsDropdownData.map(
                             (i: any, index: number) => (
                               <MenuItem value={i.value} key={index}>
                                 {i.label}
@@ -3155,7 +3048,7 @@ const EditDrawer = ({
                             )
                           )}
                         </Select>
-                        {typeOfWorkErr && (
+                        {typeOfWorkWorklogsErr && (
                           <FormHelperText>
                             This is a required field.
                           </FormHelperText>
@@ -3166,15 +3059,18 @@ const EditDrawer = ({
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={projectDropdownData}
+                        options={projectWorklogsDropdownData}
                         value={
-                          projectDropdownData.find(
-                            (i: any) => i.value === projectName
+                          projectWorklogsDropdownData.find(
+                            (i: any) => i.value === projectNameWorklogs
                           ) || null
                         }
-                        disabled={isCreatedByClient && editData.ProjectId > 0}
+                        disabled={
+                          isCreatedByClientWorklogsDrawer &&
+                          editDataWorklogs.ProjectId > 0
+                        }
                         onChange={(e, value: any) => {
-                          value && setProjectName(value.value);
+                          value && setProjectNameWorklogs(value.value);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3187,14 +3083,16 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={projectNameErr}
+                            error={projectNameWorklogsErr}
                             onBlur={(e) => {
-                              if (projectName > 0) {
-                                setProjectNameErr(false);
+                              if (projectNameWorklogs > 0) {
+                                setProjectNameWorklogsErr(false);
                               }
                             }}
                             helperText={
-                              projectNameErr ? "This is a required field." : ""
+                              projectNameWorklogsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
@@ -3205,30 +3103,30 @@ const EditDrawer = ({
                         id="combo-box-demo"
                         options={
                           onEdit === 0
-                            ? statusDropdownData
-                            : statusDropdownDataUse
+                            ? statusWorklogsDropdownData
+                            : statusWorklogsDropdownDataUse
                         }
                         disabled={
                           onEdit === 0 ||
-                          status === 7 ||
-                          status === 8 ||
-                          status === 9
+                          statusWorklogs === 7 ||
+                          statusWorklogs === 8 ||
+                          statusWorklogs === 9
                         }
                         value={
-                          onEdit === 0 && manualSwitch
-                            ? statusDropdownData.find(
-                                (i: any) => i.value === status
+                          onEdit === 0 && manualSwitchWorklogs
+                            ? statusWorklogsDropdownData.find(
+                                (i: any) => i.value === statusWorklogs
                               ) || null
                             : onEdit === 0
-                            ? statusDropdownData.find(
-                                (i: any) => i.value === status
+                            ? statusWorklogsDropdownData.find(
+                                (i: any) => i.value === statusWorklogs
                               ) || null
-                            : statusDropdownDataUse.find(
-                                (i: any) => i.value === status
+                            : statusWorklogsDropdownDataUse.find(
+                                (i: any) => i.value === statusWorklogs
                               ) || null
                         }
                         onChange={(e, value: any) => {
-                          value && setStatus(value.value);
+                          value && setStatusWorklogs(value.value);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3241,14 +3139,16 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={statusErr}
+                            error={statusWorklogsErr}
                             onBlur={(e) => {
-                              if (subProcess > 0) {
-                                setStatusErr(false);
+                              if (subProcessWorklogs > 0) {
+                                setStatusWorklogsErr(false);
                               }
                             }}
                             helperText={
-                              statusErr ? "This is a required field." : ""
+                              statusWorklogsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
@@ -3258,15 +3158,18 @@ const EditDrawer = ({
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={processDropdownData}
+                        options={processWorklogsDropdownData}
                         value={
-                          processDropdownData.find(
-                            (i: any) => i.value === processName
+                          processWorklogsDropdownData.find(
+                            (i: any) => i.value === processNameWorklogs
                           ) || null
                         }
-                        disabled={isCreatedByClient && editData.ProcessId > 0}
+                        disabled={
+                          isCreatedByClientWorklogsDrawer &&
+                          editDataWorklogs.ProcessId > 0
+                        }
                         onChange={(e, value: any) => {
-                          value && setProcessName(value.value);
+                          value && setProcessNameWorklogs(value.value);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3279,14 +3182,16 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={processNameErr}
+                            error={processNameWorklogsErr}
                             onBlur={(e) => {
-                              if (processName > 0) {
-                                setProcessNameErr(false);
+                              if (processNameWorklogs > 0) {
+                                setProcessNameWorklogsErr(false);
                               }
                             }}
                             helperText={
-                              processNameErr ? "This is a required field." : ""
+                              processNameWorklogsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
@@ -3296,17 +3201,18 @@ const EditDrawer = ({
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={subProcessDropdownData}
+                        options={subProcessWorklogsDropdownData}
                         value={
-                          subProcessDropdownData.find(
-                            (i: any) => i.value === subProcess
+                          subProcessWorklogsDropdownData.find(
+                            (i: any) => i.value === subProcessWorklogs
                           ) || null
                         }
                         disabled={
-                          isCreatedByClient && editData.SubProcessId > 0
+                          isCreatedByClientWorklogsDrawer &&
+                          editDataWorklogs.SubProcessId > 0
                         }
                         onChange={(e, value: any) => {
-                          value && setSubProcess(value.value);
+                          value && setSubProcessWorklogs(value.value);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3319,14 +3225,16 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={subProcessErr}
+                            error={subProcessWorklogsErr}
                             onBlur={(e) => {
-                              if (subProcess > 0) {
-                                setSubProcessErr(false);
+                              if (subProcessWorklogs > 0) {
+                                setSubProcessWorklogsErr(false);
                               }
                             }}
                             helperText={
-                              subProcessErr ? "This is a required field." : ""
+                              subProcessWorklogsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
@@ -3343,35 +3251,35 @@ const EditDrawer = ({
                         fullWidth
                         className="pt-1"
                         value={
-                          clientTaskName?.trim().length <= 0
+                          clientTaskNameWorklogs?.trim().length <= 0
                             ? ""
-                            : clientTaskName
+                            : clientTaskNameWorklogs
                         }
                         onChange={(e) => {
-                          setClientTaskName(e.target.value);
-                          setClientTaskNameErr(false);
+                          setClientTaskNameWorklogs(e.target.value);
+                          setClientTaskNameWorklogsErr(false);
                         }}
                         onBlur={(e: any) => {
                           if (e.target.value.trim().length > 4) {
-                            setClientTaskNameErr(false);
+                            setClientTaskNameWorklogsErr(false);
                           }
                           if (
                             e.target.value.trim().length > 4 &&
                             e.target.value.trim().length < 50
                           ) {
-                            setClientTaskNameErr(false);
+                            setClientTaskNameWorklogsErr(false);
                           }
                         }}
-                        error={clientTaskNameErr}
+                        error={clientTaskNameWorklogsErr}
                         helperText={
-                          clientTaskNameErr &&
-                          clientTaskName?.trim().length > 0 &&
-                          clientTaskName?.trim().length < 4
+                          clientTaskNameWorklogsErr &&
+                          clientTaskNameWorklogs?.trim().length > 0 &&
+                          clientTaskNameWorklogs?.trim().length < 4
                             ? "Minimum 4 characters required."
-                            : clientTaskNameErr &&
-                              clientTaskName?.trim().length > 50
+                            : clientTaskNameWorklogsErr &&
+                              clientTaskNameWorklogs?.trim().length > 50
                             ? "Maximum 50 characters allowed."
-                            : clientTaskNameErr
+                            : clientTaskNameWorklogsErr
                             ? "This is a required field."
                             : ""
                         }
@@ -3386,9 +3294,11 @@ const EditDrawer = ({
                         fullWidth
                         className="pt-1"
                         value={
-                          description?.trim().length <= 0 ? "" : description
+                          descriptionWorklogs?.trim().length <= 0
+                            ? ""
+                            : descriptionWorklogs
                         }
-                        onChange={(e) => setDescription(e.target.value)}
+                        onChange={(e) => setDescriptionWorklogs(e.target.value)}
                         margin="normal"
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -0.5 }}
@@ -3405,8 +3315,8 @@ const EditDrawer = ({
                         <Select
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
-                          value={priority === 0 ? "" : priority}
-                          onChange={(e) => setPriority(e.target.value)}
+                          value={priorityWorklogs === 0 ? "" : priorityWorklogs}
+                          onChange={(e) => setPriorityWorklogs(e.target.value)}
                         >
                           <MenuItem value={1}>High</MenuItem>
                           <MenuItem value={2}>Medium</MenuItem>
@@ -3420,8 +3330,8 @@ const EditDrawer = ({
                         disabled
                         fullWidth
                         value={
-                          subProcess > 0
-                            ? (estTimeData as any[])
+                          subProcessWorklogs > 0
+                            ? (estTimeDataWorklogs as any[])
                                 .map((i) => {
                                   const hours = Math.floor(
                                     i.EstimatedHour / 3600
@@ -3439,7 +3349,7 @@ const EditDrawer = ({
                                   const formattedSeconds = remainingSeconds
                                     .toString()
                                     .padStart(2, "0");
-                                  return subProcess === i.Id
+                                  return subProcessWorklogs === i.Id
                                     ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
                                     : null;
                                 })
@@ -3470,10 +3380,10 @@ const EditDrawer = ({
                         }
                         type="number"
                         fullWidth
-                        value={quantity}
+                        value={quantityWorklogs}
                         onChange={(e) => {
-                          setQuantity(e.target.value);
-                          setQuantityErr(false);
+                          setQuantityWorklogs(e.target.value);
+                          setQuantityWorklogsErr(false);
                         }}
                         onBlur={(e: any) => {
                           if (
@@ -3481,18 +3391,19 @@ const EditDrawer = ({
                             e.target.value.trim().length < 5 &&
                             !e.target.value.trim().includes(".")
                           ) {
-                            setQuantityErr(false);
+                            setQuantityWorklogsErr(false);
                           }
                         }}
-                        error={quantityErr}
+                        error={quantityWorklogsErr}
                         helperText={
-                          quantityErr && quantity.toString().includes(".")
+                          quantityWorklogsErr &&
+                          quantityWorklogs.toString().includes(".")
                             ? "Only intiger value allowed."
-                            : quantityErr && quantity === ""
+                            : quantityWorklogsErr && quantityWorklogs === ""
                             ? "This is a required field."
-                            : quantityErr && quantity <= 0
+                            : quantityWorklogsErr && quantityWorklogs <= 0
                             ? "Enter valid number."
-                            : quantityErr && quantity.length > 4
+                            : quantityWorklogsErr && quantityWorklogs.length > 4
                             ? "Maximum 4 numbers allowed."
                             : ""
                         }
@@ -3506,17 +3417,19 @@ const EditDrawer = ({
                         label="Standard Time"
                         fullWidth
                         value={
-                          subProcess > 0
-                            ? (estTimeData as any[])
+                          subProcessWorklogs > 0
+                            ? (estTimeDataWorklogs as any[])
                                 .map((i) => {
                                   const hours = Math.floor(
-                                    (i.EstimatedHour * quantity) / 3600
+                                    (i.EstimatedHour * quantityWorklogs) / 3600
                                   );
                                   const minutes = Math.floor(
-                                    ((i.EstimatedHour * quantity) % 3600) / 60
+                                    ((i.EstimatedHour * quantityWorklogs) %
+                                      3600) /
+                                      60
                                   );
                                   const remainingSeconds =
-                                    (i.EstimatedHour * quantity) % 60;
+                                    (i.EstimatedHour * quantityWorklogs) % 60;
                                   const formattedHours = hours
                                     .toString()
                                     .padStart(2, "0");
@@ -3526,7 +3439,7 @@ const EditDrawer = ({
                                   const formattedSeconds = remainingSeconds
                                     .toString()
                                     .padStart(2, "0");
-                                  return subProcess === i.Id
+                                  return subProcessWorklogs === i.Id
                                     ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
                                     : null;
                                 })
@@ -3539,14 +3452,14 @@ const EditDrawer = ({
                         sx={{
                           mx: 0.75,
                           maxWidth: 300,
-                          mt: typeOfWork === 3 ? -0.9 : -0.8,
+                          mt: typeOfWorkWorklogs === 3 ? -0.9 : -0.8,
                         }}
                       />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <div
                         className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                          receiverDateErr ? "datepickerError" : ""
+                          receiverDateWorklogsErr ? "datepickerError" : ""
                         }`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -3559,15 +3472,17 @@ const EditDrawer = ({
                                 </span>
                               </span>
                             }
-                            onError={() => setReceiverDateErr(false)}
+                            onError={() => setReceiverDateWorklogsErr(false)}
                             value={
-                              receiverDate === "" ? null : dayjs(receiverDate)
+                              receiverDateWorklogs === ""
+                                ? null
+                                : dayjs(receiverDateWorklogs)
                             }
                             shouldDisableDate={isWeekend}
                             maxDate={dayjs(Date.now())}
                             onChange={(newDate: any) => {
-                              setReceiverDate(newDate.$d);
-                              setReceiverDateErr(false);
+                              setReceiverDateWorklogs(newDate.$d);
+                              setReceiverDateWorklogsErr(false);
                               const selectedDate = dayjs(newDate.$d);
                               let nextDate: any = selectedDate;
                               if (
@@ -3580,11 +3495,11 @@ const EditDrawer = ({
                                   .add(2, "day")
                                   .toDate();
                               }
-                              setDueDate(nextDate);
+                              setDueDateWorklogs(nextDate);
                             }}
                             slotProps={{
                               textField: {
-                                helperText: receiverDateErr
+                                helperText: receiverDateWorklogsErr
                                   ? "This is a required field."
                                   : "",
                                 readOnly: true,
@@ -3608,10 +3523,14 @@ const EditDrawer = ({
                                 </span>
                               </span>
                             }
-                            value={dueDate === "" ? null : dayjs(dueDate)}
+                            value={
+                              dueDateWorklogs === ""
+                                ? null
+                                : dayjs(dueDateWorklogs)
+                            }
                             disabled
                             onChange={(newDate: any) => {
-                              setDueDate(newDate.$d);
+                              setDueDateWorklogs(newDate.$d);
                             }}
                             slotProps={{
                               textField: {
@@ -3630,10 +3549,12 @@ const EditDrawer = ({
                           <DatePicker
                             label="All Info Date"
                             value={
-                              allInfoDate === "" ? null : dayjs(allInfoDate)
+                              allInfoDateWorklogs === ""
+                                ? null
+                                : dayjs(allInfoDateWorklogs)
                             }
                             onChange={(newDate: any) =>
-                              setAllInfoDate(newDate.$d)
+                              setAllInfoDateWorklogs(newDate.$d)
                             }
                           />
                         </LocalizationProvider>
@@ -3643,15 +3564,15 @@ const EditDrawer = ({
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={assigneeDropdownData}
-                        disabled={!assigneeDisable}
+                        options={assigneeWorklogsDropdownData}
+                        disabled={!assigneeWorklogsDisable}
                         value={
-                          assigneeDropdownData.find(
-                            (i: any) => i.value === assignee
+                          assigneeWorklogsDropdownData.find(
+                            (i: any) => i.value === assigneeWorklogs
                           ) || null
                         }
                         onChange={(e, value: any) => {
-                          value && setAssignee(value.value);
+                          value && setAssigneeWorklogs(value.value);
                         }}
                         sx={{ width: 300, mt: -1, mx: 0.75 }}
                         renderInput={(params) => (
@@ -3664,14 +3585,16 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={assigneeErr}
+                            error={assigneeWorklogsErr}
                             onBlur={(e) => {
-                              if (assignee > 0) {
-                                setAssigneeErr(false);
+                              if (assigneeWorklogs > 0) {
+                                setAssigneeWorklogsErr(false);
                               }
                             }}
                             helperText={
-                              assigneeErr ? "This is a required field." : ""
+                              assigneeWorklogsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
@@ -3680,23 +3603,25 @@ const EditDrawer = ({
                     <Grid
                       item
                       xs={3}
-                      className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                      className={`${
+                        typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                      }`}
                     >
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={reviewerDropdownData}
+                        options={reviewerWorklogsDropdownData}
                         value={
-                          reviewerDropdownData.find(
-                            (i: any) => i.value === reviewer
+                          reviewerWorklogsDropdownData.find(
+                            (i: any) => i.value === reviewerWorklogs
                           ) || null
                         }
                         onChange={(e, value: any) => {
-                          value && setReviewer(value.value);
+                          value && setReviewerWorklogs(value.value);
                         }}
                         sx={{
                           width: 300,
-                          mt: typeOfWork === 3 ? 0.2 : -1,
+                          mt: typeOfWorkWorklogs === 3 ? 0.2 : -1,
                           mx: 0.75,
                         }}
                         renderInput={(params) => (
@@ -3709,14 +3634,16 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={reviewerErr}
+                            error={reviewerWorklogsErr}
                             onBlur={(e) => {
-                              if (reviewer > 0) {
-                                setReviewerErr(false);
+                              if (reviewerWorklogs > 0) {
+                                setReviewerWorklogsErr(false);
                               }
                             }}
                             helperText={
-                              reviewerErr ? "This is a required field." : ""
+                              reviewerWorklogsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
@@ -3725,23 +3652,25 @@ const EditDrawer = ({
                     <Grid
                       item
                       xs={3}
-                      className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                      className={`${
+                        typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                      }`}
                     >
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={managerDropdownData}
+                        options={managerWorklogsDropdownData}
                         value={
-                          managerDropdownData.find(
-                            (i: any) => i.value === manager
+                          managerWorklogsDropdownData.find(
+                            (i: any) => i.value === managerWorklogs
                           ) || null
                         }
                         onChange={(e, value: any) => {
-                          value && setManager(value.value);
+                          value && setManagerWorklogs(value.value);
                         }}
                         sx={{
                           width: 300,
-                          mt: typeOfWork === 3 ? 0.2 : -1,
+                          mt: typeOfWorkWorklogs === 3 ? 0.2 : -1,
                           mx: 0.75,
                         }}
                         renderInput={(params) => (
@@ -3754,26 +3683,28 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={managerErr}
+                            error={managerWorklogsErr}
                             onBlur={(e) => {
-                              if (manager > 0) {
-                                setManagerErr(false);
+                              if (managerWorklogs > 0) {
+                                setManagerWorklogsErr(false);
                               }
                             }}
                             helperText={
-                              managerErr ? "This is a required field." : ""
+                              managerWorklogsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
                       />
                     </Grid>
-                    {typeOfWork === 3 && (
+                    {typeOfWorkWorklogs === 3 && (
                       <>
                         <Grid item xs={3} className="pt-4">
                           <FormControl
                             variant="standard"
                             sx={{ width: 300, mt: -0.3, mx: 0.75 }}
-                            error={returnYearErr}
+                            error={returnYearWorklogsErr}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Return Year
@@ -3782,21 +3713,29 @@ const EditDrawer = ({
                             <Select
                               labelId="demo-simple-select-standard-label"
                               id="demo-simple-select-standard"
-                              value={returnYear === 0 ? "" : returnYear}
-                              onChange={(e) => setReturnYear(e.target.value)}
+                              value={
+                                returnYearWorklogs === 0
+                                  ? ""
+                                  : returnYearWorklogs
+                              }
+                              onChange={(e) =>
+                                setReturnYearWorklogs(e.target.value)
+                              }
                               onBlur={(e: any) => {
                                 if (e.target.value > 0) {
-                                  setReturnYearErr(false);
+                                  setReturnYearWorklogsErr(false);
                                 }
                               }}
                             >
-                              {yearDropdown.map((i: any, index: number) => (
-                                <MenuItem value={i.value} key={index}>
-                                  {i.label}
-                                </MenuItem>
-                              ))}
+                              {yearWorklogsDrawerDropdown.map(
+                                (i: any, index: number) => (
+                                  <MenuItem value={i.value} key={index}>
+                                    {i.label}
+                                  </MenuItem>
+                                )
+                              )}
                             </Select>
-                            {returnYearErr && (
+                            {returnYearWorklogsErr && (
                               <FormHelperText>
                                 This is a required field.
                               </FormHelperText>
@@ -3808,8 +3747,12 @@ const EditDrawer = ({
                             label="No of Pages"
                             type="number"
                             fullWidth
-                            value={noOfPages === 0 ? "" : noOfPages}
-                            onChange={(e) => setNoOfPages(e.target.value)}
+                            value={
+                              noOfPagesWorklogs === 0 ? "" : noOfPagesWorklogs
+                            }
+                            onChange={(e) =>
+                              setNoOfPagesWorklogs(e.target.value)
+                            }
                             margin="normal"
                             variant="standard"
                             sx={{ width: 300, mt: 0, mx: 0.75 }}
@@ -3819,7 +3762,7 @@ const EditDrawer = ({
                           <FormControl
                             variant="standard"
                             sx={{ width: 300, mt: -0.8, mx: 0.75 }}
-                            error={checklistWorkpaperErr}
+                            error={checklistWorkpaperWorklogsErr}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Checklist/Workpaper
@@ -3829,23 +3772,23 @@ const EditDrawer = ({
                               labelId="demo-simple-select-standard-label"
                               id="demo-simple-select-standard"
                               value={
-                                checklistWorkpaper === 0
+                                checklistWorkpaperWorklogs === 0
                                   ? ""
-                                  : checklistWorkpaper
+                                  : checklistWorkpaperWorklogs
                               }
                               onChange={(e) =>
-                                setChecklistWorkpaper(e.target.value)
+                                setChecklistWorkpaperWorklogs(e.target.value)
                               }
                               onBlur={(e: any) => {
                                 if (e.target.value > 0) {
-                                  setChecklistWorkpaperErr(false);
+                                  setChecklistWorkpaperWorklogsErr(false);
                                 }
                               }}
                             >
                               <MenuItem value={1}>Yes</MenuItem>
                               <MenuItem value={2}>No</MenuItem>
                             </Select>
-                            {checklistWorkpaperErr && (
+                            {checklistWorkpaperWorklogsErr && (
                               <FormHelperText>
                                 This is a required field.
                               </FormHelperText>
@@ -3859,26 +3802,30 @@ const EditDrawer = ({
                         <Grid
                           item
                           xs={3}
-                          className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                          className={`${
+                            typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                          }`}
                         >
                           <TextField
                             label="Date of Preperation"
-                            type={inputTypePreperation}
+                            type={inputTypePreperationWorklogsDrawer}
                             disabled
                             fullWidth
-                            value={dateOfPreperation}
+                            value={dateOfPreperationWorklogs}
                             onChange={(e) =>
-                              setDateOfPreperation(e.target.value)
+                              setDateOfPreperationWorklogs(e.target.value)
                             }
-                            onFocus={() => setInputTypePreperation("date")}
+                            onFocus={() =>
+                              setInputTypePreperationWorklogsDrawer("date")
+                            }
                             onBlur={(e: any) => {
-                              setInputTypePreperation("text");
+                              setInputTypePreperationWorklogsDrawer("text");
                             }}
                             margin="normal"
                             variant="standard"
                             sx={{
                               width: 300,
-                              mt: typeOfWork === 3 ? -0.4 : -1,
+                              mt: typeOfWorkWorklogs === 3 ? -0.4 : -1,
                               mx: 0.75,
                             }}
                           />
@@ -3886,24 +3833,30 @@ const EditDrawer = ({
                         <Grid
                           item
                           xs={3}
-                          className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                          className={`${
+                            typeOfWorkWorklogs === 3 ? "pt-4" : "pt-5"
+                          }`}
                         >
                           <TextField
                             label="Date of Review"
                             disabled
-                            type={inputTypeReview}
+                            type={inputTypeReviewWorklogsDrawer}
                             fullWidth
-                            value={dateOfReview}
-                            onChange={(e) => setDateOfReview(e.target.value)}
-                            onFocus={() => setInputTypeReview("date")}
+                            value={dateOfReviewWorklogs}
+                            onChange={(e) =>
+                              setDateOfReviewWorklogs(e.target.value)
+                            }
+                            onFocus={() =>
+                              setInputTypeReviewWorklogsDrawer("date")
+                            }
                             onBlur={(e: any) => {
-                              setInputTypeReview("text");
+                              setInputTypeReviewWorklogsDrawer("text");
                             }}
                             margin="normal"
                             variant="standard"
                             sx={{
                               width: 300,
-                              mt: typeOfWork === 3 ? -0.4 : -1,
+                              mt: typeOfWorkWorklogs === 3 ? -0.4 : -1,
                               mx: 0.75,
                             }}
                           />
@@ -3923,11 +3876,11 @@ const EditDrawer = ({
                     <span className="ml-[21px]">Sub-Task</span>
                   </span>
                   <span className="flex items-center">
-                    {onEdit > 0 && subTaskSwitch && (
+                    {onEdit > 0 && subTaskSwitchWorklogs && (
                       <Button
                         variant="contained"
                         className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
-                        onClick={handleSubmitSubTask}
+                        onClick={handleSubmitSubTaskWorklogs}
                       >
                         Update
                       </Button>
@@ -3938,20 +3891,21 @@ const EditDrawer = ({
                       "WorkLogs"
                     ) ? (
                       <Switch
-                        checked={subTaskSwitch}
+                        checked={subTaskSwitchWorklogs}
                         onChange={(e) => {
-                          setSubTaskSwitch(e.target.checked);
+                          setSubTaskSwitchWorklogs(e.target.checked);
                           onEdit === 0 &&
-                            setSubTaskFields([
+                            setSubTaskFieldsWorklogs([
                               {
                                 SubtaskId: 0,
                                 Title: "",
                                 Description: "",
                               },
                             ]);
-                          onEdit === 0 && setTaskNameErr([false]);
-                          onEdit === 0 && setSubTaskDescriptionErr([false]);
-                          onEdit === 0 && setDeletedSubTask([]);
+                          onEdit === 0 && setTaskNameWorklogsErr([false]);
+                          onEdit === 0 &&
+                            setSubTaskDescriptionWorklogsErr([false]);
+                          onEdit === 0 && setDeletedSubTaskWorklogs([]);
                         }}
                       />
                     ) : (
@@ -3959,17 +3913,19 @@ const EditDrawer = ({
                     )}
                     <span
                       className={`cursor-pointer ${
-                        subTaskDrawer ? "rotate-180" : ""
+                        subTaskWorklogsDrawer ? "rotate-180" : ""
                       }`}
-                      onClick={() => setSubTaskDrawer(!subTaskDrawer)}
+                      onClick={() =>
+                        setSubTaskWorklogsDrawer(!subTaskWorklogsDrawer)
+                      }
                     >
                       <ChevronDownIcon />
                     </span>
                   </span>
                 </div>
-                {subTaskDrawer && (
+                {subTaskWorklogsDrawer && (
                   <div className="mt-3 pl-6">
-                    {subTaskFields.map((field, index) => (
+                    {subTaskFieldsWorklogs.map((field, index) => (
                       <div className="w-[100%] flex" key={index}>
                         <TextField
                           label={
@@ -3979,25 +3935,30 @@ const EditDrawer = ({
                             </span>
                           }
                           fullWidth
-                          disabled={!subTaskSwitch}
+                          disabled={!subTaskSwitchWorklogs}
                           value={field.Title}
-                          onChange={(e) => handleSubTaskChange(e, index)}
+                          onChange={(e) =>
+                            handleSubTaskChangeWorklogs(e, index)
+                          }
                           onBlur={(e: any) => {
                             if (e.target.value.trim().length > 0) {
-                              const newTaskNameErrors = [...taskNameErr];
-                              newTaskNameErrors[index] = false;
-                              setTaskNameErr(newTaskNameErrors);
+                              const newTaskNameWorklogsErrors = [
+                                ...taskNameWorklogsErr,
+                              ];
+                              newTaskNameWorklogsErrors[index] = false;
+                              setTaskNameWorklogsErr(newTaskNameWorklogsErrors);
                             }
                           }}
-                          error={taskNameErr[index]}
+                          error={taskNameWorklogsErr[index]}
                           helperText={
-                            taskNameErr[index] &&
+                            taskNameWorklogsErr[index] &&
                             field.Title.length > 0 &&
                             field.Title.length < 5
                               ? "Minumum 5 characters required."
-                              : taskNameErr[index] && field.Title.length > 500
+                              : taskNameWorklogsErr[index] &&
+                                field.Title.length > 500
                               ? "Maximum 500 characters allowed."
-                              : taskNameErr[index]
+                              : taskNameWorklogsErr[index]
                               ? "This is a required field."
                               : ""
                           }
@@ -4013,30 +3974,32 @@ const EditDrawer = ({
                             </span>
                           }
                           fullWidth
-                          disabled={!subTaskSwitch}
+                          disabled={!subTaskSwitchWorklogs}
                           value={field.Description}
                           onChange={(e) =>
-                            handleSubTaskDescriptionChange(e, index)
+                            handleSubTaskDescriptionChangeWorklogs(e, index)
                           }
                           onBlur={(e: any) => {
                             if (e.target.value.trim().length > 0) {
                               const newSubTaskDescErrors = [
-                                ...subTaskDescriptionErr,
+                                ...subTaskDescriptionWorklogsErr,
                               ];
                               newSubTaskDescErrors[index] = false;
-                              setSubTaskDescriptionErr(newSubTaskDescErrors);
+                              setSubTaskDescriptionWorklogsErr(
+                                newSubTaskDescErrors
+                              );
                             }
                           }}
-                          error={subTaskDescriptionErr[index]}
+                          error={subTaskDescriptionWorklogsErr[index]}
                           helperText={
-                            subTaskDescriptionErr[index] &&
+                            subTaskDescriptionWorklogsErr[index] &&
                             field.Description.length > 0 &&
                             field.Description.length < 5
                               ? "Minumum 5 characters required."
-                              : subTaskDescriptionErr[index] &&
+                              : subTaskDescriptionWorklogsErr[index] &&
                                 field.Description.length > 500
                               ? "Maximum 500 characters allowed."
-                              : subTaskDescriptionErr[index]
+                              : subTaskDescriptionWorklogsErr[index]
                               ? "This is a required field."
                               : ""
                           }
@@ -4047,7 +4010,7 @@ const EditDrawer = ({
                         {index === 0 ? (
                           <span
                             className="cursor-pointer"
-                            onClick={addTaskField}
+                            onClick={addTaskFieldWorklogs}
                           >
                             <svg
                               className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
@@ -4062,7 +4025,20 @@ const EditDrawer = ({
                         ) : (
                           <span
                             className="cursor-pointer"
-                            onClick={() => removeTaskField(index)}
+                            onClick={
+                              hasPermissionWorklog(
+                                "Task/SubTask",
+                                "Delete",
+                                "WorkLogs"
+                              ) &&
+                              hasPermissionWorklog(
+                                "Task/SubTask",
+                                "Save",
+                                "WorkLogs"
+                              )
+                                ? () => removeTaskFieldWorklogs(index)
+                                : undefined
+                            }
                           >
                             <svg
                               className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
@@ -4092,15 +4068,17 @@ const EditDrawer = ({
                     </span>
                     <span
                       className={`cursor-pointer ${
-                        checkListDrawer ? "rotate-180" : ""
+                        checkListWorklogsDrawer ? "rotate-180" : ""
                       }`}
-                      onClick={() => setCheckListDrawer(!checkListDrawer)}
+                      onClick={() =>
+                        setCheckListWorklogsDrawer(!checkListWorklogsDrawer)
+                      }
                     >
                       <ChevronDownIcon />
                     </span>
                   </div>
                   <div className="pl-12 mt-5">
-                    {checkListDrawer &&
+                    {checkListWorklogsDrawer &&
                       checkListData?.length > 0 &&
                       checkListData.map((i: any, index: number) => (
                         <div className="mt-3">
@@ -4251,16 +4229,18 @@ const EditDrawer = ({
                     </span>
                     <span
                       className={`cursor-pointer ${
-                        commentsDrawer ? "rotate-180" : ""
+                        commentsWorklogsDrawer ? "rotate-180" : ""
                       }`}
-                      onClick={() => setCommentsDrawer(!commentsDrawer)}
+                      onClick={() =>
+                        setCommentsWorklogsDrawer(!commentsWorklogsDrawer)
+                      }
                     >
                       <ChevronDownIcon />
                     </span>
                   </div>
                   <div className="my-5 px-16">
                     <div className="flex flex-col gap-4">
-                      {commentsDrawer &&
+                      {commentsWorklogsDrawer &&
                         commentData.length > 0 &&
                         commentData.map((i: any, index: number) => (
                           <div className="flex gap-4">
@@ -4395,7 +4375,7 @@ const EditDrawer = ({
                                     <div className="flex items-start">
                                       {extractText(i.Message).map((i: any) => {
                                         const assignee =
-                                          assigneeDropdownData.map(
+                                          assigneeWorklogsDropdownData.map(
                                             (j: any) => j.label
                                           );
                                         return assignee.includes(i) ? (
@@ -4471,7 +4451,7 @@ const EditDrawer = ({
                         ))}
                     </div>
                   </div>
-                  {commentsDrawer &&
+                  {commentsWorklogsDrawer &&
                     hasPermissionWorklog("Comment", "save", "WorkLogs") && (
                       <>
                         <div className="border border-slatyGrey gap-2 py-2 rounded-lg my-2 ml-16 mr-8 flex items-center justify-center">
@@ -4583,7 +4563,7 @@ const EditDrawer = ({
                       <Button
                         variant="contained"
                         className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
-                        onClick={handleSubmitRecurring}
+                        onClick={handleSubmitRecurringWorklogs}
                       >
                         Update
                       </Button>
@@ -4605,15 +4585,17 @@ const EditDrawer = ({
                     )}
                     <span
                       className={`cursor-pointer ${
-                        recurringDrawer ? "rotate-180" : ""
+                        recurringWorklogsDrawer ? "rotate-180" : ""
                       }`}
-                      onClick={() => setRecurringDrawer(!recurringDrawer)}
+                      onClick={() =>
+                        setRecurringWorklogsDrawer(!recurringWorklogsDrawer)
+                      }
                     >
                       <ChevronDownIcon />
                     </span>
                   </span>
                 </div>
-                {recurringDrawer && (
+                {recurringWorklogsDrawer && (
                   <>
                     <div className="mt-0 pl-6">
                       <div
@@ -4633,7 +4615,7 @@ const EditDrawer = ({
                             }
                             disabled={!recurringSwitch}
                             onError={() => setRecurringStartDateErr(false)}
-                            minDate={dayjs(receiverDate)}
+                            minDate={dayjs(receiverDateWorklogs)}
                             maxDate={dayjs(recurringEndDate)}
                             value={
                               recurringStartDate === ""
@@ -4670,7 +4652,7 @@ const EditDrawer = ({
                                 </span>
                               </span>
                             }
-                            minDate={dayjs(receiverDate)}
+                            minDate={dayjs(receiverDateWorklogs)}
                             disabled={!recurringSwitch}
                             onError={() => setRecurringEndDateErr(false)}
                             value={
@@ -4835,25 +4817,27 @@ const EditDrawer = ({
                     <span className="ml-[21px]">Manual Time</span>
                   </span>
                   <span className="flex items-center">
-                    {onEdit > 0 && manualSwitch && (
+                    {onEdit > 0 && manualSwitchWorklogs && (
                       <Button
                         variant="contained"
                         className={`rounded-[4px] !h-[36px] mr-6 ${
-                          manualSubmitDisable ? "" : "!bg-secondary"
+                          manualSubmitWorklogsDisable ? "" : "!bg-secondary"
                         }`}
-                        disabled={manualSubmitDisable}
+                        disabled={manualSubmitWorklogsDisable}
                         onClick={
-                          manualSubmitDisable ? undefined : handleSubmitManual
+                          manualSubmitWorklogsDisable
+                            ? undefined
+                            : handleSubmitManualWorklogs
                         }
                       >
                         Update
                       </Button>
                     )}
                     <Switch
-                      checked={manualSwitch}
+                      checked={manualSwitchWorklogs}
                       onChange={(e) => {
-                        setManualSwitch(e.target.checked);
-                        setManualFields([
+                        setManualSwitchWorklogs(e.target.checked);
+                        setManualFieldsWorklogs([
                           {
                             AssigneeId: 0,
                             Id: 0,
@@ -4865,11 +4849,11 @@ const EditDrawer = ({
                             IsApproved: false,
                           },
                         ]);
-                        setInputDateErrors([false]);
-                        setStartTimeErrors([false]);
-                        setEndTimeErrors([false]);
-                        setManualDescErrors([false]);
-                        setInputTypeDate(["text"]);
+                        setInputDateWorklogsErrors([false]);
+                        setStartTimeWorklogsErrors([false]);
+                        setEndTimeWorklogsErrors([false]);
+                        setManualDescWorklogsErrors([false]);
+                        setInputTypeWorklogsDate(["text"]);
                         setManualDisableData([
                           {
                             AssigneeId: 0,
@@ -4883,15 +4867,15 @@ const EditDrawer = ({
                           },
                         ]);
                         e.target.checked === true
-                          ? setStatus(
-                              statusDropdownData
+                          ? setStatusWorklogs(
+                              statusWorklogsDropdownData
                                 .map((i: any) =>
                                   i.Type === "InProgress" ? i.value : undefined
                                 )
                                 .filter((i: any) => i !== undefined)[0]
                             )
-                          : setStatus(
-                              statusDropdownData
+                          : setStatusWorklogs(
+                              statusWorklogsDropdownData
                                 .map((i: any) =>
                                   i.Type === "NotStarted" ? i.value : undefined
                                 )
@@ -4901,22 +4885,26 @@ const EditDrawer = ({
                     />
                     <span
                       className={`cursor-pointer ${
-                        manualTimeDrawer ? "rotate-180" : ""
+                        manualTimeWorklogsDrawer ? "rotate-180" : ""
                       }`}
-                      onClick={() => setManualTimeDrawer(!manualTimeDrawer)}
+                      onClick={() =>
+                        setManualTimeWorklogsDrawer(!manualTimeWorklogsDrawer)
+                      }
                     >
                       <ChevronDownIcon />
                     </span>
                   </span>
                 </div>
-                {manualTimeDrawer && (
+                {manualTimeWorklogsDrawer && (
                   <>
                     <div className="-mt-2 pl-6">
-                      {manualFields.map((field, index) => (
+                      {manualFieldsWorklogs.map((field, index) => (
                         <div key={index} className="flex items-center">
                           <div
                             className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
-                              inputDateErrors[index] ? "datepickerError" : ""
+                              inputDateWorklogsErrors[index]
+                                ? "datepickerError"
+                                : ""
                             }`}
                           >
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -4932,7 +4920,7 @@ const EditDrawer = ({
                                 minDate={dayjs(recurringStartDate)}
                                 maxDate={dayjs(new Date())}
                                 disabled={
-                                  !manualSwitch ||
+                                  !manualSwitchWorklogs ||
                                   field.IsApproved ||
                                   (field.AssigneeId !== 0 &&
                                     field.AssigneeId !== userId)
@@ -4941,11 +4929,13 @@ const EditDrawer = ({
                                   if (
                                     field.inputDate[index]?.trim().length > 0
                                   ) {
-                                    const newInputDateErrors = [
-                                      ...inputDateErrors,
+                                    const newInputDateWorklogsErrors = [
+                                      ...inputDateWorklogsErrors,
                                     ];
-                                    newInputDateErrors[index] = false;
-                                    setInputDateErrors(newInputDateErrors);
+                                    newInputDateWorklogsErrors[index] = false;
+                                    setInputDateWorklogsErrors(
+                                      newInputDateWorklogsErrors
+                                    );
                                   }
                                 }}
                                 value={
@@ -4954,11 +4944,14 @@ const EditDrawer = ({
                                     : dayjs(field.inputDate)
                                 }
                                 onChange={(newDate: any) => {
-                                  handleInputDateChange(newDate.$d, index);
+                                  handleInputDateChangeWorklogs(
+                                    newDate.$d,
+                                    index
+                                  );
                                 }}
                                 slotProps={{
                                   textField: {
-                                    helperText: inputDateErrors[index]
+                                    helperText: inputDateWorklogsErrors[index]
                                       ? "This is a required field."
                                       : "",
                                     readOnly: true,
@@ -4978,29 +4971,35 @@ const EditDrawer = ({
                             }
                             placeholder="00:00:00"
                             disabled={
-                              !manualSwitch ||
+                              !manualSwitchWorklogs ||
                               field.IsApproved ||
                               (field.AssigneeId !== 0 &&
                                 field.AssigneeId !== userId)
                             }
                             fullWidth
                             value={field.startTime}
-                            onChange={(e) => handleStartTimeChange(e, index)}
+                            onChange={(e) =>
+                              handleStartTimeChangeWorklogs(e, index)
+                            }
                             onBlur={(e: any) => {
                               if (e.target.value.trim().length > 7) {
-                                const newStartTimeErrors = [...startTimeErrors];
-                                newStartTimeErrors[index] = false;
-                                setStartTimeErrors(newStartTimeErrors);
+                                const newStartTimeWorklogsErrors = [
+                                  ...startTimeWorklogsErrors,
+                                ];
+                                newStartTimeWorklogsErrors[index] = false;
+                                setStartTimeWorklogsErrors(
+                                  newStartTimeWorklogsErrors
+                                );
                               }
                             }}
-                            error={startTimeErrors[index]}
+                            error={startTimeWorklogsErrors[index]}
                             helperText={
                               field.startTime.trim().length > 0 &&
                               field.startTime.trim().length < 8 &&
-                              startTimeErrors[index]
+                              startTimeWorklogsErrors[index]
                                 ? "Start time must be in HH:MM:SS"
                                 : field.startTime.trim().length <= 0 &&
-                                  startTimeErrors[index]
+                                  startTimeWorklogsErrors[index]
                                 ? "This is a required field"
                                 : ""
                             }
@@ -5019,14 +5018,16 @@ const EditDrawer = ({
                             }
                             placeholder="00:00:00"
                             disabled={
-                              !manualSwitch ||
+                              !manualSwitchWorklogs ||
                               field.IsApproved ||
                               (field.AssigneeId !== 0 &&
                                 field.AssigneeId !== userId)
                             }
                             fullWidth
                             value={field.endTime}
-                            onChange={(e) => handleEndTimeChange(e, index)}
+                            onChange={(e) =>
+                              handleEndTimeChangeWorklogs(e, index)
+                            }
                             onBlur={(e: any) => {
                               if (
                                 e.target.value.trim().length > 7 &&
@@ -5058,12 +5059,16 @@ const EditDrawer = ({
                                       0
                                     )
                               ) {
-                                const newEndTimeErrors = [...endTimeErrors];
-                                newEndTimeErrors[index] = false;
-                                setEndTimeErrors(newEndTimeErrors);
+                                const newEndTimeWorklogsErrors = [
+                                  ...endTimeWorklogsErrors,
+                                ];
+                                newEndTimeWorklogsErrors[index] = false;
+                                setEndTimeWorklogsErrors(
+                                  newEndTimeWorklogsErrors
+                                );
                               }
                             }}
-                            error={endTimeErrors[index]}
+                            error={endTimeWorklogsErrors[index]}
                             helperText={
                               field.startTime
                                 .split(":")
@@ -5092,12 +5097,12 @@ const EditDrawer = ({
                                 ? "Time must be less than 07:59:59"
                                 : field.endTime.trim().length > 0 &&
                                   field.endTime.trim().length < 8 &&
-                                  endTimeErrors[index]
+                                  endTimeWorklogsErrors[index]
                                 ? "Start time must be in HH:MM:SS"
                                 : field.endTime.trim().length <= 0 &&
-                                  endTimeErrors[index]
+                                  endTimeWorklogsErrors[index]
                                 ? "This is a required field"
-                                : endTimeErrors[index] &&
+                                : endTimeWorklogsErrors[index] &&
                                   field.endTime <= field.startTime
                                 ? "End time must be grater than start time"
                                 : ""
@@ -5126,33 +5131,37 @@ const EditDrawer = ({
                             }
                             className="mt-4"
                             disabled={
-                              !manualSwitch ||
+                              !manualSwitchWorklogs ||
                               field.IsApproved ||
                               (field.AssigneeId !== 0 &&
                                 field.AssigneeId !== userId)
                             }
                             fullWidth
                             value={field.manualDesc}
-                            onChange={(e) => handleManualDescChange(e, index)}
+                            onChange={(e) =>
+                              handleManualDescChangeWorklogs(e, index)
+                            }
                             onBlur={(e: any) => {
                               if (e.target.value.trim().length > 0) {
-                                const newManualDescErrors = [
-                                  ...manualDescErrors,
+                                const newManualDescWorklogsErrors = [
+                                  ...manualDescWorklogsErrors,
                                 ];
-                                newManualDescErrors[index] = false;
-                                setManualDescErrors(newManualDescErrors);
+                                newManualDescWorklogsErrors[index] = false;
+                                setManualDescWorklogsErrors(
+                                  newManualDescWorklogsErrors
+                                );
                               }
                             }}
-                            error={manualDescErrors[index]}
+                            error={manualDescWorklogsErrors[index]}
                             helperText={
-                              manualDescErrors[index] &&
+                              manualDescWorklogsErrors[index] &&
                               field.manualDesc.length > 0 &&
                               field.manualDesc.length < 5
                                 ? "Minumum 5 characters required."
-                                : manualDescErrors[index] &&
+                                : manualDescWorklogsErrors[index] &&
                                   field.manualDesc.length > 500
                                 ? "Maximum 500 characters allowed."
-                                : manualDescErrors[index]
+                                : manualDescWorklogsErrors[index]
                                 ? "This is a required field."
                                 : ""
                             }
@@ -5161,10 +5170,10 @@ const EditDrawer = ({
                             sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
                           />
                           {index === 0
-                            ? manualSwitch && (
+                            ? manualSwitchWorklogs && (
                                 <span
                                   className="cursor-pointer"
-                                  onClick={addManulaField}
+                                  onClick={addManulaFieldWorklogs}
                                 >
                                   <svg
                                     className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
@@ -5177,11 +5186,13 @@ const EditDrawer = ({
                                   </svg>
                                 </span>
                               )
-                            : manualSwitch &&
+                            : manualSwitchWorklogs &&
                               !field.IsApproved && (
                                 <span
                                   className="cursor-pointer"
-                                  onClick={() => removePhoneField(index)}
+                                  onClick={() =>
+                                    removePhoneFieldWorklogs(index)
+                                  }
                                 >
                                   <svg
                                     className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
@@ -5223,7 +5234,7 @@ const EditDrawer = ({
                       <Button
                         variant="contained"
                         className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
-                        onClick={handleSubmitReminder}
+                        onClick={handleSubmitReminderWorklogs}
                       >
                         Update
                       </Button>
@@ -5246,15 +5257,17 @@ const EditDrawer = ({
                     )}
                     <span
                       className={`cursor-pointer ${
-                        reminderDrawer ? "rotate-180" : ""
+                        reminderWorklogsDrawer ? "rotate-180" : ""
                       }`}
-                      onClick={() => setReminderDrawer(!reminderDrawer)}
+                      onClick={() =>
+                        setReminderWorklogsDrawer(!reminderWorklogsDrawer)
+                      }
                     >
                       <ChevronDownIcon />
                     </span>
                   </span>
                 </div>
-                {reminderDrawer && (
+                {reminderWorklogsDrawer && (
                   <>
                     <div className="mt-2 pl-6">
                       <RadioGroup
@@ -5415,8 +5428,8 @@ const EditDrawer = ({
                         id="checkboxes-tags-demo"
                         disabled={!reminderSwitch}
                         options={
-                          Array.isArray(assigneeDropdownData)
-                            ? assigneeDropdownData
+                          Array.isArray(assigneeWorklogsDropdownData)
+                            ? assigneeWorklogsDropdownData
                             : []
                         }
                         value={
@@ -5476,14 +5489,16 @@ const EditDrawer = ({
                     </span>
                     <span
                       className={`cursor-pointer ${
-                        reviewerErrDrawer ? "rotate-180" : ""
+                        reviewerErrWorklogsDrawer ? "rotate-180" : ""
                       }`}
-                      onClick={() => setReviewerErrDrawer(!reviewerErrDrawer)}
+                      onClick={() =>
+                        setReviewerErrWorklogsDrawer(!reviewerErrWorklogsDrawer)
+                      }
                     >
                       <ChevronDownIcon />
                     </span>
                   </div>
-                  {reviewerErrDrawer && (
+                  {reviewerErrWorklogsDrawer && (
                     <div className="mt-3 pl-6">
                       {errorLogFields.length > 0 &&
                         errorLogFields[0].SubmitedBy.length > 0 &&
@@ -5814,10 +5829,10 @@ const EditDrawer = ({
                                   <FormControlLabel
                                     className="ml-2 mt-5"
                                     disabled={
-                                      // editStatus === 4 ||
-                                      // status === 7 ||
-                                      // status === 9 ||
-                                      // status === 8 ||
+                                      // editStatusWorklogs === 4 ||
+                                      // statusWorklogs === 7 ||
+                                      // statusWorklogs === 9 ||
+                                      // statusWorklogs === 8 ||
                                       i.DisableErrorLog
                                     }
                                     control={
@@ -5864,14 +5879,16 @@ const EditDrawer = ({
                   </span>
                   <span
                     className={`cursor-pointer ${
-                      reasonDrawer ? "rotate-180" : ""
+                      reasonWorklogsDrawer ? "rotate-180" : ""
                     }`}
-                    onClick={() => setReasonDrawer(!reasonDrawer)}
+                    onClick={() =>
+                      setReasonWorklogsDrawer(!reasonWorklogsDrawer)
+                    }
                   >
                     <ChevronDownIcon />
                   </span>
                 </div>
-                {reasonDrawer &&
+                {reasonWorklogsDrawer &&
                   reviewerNote.length > 0 &&
                   reviewerNote.map((i: any, index: number) => (
                     <div className="mt-5 pl-[70px] text-sm">

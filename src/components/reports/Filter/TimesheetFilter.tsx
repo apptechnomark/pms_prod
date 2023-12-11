@@ -36,83 +36,91 @@ const TimesheetFilter = ({
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [userNames, setUserNames] = useState<number[]>([]);
-  const [users, setUsers] = useState<number[]>([]);
-  const [dept, setDept] = useState<string | number>(0);
-  const [filterName, setFilterName] = useState<string>("");
-  const [saveFilter, setSaveFilter] = useState<boolean>(false);
-  const [deptDropdown, setDeptDropdown] = useState<any[]>([]);
-  const [userDropdown, setUserDropdown] = useState<any[]>([]);
-  const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>("");
-  const [savedFilters, setSavedFilters] = useState<any[]>([]);
-  const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>("");
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [startDate, setStartDate] = useState<string | number>("");
-  const [endDate, setEndDate] = useState<string | number>("");
-  const [error, setError] = useState("");
+  const [timesheetUserNames, setTimesheetUserNames] = useState<number[]>([]);
+  const [timesheetUsers, setTimesheetUsers] = useState<number[]>([]);
+  const [timesheetDept, setTimesheetDept] = useState<string | number>(0);
+  const [timesheetFilterName, setTimesheetFilterName] = useState<string>("");
+  const [timesheetSaveFilter, setTimesheetSaveFilter] =
+    useState<boolean>(false);
+  const [timesheetDeptDropdown, setTimesheetDeptDropdown] = useState<any[]>([]);
+  const [timesheetUserDropdown, setTimesheetUserDropdown] = useState<any[]>([]);
+  const [timesheetAnyFieldSelected, setTimesheetAnyFieldSelected] =
+    useState(false);
+  const [timesheetCurrentFilterId, setTimesheetCurrentFilterId] =
+    useState<any>("");
+  const [timesheetSavedFilters, setTimesheetSavedFilters] = useState<any[]>([]);
+  const [timesheetDefaultFilter, setTimesheetDefaultFilter] =
+    useState<boolean>(false);
+  const [timesheetSearchValue, setTimesheetSearchValue] = useState<string>("");
+  const [timesheetIsDeleting, setTimesheetIsDeleting] =
+    useState<boolean>(false);
+  const [timesheetStartDate, setTimesheetStartDate] = useState<string | number>(
+    ""
+  );
+  const [timesheetEndDate, setTimesheetEndDate] = useState<string | number>("");
+  const [timesheetError, setTimesheetError] = useState("");
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const handleResetAll = () => {
-    setUserNames([]);
-    setUsers([]);
-    setDept(0);
-    setStartDate("");
-    setEndDate("");
-    setError("");
+  const handleTimesheetResetAll = () => {
+    setTimesheetUserNames([]);
+    setTimesheetUsers([]);
+    setTimesheetDept(0);
+    setTimesheetStartDate("");
+    setTimesheetEndDate("");
+    setTimesheetError("");
 
     sendFilterToPage({
       ...timeSheet_InitialFilter,
     });
   };
 
-  const handleClose = () => {
-    setFilterName("");
+  const handleTimesheetClose = () => {
     onDialogClose(false);
-    setDefaultFilter(false);
-    setUserNames([]);
-    setUsers([]);
-    setDept(0);
-    setStartDate("");
-    setEndDate("");
-    setError("");
+    setTimesheetFilterName("");
+    setTimesheetDefaultFilter(false);
+    setTimesheetUserNames([]);
+    setTimesheetUsers([]);
+    setTimesheetDept(0);
+    setTimesheetStartDate("");
+    setTimesheetEndDate("");
+    setTimesheetError("");
   };
 
-  const handleFilterApply = () => {
+  const handleTimesheetFilterApply = () => {
     sendFilterToPage({
       ...timeSheet_InitialFilter,
-      users: userNames,
-      departmentId: dept === 0 || dept === "" ? null : dept,
+      users: timesheetUserNames,
+      departmentId:
+        timesheetDept === 0 || timesheetDept === "" ? null : timesheetDept,
       startDate:
-        startDate.toString().trim().length <= 0
-          ? endDate.toString().trim().length <= 0
+        timesheetStartDate.toString().trim().length <= 0
+          ? timesheetEndDate.toString().trim().length <= 0
             ? getDates()[0]
-            : getFormattedDate(endDate)
-          : getFormattedDate(startDate),
+            : getFormattedDate(timesheetEndDate)
+          : getFormattedDate(timesheetStartDate),
       endDate:
-        endDate.toString().trim().length <= 0
-          ? startDate.toString().trim().length <= 0
+        timesheetEndDate.toString().trim().length <= 0
+          ? timesheetStartDate.toString().trim().length <= 0
             ? getDates()[getDates().length - 1]
-            : getFormattedDate(startDate)
-          : getFormattedDate(endDate),
+            : getFormattedDate(timesheetStartDate)
+          : getFormattedDate(timesheetEndDate),
     });
 
     onDialogClose(false);
   };
 
-  const handleSavedFilterApply = (index: number) => {
+  const handleTimesheetSavedFilterApply = (index: number) => {
     if (Number.isInteger(index)) {
       if (index !== undefined) {
         sendFilterToPage({
           ...timeSheet_InitialFilter,
-          users: savedFilters[index].AppliedFilter.users,
-          departmentId: savedFilters[index].AppliedFilter.Department,
-          startDate: savedFilters[index].AppliedFilter.startDate,
-          endDate: savedFilters[index].AppliedFilter.endDate,
+          users: timesheetSavedFilters[index].AppliedFilter.users,
+          departmentId: timesheetSavedFilters[index].AppliedFilter.Department,
+          startDate: timesheetSavedFilters[index].AppliedFilter.startDate,
+          endDate: timesheetSavedFilters[index].AppliedFilter.endDate,
         });
       }
     }
@@ -120,13 +128,13 @@ const TimesheetFilter = ({
     onDialogClose(false);
   };
 
-  const handleSaveFilter = async () => {
-    if (filterName.trim().length === 0) {
-      setError("This is required field!");
-    } else if (filterName.trim().length > 15) {
-      setError("Max 15 characters allowed!");
+  const handleTimesheetSaveFilter = async () => {
+    if (timesheetFilterName.trim().length === 0) {
+      setTimesheetError("This is required field!");
+    } else if (timesheetFilterName.trim().length > 15) {
+      setTimesheetError("Max 15 characters allowed!");
     } else {
-      setError("");
+      setTimesheetError("");
 
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -134,23 +142,24 @@ const TimesheetFilter = ({
         const response = await axios.post(
           `${process.env.worklog_api_url}/filter/savefilter`,
           {
-            filterId: currentFilterId !== "" ? currentFilterId : null,
-            name: filterName,
+            filterId:
+              timesheetCurrentFilterId !== "" ? timesheetCurrentFilterId : null,
+            name: timesheetFilterName,
             AppliedFilter: {
-              users: userNames.length > 0 ? userNames : [],
-              departmentId: dept === 0 ? null : dept,
+              users: timesheetUserNames.length > 0 ? timesheetUserNames : [],
+              departmentId: timesheetDept === 0 ? null : timesheetDept,
               startDate:
-                startDate.toString().trim().length <= 0
-                  ? endDate.toString().trim().length <= 0
+                timesheetStartDate.toString().trim().length <= 0
+                  ? timesheetEndDate.toString().trim().length <= 0
                     ? getDates()[0]
-                    : getFormattedDate(endDate)
-                  : getFormattedDate(startDate),
+                    : getFormattedDate(timesheetEndDate)
+                  : getFormattedDate(timesheetStartDate),
               endDate:
-                endDate.toString().trim().length <= 0
-                  ? startDate.toString().trim().length <= 0
+                timesheetEndDate.toString().trim().length <= 0
+                  ? timesheetStartDate.toString().trim().length <= 0
                     ? getDates()[getDates().length - 1]
-                    : getFormattedDate(startDate)
-                  : getFormattedDate(endDate),
+                    : getFormattedDate(timesheetStartDate)
+                  : getFormattedDate(timesheetEndDate),
             },
             type: timesheet,
           },
@@ -165,10 +174,10 @@ const TimesheetFilter = ({
         if (response.status === 200) {
           if (response.data.ResponseStatus.toLowerCase() === "success") {
             toast.success("Filter has been successully saved.");
-            handleClose();
-            getFilterList();
-            handleFilterApply();
-            setSaveFilter(false);
+            handleTimesheetClose();
+            getTimesheetFilterList();
+            handleTimesheetFilterApply();
+            setTimesheetSaveFilter(false);
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -192,29 +201,29 @@ const TimesheetFilter = ({
   };
 
   useEffect(() => {
-    getFilterList();
+    getTimesheetFilterList();
   }, []);
 
   useEffect(() => {
     const isAnyFieldSelected =
-      userNames.length > 0 ||
-      dept !== 0 ||
-      startDate.toString().trim().length > 0 ||
-      endDate.toString().trim().length > 0;
+      timesheetUserNames.length > 0 ||
+      timesheetDept !== 0 ||
+      timesheetStartDate.toString().trim().length > 0 ||
+      timesheetEndDate.toString().trim().length > 0;
 
-    setAnyFieldSelected(isAnyFieldSelected);
-    setSaveFilter(false);
-  }, [dept, userNames, startDate, endDate]);
+    setTimesheetAnyFieldSelected(isAnyFieldSelected);
+    setTimesheetSaveFilter(false);
+  }, [timesheetDept, timesheetUserNames, timesheetStartDate, timesheetEndDate]);
 
   useEffect(() => {
     const userDropdowns = async () => {
-      setDeptDropdown(await getDeptData());
-      setUserDropdown(await getUserData());
+      setTimesheetDeptDropdown(await getDeptData());
+      setTimesheetUserDropdown(await getUserData());
     };
     userDropdowns();
   }, []);
 
-  const getFilterList = async () => {
+  const getTimesheetFilterList = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -233,7 +242,7 @@ const TimesheetFilter = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          setSavedFilters(response.data.ResponseData);
+          setTimesheetSavedFilters(response.data.ResponseData);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -255,32 +264,40 @@ const TimesheetFilter = ({
     }
   };
 
-  const handleSavedFilterEdit = (index: number) => {
-    setCurrentFilterId(savedFilters[index].FilterId);
-    setFilterName(savedFilters[index].Name);
-    setUsers(
-      savedFilters[index].AppliedFilter.users.length > 0
-        ? userDropdown.filter((user: any) =>
-            savedFilters[index].AppliedFilter.users.includes(user.value)
+  const handleTimesheetSavedFilterEdit = (index: number) => {
+    setTimesheetCurrentFilterId(timesheetSavedFilters[index].FilterId);
+    setTimesheetFilterName(timesheetSavedFilters[index].Name);
+    setTimesheetUsers(
+      timesheetSavedFilters[index].AppliedFilter.users.length > 0
+        ? timesheetUserDropdown.filter((user: any) =>
+            timesheetSavedFilters[index].AppliedFilter.users.includes(
+              user.value
+            )
           )
         : []
     );
-    setUserNames(savedFilters[index].AppliedFilter.users);
-    setDept(savedFilters[index].AppliedFilter.Department ?? 0);
-    setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
-    setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
-    setDefaultFilter(true);
-    setSaveFilter(true);
+    setTimesheetUserNames(timesheetSavedFilters[index].AppliedFilter.users);
+    setTimesheetDept(
+      timesheetSavedFilters[index].AppliedFilter.Department ?? 0
+    );
+    setTimesheetStartDate(
+      timesheetSavedFilters[index].AppliedFilter.startDate ?? ""
+    );
+    setTimesheetEndDate(
+      timesheetSavedFilters[index].AppliedFilter.endDate ?? ""
+    );
+    setTimesheetDefaultFilter(true);
+    setTimesheetSaveFilter(true);
   };
 
-  const handleSavedFilterDelete = async () => {
+  const handleTimesheetSavedFilterDelete = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/delete`,
         {
-          filterId: currentFilterId,
+          filterId: timesheetCurrentFilterId,
         },
         {
           headers: {
@@ -293,9 +310,9 @@ const TimesheetFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
-          handleClose();
-          getFilterList();
-          setCurrentFilterId("");
+          handleTimesheetClose();
+          getTimesheetFilterList();
+          setTimesheetCurrentFilterId("");
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -319,12 +336,12 @@ const TimesheetFilter = ({
 
   return (
     <>
-      {savedFilters.length > 0 && !defaultFilter ? (
+      {timesheetSavedFilters.length > 0 && !timesheetDefaultFilter ? (
         <Popover
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleClose}
+          onClose={handleTimesheetClose}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -338,8 +355,8 @@ const TimesheetFilter = ({
             <span
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
-                setDefaultFilter(true);
-                setCurrentFilterId(0);
+                setTimesheetDefaultFilter(true);
+                setTimesheetCurrentFilterId(0);
               }}
             >
               Default Filter
@@ -351,15 +368,15 @@ const TimesheetFilter = ({
                 className="pr-7 border-b border-b-slatyGrey w-full"
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
-                value={searchValue}
-                onChange={(e: any) => setSearchValue(e.target.value)}
+                value={timesheetSearchValue}
+                onChange={(e: any) => setTimesheetSearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {savedFilters.map((i: any, index: number) => {
+            {timesheetSavedFilters.map((i: any, index: number) => {
               return (
                 <>
                   <div
@@ -369,23 +386,25 @@ const TimesheetFilter = ({
                     <span
                       className="pl-1"
                       onClick={() => {
-                        setCurrentFilterId(i.FilterId);
+                        setTimesheetCurrentFilterId(i.FilterId);
                         onDialogClose(false);
-                        handleSavedFilterApply(index);
+                        handleTimesheetSavedFilterApply(index);
                       }}
                     >
                       {i.Name}
                     </span>
                     <span className="flex gap-[10px] pr-[10px]">
-                      <span onClick={() => handleSavedFilterEdit(index)}>
+                      <span
+                        onClick={() => handleTimesheetSavedFilterEdit(index)}
+                      >
                         <Tooltip title="Edit" placement="top" arrow>
                           <Edit className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
                         </Tooltip>
                       </span>
                       <span
                         onClick={() => {
-                          setIsDeleting(true);
-                          setCurrentFilterId(i.FilterId);
+                          setTimesheetIsDeleting(true);
+                          setTimesheetCurrentFilterId(i.FilterId);
                         }}
                       >
                         <Tooltip title="Delete" placement="top" arrow>
@@ -398,7 +417,11 @@ const TimesheetFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button onClick={handleResetAll} className="mt-2" color="error">
+            <Button
+              onClick={handleTimesheetResetAll}
+              className="mt-2"
+              color="error"
+            >
               clear all
             </Button>
           </div>
@@ -409,11 +432,11 @@ const TimesheetFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleClose}
+          onClose={handleTimesheetClose}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleResetAll}>
+            <Button color="error" onClick={handleTimesheetResetAll}>
               Reset all
             </Button>
           </DialogTitle>
@@ -427,13 +450,13 @@ const TimesheetFilter = ({
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={userDropdown}
+                    options={timesheetUserDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setUserNames(data.map((d: any) => d.value));
-                      setUsers(data);
+                      setTimesheetUserNames(data.map((d: any) => d.value));
+                      setTimesheetUsers(data);
                     }}
-                    value={users}
+                    value={timesheetUsers}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -451,10 +474,10 @@ const TimesheetFilter = ({
                   <Select
                     labelId="department"
                     id="department"
-                    value={dept === 0 ? "" : dept}
-                    onChange={(e) => setDept(e.target.value)}
+                    value={timesheetDept === 0 ? "" : timesheetDept}
+                    onChange={(e) => setTimesheetDept(e.target.value)}
                   >
-                    {deptDropdown.map((i: any, index: number) => (
+                    {timesheetDeptDropdown.map((i: any, index: number) => (
                       <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
@@ -468,9 +491,15 @@ const TimesheetFilter = ({
                     <DatePicker
                       label="Start Date"
                       shouldDisableDate={isWeekend}
-                      maxDate={dayjs(Date.now()) || dayjs(endDate)}
-                      value={startDate === "" ? null : dayjs(startDate)}
-                      onChange={(newValue: any) => setStartDate(newValue)}
+                      maxDate={dayjs(Date.now()) || dayjs(timesheetEndDate)}
+                      value={
+                        timesheetStartDate === ""
+                          ? null
+                          : dayjs(timesheetStartDate)
+                      }
+                      onChange={(newValue: any) =>
+                        setTimesheetStartDate(newValue)
+                      }
                       slotProps={{
                         textField: {
                           readOnly: true,
@@ -488,10 +517,14 @@ const TimesheetFilter = ({
                     <DatePicker
                       label="End Date"
                       shouldDisableDate={isWeekend}
-                      minDate={dayjs(startDate)}
+                      minDate={dayjs(timesheetStartDate)}
                       maxDate={dayjs(Date.now())}
-                      value={endDate === "" ? null : dayjs(endDate)}
-                      onChange={(newValue: any) => setEndDate(newValue)}
+                      value={
+                        timesheetEndDate === "" ? null : dayjs(timesheetEndDate)
+                      }
+                      onChange={(newValue: any) =>
+                        setTimesheetEndDate(newValue)
+                      }
                       slotProps={{
                         textField: {
                           readOnly: true,
@@ -504,14 +537,14 @@ const TimesheetFilter = ({
             </div>
           </DialogContent>
           <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">
-            {!saveFilter ? (
+            {!timesheetSaveFilter ? (
               <>
                 <Button
                   variant="contained"
                   color="info"
-                  className={`${anyFieldSelected && "!bg-secondary"}`}
-                  disabled={!anyFieldSelected}
-                  onClick={handleFilterApply}
+                  className={`${timesheetAnyFieldSelected && "!bg-secondary"}`}
+                  disabled={!timesheetAnyFieldSelected}
+                  onClick={handleTimesheetFilterApply}
                 >
                   Apply Filter
                 </Button>
@@ -519,9 +552,9 @@ const TimesheetFilter = ({
                 <Button
                   variant="contained"
                   color="info"
-                  className={`${anyFieldSelected && "!bg-secondary"}`}
-                  onClick={() => setSaveFilter(true)}
-                  disabled={!anyFieldSelected}
+                  className={`${timesheetAnyFieldSelected && "!bg-secondary"}`}
+                  onClick={() => setTimesheetSaveFilter(true)}
+                  disabled={!timesheetAnyFieldSelected}
                 >
                   Save Filter
                 </Button>
@@ -537,30 +570,34 @@ const TimesheetFilter = ({
                     fullWidth
                     required
                     variant="standard"
-                    value={filterName}
+                    value={timesheetFilterName}
                     onChange={(e) => {
-                      setFilterName(e.target.value);
-                      setError("");
+                      setTimesheetFilterName(e.target.value);
+                      setTimesheetError("");
                     }}
-                    error={error.length > 0 ? true : false}
-                    helperText={error}
+                    error={timesheetError.length > 0 ? true : false}
+                    helperText={timesheetError}
                   />
                 </FormControl>
                 <Button
                   variant="contained"
                   color="info"
-                  onClick={handleSaveFilter}
+                  onClick={handleTimesheetSaveFilter}
                   className={`${
-                    filterName.length === 0 ? "" : "!bg-secondary"
+                    timesheetFilterName.length === 0 ? "" : "!bg-secondary"
                   }`}
-                  disabled={filterName.length === 0}
+                  disabled={timesheetFilterName.length === 0}
                 >
                   Save & Apply
                 </Button>
               </>
             )}
 
-            <Button variant="outlined" color="info" onClick={handleClose}>
+            <Button
+              variant="outlined"
+              color="info"
+              onClick={handleTimesheetClose}
+            >
               Cancel
             </Button>
           </DialogActions>
@@ -568,9 +605,9 @@ const TimesheetFilter = ({
       )}
 
       <DeleteDialog
-        isOpen={isDeleting}
-        onClose={() => setIsDeleting(false)}
-        onActionClick={handleSavedFilterDelete}
+        isOpen={timesheetIsDeleting}
+        onClose={() => setTimesheetIsDeleting(false)}
+        onActionClick={handleTimesheetSavedFilterDelete}
         Title={"Delete Filter"}
         firstContent={"Are you sure you want to delete this saved filter?"}
         secondContent={

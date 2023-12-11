@@ -67,10 +67,6 @@ const UserFilter = ({
 
     sendFilterToPage({
       ...user_InitialFilter,
-      users: [],
-      departmentId: null,
-      startDate: getDates()[0],
-      endDate: getDates()[getDates().length - 1],
     });
   };
 
@@ -78,11 +74,11 @@ const UserFilter = ({
     setFilterName("");
     onDialogClose(false);
     setDefaultFilter(false);
-    setStartDate("");
-    setEndDate("");
     setUserNames([]);
     setUsers([]);
     setDept(0);
+    setStartDate("");
+    setEndDate("");
     setError("");
   };
 

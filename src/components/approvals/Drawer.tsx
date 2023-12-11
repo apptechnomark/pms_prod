@@ -38,12 +38,7 @@ import { useRouter } from "next/navigation";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import {
-  extractText,
-  getYears,
-  hasPermissionWorklog,
-  isWeekend,
-} from "@/utils/commonFunction";
+import { extractText, getTimeDifference, getYears, hasPermissionWorklog, isWeekend } from "@/utils/commonFunction";
 import ImageUploader from "../common/ImageUploader";
 import { Mention, MentionsInput } from "react-mentions";
 import mentionsInputStyle from "../../utils/worklog/mentionsInputStyle";
@@ -286,14 +281,6 @@ const EditDrawer = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           const data = await response.data.ResponseData;
-          const getTimeDifference = (startTime: any, endTime: any) => {
-            const [s, e, s_sec] = startTime.split(":").map(Number);
-            const [t, r, e_sec] = endTime.split(":").map(Number);
-            const d = t * 60 + r - s * 60 - e;
-            return `${String(Math.floor(d / 60)).padStart(2, "0")}:${String(
-              d % 60
-            ).padStart(2, "0")}:${(e_sec - s_sec).toString().padStart(2, "0")}`;
-          };
           // setManualDataLength(data.length);
           setManualSwitch(data.length <= 0 ? false : true);
           setManualSubmitDisable(
@@ -1861,14 +1848,6 @@ const EditDrawer = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           const data = await response.data.ResponseData;
-          const getTimeDifference = (startTime: any, endTime: any) => {
-            const [s, e, s_sec] = startTime.split(":").map(Number);
-            const [t, r, e_sec] = endTime.split(":").map(Number);
-            const d = t * 60 + r - s * 60 - e;
-            return `${String(Math.floor(d / 60)).padStart(2, "0")}:${String(
-              d % 60
-            ).padStart(2, "0")}:${(e_sec - s_sec).toString().padStart(2, "0")}`;
-          };
           setManualFields(
             data.length <= 0
               ? [
@@ -5932,7 +5911,7 @@ const EditDrawer = ({
                                     "ErrorLog",
                                     "Delete",
                                     "WorkLogs"
-                                  ) &&
+                                  ) ||
                                   hasPermissionWorklog(
                                     "ErrorLog",
                                     "Save",

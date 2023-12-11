@@ -107,7 +107,7 @@ export const getAllProcessDropdownData = async () => {
   const Org_Token = await localStorage.getItem("Org_Token");
   try {
     const response = await axios.get(
-      `${process.env.pms_api_url}/Process/GetDropdown`,
+      `${process.env.pms_api_url}/process/getdropdownforgroup`,
       {
         headers: {
           Authorization: `bearer ${token}`,

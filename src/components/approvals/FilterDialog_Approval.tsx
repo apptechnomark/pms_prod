@@ -75,7 +75,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
       const response = await axios.get(
-        `${process.env.pms_api_url}/client/getdropdown`,
+        `${process.env.pms_api_url}/client/getdropdownforgroup`,
         {
           headers: {
             Authorization: `bearer ${token}`,

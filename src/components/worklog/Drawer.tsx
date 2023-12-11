@@ -245,7 +245,9 @@ const Drawer = ({
     const url = `${process.env.worklog_api_url}/workitem/subtask/getbyworkitem`;
     const successCallback = (ResponseData: any, error: any) => {
       if (ResponseData !== null && ResponseData.length > 0 && error === false) {
-        setSubTaskClientWorklogSwitch(hasPermissionWorklog("Task/SubTask", "view", "WorkLogs"));
+        setSubTaskClientWorklogSwitch(
+          hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")
+        );
         setSubTaskClientWorklogFields(ResponseData);
       } else {
         setSubTaskClientWorklogSwitch(false);
@@ -1811,8 +1813,20 @@ const Drawer = ({
                               isCreatedByClientWorklog && (
                                 <span
                                   className="cursor-pointer"
-                                  onClick={() =>
-                                    removeTaskFieldClientWorklog(index)
+                                  onClick={
+                                    hasPermissionWorklog(
+                                      "Task/SubTask",
+                                      "Delete",
+                                      "WorkLogs"
+                                    ) &&
+                                    hasPermissionWorklog(
+                                      "Task/SubTask",
+                                      "Save",
+                                      "WorkLogs"
+                                    )
+                                      ? () =>
+                                          removeTaskFieldClientWorklog(index)
+                                      : undefined
                                   }
                                 >
                                   <svg
