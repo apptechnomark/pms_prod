@@ -4,245 +4,123 @@ import {
   generateCustomHeaderName,
   generateDateWithTime,
   generateDateWithoutTime,
-  generateDaysBodyRender,
   generateInitialTimer,
   generateIsLoggedInBodyRender,
   generatePriorityWithColor,
   generateRatingsBodyRender,
   generateStatusWithColor,
 } from "../CommonFunction";
+import { generateCustomColumn } from "./ColsGenerateFunctions";
 
-const reportDatatatbleRatingCols: any = [
+const RatingReportColsConfig = [
   {
     name: "WorkItemId",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Task ID",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Project",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "TaskName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Task",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "ProcessName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Process"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Process",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "ReturnTypes",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Return Type"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Return Type",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "RatingOn",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Rating Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Rating Date",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "DateSubmitted",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Date Submitted"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Date Submitted",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "HoursLogged",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Hours Logged"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Hours Logged",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "Ratings",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Ratings"),
-      customBodyRender: (value: any) => {
-        return generateRatingsBodyRender(value);
-      },
-    },
+    label: "Ratings",
+    bodyRenderer: generateRatingsBodyRender,
   },
   {
     name: "Comments",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Comments"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Comments",
+    bodyRenderer: generateCommonBodyRender,
   },
 ];
 
-const reportDatatableTaskCols: any = [
+const reportTaskColConfig = [
   {
     name: "WorkItemId",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Task ID",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Project",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "TaskName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Task",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "ProcessName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Process"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Process",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "Type",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Type"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Type",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "Priority",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Priority"),
-      customBodyRender: (value: any) => generatePriorityWithColor(value),
-    },
+    label: "Priority",
+    bodyRenderer: generatePriorityWithColor,
   },
   {
     name: "Status",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Status"),
-      customBodyRender: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[11]),
-    },
+    label: "Status",
+    bodyRenderer: (value: any, tableMeta: any) =>
+      generateStatusWithColor(value, tableMeta.rowData[11]),
   },
   {
     name: "AssignedTo",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Assigned To"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Assigned To",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "HoursLogged",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Hours Logged"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Hours Logged",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "StartDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Start Date",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "DueDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Due Date",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "ColorCode",
@@ -252,481 +130,278 @@ const reportDatatableTaskCols: any = [
   },
 ];
 
-const reportsAuditCols: any[] = [
+const auditColConfig = [
   {
-    name: "UserName",
-    options: {
-      sort: true,
-      filter: true,
-      customHeadLabelRender: () => generateCustomHeaderName("User Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    header: "UserName",
+    label: "User Name",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "DepartmentName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Department"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    header: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "TaskCreatedDate",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () =>
-        generateCustomHeaderName("Task Created Date"),
-      customBodyRender: (value: any) => {
-        return generateDateWithoutTime(value);
-      },
-    },
+    header: "TaskCreatedDate",
+    label: "Task Created Date",
+    bodyRenderer: generateDateWithoutTime,
   },
   {
-    name: "LoginTime",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Login Time"),
-      customBodyRender: (value: any, tableMeta: any) => {
-        return generateDateWithTime(value);
-      },
-    },
+    header: "LoginTime",
+    label: "Login Time",
+    bodyRenderer: generateDateWithTime,
   },
   {
-    name: "LogoutTime",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Logout Time"),
-      customBodyRender: (value: any) => {
-        return generateDateWithTime(value);
-      },
-    },
+    header: "LogoutTime",
+    label: "Logout Time",
+    bodyRenderer: generateDateWithTime,
   },
   {
-    name: "ClientName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Client"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    header: "ClientName",
+    label: "Client",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    header: "ProjectName",
+    label: "Project",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "ProcessName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Process"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    header: "ProcessName",
+    label: "Proces",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "SubProcessName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Sub-Process"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    header: "SubProcessName",
+    label: "Sub-Process",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "StandardTime",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
-    },
-    customBodyRender: (value: any) => {
-      return generateInitialTimer(value);
-    },
+    header: "StandardTime",
+    label: "Std. Time",
+    bodyRenderer: generateInitialTimer,
   },
   {
-    name: "TotalTime",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
-      customBodyRender: (value: any) => {
-        return generateInitialTimer(value);
-      },
-    },
+    header: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateInitialTimer,
   },
   {
-    name: "TotalBreakTime",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Break Time"),
-      customBodyRender: (value: any) => {
-        return generateInitialTimer(value);
-      },
-    },
+    header: "TotalBreakTime",
+    label: "Break Time",
+    bodyRenderer: generateInitialTimer,
   },
   {
-    name: "TotalIdleTime",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Idle Time"),
-      customBodyRender: (value: any) => {
-        return generateInitialTimer(value);
-      },
-    },
+    header: "TotalIdleTime",
+    label: "Idle Time",
+    bodyRenderer: generateInitialTimer,
   },
 ];
 
-const reportsClientCols: any[] = [
+const reportsProjectsColConfig = [
   {
-    name: "ClientName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    header: "ProjectName",
+    label: "Project",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "WorkType",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    header: "ClientName",
+    label: "Client Name",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "BillingType",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Billing Type"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    header: "WorkType",
+    label: "Type of Work",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "InternalHours",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Internal Hours"),
-      customBodyRender: (value: any) => {
-        return generateInitialTimer(value);
-      },
-    },
+    header: "BillingType",
+    label: "Billing Type",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
-    name: "ContractedHours",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Cont. Hours"),
-      customBodyRender: (value: any) => {
-        return generateInitialTimer(value);
-      },
-    },
+    header: "InternalHours",
+    label: "Internal Hours",
+    bodyRenderer: generateInitialTimer,
   },
   {
-    name: "StandardTime",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
-      customBodyRender: (value: any) => {
-        return generateInitialTimer(value);
-      },
-    },
+    header: "StandardTime",
+    label: "Std. Time",
+    bodyRenderer: generateInitialTimer,
   },
   {
-    name: "EditHours",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Edited Hours"),
-      customBodyRender: (value: any) => {
-        return generateInitialTimer(value);
-      },
-    },
+    header: "EditHours",
+    label: "Edited Hours",
+    bodyRenderer: generateInitialTimer,
   },
   {
-    name: "TotalTime",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
-      customBodyRender: (value: any) => {
-        return generateInitialTimer(value);
-      },
-    },
+    header: "TotalTime",
+    label: "Total Time",
+    bodyRenderer: generateInitialTimer,
   },
   {
-    name: "DifferenceTime",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Differences"),
-      customBodyRender: (value: any) => {
-        return generateInitialTimer(value);
-      },
-    },
-  },
-  {
-    name: "ContractedDifference",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Cont. Diff"),
-      customBodyRender: (value: any) => {
-        return generateInitialTimer(value);
-      },
-    },
+    header: "DifferenceTime",
+    label: "Difference Time",
+    bodyRenderer: generateInitialTimer,
   },
 ];
 
-const reportsProjectsCols: any[] = [
-  {
-    name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "ClientName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Client Name"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "WorkType",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Type of Work"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "BillingType",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Billing Type"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
-  },
-  {
-    name: "InternalHours",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Internal Hours"),
-      customBodyRender: (value: any, tableMeta: any) => {
-        return generateInitialTimer(value);
-      },
-    },
-  },
-  {
-    name: "StandardTime",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
-      customBodyRender: (value: any, tableMeta: any) => {
-        return generateInitialTimer(value);
-      },
-    },
-  },
-  {
-    name: "EditHours",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Edited Hours"),
-      customBodyRender: (value: any, tableMeta: any) => {
-        return generateInitialTimer(value);
-      },
-    },
-  },
-  {
-    name: "TotalTime",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Total Time"),
-      customBodyRender: (value: any, tableMeta: any) => {
-        return generateInitialTimer(value);
-      },
-    },
-  },
-  {
-    name: "DifferenceTime",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Difference"),
-      customBodyRender: (value: any, tableMeta: any) => {
-        return generateInitialTimer(value);
-      },
-    },
-  },
-];
-
-const reportsRatingCols: any = [
+const reportsRatingColConfig = [
   {
     name: "WorkItemId",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
-
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Task ID",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "ClientName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Client"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Client",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "ProjectName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Project"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Project",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "TaskName",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Task"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Task",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "ReturnTypes",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Return Type"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Return Type",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "RatingOn",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Rating Date"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Rating Date",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "DateSubmitted",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Date Submitted"),
-      customBodyRender: (value: any) => {
-        return generateCustomFormatDate(value);
-      },
-    },
+    label: "Date Submitted",
+    bodyRenderer: generateCustomFormatDate,
   },
   {
     name: "HoursLogged",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Hours Logged"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Hours Logged",
+    bodyRenderer: generateCommonBodyRender,
   },
   {
     name: "Ratings",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Ratings"),
-      customBodyRender: (value: any) => {
-        return generateRatingsBodyRender(value);
-      },
-    },
+    label: "Ratings",
+    bodyRenderer: generateRatingsBodyRender,
   },
   {
     name: "Comments",
-    options: {
-      filter: true,
-      sort: true,
-      customHeadLabelRender: () => generateCustomHeaderName("Comments"),
-      customBodyRender: (value: any) => {
-        return generateCommonBodyRender(value);
-      },
-    },
+    label: "Comments",
+    bodyRenderer: generateCommonBodyRender,
   },
 ];
+
+const UserLogsColConfig = [
+  {
+    header: "UserName",
+    label: "User Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "ReportingManager",
+    label: "Reporting Manager",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "DepartmentName",
+    label: "Department",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "LoginTime",
+    label: "Login",
+    bodyRenderer: generateDateWithTime,
+  },
+
+  {
+    header: "LogoutTime",
+    label: "Logout",
+    bodyRenderer: generateDateWithTime,
+  },
+  {
+    header: "TotalIdleTime",
+    label: "Idle Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "TotalBreakTime",
+    label: "Break Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "TotalProductiveTime",
+    label: "Productive Time",
+    bodyRenderer: generateInitialTimer,
+  },
+  {
+    header: "IsLoggedIn",
+    label: "IsLoggedIn",
+    bodyRenderer: generateIsLoggedInBodyRender,
+  },
+];
+
+const generateCustomizableCols = (
+  column: {
+    name: string;
+    label: string;
+    bodyRenderer: (arg0: any) => any;
+  },
+  rowDataIndex: number
+) => {
+  if (column.name === "Status") {
+    return {
+      name: "Status",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Status"),
+        customBodyRender: (value: any, tableMeta: any) =>
+          generateStatusWithColor(value, tableMeta.rowData[rowDataIndex]),
+      },
+    };
+  } else if (column.name === "ColorCode") {
+    return {
+      name: "ColorCode",
+      options: {
+        display: false,
+      },
+    };
+  } else {
+    return generateCustomColumn(column.name, column.label, column.bodyRenderer);
+  }
+};
+
+const reportDatatatbleRatingCols: any = RatingReportColsConfig.map((col: any) =>
+  generateCustomColumn(col.name, col.label, col.bodyRenderer)
+);
+
+const reportDatatableTaskCols: any = reportTaskColConfig.map((col: any) =>
+  generateCustomizableCols(col, 11)
+);
+
+const reportsAuditCols: any = auditColConfig.map((col: any) =>
+  generateCustomColumn(col.header, col.label, col.bodyRenderer)
+);
+
+const reportsProjectsCols: any = reportsProjectsColConfig.map((col: any) =>
+  generateCustomColumn(col.header, col.label, col.bodyRenderer)
+);
+
+const reportsRatingCols: any = reportsRatingColConfig.map((col: any) =>
+  generateCustomColumn(col.name, col.label, col.bodyRenderer)
+);
+
+// const reportsUserLogsCols: any = UserLogsColConfig.map((col: any) =>
+//   generateCustomColumn(col.name, col.label, col.bodyRenderer)
+// );
 
 const reportsUserLogsCols: any[] = [
   {
@@ -828,13 +503,10 @@ const reportsUserLogsCols: any[] = [
   },
 ];
 
-
-
 export {
   reportDatatatbleRatingCols,
   reportDatatableTaskCols,
   reportsAuditCols,
-  reportsClientCols,
   reportsProjectsCols,
   reportsRatingCols,
   reportsUserLogsCols,

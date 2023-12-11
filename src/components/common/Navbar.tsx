@@ -27,7 +27,7 @@ const Navbar = (props: any) => {
   let options: any[] = [];
 
   const getDataNavbar = async () => {
-    const url = `${process.env.report_api_url}/report/client/rating`;
+    const url = `${process.env.pms_api_url}/Role/GetDropdown`;
     const successCallback = (
       ResponseData: any,
       error: any,

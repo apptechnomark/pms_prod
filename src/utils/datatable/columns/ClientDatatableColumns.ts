@@ -1,6 +1,7 @@
 import {
   generateCommonBodyRender,
   generateCustomFormatDate,
+  generateCustomHeaderName,
   generateDaysBodyRender,
   generatePriorityWithColor,
   generateStatusWithColor,
@@ -9,6 +10,36 @@ import {
   generateCustomColumn,
   generateStatusColumn,
 } from "./ColsGenerateFunctions";
+
+const generateCustomizableCols = (column: {
+  name: string;
+  label: string;
+  bodyRenderer: (arg0: any) => any;
+}) => {
+  if (column.name === "StartDate") {
+    return {
+      name: "StartDate",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Start Date"),
+        customBodyRender: (value: any) => generateCustomFormatDate(value),
+      },
+    };
+  } else if (column.name === "DueDate") {
+    return {
+      name: "DueDate",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Due Date"),
+        customBodyRender: (value: any) => generateCustomFormatDate(value),
+      },
+    };
+  } else {
+    return generateCustomColumn(column.name, column.label, column.bodyRenderer);
+  }
+};
 
 const dashboardDatatableColsConfig = [
   {
@@ -222,7 +253,7 @@ const WorklogColsConfig = [
 ];
 
 const dashboardOnHoldAndOverdueCols = dashboardDatatableColsConfig.map(
-  (i: any) => generateCustomColumn(i.header, i.label, i.bodyRenderer)
+  (col: any) => generateCustomizableCols(col)
 );
 
 const dashboardOverallProjectSumCols = OverallProjectColsConfig.map(

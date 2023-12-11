@@ -112,7 +112,7 @@ export const generateDateWithoutTime = (value: any) => {
 
 export const generateDateWithTime = (value: any) => {
   return (
-    <div className="ml-2">
+    <div>
       {value === null || value === 0 || value === "0" ? (
         "-"
       ) : (
