@@ -1075,26 +1075,355 @@ const EditDrawer = ({
 
   // CheclkList
   const [checkListWorklogsDrawer, setCheckListWorklogsDrawer] = useState(true);
-  const [checkListName, setCheckListName] = useState("");
-  const [checkListNameError, setCheckListNameError] = useState(false);
-  const [checkListData, setCheckListData] = useState([]);
-  const [itemStates, setItemStates] = useState<any>({});
+  const [checkListNameWorklogs, setCheckListNameWorklogs] = useState("");
+  const [checkListNameWorklogsError, setCheckListNameWorklogsError] =
+    useState(false);
+  const [checkListDataWorklogs, setCheckListDataWorklogs] = useState([]);
+  const [itemStatesWorklogs, setItemStatesWorklogs] = useState<any>({});
+
+  const toggleGeneralOpen = (index: any) => {
+    setItemStatesWorklogs((prevStates: any) => ({
+      ...prevStates,
+      [index]: !prevStates[index],
+    }));
+  };
+
+  const toggleAddChecklistField = (index: any) => {
+    setItemStatesWorklogs((prevStates: any) => ({
+      ...prevStates,
+      [`addChecklistField_${index}`]: !prevStates[`addChecklistField_${index}`],
+    }));
+  };
+
+  const handleSaveCheckListNameWorklogs = async (
+    Category: any,
+    index: number
+  ) => {
+    if (hasPermissionWorklog("CheckList", "save", "WorkLogs")) {
+      if (
+        editStatusWorklogs === 4 ||
+        statusWorklogs === 7 ||
+        statusWorklogs === 8 ||
+        statusWorklogs === 9 ||
+        statusWorklogs === 13
+      ) {
+        toast.warning(
+          "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+        );
+        getCheckListDataWorklogs();
+      } else {
+        setCheckListNameWorklogsError(
+          checkListNameWorklogs.trim().length < 5 ||
+            checkListNameWorklogs.trim().length > 500
+        );
+
+        if (
+          !checkListNameWorklogsError &&
+          checkListNameWorklogs.trim().length > 4 &&
+          checkListNameWorklogs.trim().length < 500
+        ) {
+          const params = {
+            workItemId: onEdit,
+            category: Category,
+            title: checkListNameWorklogs,
+            isCheck: true,
+          };
+          const url = `${process.env.worklog_api_url}/workitem/checklist/createbyworkitem`;
+          const successCallback = (
+            ResponseData: any,
+            error: any,
+            ResponseStatus: any
+          ) => {
+            if (ResponseStatus === "Success" && error === false) {
+              toast.success(`Checklist created successfully.`);
+              setCheckListNameWorklogs("");
+              getCheckListDataWorklogs();
+              toggleAddChecklistField(index);
+            }
+          };
+          callAPI(url, params, successCallback, "POST");
+        }
+      }
+    } else {
+      toast.error("User don't have permission to Add Checklist.");
+      getCheckListDataWorklogs();
+    }
+  };
+
+  const getCheckListDataWorklogs = async () => {
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/checklist/getbyworkitem`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (
+        ResponseStatus === "Success" &&
+        ResponseData !== null &&
+        ResponseData.length >= 0 &&
+        error === false
+      ) {
+        setCheckListDataWorklogs(ResponseData);
+      } else {
+        setCheckListDataWorklogs([]);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  const handleChangeChecklist = async (
+    Category: any,
+    IsCheck: any,
+    Title: any
+  ) => {
+    if (hasPermissionWorklog("CheckList", "save", "WorkLogs")) {
+      if (
+        editStatusWorklogs === 4 ||
+        statusWorklogs === 7 ||
+        statusWorklogs === 8 ||
+        statusWorklogs === 9 ||
+        statusWorklogs === 13
+      ) {
+        toast.warning(
+          "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+        );
+        getCheckListDataWorklogs();
+      } else {
+        const params = {
+          workItemId: onEdit,
+          category: Category,
+          title: Title,
+          isCheck: IsCheck,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/checklist/savebyworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success(`CheckList Updated successfully.`);
+            getCheckListDataWorklogs();
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
+      }
+    } else {
+      toast.error("User don't have permission to Add Checklist.");
+      getCheckListDataWorklogs();
+    }
+  };
 
   // Comments
   const [commentsWorklogsDrawer, setCommentsWorklogsDrawer] = useState(true);
-  const [commentSelect, setCommentSelect] = useState<number | string>(1);
+  const [commentSelectWorklogs, setCommentSelectWorklogs] = useState<
+    number | string
+  >(1);
+  const [commentDataWorklogs, setCommentDataWorklogs] = useState([]);
+  const [valueWorklogs, setValueWorklogs] = useState("");
+  const [valueWorklogsError, setValueWorklogsError] = useState(false);
+  const [valueEditWorklogs, setValueEditWorklogs] = useState("");
+  const [valueEditWorklogsError, setValueEditWorklogsError] = useState(false);
+  const [mentionWorklogs, setMentionWorklogs] = useState<any>([]);
+  const [editingCommentIndexWorklogs, setEditingCommentIndexWorklogs] =
+    useState(-1);
+  const [commentAttachmentWorklogs, setCommentAttachmentWorklogs] = useState([
+    {
+      AttachmentId: 0,
+      UserFileName: "",
+      SystemFileName: "",
+      AttachmentPath: process.env.attachment,
+    },
+  ]);
 
-  // Dropdowns
-  const [cCDropdownData, setCCDropdownData] = useState<any>([]);
+  const usersWorklogs =
+    assigneeWorklogsDropdownData?.length > 0 &&
+    assigneeWorklogsDropdownData.map(
+      (i: any) =>
+        new Object({
+          id: i.value,
+          display: i.label,
+        })
+    );
 
-  // Reviewer note
-  const [reasonWorklogsDrawer, setReasonWorklogsDrawer] = useState(true);
-  const [reviewerNote, setReviewerNoteData] = useState([]);
+  const handleEditClickWorklogs = (index: any, message: any) => {
+    setEditingCommentIndexWorklogs(index);
+    setValueEditWorklogs(message);
+  };
+
+  const handleSaveClickWorklogs = async (e: any, i: any, type: any) => {
+    e.preventDefault();
+    setValueEditWorklogsError(
+      valueEditWorklogs.trim().length < 5 ||
+        valueEditWorklogs.trim().length > 500
+    );
+
+    if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
+      if (
+        valueEditWorklogs.trim().length >= 5 &&
+        valueEditWorklogs.trim().length < 501 &&
+        !valueEditWorklogsError
+      ) {
+        const params = {
+          workitemId: onEdit,
+          CommentId: i.CommentId,
+          Message: valueEditWorklogs,
+          TaggedUsers: mentionWorklogs,
+          Attachment:
+            commentAttachmentWorklogs[0].SystemFileName.length > 0
+              ? commentAttachmentWorklogs
+              : null,
+          type: type,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success(`Comment updated successfully.`);
+            setMentionWorklogs([]);
+            setCommentAttachmentWorklogs([
+              {
+                AttachmentId: 0,
+                UserFileName: "",
+                SystemFileName: "",
+                AttachmentPath: process.env.attachment,
+              },
+            ]);
+            setValueEditWorklogsError(false);
+            setValueEditWorklogs("");
+            getCommentDataWorklogs(1);
+            setEditingCommentIndexWorklogs(-1);
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
+      }
+    } else {
+      toast.error("User don't have permission to Update Task.");
+      getCommentDataWorklogs(1);
+    }
+  };
+
+  const handleCommentChangeWorklogs = (e: any) => {
+    setMentionWorklogs(
+      e
+        .split("(")
+        .map((i: any, index: number) => {
+          if (i.includes(")")) {
+            return parseInt(i.split(")")[0]);
+          }
+        })
+        .filter((i: any) => i !== undefined)
+    );
+    setValueWorklogsError(false);
+  };
+
+  const handleCommentAttachmentsChangeWorklogs = (
+    data1: any,
+    data2: any,
+    commentAttachment: any
+  ) => {
+    const Attachment = [
+      {
+        AttachmentId: commentAttachment[0].AttachmentId,
+        UserFileName: data1,
+        SystemFileName: data2,
+        AttachmentPath: process.env.attachment,
+      },
+    ];
+    setCommentAttachmentWorklogs(Attachment);
+  };
+
+  const getCommentDataWorklogs = async (type: any) => {
+    const params = {
+      WorkitemId: onEdit,
+      type: type,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/comment/getByWorkitem`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (
+        ResponseStatus === "Success" &&
+        ResponseData !== null &&
+        ResponseData.length >= 0 &&
+        error === false
+      ) {
+        setCommentDataWorklogs(ResponseData);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
+  const handleSubmitCommentWorklogs = async (
+    e: { preventDefault: () => void },
+    type: any
+  ) => {
+    e.preventDefault();
+    setValueWorklogsError(
+      valueWorklogs.trim().length < 5 || valueWorklogs.trim().length > 500
+    );
+
+    if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
+      if (
+        valueWorklogs.trim().length >= 5 &&
+        valueWorklogs.trim().length < 501 &&
+        !valueWorklogsError
+      ) {
+        const params = {
+          workitemId: onEdit,
+          CommentId: 0,
+          Message: valueWorklogs,
+          TaggedUsers: mentionWorklogs,
+          Attachment:
+            commentAttachmentWorklogs[0].SystemFileName.length > 0
+              ? commentAttachmentWorklogs
+              : null,
+          type: type,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success(`Comment sent successfully.`);
+            setMentionWorklogs([]);
+            setCommentAttachmentWorklogs([
+              {
+                AttachmentId: 0,
+                UserFileName: "",
+                SystemFileName: "",
+                AttachmentPath: process.env.attachment,
+              },
+            ]);
+            setValueEditWorklogsError(false);
+            setValueEditWorklogs("");
+            setValueWorklogs("");
+            getCommentDataWorklogs(commentSelectWorklogs);
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
+      }
+    } else {
+      toast.error("User don't have permission to Update Task.");
+      getCommentDataWorklogs(1);
+    }
+  };
 
   // Error Logs
+  const [cCDropdownDataWorklogs, setCCDropdownDataWorklogs] = useState<any>([]);
   const [reviewerErrWorklogsDrawer, setReviewerErrWorklogsDrawer] =
     useState(true);
-  const [errorLogFields, setErrorLogFields] = useState([
+  const [errorLogFieldsWorklogs, setErrorLogFieldsWorklogs] = useState([
     {
       SubmitedBy: "",
       SubmitedOn: "",
@@ -1118,57 +1447,135 @@ const EditDrawer = ({
       DisableErrorLog: false,
     },
   ]);
-  const [errorTypeErr, setErrorTypeErr] = useState([false]);
-  const [rootCauseErr, setRootCauseErr] = useState([false]);
-  const [errorLogPriorityErr, setErrorLogPriorityErr] = useState([false]);
-  const [errorCountErr, setErrorCountErr] = useState([false]);
-  const [natureOfErr, setNatureOfErr] = useState([false]);
+  const [errorTypeWorklogsErr, setErrorTypeWorklogsErr] = useState([false]);
+  const [rootCauseWorklogsErr, setRootCauseWorklogsErr] = useState([false]);
+  const [errorLogPriorityWorklogsErr, setErrorLogPriorityWorklogsErr] = useState([false]);
+  const [errorCountWorklogsErr, setErrorCountWorklogsErr] = useState([false]);
+  const [natureOfWorklogsErr, setNatureOfWorklogsErr] = useState([false]);
 
-  const handleRootCauseChange = (e: any, index: number) => {
-    const newFields = [...errorLogFields];
-    newFields[index].RootCause = e.target.value;
-    setErrorLogFields(newFields);
+  const handleRootCauseChangeWorklogs = (e: any, index: number) => {
+    const newFieldsWorklogs = [...errorLogFieldsWorklogs];
+    newFieldsWorklogs[index].RootCause = e.target.value;
+    setErrorLogFieldsWorklogs(newFieldsWorklogs);
 
-    const newErrors = [...rootCauseErr];
-    newErrors[index] = e.target.value === 0;
-    setRootCauseErr(newErrors);
+    const newErrorsWorklogs = [...rootCauseWorklogsErr];
+    newErrorsWorklogs[index] = e.target.value === 0;
+    setRootCauseWorklogsErr(newErrorsWorklogs);
   };
 
-  const handleNatureOfErrorChange = (e: any, index: number) => {
-    const newFields = [...errorLogFields];
-    newFields[index].NatureOfError = e.target.value;
-    setErrorLogFields(newFields);
+  const handleNatureOfErrorChangeWorklogs = (e: any, index: number) => {
+    const newFieldsWorklogs = [...errorLogFieldsWorklogs];
+    newFieldsWorklogs[index].NatureOfError = e.target.value;
+    setErrorLogFieldsWorklogs(newFieldsWorklogs);
 
-    const newErrors = [...natureOfErr];
-    newErrors[index] = e.target.value === 0;
-    setNatureOfErr(newErrors);
+    const newErrorsWorklogs = [...natureOfWorklogsErr];
+    newErrorsWorklogs[index] = e.target.value === 0;
+    setNatureOfWorklogsErr(newErrorsWorklogs);
   };
 
-  const handlePriorityChange = (e: any, index: number) => {
-    const newFields = [...errorLogFields];
-    newFields[index].Priority = e.target.value;
-    setErrorLogFields(newFields);
+  const handlePriorityChangeWorklogs = (e: any, index: number) => {
+    const newFieldsWorklogs = [...errorLogFieldsWorklogs];
+    newFieldsWorklogs[index].Priority = e.target.value;
+    setErrorLogFieldsWorklogs(newFieldsWorklogs);
 
-    const newErrors = [...errorLogPriorityErr];
-    newErrors[index] = e.target.value === 0;
-    setErrorLogPriorityErr(newErrors);
+    const newErrorsWorklogs = [...errorLogPriorityWorklogsErr];
+    newErrorsWorklogs[index] = e.target.value === 0;
+    setErrorLogPriorityWorklogsErr(newErrorsWorklogs);
   };
 
-  const handleErrorCountChange = (e: any, index: number) => {
-    const newFields = [...errorLogFields];
-    newFields[index].ErrorCount = e.target.value;
-    setErrorLogFields(newFields);
+  const handleErrorCountChangeWorklogs = (e: any, index: number) => {
+    const newFieldsWorklogs = [...errorLogFieldsWorklogs];
+    newFieldsWorklogs[index].ErrorCount = e.target.value;
+    setErrorLogFieldsWorklogs(newFieldsWorklogs);
 
-    const newErrors = [...errorCountErr];
-    newErrors[index] =
+    const newErrorsWorklogs = [...errorCountWorklogsErr];
+    newErrorsWorklogs[index] =
       e.target.value < 0 || e.target.value.toString().length > 4;
-    setErrorCountErr(newErrors);
+    setErrorCountWorklogsErr(newErrorsWorklogs);
   };
 
-  const handleCCChange = (newValue: any, index: any) => {
-    const newFields = [...errorLogFields];
-    newFields[index].CC = newValue;
-    setErrorLogFields(newFields);
+  const handleCCChangeWorklogs = (newValue: any, index: any) => {
+    const newFieldsWorklogs = [...errorLogFieldsWorklogs];
+    newFieldsWorklogs[index].CC = newValue;
+    setErrorLogFieldsWorklogs(newFieldsWorklogs);
+  };
+
+  const getErrorLogDataWorklogs = async () => {
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/errorlog/getByWorkitem`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (
+        ResponseStatus === "Success" &&
+        ResponseData !== null &&
+        ResponseData.length >= 0 &&
+        error === false
+      ) {
+        setErrorLogFieldsWorklogs(
+          ResponseData.map(
+            (i: any) =>
+              new Object({
+                SubmitedBy: i.SubmitedBy,
+                SubmitedOn: i.SubmitedOn,
+                ErrorLogId: i.ErrorLogId,
+                ErrorType: i.ErrorType,
+                RootCause: i.RootCause,
+                Priority: i.Priority,
+                ErrorCount: i.ErrorCount,
+                NatureOfError: i.NatureOfError,
+                CC: i.CC.map((i: any) =>
+                  cCDropdownDataWorklogs.find((j: { value: any }) => j.value === i)
+                ).filter(Boolean),
+                Remark: i.Remark,
+                Attachments:
+                  i.Attachment === null || i.Attachment.length <= 0
+                    ? [
+                        {
+                          AttachmentId: 0,
+                          UserFileName: "",
+                          SystemFileName: "",
+                          AttachmentPath: "",
+                        },
+                      ]
+                    : i.Attachment,
+                isSolved: i.IsSolved,
+                DisableErrorLog: i.DisableErrorLog,
+              })
+          )
+        );
+      } else {
+        setErrorLogFieldsWorklogs([
+          {
+            SubmitedBy: "",
+            SubmitedOn: "",
+            ErrorLogId: 0,
+            ErrorType: 0,
+            RootCause: 0,
+            Priority: 0,
+            ErrorCount: 0,
+            NatureOfError: 0,
+            CC: [],
+            Remark: "",
+            Attachments: [
+              {
+                AttachmentId: 0,
+                UserFileName: "",
+                SystemFileName: "",
+                AttachmentPath: "",
+              },
+            ],
+            isSolved: false,
+            DisableErrorLog: false,
+          },
+        ]);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleCheckboxChange = async (
@@ -1178,146 +1585,121 @@ const EditDrawer = ({
     index: any
   ) => {
     let hasErrorLogErrors = false;
-    const newErrorTypeErrors = errorLogFields.map(
+    const newErrorTypeWorklogsErrors = errorLogFieldsWorklogs.map(
       (field, i) => field.ErrorType === 0 && i === index
     );
-    setErrorTypeErr(newErrorTypeErrors);
-    const newRootCauseErrors = errorLogFields.map(
+    setErrorTypeWorklogsErr(newErrorTypeWorklogsErrors);
+    const newRootCauseWorklogsErrors = errorLogFieldsWorklogs.map(
       (field, i) => field.RootCause === 0 && i === index
     );
-    setRootCauseErr(newRootCauseErrors);
-    const newNatureOfErrors = errorLogFields.map(
+    setRootCauseWorklogsErr(newRootCauseWorklogsErrors);
+    const newNatureOfWorklogsErrors = errorLogFieldsWorklogs.map(
       (field, i) => field.NatureOfError === 0 && i === index
     );
-    setNatureOfErr(newNatureOfErrors);
-    const newPriorityErrors = errorLogFields.map(
+    setNatureOfWorklogsErr(newNatureOfWorklogsErrors);
+    const newPriorityErrors = errorLogFieldsWorklogs.map(
       (field, i) => field.Priority === 0 && i === index
     );
-    setErrorLogPriorityErr(newPriorityErrors);
-    const newErrorCountErrors = errorLogFields.map(
+    setErrorLogPriorityWorklogsErr(newPriorityErrors);
+    const newErrorCountWorklogsErrors = errorLogFieldsWorklogs.map(
       (field, i) =>
         (field.ErrorCount <= 0 || field.ErrorCount > 9999) && i === index
     );
-    setErrorCountErr(newErrorCountErrors);
+    setErrorCountWorklogsErr(newErrorCountWorklogsErrors);
 
     hasErrorLogErrors =
-      newErrorTypeErrors.some((error) => error) ||
-      newRootCauseErrors.some((error) => error) ||
-      newNatureOfErrors.some((error) => error) ||
+      newErrorTypeWorklogsErrors.some((error) => error) ||
+      newRootCauseWorklogsErrors.some((error) => error) ||
+      newNatureOfWorklogsErrors.some((error) => error) ||
       newPriorityErrors.some((error) => error) ||
-      newErrorCountErrors.some((error) => error);
+      newErrorCountWorklogsErrors.some((error) => error);
 
-    if (hasErrorLogErrors === false) {
-      if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`,
-            {
+    if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
+      if (hasErrorLogErrors === false) {
+        const params = {
+          WorkItemId: onEdit,
+          Errors: errorLogFieldsWorklogs.map(
+            (i: any) =>
+              new Object({
+                ErrorLogId: i.ErrorLogId,
+                ErrorType: i.ErrorType,
+                RootCause: i.RootCause,
+                Priority: i.Priority,
+                ErrorCount: i.ErrorCount,
+                NatureOfError: i.NatureOfError,
+                CC: i.CC.map((j: any) => j.value),
+                Remark: i.Remark,
+                Attachments:
+                  i.Attachments[0].UserFileName.length > 0
+                    ? i.Attachments
+                    : null,
+              })
+          ),
+          IsClientWorklog: false,
+          SubmissionId: null,
+          DeletedErrorlogIds: [],
+        };
+        const url = `${process.env.worklog_api_url}/workitem/errorlog/saveByworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            const params = {
               WorkItemId: onEdit,
-              Errors: errorLogFields.map(
-                (i: any) =>
-                  new Object({
-                    ErrorLogId: i.ErrorLogId,
-                    ErrorType: i.ErrorType,
-                    RootCause: i.RootCause,
-                    Priority: i.Priority,
-                    ErrorCount: i.ErrorCount,
-                    NatureOfError: i.NatureOfError,
-                    CC: i.CC.map((j: any) => j.value),
-                    Remark: i.Remark,
-                    Attachments:
-                      i.Attachments[0].UserFileName.length > 0
-                        ? i.Attachments
-                        : null,
-                  })
-              ),
-              IsClientWorklog: false,
-              SubmissionId: null,
-              DeletedErrorlogIds: [],
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              try {
-                const response = await axios.post(
-                  `${process.env.worklog_api_url}/workitem/errorlog/SolveByworkitem`,
-                  {
-                    WorkItemId: onEdit,
-                    ErrorLogId: errorLogId,
-                    IsSolved: checked,
-                  },
-                  {
-                    headers: {
-                      Authorization: `bearer ${token}`,
-                      org_token: `${Org_Token}`,
-                    },
-                  }
+              ErrorLogId: errorLogId,
+              IsSolved: checked,
+            };
+            const url = `${process.env.worklog_api_url}/workitem/errorlog/SolveByworkitem`;
+            const successCallback = (
+              ResponseData: any,
+              error: any,
+              ResponseStatus: any
+            ) => {
+              if (ResponseStatus === "Success" && error === false) {
+                toast.success(
+                  `${checked ? "Error log Resolved." : "Error log changed."}`
                 );
-
-                if (response.status === 200) {
-                  if (response.data.ResponseStatus === "Success") {
-                    toast.success(
-                      `${
-                        checked ? "Error log Resolved." : "Error log changed."
-                      }`
-                    );
-                    getErrorLogData();
-                    onDataFetch();
-                  } else {
-                    const data = response.data.Message;
-                    if (data === null) {
-                      toast.error("Please try again later.");
-                    } else {
-                      toast.error(data);
-                    }
-                  }
-                } else {
-                  const data = response.data.Message;
-                  if (data === null) {
-                    toast.error("Failed Please try again.");
-                  } else {
-                    toast.error(data);
-                  }
-                }
-              } catch (error) {
-                console.error(error);
+                getErrorLogDataWorklogs();
+                onDataFetch();
               }
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
+            };
+            callAPI(url, params, successCallback, "POST");
           }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
-      } else {
-        toast.error("User don't have permission to Update Task.");
-        getErrorLogData();
+        };
+        callAPI(url, params, successCallback, "POST");
       }
+    } else {
+      toast.error("User don't have permission to Update Task.");
+      getErrorLogDataWorklogs();
     }
+  };
+
+  // Reviewer note
+  const [reasonWorklogsDrawer, setReasonWorklogsDrawer] = useState(true);
+  const [reviewerNoteWorklogs, setReviewerNoteDataWorklogs] = useState([]);
+
+  const getReviewerNoteDataWorklogs = async () => {
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/approval/getreviewernotelist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (
+        ResponseStatus === "Success" &&
+        ResponseData !== null &&
+        ResponseData.length >= 0 &&
+        error === false
+      ) {
+        setReviewerNoteDataWorklogs(ResponseData);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
@@ -1656,7 +2038,9 @@ const EditDrawer = ({
               `Worklog ${onEdit > 0 ? "Updated" : "created"} successfully.`
             );
             onEdit > 0 && getEditDataWorklogs();
-            onEdit > 0 && typeOfWorkWorklogs === 3 && getCheckListData();
+            onEdit > 0 &&
+              typeOfWorkWorklogs === 3 &&
+              getCheckListDataWorklogs();
             onEdit === 0 && onClose();
             onEdit === 0 && handleClose();
           } else {
@@ -1786,245 +2170,6 @@ const EditDrawer = ({
   };
 
   // OnEdit
-  const getCommentData = async (type: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/comment/getByWorkitem`,
-        {
-          WorkitemId: onEdit,
-          type: type,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setCommentData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error: any) {
-      if (error.response && error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
-  };
-
-  const getErrorLogData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/errorlog/getByWorkitem`,
-        {
-          WorkitemId: onEdit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          response.data.ResponseData.length <= 0
-            ? setErrorLogFields([
-                {
-                  SubmitedBy: "",
-                  SubmitedOn: "",
-                  ErrorLogId: 0,
-                  ErrorType: 0,
-                  RootCause: 0,
-                  Priority: 0,
-                  ErrorCount: 0,
-                  NatureOfError: 0,
-                  CC: [],
-                  Remark: "",
-                  Attachments: [
-                    {
-                      AttachmentId: 0,
-                      UserFileName: "",
-                      SystemFileName: "",
-                      AttachmentPath: "",
-                    },
-                  ],
-                  isSolved: false,
-                  DisableErrorLog: false,
-                },
-              ])
-            : setErrorLogFields(
-                response.data.ResponseData.map(
-                  (i: any) =>
-                    new Object({
-                      SubmitedBy: i.SubmitedBy,
-                      SubmitedOn: i.SubmitedOn,
-                      ErrorLogId: i.ErrorLogId,
-                      ErrorType: i.ErrorType,
-                      RootCause: i.RootCause,
-                      Priority: i.Priority,
-                      ErrorCount: i.ErrorCount,
-                      NatureOfError: i.NatureOfError,
-                      CC: i.CC.map((i: any) =>
-                        cCDropdownData.find(
-                          (j: { value: any }) => j.value === i
-                        )
-                      ).filter(Boolean),
-                      Remark: i.Remark,
-                      Attachments:
-                        i.Attachment === null || i.Attachment.length <= 0
-                          ? [
-                              {
-                                AttachmentId: 0,
-                                UserFileName: "",
-                                SystemFileName: "",
-                                AttachmentPath: "",
-                              },
-                            ]
-                          : i.Attachment,
-                      isSolved: i.IsSolved,
-                      DisableErrorLog: i.DisableErrorLog,
-                    })
-                )
-              );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error: any) {
-      if (error.response && error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
-  };
-
-  const getReviewerNoteData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/approval/getreviewernotelist`,
-        {
-          WorkitemId: onEdit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setReviewerNoteData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error: any) {
-      if (error.response && error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
-  };
-
-  const getCheckListData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/checklist/getbyworkitem`,
-        {
-          WorkitemId: onEdit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setCheckListData(
-            response.data.ResponseData === (null || [])
-              ? []
-              : response.data.ResponseData
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error: any) {
-      if (error.response && error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
-  };
-
   const getEditDataWorklogs = async () => {
     const params = {
       WorkitemId: onEdit,
@@ -2126,14 +2271,16 @@ const EditDrawer = ({
       getSubTaskDataWorklogs();
       getRecurringDataWorklogs();
       getManualDataWorklogs();
-      getCheckListData();
-      getCommentData(1);
-      getReviewerNoteData();
+      getCheckListDataWorklogs();
+      getCommentDataWorklogs(1);
+      getReviewerNoteDataWorklogs();
     }
   };
 
   useEffect(() => {
-    onEdit > 0 && assigneeWorklogsDropdownData.length > 0 && getErrorLogData();
+    onEdit > 0 &&
+      assigneeWorklogsDropdownData.length > 0 &&
+      getErrorLogDataWorklogs();
     onEdit > 0 &&
       assigneeWorklogsDropdownData.length > 0 &&
       getReminderDataWorklogs();
@@ -2143,7 +2290,7 @@ const EditDrawer = ({
   useEffect(() => {
     const getData = async () => {
       await setStatusWorklogsDropdownData(await getStatusDropdownData());
-      await setCCDropdownData(await getCCDropdownData());
+      await setCCDropdownDataWorklogs(await getCCDropdownData());
     };
     getData();
   }, []);
@@ -2162,7 +2309,7 @@ const EditDrawer = ({
         );
       onOpen &&
         statusWorklogsDropdownData.length === 0 &&
-        (await setCCDropdownData(await getCCDropdownData()));
+        (await setCCDropdownDataWorklogs(await getCCDropdownData()));
       statusWorklogsDropdownData.length > 0 && (await onEditDataWorklogs());
     };
     getData();
@@ -2266,159 +2413,6 @@ const EditDrawer = ({
     typeOfWorkWorklogs !== 0 && getData();
   }, [typeOfWorkWorklogs, clientNameWorklogs]);
 
-  // Add Checklist
-  const toggleGeneralOpen = (index: any) => {
-    setItemStates((prevStates: any) => ({
-      ...prevStates,
-      [index]: !prevStates[index],
-    }));
-  };
-
-  const toggleAddChecklistField = (index: any) => {
-    setItemStates((prevStates: any) => ({
-      ...prevStates,
-      [`addChecklistField_${index}`]: !prevStates[`addChecklistField_${index}`],
-    }));
-  };
-
-  const handleSaveCheckListName = async (Category: any, index: number) => {
-    if (
-      editStatusWorklogs === 4 ||
-      statusWorklogs === 7 ||
-      statusWorklogs === 8 ||
-      statusWorklogs === 9 ||
-      statusWorklogs === 13
-    ) {
-      toast.warning(
-        "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-      );
-      getCheckListData();
-    } else {
-      setCheckListNameError(
-        checkListName.trim().length < 5 || checkListName.trim().length > 500
-      );
-
-      if (
-        !checkListNameError &&
-        checkListName.trim().length > 4 &&
-        checkListName.trim().length < 500
-      ) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/checklist/createbyworkitem`,
-            {
-              workItemId: onEdit,
-              category: Category,
-              title: checkListName,
-              isCheck: true,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Checklist created successfully.`);
-              setCheckListName("");
-              getCheckListData();
-              toggleAddChecklistField(index);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
-      }
-    }
-  };
-
-  const handleChangeChecklist = async (
-    Category: any,
-    IsCheck: any,
-    Title: any
-  ) => {
-    if (
-      editStatusWorklogs === 4 ||
-      statusWorklogs === 7 ||
-      statusWorklogs === 8 ||
-      statusWorklogs === 9 ||
-      statusWorklogs === 13
-    ) {
-      toast.warning(
-        "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-      );
-      getCheckListData();
-    } else {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/checklist/savebyworkitem`,
-          {
-            workItemId: onEdit,
-            category: Category,
-            title: Title,
-            isCheck: IsCheck,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            toast.success(`CheckList Updated successfully.`);
-            getCheckListData();
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Failed Please try again.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
-      }
-    }
-  };
-
   const getUserDetails = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -2462,227 +2456,6 @@ const EditDrawer = ({
       if (error.response?.status === 401) {
         router.push("/login");
         localStorage.clear();
-      }
-    }
-  };
-
-  // Comments
-  const [commentData, setCommentData] = useState([]);
-  const [value, setValue] = useState("");
-  const [valueError, setValueError] = useState(false);
-  const [valueEdit, setValueEdit] = useState("");
-  const [valueEditError, setValueEditError] = useState(false);
-  const [mention, setMention] = useState<any>([]);
-  const [editingCommentIndex, setEditingCommentIndex] = useState(-1);
-  const [commentAttachment, setCommentAttachment] = useState([
-    {
-      AttachmentId: 0,
-      UserFileName: "",
-      SystemFileName: "",
-      AttachmentPath: process.env.attachment,
-    },
-  ]);
-
-  const users =
-    assigneeWorklogsDropdownData?.length > 0 &&
-    assigneeWorklogsDropdownData.map(
-      (i: any) =>
-        new Object({
-          id: i.value,
-          display: i.label,
-        })
-    );
-
-  const handleEditClick = (index: any, message: any) => {
-    setEditingCommentIndex(index);
-    setValueEdit(message);
-  };
-
-  const handleSaveClick = async (e: any, i: any, type: any) => {
-    e.preventDefault();
-    setValueEditError(
-      valueEdit.trim().length < 5 || valueEdit.trim().length > 500
-    );
-
-    if (
-      valueEdit.trim().length > 5 &&
-      valueEdit.trim().length < 501 &&
-      !valueEditError
-    ) {
-      if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`,
-            {
-              workitemId: onEdit,
-              CommentId: i.CommentId,
-              Message: valueEdit,
-              TaggedUsers: mention,
-              Attachment:
-                commentAttachment[0].SystemFileName.length > 0
-                  ? commentAttachment
-                  : null,
-              type: type,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Comment updated successfully.`);
-              setMention([]);
-              setCommentAttachment([
-                {
-                  AttachmentId: 0,
-                  UserFileName: "",
-                  SystemFileName: "",
-                  AttachmentPath: process.env.attachment,
-                },
-              ]);
-              setValueEditError(false);
-              setValueEdit("");
-              getCommentData(1);
-              setEditingCommentIndex(-1);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
-      } else {
-        toast.error("User don't have permission to Update Task.");
-        getCommentData(1);
-      }
-    }
-  };
-
-  const handleCommentChange = (e: any) => {
-    setMention(
-      e
-        .split("(")
-        .map((i: any, index: number) => {
-          if (i.includes(")")) {
-            return parseInt(i.split(")")[0]);
-          }
-        })
-        .filter((i: any) => i !== undefined)
-    );
-    setValueError(false);
-  };
-
-  const handleCommentAttachmentsChange = (
-    data1: any,
-    data2: any,
-    commentAttachment: any
-  ) => {
-    const Attachment = [
-      {
-        AttachmentId: commentAttachment[0].AttachmentId,
-        UserFileName: data1,
-        SystemFileName: data2,
-        AttachmentPath: process.env.attachment,
-      },
-    ];
-    setCommentAttachment(Attachment);
-  };
-
-  const handleSubmitComment = async (
-    e: { preventDefault: () => void },
-    type: any
-  ) => {
-    e.preventDefault();
-    setValueError(value.trim().length < 5 || value.trim().length > 500);
-
-    if (value.trim().length >= 5 && value.trim().length < 501 && !valueError) {
-      if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/comment/saveByworkitem`,
-            {
-              workitemId: onEdit,
-              CommentId: 0,
-              Message: value,
-              TaggedUsers: mention,
-              Attachment:
-                commentAttachment[0].SystemFileName.length > 0
-                  ? commentAttachment
-                  : null,
-              type: type,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Comment sent successfully.`);
-              setMention([]);
-              setCommentAttachment([
-                {
-                  AttachmentId: 0,
-                  UserFileName: "",
-                  SystemFileName: "",
-                  AttachmentPath: process.env.attachment,
-                },
-              ]);
-              setValueEditError(false);
-              setValueEdit("");
-              setValue("");
-              getCommentData(commentSelect);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
-      } else {
-        toast.error("User don't have permission to Update Task.");
-        getCommentData(1);
       }
     }
   };
@@ -2786,13 +2559,13 @@ const EditDrawer = ({
     setReminderId(0);
 
     // checklist
-    setCheckListName("");
-    setCheckListNameError(false);
-    setCheckListData([]);
-    setItemStates({});
+    setCheckListNameWorklogs("");
+    setCheckListNameWorklogsError(false);
+    setCheckListDataWorklogs([]);
+    setItemStatesWorklogs({});
 
     // Error Logs
-    setErrorLogFields([
+    setErrorLogFieldsWorklogs([
       {
         SubmitedBy: "",
         SubmitedOn: "",
@@ -2816,22 +2589,22 @@ const EditDrawer = ({
         DisableErrorLog: false,
       },
     ]);
-    setErrorTypeErr([false]);
-    setRootCauseErr([false]);
-    setErrorLogPriorityErr([false]);
-    setErrorCountErr([false]);
-    setNatureOfErr([false]);
+    setErrorTypeWorklogsErr([false]);
+    setRootCauseWorklogsErr([false]);
+    setErrorLogPriorityWorklogsErr([false]);
+    setErrorCountWorklogsErr([false]);
+    setNatureOfWorklogsErr([false]);
 
     // Comments
-    setCommentData([]);
-    setValue("");
-    setValueError(false);
-    setValueEdit("");
-    setValueEditError(false);
-    setMention([]);
-    setEditingCommentIndex(-1);
-    setCommentSelect(1);
-    setCommentAttachment([
+    setCommentDataWorklogs([]);
+    setValueWorklogs("");
+    setValueWorklogsError(false);
+    setValueEditWorklogs("");
+    setValueEditWorklogsError(false);
+    setMentionWorklogs([]);
+    setEditingCommentIndexWorklogs(-1);
+    setCommentSelectWorklogs(1);
+    setCommentAttachmentWorklogs([
       {
         AttachmentId: 0,
         UserFileName: "",
@@ -2839,10 +2612,9 @@ const EditDrawer = ({
         AttachmentPath: process.env.attachment,
       },
     ]);
-    setEditingCommentIndex(-1);
 
     // Reviewer note
-    setReviewerNoteData([]);
+    setReviewerNoteDataWorklogs([]);
 
     // Dropdown
     setClientWorklogsDropdownData([]);
@@ -4079,19 +3851,23 @@ const EditDrawer = ({
                   </div>
                   <div className="pl-12 mt-5">
                     {checkListWorklogsDrawer &&
-                      checkListData?.length > 0 &&
-                      checkListData.map((i: any, index: number) => (
+                      checkListDataWorklogs?.length > 0 &&
+                      checkListDataWorklogs.map((i: any, index: number) => (
                         <div className="mt-3">
                           <span className="flex items-center">
                             <span onClick={() => toggleGeneralOpen(index)}>
-                              {itemStates[index] ? <RemoveIcon /> : <AddIcon />}
+                              {itemStatesWorklogs[index] ? (
+                                <RemoveIcon />
+                              ) : (
+                                <AddIcon />
+                              )}
                             </span>
                             <span className="text-large font-semibold mr-6">
                               {i.Category}
                             </span>
                             {/* <ThreeDotIcon /> */}
                           </span>
-                          {itemStates[index] && (
+                          {itemStatesWorklogs[index] && (
                             <FormGroup className="ml-8 mt-2">
                               {i.Activities.map((j: any, index: number) => (
                                 <FormControlLabel
@@ -4122,8 +3898,10 @@ const EditDrawer = ({
                             "save",
                             "WorkLogs"
                           ) &&
-                            itemStates[index] &&
-                            !itemStates[`addChecklistField_${index}`] && (
+                            itemStatesWorklogs[index] &&
+                            !itemStatesWorklogs[
+                              `addChecklistField_${index}`
+                            ] && (
                               <span
                                 className="flex items-center gap-3 ml-8 cursor-pointer text-[#6E6D7A]"
                                 onClick={() => toggleAddChecklistField(index)}
@@ -4131,8 +3909,10 @@ const EditDrawer = ({
                                 <AddIcon /> Add new checklist item
                               </span>
                             )}
-                          {itemStates[index] &&
-                            itemStates[`addChecklistField_${index}`] && (
+                          {itemStatesWorklogs[index] &&
+                            itemStatesWorklogs[
+                              `addChecklistField_${index}`
+                            ] && (
                               <>
                                 <TextField
                                   label={
@@ -4146,35 +3926,36 @@ const EditDrawer = ({
                                   fullWidth
                                   className="ml-8"
                                   value={
-                                    checkListName?.trim().length <= 0
+                                    checkListNameWorklogs?.trim().length <= 0
                                       ? ""
-                                      : checkListName
+                                      : checkListNameWorklogs
                                   }
                                   onChange={(e) => {
-                                    setCheckListName(e.target.value);
-                                    setCheckListNameError(false);
+                                    setCheckListNameWorklogs(e.target.value);
+                                    setCheckListNameWorklogsError(false);
                                   }}
                                   onBlur={(e: any) => {
                                     if (e.target.value.trim().length > 5) {
-                                      setCheckListNameError(false);
+                                      setCheckListNameWorklogsError(false);
                                     }
                                     if (
                                       e.target.value.trim().length > 5 &&
                                       e.target.value.trim().length < 500
                                     ) {
-                                      setCheckListNameError(false);
+                                      setCheckListNameWorklogsError(false);
                                     }
                                   }}
-                                  error={checkListNameError}
+                                  error={checkListNameWorklogsError}
                                   helperText={
-                                    checkListNameError &&
-                                    checkListName.trim().length > 0 &&
-                                    checkListName.trim().length < 5
+                                    checkListNameWorklogsError &&
+                                    checkListNameWorklogs.trim().length > 0 &&
+                                    checkListNameWorklogs.trim().length < 5
                                       ? "Minimum 5 characters required."
-                                      : checkListNameError &&
-                                        checkListName.trim().length > 500
+                                      : checkListNameWorklogsError &&
+                                        checkListNameWorklogs.trim().length >
+                                          500
                                       ? "Maximum 500 characters allowed."
-                                      : checkListNameError
+                                      : checkListNameWorklogsError
                                       ? "This is a required field."
                                       : ""
                                   }
@@ -4187,7 +3968,10 @@ const EditDrawer = ({
                                   variant="contained"
                                   className="rounded-[4px] !h-[36px] mr-6 !bg-secondary mt-2"
                                   onClick={() =>
-                                    handleSaveCheckListName(i.Category, index)
+                                    handleSaveCheckListNameWorklogs(
+                                      i.Category,
+                                      index
+                                    )
                                   }
                                 >
                                   <span className="flex items-center justify-center gap-[10px] px-[5px]">
@@ -4216,10 +4000,10 @@ const EditDrawer = ({
                         <Select
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
-                          value={commentSelect}
+                          value={commentSelectWorklogs}
                           onChange={(e) => {
-                            setCommentSelect(e.target.value);
-                            getCommentData(e.target.value);
+                            setCommentSelectWorklogs(e.target.value);
+                            getCommentDataWorklogs(e.target.value);
                           }}
                         >
                           <MenuItem value={1}>Internal</MenuItem>
@@ -4241,8 +4025,8 @@ const EditDrawer = ({
                   <div className="my-5 px-16">
                     <div className="flex flex-col gap-4">
                       {commentsWorklogsDrawer &&
-                        commentData.length > 0 &&
-                        commentData.map((i: any, index: number) => (
+                        commentDataWorklogs.length > 0 &&
+                        commentDataWorklogs.map((i: any, index: number) => (
                           <div className="flex gap-4">
                             {i.UserName.length > 0 ? (
                               <Avatar>
@@ -4267,23 +4051,27 @@ const EditDrawer = ({
                                 })}
                               </Typography>
                               <div className="flex items-center gap-2">
-                                {editingCommentIndex === index ? (
+                                {editingCommentIndexWorklogs === index ? (
                                   <div className="flex items-center gap-2">
                                     <div className="flex flex-col">
                                       <div className="flex items-start justify-center">
                                         <MentionsInput
                                           style={mentionsInputStyle}
                                           className="!w-[100%] textareaOutlineNoneEdit"
-                                          value={valueEdit}
+                                          value={valueEditWorklogs}
                                           onChange={(e) => {
-                                            setValueEdit(e.target.value);
-                                            setValueEditError(false);
-                                            handleCommentChange(e.target.value);
+                                            setValueEditWorklogs(
+                                              e.target.value
+                                            );
+                                            setValueEditWorklogsError(false);
+                                            handleCommentChangeWorklogs(
+                                              e.target.value
+                                            );
                                           }}
                                           placeholder="Type a next message OR type @ if you want to mention anyone in the message."
                                         >
                                           <Mention
-                                            data={users}
+                                            data={usersWorklogs}
                                             style={{
                                               backgroundColor: "#cee4e5",
                                             }}
@@ -4298,31 +4086,31 @@ const EditDrawer = ({
                                                 data1: any,
                                                 data2: any
                                               ) =>
-                                                handleCommentAttachmentsChange(
+                                                handleCommentAttachmentsChangeWorklogs(
                                                   data1,
                                                   data2,
-                                                  commentAttachment
+                                                  commentAttachmentWorklogs
                                                 )
                                               }
                                               isDisable={false}
                                             />
                                           </div>
                                         </div>
-                                        {commentAttachment[0]?.SystemFileName
-                                          .length > 0 && (
+                                        {commentAttachmentWorklogs[0]
+                                          ?.SystemFileName.length > 0 && (
                                           <div className="flex items-center justify-center gap-2">
                                             <span className="ml-2 cursor-pointer">
                                               {
-                                                commentAttachment[0]
+                                                commentAttachmentWorklogs[0]
                                                   ?.UserFileName
                                               }
                                             </span>
                                             <span
                                               onClick={() =>
                                                 getFileFromBlob(
-                                                  commentAttachment[0]
+                                                  commentAttachmentWorklogs[0]
                                                     ?.SystemFileName,
-                                                  commentAttachment[0]
+                                                  commentAttachmentWorklogs[0]
                                                     ?.UserFileName
                                                 )
                                               }
@@ -4339,19 +4127,20 @@ const EditDrawer = ({
                                         )}
                                       </div>
                                       <div className="flex flex-col">
-                                        {valueEditError &&
-                                        valueEdit.trim().length > 1 &&
-                                        valueEdit.trim().length < 5 ? (
+                                        {valueEditWorklogsError &&
+                                        valueEditWorklogs.trim().length > 1 &&
+                                        valueEditWorklogs.trim().length < 5 ? (
                                           <span className="text-defaultRed text-[14px]">
                                             Minimum 5 characters required.
                                           </span>
-                                        ) : valueEditError &&
-                                          valueEdit.trim().length > 500 ? (
+                                        ) : valueEditWorklogsError &&
+                                          valueEditWorklogs.trim().length >
+                                            500 ? (
                                           <span className="text-defaultRed text-[14px]">
                                             Maximum 500 characters allowed.
                                           </span>
                                         ) : (
-                                          valueEditError && (
+                                          valueEditWorklogsError && (
                                             <span className="text-defaultRed text-[14px]">
                                               This is a required field.
                                             </span>
@@ -4363,7 +4152,11 @@ const EditDrawer = ({
                                       type="button"
                                       className="!bg-secondary text-white border rounded-md px-[4px]"
                                       onClick={(e) =>
-                                        handleSaveClick(e, i, commentSelect)
+                                        handleSaveClickWorklogs(
+                                          e,
+                                          i,
+                                          commentSelectWorklogs
+                                        )
                                       }
                                     >
                                       <Save className="w-4 h-4" />
@@ -4424,8 +4217,11 @@ const EditDrawer = ({
                                           type="button"
                                           className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
                                           onClick={() => {
-                                            handleEditClick(index, i.Message);
-                                            setCommentAttachment([
+                                            handleEditClickWorklogs(
+                                              index,
+                                              i.Message
+                                            );
+                                            setCommentAttachmentWorklogs([
                                               {
                                                 AttachmentId:
                                                   i.Attachment[0].AttachmentId,
@@ -4458,16 +4254,16 @@ const EditDrawer = ({
                           <MentionsInput
                             style={mentionsInputStyle}
                             className="!w-[92%] textareaOutlineNone"
-                            value={value}
+                            value={valueWorklogs}
                             onChange={(e) => {
-                              setValue(e.target.value);
-                              setValueError(false);
-                              handleCommentChange(e.target.value);
+                              setValueWorklogs(e.target.value);
+                              setValueWorklogsError(false);
+                              handleCommentChangeWorklogs(e.target.value);
                             }}
                             placeholder="Type a next message OR type @ if you want to mention anyone in the message."
                           >
                             <Mention
-                              data={users}
+                              data={usersWorklogs}
                               style={{ backgroundColor: "#cee4e5" }}
                               trigger="@"
                             />
@@ -4477,10 +4273,10 @@ const EditDrawer = ({
                               <ImageUploader
                                 className="!mt-0"
                                 getData={(data1: any, data2: any) =>
-                                  handleCommentAttachmentsChange(
+                                  handleCommentAttachmentsChangeWorklogs(
                                     data1,
                                     data2,
-                                    commentAttachment
+                                    commentAttachmentWorklogs
                                   )
                                 }
                                 isDisable={false}
@@ -4491,7 +4287,10 @@ const EditDrawer = ({
                             type="button"
                             className="!bg-secondary text-white p-[6px] rounded-md cursor-pointer mr-2"
                             onClick={(e) =>
-                              handleSubmitComment(e, commentSelect)
+                              handleSubmitCommentWorklogs(
+                                e,
+                                commentSelectWorklogs
+                              )
                             }
                           >
                             <SendIcon />
@@ -4499,36 +4298,39 @@ const EditDrawer = ({
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex flex-col">
-                            {valueError &&
-                            value.trim().length > 1 &&
-                            value.trim().length < 5 ? (
+                            {valueWorklogsError &&
+                            valueWorklogs.trim().length > 1 &&
+                            valueWorklogs.trim().length < 5 ? (
                               <span className="text-defaultRed text-[14px] ml-20">
                                 Minimum 5 characters required.
                               </span>
-                            ) : valueError && value.trim().length > 500 ? (
+                            ) : valueWorklogsError &&
+                              valueWorklogs.trim().length > 500 ? (
                               <span className="text-defaultRed text-[14px] ml-20">
                                 Maximum 500 characters allowed.
                               </span>
                             ) : (
-                              valueError && (
+                              valueWorklogsError && (
                                 <span className="text-defaultRed text-[14px] ml-20">
                                   This is a required field.
                                 </span>
                               )
                             )}
                           </div>
-                          {commentAttachment[0].AttachmentId === 0 &&
-                            commentAttachment[0]?.SystemFileName.length > 0 && (
+                          {commentAttachmentWorklogs[0].AttachmentId === 0 &&
+                            commentAttachmentWorklogs[0]?.SystemFileName
+                              .length > 0 && (
                               <div className="flex items-center justify-center gap-2 mr-6">
                                 <span className="mt-6 ml-2 cursor-pointer">
-                                  {commentAttachment[0]?.UserFileName}
+                                  {commentAttachmentWorklogs[0]?.UserFileName}
                                 </span>
                                 <span
                                   className="mt-6"
                                   onClick={() =>
                                     getFileFromBlob(
-                                      commentAttachment[0]?.SystemFileName,
-                                      commentAttachment[0]?.UserFileName
+                                      commentAttachmentWorklogs[0]
+                                        ?.SystemFileName,
+                                      commentAttachmentWorklogs[0]?.UserFileName
                                     )
                                   }
                                 >
@@ -5500,9 +5302,9 @@ const EditDrawer = ({
                   </div>
                   {reviewerErrWorklogsDrawer && (
                     <div className="mt-3 pl-6">
-                      {errorLogFields.length > 0 &&
-                        errorLogFields[0].SubmitedBy.length > 0 &&
-                        errorLogFields.map((i: any, index: number) => (
+                      {errorLogFieldsWorklogs.length > 0 &&
+                        errorLogFieldsWorklogs[0].SubmitedBy.length > 0 &&
+                        errorLogFieldsWorklogs.map((i: any, index: number) => (
                           <>
                             <div className="ml-1 mt-8">
                               <span className="font-bold">Correction By</span>
@@ -5519,7 +5321,7 @@ const EditDrawer = ({
                               <FormControl
                                 variant="standard"
                                 sx={{ mx: 0.75, minWidth: 230 }}
-                                error={errorTypeErr[index]}
+                                error={errorTypeWorklogsErr[index]}
                               >
                                 <InputLabel id="demo-simple-select-standard-label">
                                   Error Type
@@ -5540,7 +5342,7 @@ const EditDrawer = ({
                                   <MenuItem value={1}>Internal</MenuItem>
                                   <MenuItem value={2}>External</MenuItem>
                                 </Select>
-                                {errorTypeErr[index] && (
+                                {errorTypeWorklogsErr[index] && (
                                   <FormHelperText>
                                     This is a required field.
                                   </FormHelperText>
@@ -5549,7 +5351,7 @@ const EditDrawer = ({
                               <FormControl
                                 variant="standard"
                                 sx={{ mx: 0.75, minWidth: 230 }}
-                                error={rootCauseErr[index]}
+                                error={rootCauseWorklogsErr[index]}
                               >
                                 <InputLabel id="demo-simple-select-standard-label">
                                   Root Cause
@@ -5562,15 +5364,15 @@ const EditDrawer = ({
                                   id="demo-simple-select-standard"
                                   value={i.RootCause === 0 ? "" : i.RootCause}
                                   onChange={(e) =>
-                                    handleRootCauseChange(e, index)
+                                    handleRootCauseChangeWorklogs(e, index)
                                   }
                                   onBlur={(e: any) => {
                                     if (e.target.value > 0) {
-                                      const newRootCauseErrors = [
-                                        ...rootCauseErr,
+                                      const newRootCauseWorklogsErrors = [
+                                        ...rootCauseWorklogsErr,
                                       ];
-                                      newRootCauseErrors[index] = false;
-                                      setRootCauseErr(newRootCauseErrors);
+                                      newRootCauseWorklogsErrors[index] = false;
+                                      setRootCauseWorklogsErr(newRootCauseWorklogsErrors);
                                     }
                                   }}
                                   readOnly={
@@ -5582,7 +5384,7 @@ const EditDrawer = ({
                                   <MenuItem value={1}>Procedural</MenuItem>
                                   <MenuItem value={2}>DataEntry</MenuItem>
                                 </Select>
-                                {rootCauseErr[index] && (
+                                {rootCauseWorklogsErr[index] && (
                                   <FormHelperText>
                                     This is a required field.
                                   </FormHelperText>
@@ -5591,7 +5393,7 @@ const EditDrawer = ({
                               <FormControl
                                 variant="standard"
                                 sx={{ mx: 0.75, minWidth: 230 }}
-                                error={natureOfErr[index]}
+                                error={natureOfWorklogsErr[index]}
                               >
                                 <InputLabel id="demo-simple-select-standard-label">
                                   Nature of Error
@@ -5606,15 +5408,15 @@ const EditDrawer = ({
                                     i.NatureOfError === 0 ? "" : i.NatureOfError
                                   }
                                   onChange={(e) =>
-                                    handleNatureOfErrorChange(e, index)
+                                    handleNatureOfErrorChangeWorklogs(e, index)
                                   }
                                   onBlur={(e: any) => {
                                     if (e.target.value > 0) {
                                       const newNatureOfErrorErrors = [
-                                        ...natureOfErr,
+                                        ...natureOfWorklogsErr,
                                       ];
                                       newNatureOfErrorErrors[index] = false;
-                                      setNatureOfErr(newNatureOfErrorErrors);
+                                      setNatureOfWorklogsErr(newNatureOfErrorErrors);
                                     }
                                   }}
                                   readOnly={
@@ -5649,7 +5451,7 @@ const EditDrawer = ({
                                     Review Check List Not Prepared
                                   </MenuItem>
                                 </Select>
-                                {natureOfErr[index] && (
+                                {natureOfWorklogsErr[index] && (
                                   <FormHelperText>
                                     This is a required field.
                                   </FormHelperText>
@@ -5658,7 +5460,7 @@ const EditDrawer = ({
                               <FormControl
                                 variant="standard"
                                 sx={{ mx: 0.75, minWidth: 230 }}
-                                error={errorLogPriorityErr[index]}
+                                error={errorLogPriorityWorklogsErr[index]}
                               >
                                 <InputLabel id="demo-simple-select-standard-label">
                                   Priority
@@ -5671,15 +5473,15 @@ const EditDrawer = ({
                                   id="demo-simple-select-standard"
                                   value={i.Priority === 0 ? "" : i.Priority}
                                   onChange={(e) =>
-                                    handlePriorityChange(e, index)
+                                    handlePriorityChangeWorklogs(e, index)
                                   }
                                   onBlur={(e: any) => {
                                     if (e.target.value > 0) {
                                       const newPriorityErrors = [
-                                        ...errorLogPriorityErr,
+                                        ...errorLogPriorityWorklogsErr,
                                       ];
                                       newPriorityErrors[index] = false;
-                                      setErrorLogPriorityErr(newPriorityErrors);
+                                      setErrorLogPriorityWorklogsErr(newPriorityErrors);
                                     }
                                   }}
                                   readOnly={
@@ -5692,7 +5494,7 @@ const EditDrawer = ({
                                   <MenuItem value={2}>Medium</MenuItem>
                                   <MenuItem value={3}>Low</MenuItem>
                                 </Select>
-                                {errorLogPriorityErr[index] && (
+                                {errorLogPriorityWorklogsErr[index] && (
                                   <FormHelperText>
                                     This is a required field.
                                   </FormHelperText>
@@ -5711,25 +5513,25 @@ const EditDrawer = ({
                                 fullWidth
                                 value={i.ErrorCount}
                                 onChange={(e) =>
-                                  handleErrorCountChange(e, index)
+                                  handleErrorCountChangeWorklogs(e, index)
                                 }
                                 onBlur={(e: any) => {
                                   if (e.target.value.length > 0) {
-                                    const newErrorCountErrors = [
-                                      ...errorCountErr,
+                                    const newErrorCountWorklogsErrors = [
+                                      ...errorCountWorklogsErr,
                                     ];
-                                    newErrorCountErrors[index] = false;
-                                    setErrorCountErr(newErrorCountErrors);
+                                    newErrorCountWorklogsErrors[index] = false;
+                                    setErrorCountWorklogsErr(newErrorCountWorklogsErrors);
                                   }
                                 }}
-                                error={errorCountErr[index]}
+                                error={errorCountWorklogsErr[index]}
                                 helperText={
-                                  errorCountErr[index] && i.ErrorCount <= 0
+                                  errorCountWorklogsErr[index] && i.ErrorCount <= 0
                                     ? "Add valid number."
-                                    : errorCountErr[index] &&
+                                    : errorCountWorklogsErr[index] &&
                                       i.ErrorCount.toString().length > 4
                                     ? "Maximum 4 numbers allowed."
-                                    : errorCountErr[index]
+                                    : errorCountWorklogsErr[index]
                                     ? "This is a required field."
                                     : ""
                                 }
@@ -5745,20 +5547,20 @@ const EditDrawer = ({
                                   limitTags={2}
                                   id="checkboxes-tags-demo"
                                   readOnly={
-                                    cCDropdownData.filter((obj: any) =>
+                                    cCDropdownDataWorklogs.filter((obj: any) =>
                                       i.CC.includes(obj.value)
                                     ).length > 0 ||
                                     i.Remark.trim().length <= 0 ||
                                     i.DisableErrorLog
                                   }
                                   options={
-                                    Array.isArray(cCDropdownData)
-                                      ? cCDropdownData
+                                    Array.isArray(cCDropdownDataWorklogs)
+                                      ? cCDropdownDataWorklogs
                                       : []
                                   }
                                   value={i.CC}
                                   onChange={(e, newValue) =>
-                                    handleCCChange(newValue, index)
+                                    handleCCChangeWorklogs(newValue, index)
                                   }
                                   getOptionLabel={(option) => option.label}
                                   disableCloseOnSelect
@@ -5889,8 +5691,8 @@ const EditDrawer = ({
                   </span>
                 </div>
                 {reasonWorklogsDrawer &&
-                  reviewerNote.length > 0 &&
-                  reviewerNote.map((i: any, index: number) => (
+                  reviewerNoteWorklogs.length > 0 &&
+                  reviewerNoteWorklogs.map((i: any, index: number) => (
                     <div className="mt-5 pl-[70px] text-sm">
                       <span className="font-semibold">{i.ReviewedDate}</span>
                       {i.Details.map((j: any, index: number) => (

@@ -27,15 +27,12 @@ import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { FilterType } from "../types/ReportsFilterType";
 import { billingReport } from "../Enum/Filtertype";
 import { billingreport_InitialFilter } from "@/utils/reports/getFilters";
-import {
-  getClientData,
-  getProjectData,
-  getUserData,
-} from "./api/getDropDownData";
+import { getProjectData, getUserData } from "./api/getDropDownData";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { isWeekend } from "@/utils/commonFunction";
+import { getClientDropdownData } from "@/utils/commonDropdownApiCall";
 
 const BillingReportFilter = ({
   isFiltering,
@@ -267,7 +264,7 @@ const BillingReportFilter = ({
 
   useEffect(() => {
     const filterDropdowns = async () => {
-      setClientDropdown(await getClientData());
+      setClientDropdown(await getClientDropdownData());
       setProjectDropdown(
         await getProjectData(clientName.length > 0 ? clientName[0] : 0)
       );

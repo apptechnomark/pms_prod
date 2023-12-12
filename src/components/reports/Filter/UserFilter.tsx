@@ -36,83 +36,83 @@ const UserFilter = ({
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [userNames, setUserNames] = useState<number[]>([]);
-  const [users, setUsers] = useState<number[]>([]);
-  const [dept, setDept] = useState<string | number>(0);
-  const [filterName, setFilterName] = useState<string>("");
-  const [saveFilter, setSaveFilter] = useState<boolean>(false);
-  const [deptDropdown, setDeptDropdown] = useState<any[]>([]);
-  const [userDropdown, setUserDropdown] = useState<any[]>([]);
-  const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>("");
-  const [savedFilters, setSavedFilters] = useState<any[]>([]);
-  const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>("");
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [startDate, setStartDate] = useState<string | number>("");
-  const [endDate, setEndDate] = useState<string | number>("");
-  const [error, setError] = useState("");
+  const [user_userNames, setUser_UserNames] = useState<number[]>([]);
+  const [user_users, setUser_Users] = useState<number[]>([]);
+  const [user_dept, setUser_Dept] = useState<string | number>(0);
+  const [user_filterName, setUser_FilterName] = useState<string>("");
+  const [user_saveFilter, setUser_SaveFilter] = useState<boolean>(false);
+  const [user_deptDropdown, setUser_DeptDropdown] = useState<any[]>([]);
+  const [user_userDropdown, setUser_UserDropdown] = useState<any[]>([]);
+  const [user_anyFieldSelected, setUser_AnyFieldSelected] = useState(false);
+  const [user_currentFilterId, setUser_CurrentFilterId] = useState<any>("");
+  const [user_savedFilters, setUser_SavedFilters] = useState<any[]>([]);
+  const [user_defaultFilter, setUser_DefaultFilter] = useState<boolean>(false);
+  const [user_searchValue, setUser_SearchValue] = useState<string>("");
+  const [user_isDeleting, setUser_IsDeleting] = useState<boolean>(false);
+  const [user_startDate, setUser_StartDate] = useState<string | number>("");
+  const [user_endDate, setUser_EndDate] = useState<string | number>("");
+  const [user_error, setUser_Error] = useState("");
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const handleResetAll = () => {
-    setUserNames([]);
-    setUsers([]);
-    setDept(0);
-    setStartDate("");
-    setEndDate("");
-    setError("");
+  const handleUserResetAll = () => {
+    setUser_UserNames([]);
+    setUser_Users([]);
+    setUser_Dept(0);
+    setUser_StartDate("");
+    setUser_EndDate("");
+    setUser_Error("");
 
     sendFilterToPage({
       ...user_InitialFilter,
     });
   };
 
-  const handleClose = () => {
-    setFilterName("");
+  const handleUserClose = () => {
     onDialogClose(false);
-    setDefaultFilter(false);
-    setUserNames([]);
-    setUsers([]);
-    setDept(0);
-    setStartDate("");
-    setEndDate("");
-    setError("");
+    setUser_FilterName("");
+    setUser_DefaultFilter(false);
+    setUser_UserNames([]);
+    setUser_Users([]);
+    setUser_Dept(0);
+    setUser_StartDate("");
+    setUser_EndDate("");
+    setUser_Error("");
   };
 
-  const handleFilterApply = () => {
+  const handleUserFilterApply = () => {
     sendFilterToPage({
       ...user_InitialFilter,
-      users: userNames,
-      departmentId: dept === 0 || dept === "" ? null : dept,
+      users: user_userNames,
+      departmentId: user_dept === 0 || user_dept === "" ? null : user_dept,
       startDate:
-        startDate.toString().trim().length <= 0
-          ? endDate.toString().trim().length <= 0
+        user_startDate.toString().trim().length <= 0
+          ? user_endDate.toString().trim().length <= 0
             ? getDates()[0]
-            : getFormattedDate(endDate)
-          : getFormattedDate(startDate),
+            : getFormattedDate(user_endDate)
+          : getFormattedDate(user_startDate),
       endDate:
-        endDate.toString().trim().length <= 0
-          ? startDate.toString().trim().length <= 0
+        user_endDate.toString().trim().length <= 0
+          ? user_startDate.toString().trim().length <= 0
             ? getDates()[getDates().length - 1]
-            : getFormattedDate(startDate)
-          : getFormattedDate(endDate),
+            : getFormattedDate(user_startDate)
+          : getFormattedDate(user_endDate),
     });
 
     onDialogClose(false);
   };
 
-  const handleSavedFilterApply = (index: number) => {
+  const handleUserSavedFilterApply = (index: number) => {
     if (Number.isInteger(index)) {
       if (index !== undefined) {
         sendFilterToPage({
           ...user_InitialFilter,
-          users: savedFilters[index].AppliedFilter.users,
-          departmentId: savedFilters[index].AppliedFilter.Department,
-          startDate: savedFilters[index].AppliedFilter.startDate,
-          endDate: savedFilters[index].AppliedFilter.endDate,
+          users: user_savedFilters[index].AppliedFilter.users,
+          departmentId: user_savedFilters[index].AppliedFilter.Department,
+          startDate: user_savedFilters[index].AppliedFilter.startDate,
+          endDate: user_savedFilters[index].AppliedFilter.endDate,
         });
       }
     }
@@ -120,13 +120,13 @@ const UserFilter = ({
     onDialogClose(false);
   };
 
-  const handleSaveFilter = async () => {
-    if (filterName.trim().length === 0) {
-      setError("This is required field!");
-    } else if (filterName.trim().length > 15) {
-      setError("Max 15 characters allowed!");
+  const handleUserSaveFilter = async () => {
+    if (user_filterName.trim().length === 0) {
+      setUser_Error("This is required field!");
+    } else if (user_filterName.trim().length > 15) {
+      setUser_Error("Max 15 characters allowed!");
     } else {
-      setError("");
+      setUser_Error("");
 
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -134,23 +134,23 @@ const UserFilter = ({
         const response = await axios.post(
           `${process.env.worklog_api_url}/filter/savefilter`,
           {
-            filterId: currentFilterId !== "" ? currentFilterId : null,
-            name: filterName,
+            filterId: user_currentFilterId !== "" ? user_currentFilterId : null,
+            name: user_filterName,
             AppliedFilter: {
-              users: userNames.length > 0 ? userNames : [],
-              departmentId: dept === 0 ? null : dept,
+              users: user_userNames.length > 0 ? user_userNames : [],
+              departmentId: user_dept === 0 ? null : user_dept,
               startDate:
-                startDate.toString().trim().length <= 0
-                  ? endDate.toString().trim().length <= 0
+                user_startDate.toString().trim().length <= 0
+                  ? user_endDate.toString().trim().length <= 0
                     ? getDates()[0]
-                    : getFormattedDate(endDate)
-                  : getFormattedDate(startDate),
+                    : getFormattedDate(user_endDate)
+                  : getFormattedDate(user_startDate),
               endDate:
-                endDate.toString().trim().length <= 0
-                  ? startDate.toString().trim().length <= 0
+                user_endDate.toString().trim().length <= 0
+                  ? user_startDate.toString().trim().length <= 0
                     ? getDates()[getDates().length - 1]
-                    : getFormattedDate(startDate)
-                  : getFormattedDate(endDate),
+                    : getFormattedDate(user_startDate)
+                  : getFormattedDate(user_endDate),
             },
             type: user,
           },
@@ -165,10 +165,10 @@ const UserFilter = ({
         if (response.status === 200) {
           if (response.data.ResponseStatus.toLowerCase() === "success") {
             toast.success("Filter has been successully saved.");
-            handleClose();
-            getFilterList();
-            handleFilterApply();
-            setSaveFilter(false);
+            handleUserClose();
+            getUserFilterList();
+            handleUserFilterApply();
+            setUser_SaveFilter(false);
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -192,29 +192,29 @@ const UserFilter = ({
   };
 
   useEffect(() => {
-    getFilterList();
+    getUserFilterList();
   }, []);
 
   useEffect(() => {
     const isAnyFieldSelected =
-      userNames.length > 0 ||
-      dept !== 0 ||
-      startDate.toString().trim().length > 0 ||
-      endDate.toString().trim().length > 0;
+      user_userNames.length > 0 ||
+      user_dept !== 0 ||
+      user_startDate.toString().trim().length > 0 ||
+      user_endDate.toString().trim().length > 0;
 
-    setAnyFieldSelected(isAnyFieldSelected);
-    setSaveFilter(false);
-  }, [dept, userNames, startDate, endDate]);
+    setUser_AnyFieldSelected(isAnyFieldSelected);
+    setUser_SaveFilter(false);
+  }, [user_dept, user_userNames, user_startDate, user_endDate]);
 
   useEffect(() => {
     const userDropdowns = async () => {
-      setDeptDropdown(await getDeptData());
-      setUserDropdown(await getUserData());
+      setUser_DeptDropdown(await getDeptData());
+      setUser_UserDropdown(await getUserData());
     };
     userDropdowns();
   }, []);
 
-  const getFilterList = async () => {
+  const getUserFilterList = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -233,7 +233,7 @@ const UserFilter = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          setSavedFilters(response.data.ResponseData);
+          setUser_SavedFilters(response.data.ResponseData);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -255,32 +255,32 @@ const UserFilter = ({
     }
   };
 
-  const handleSavedFilterEdit = (index: number) => {
-    setCurrentFilterId(savedFilters[index].FilterId);
-    setFilterName(savedFilters[index].Name);
-    setUsers(
-      savedFilters[index].AppliedFilter.users.length > 0
-        ? userDropdown.filter((user: any) =>
-            savedFilters[index].AppliedFilter.users.includes(user.value)
+  const handleUserSavedFilterEdit = (index: number) => {
+    setUser_CurrentFilterId(user_savedFilters[index].FilterId);
+    setUser_FilterName(user_savedFilters[index].Name);
+    setUser_Users(
+      user_savedFilters[index].AppliedFilter.users.length > 0
+        ? user_userDropdown.filter((user: any) =>
+            user_savedFilters[index].AppliedFilter.users.includes(user.value)
           )
         : []
     );
-    setUserNames(savedFilters[index].AppliedFilter.users);
-    setDept(savedFilters[index].AppliedFilter.Department ?? 0);
-    setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
-    setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
-    setDefaultFilter(true);
-    setSaveFilter(true);
+    setUser_UserNames(user_savedFilters[index].AppliedFilter.users);
+    setUser_Dept(user_savedFilters[index].AppliedFilter.Department ?? 0);
+    setUser_StartDate(user_savedFilters[index].AppliedFilter.startDate ?? "");
+    setUser_EndDate(user_savedFilters[index].AppliedFilter.endDate ?? "");
+    setUser_DefaultFilter(true);
+    setUser_SaveFilter(true);
   };
 
-  const handleSavedFilterDelete = async () => {
+  const handleUserSavedFilterDelete = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/delete`,
         {
-          filterId: currentFilterId,
+          filterId: user_currentFilterId,
         },
         {
           headers: {
@@ -293,9 +293,9 @@ const UserFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
-          handleClose();
-          getFilterList();
-          setCurrentFilterId("");
+          handleUserClose();
+          getUserFilterList();
+          setUser_CurrentFilterId("");
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -319,12 +319,12 @@ const UserFilter = ({
 
   return (
     <>
-      {savedFilters.length > 0 && !defaultFilter ? (
+      {user_savedFilters.length > 0 && !user_defaultFilter ? (
         <Popover
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleClose}
+          onClose={handleUserClose}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -338,8 +338,8 @@ const UserFilter = ({
             <span
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
-                setDefaultFilter(true);
-                setCurrentFilterId(0);
+                setUser_DefaultFilter(true);
+                setUser_CurrentFilterId(0);
               }}
             >
               Default Filter
@@ -351,15 +351,15 @@ const UserFilter = ({
                 className="pr-7 border-b border-b-slatyGrey w-full"
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
-                value={searchValue}
-                onChange={(e: any) => setSearchValue(e.target.value)}
+                value={user_searchValue}
+                onChange={(e: any) => setUser_SearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {savedFilters.map((i: any, index: number) => {
+            {user_savedFilters.map((i: any, index: number) => {
               return (
                 <>
                   <div
@@ -369,23 +369,23 @@ const UserFilter = ({
                     <span
                       className="pl-1"
                       onClick={() => {
-                        setCurrentFilterId(i.FilterId);
+                        setUser_CurrentFilterId(i.FilterId);
                         onDialogClose(false);
-                        handleSavedFilterApply(index);
+                        handleUserSavedFilterApply(index);
                       }}
                     >
                       {i.Name}
                     </span>
                     <span className="flex gap-[10px] pr-[10px]">
-                      <span onClick={() => handleSavedFilterEdit(index)}>
+                      <span onClick={() => handleUserSavedFilterEdit(index)}>
                         <Tooltip title="Edit" placement="top" arrow>
                           <Edit className="hidden group-hover:inline-block w-5 h-5 ml-2 text-slatyGrey fill-current" />
                         </Tooltip>
                       </span>
                       <span
                         onClick={() => {
-                          setIsDeleting(true);
-                          setCurrentFilterId(i.FilterId);
+                          setUser_IsDeleting(true);
+                          setUser_CurrentFilterId(i.FilterId);
                         }}
                       >
                         <Tooltip title="Delete" placement="top" arrow>
@@ -398,7 +398,7 @@ const UserFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button onClick={handleResetAll} className="mt-2" color="error">
+            <Button onClick={handleUserResetAll} className="mt-2" color="error">
               clear all
             </Button>
           </div>
@@ -409,11 +409,11 @@ const UserFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleClose}
+          onClose={handleUserClose}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleResetAll}>
+            <Button color="error" onClick={handleUserResetAll}>
               Reset all
             </Button>
           </DialogTitle>
@@ -427,13 +427,13 @@ const UserFilter = ({
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={userDropdown}
+                    options={user_userDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setUserNames(data.map((d: any) => d.value));
-                      setUsers(data);
+                      setUser_UserNames(data.map((d: any) => d.value));
+                      setUser_Users(data);
                     }}
-                    value={users}
+                    value={user_users}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -451,10 +451,10 @@ const UserFilter = ({
                   <Select
                     labelId="department"
                     id="department"
-                    value={dept === 0 ? "" : dept}
-                    onChange={(e) => setDept(e.target.value)}
+                    value={user_dept === 0 ? "" : user_dept}
+                    onChange={(e) => setUser_Dept(e.target.value)}
                   >
-                    {deptDropdown.map((i: any, index: number) => (
+                    {user_deptDropdown.map((i: any, index: number) => (
                       <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
@@ -468,9 +468,11 @@ const UserFilter = ({
                     <DatePicker
                       label="Start Date"
                       shouldDisableDate={isWeekend}
-                      maxDate={dayjs(Date.now()) || dayjs(endDate)}
-                      value={startDate === "" ? null : dayjs(startDate)}
-                      onChange={(newValue: any) => setStartDate(newValue)}
+                      maxDate={dayjs(Date.now()) || dayjs(user_endDate)}
+                      value={
+                        user_startDate === "" ? null : dayjs(user_startDate)
+                      }
+                      onChange={(newValue: any) => setUser_StartDate(newValue)}
                       slotProps={{
                         textField: {
                           readOnly: true,
@@ -488,10 +490,10 @@ const UserFilter = ({
                     <DatePicker
                       label="End Date"
                       shouldDisableDate={isWeekend}
-                      minDate={dayjs(startDate)}
+                      minDate={dayjs(user_startDate)}
                       maxDate={dayjs(Date.now())}
-                      value={endDate === "" ? null : dayjs(endDate)}
-                      onChange={(newValue: any) => setEndDate(newValue)}
+                      value={user_endDate === "" ? null : dayjs(user_endDate)}
+                      onChange={(newValue: any) => setUser_EndDate(newValue)}
                       slotProps={{
                         textField: {
                           readOnly: true,
@@ -504,14 +506,14 @@ const UserFilter = ({
             </div>
           </DialogContent>
           <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">
-            {!saveFilter ? (
+            {!user_saveFilter ? (
               <>
                 <Button
                   variant="contained"
                   color="info"
-                  className={`${anyFieldSelected && "!bg-secondary"}`}
-                  disabled={!anyFieldSelected}
-                  onClick={handleFilterApply}
+                  className={`${user_anyFieldSelected && "!bg-secondary"}`}
+                  disabled={!user_anyFieldSelected}
+                  onClick={handleUserFilterApply}
                 >
                   Apply Filter
                 </Button>
@@ -519,9 +521,9 @@ const UserFilter = ({
                 <Button
                   variant="contained"
                   color="info"
-                  className={`${anyFieldSelected && "!bg-secondary"}`}
-                  onClick={() => setSaveFilter(true)}
-                  disabled={!anyFieldSelected}
+                  className={`${user_anyFieldSelected && "!bg-secondary"}`}
+                  onClick={() => setUser_SaveFilter(true)}
+                  disabled={!user_anyFieldSelected}
                 >
                   Save Filter
                 </Button>
@@ -537,30 +539,30 @@ const UserFilter = ({
                     fullWidth
                     required
                     variant="standard"
-                    value={filterName}
+                    value={user_filterName}
                     onChange={(e) => {
-                      setFilterName(e.target.value);
-                      setError("");
+                      setUser_FilterName(e.target.value);
+                      setUser_Error("");
                     }}
-                    error={error.length > 0 ? true : false}
-                    helperText={error}
+                    error={user_error.length > 0 ? true : false}
+                    helperText={user_error}
                   />
                 </FormControl>
                 <Button
                   variant="contained"
                   color="info"
-                  onClick={handleSaveFilter}
+                  onClick={handleUserSaveFilter}
                   className={`${
-                    filterName.length === 0 ? "" : "!bg-secondary"
+                    user_filterName.length === 0 ? "" : "!bg-secondary"
                   }`}
-                  disabled={filterName.length === 0}
+                  disabled={user_filterName.length === 0}
                 >
                   Save & Apply
                 </Button>
               </>
             )}
 
-            <Button variant="outlined" color="info" onClick={handleClose}>
+            <Button variant="outlined" color="info" onClick={handleUserClose}>
               Cancel
             </Button>
           </DialogActions>
@@ -568,9 +570,9 @@ const UserFilter = ({
       )}
 
       <DeleteDialog
-        isOpen={isDeleting}
-        onClose={() => setIsDeleting(false)}
-        onActionClick={handleSavedFilterDelete}
+        isOpen={user_isDeleting}
+        onClose={() => setUser_IsDeleting(false)}
+        onActionClick={handleUserSavedFilterDelete}
         Title={"Delete Filter"}
         firstContent={"Are you sure you want to delete this saved filter?"}
         secondContent={

@@ -662,6 +662,8 @@ const Page = () => {
             onDrawerClose={handleDrawerClose}
             onComment={handleSetComments}
             onHandleExport={handleCanExport}
+            isTaskClicked={isTaskClicked}
+            isUnassigneeClicked={isUnassigneeClicked}
           />
         )}
         {isUnassigneeClicked && (
@@ -675,6 +677,7 @@ const Page = () => {
             onDrawerOpen={handleDrawerOpen}
             onDrawerClose={handleDrawerClose}
             onComment={handleSetComments}
+            isUnassigneeClicked={isUnassigneeClicked}
           />
         )}
         <Drawer

@@ -35,12 +35,13 @@ import { AdminRatingsReports } from "../Enum/Filtertype";
 import { rating_InitialFilter } from "@/utils/reports/getFilters";
 
 //dropdown apis
-import { getClientData, getProjectData } from "./api/getDropDownData";
+import { getProjectData } from "./api/getDropDownData";
 
 //icons
 import { Edit, Delete } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { isWeekend } from "@/utils/commonFunction";
+import { getClientDropdownData } from "@/utils/commonDropdownApiCall";
 
 const RatingReportFilter = ({
   isFiltering,
@@ -371,7 +372,7 @@ const RatingReportFilter = ({
 
   useEffect(() => {
     const filterDropdowns = async () => {
-      setClientDropdown(await getClientData());
+      setClientDropdown(await getClientDropdownData());
       setProjectDropdown(
         await getProjectData(clientName.length > 0 ? clientName[0] : 0)
       );

@@ -84,6 +84,8 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
           dataCount: 0,
         });
       } else {
+        setCustomReportCurrentPage(0);
+        setCustomReportRowsPerPage(10);
         getData({ ...filteredData, globalSearch: searchValue });
       }
     }

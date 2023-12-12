@@ -21,8 +21,8 @@ import {
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-import UnassigneeActionBar from "./actionBar/UnassigneeActionBar";
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import WorklogsActionBar from "./actionBar/WorklogsActionBar";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -51,6 +51,7 @@ const UnassigneeDatatable = ({
   currentFilterData,
   onDrawerClose,
   searchValue,
+  isUnassigneeClicked,
 }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
@@ -493,6 +494,7 @@ const UnassigneeDatatable = ({
     onComment,
     workItemData,
     getWorkItemList,
+    isUnassigneeClicked,
   };
 
   return (
@@ -569,7 +571,7 @@ const UnassigneeDatatable = ({
       )}
 
       {/* Action Bar */}
-      <UnassigneeActionBar {...propsForActionBar} />
+      <WorklogsActionBar {...propsForActionBar} />
     </div>
   );
 };

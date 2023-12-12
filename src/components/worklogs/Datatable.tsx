@@ -73,6 +73,7 @@ const Datatable = ({
   onHandleExport,
   onComment,
   searchValue,
+  isUnassigneeClicked,
 }: any) => {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
@@ -296,7 +297,7 @@ const Datatable = ({
         if (response.data.ResponseStatus === "Success") {
           if (response.data.ResponseData !== null) {
             setWorkItemData((prev: any) =>
-              prev.map((data: any, index: number) => {
+              prev.map((data: any) => {
                 if (data.WorkitemId === selectedRowId) {
                   return new Object({
                     ...data,
@@ -535,22 +536,6 @@ const Datatable = ({
     } else {
       setCommentErrText("");
     }
-  };
-
-  const generateCustomeClientNameBody = (bodyValue: any, TableMeta: any) => {
-    const IsHasErrorlog = TableMeta.rowData[18];
-    return (
-      <div>
-        {IsHasErrorlog && (
-          <div
-            className={
-              "w-[10px] h-[10px] rounded-full inline-block mr-2 bg-defaultRed"
-            }
-          ></div>
-        )}
-        {bodyValue === null || bodyValue === "" ? "-" : bodyValue}
-      </div>
-    );
   };
 
   const generateCustomTaskNameBody = (bodyValue: any, TableMeta: any) => {
@@ -1014,6 +999,7 @@ const Datatable = ({
     onComment,
     workItemData,
     getWorkItemList,
+    isUnassigneeClicked,
   };
 
   return (

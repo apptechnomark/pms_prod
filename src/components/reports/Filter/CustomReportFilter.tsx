@@ -23,13 +23,12 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { FilterType } from "../types/ReportsFilterType";
-import { client, customReport } from "../Enum/Filtertype";
+import { customReport } from "../Enum/Filtertype";
 import { customreport_InitialFilter } from "@/utils/reports/getFilters";
 import { getUserData } from "./api/getDropDownData";
 import {
   getAllProcessDropdownData,
   getClientDropdownData,
-  getProcessDropdownData,
   getProjectDropdownData,
   getStatusDropdownData,
   getSubProcessDropdownData,
@@ -860,13 +859,13 @@ const CustomReportFilter = ({
                     onChange={(e) => setStatus(e.target.value)}
                   >
                     {statusDropdown
-                      .filter(
-                        (stats: any) =>
-                          stats.Type.toLowerCase() === IN_PROGRESS ||
-                          stats.Type.toLowerCase() === IN_REVIEW ||
-                          stats.Type.toLowerCase() === SIGNED_OFF ||
-                          stats.Type.toLowerCase() === ACCEPTED
-                      )
+                      // .filter(
+                      //   (stats: any) =>
+                      //     stats.Type.toLowerCase() === IN_PROGRESS ||
+                      //     stats.Type.toLowerCase() === IN_REVIEW ||
+                      //     stats.Type.toLowerCase() === SIGNED_OFF ||
+                      //     stats.Type.toLowerCase() === ACCEPTED
+                      // )
                       .map((i: any, index: number) => (
                         <MenuItem value={i.value} key={i.value}>
                           {i.label}

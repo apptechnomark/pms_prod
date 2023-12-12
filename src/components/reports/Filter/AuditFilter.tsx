@@ -19,14 +19,15 @@ import { useEffect, useState } from "react";
 import { Edit, Delete } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { isWeekend } from "@/utils/commonFunction";
+import { getUserData } from "./api/getDropDownData";
 import { FilterType } from "../types/ReportsFilterType";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { audit_InitialFilter } from "@/utils/reports/getFilters";
 import { DialogTransition } from "@/utils/style/DialogTransition";
-import { getClientData, getUserData } from "./api/getDropDownData";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { getClientDropdownData } from "@/utils/commonDropdownApiCall";
 
 const AuditFilter = ({
   isFiltering,
@@ -215,7 +216,7 @@ const AuditFilter = ({
 
   useEffect(() => {
     const filterDropdowns = async () => {
-      setClientDropdown(await getClientData());
+      setClientDropdown(await getClientDropdownData());
       setUserDropdown(await getUserData());
     };
     filterDropdowns();

@@ -27,7 +27,6 @@ import { project } from "../Enum/Filtertype";
 import { client_project_InitialFilter } from "@/utils/reports/getFilters";
 import {
   getBillingTypeData,
-  getClientData,
   getProjectData,
   getWorkTypeData,
 } from "./api/getDropDownData";
@@ -35,6 +34,7 @@ import SearchIcon from "@/assets/icons/SearchIcon";
 import { Edit, Delete } from "@mui/icons-material";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { isWeekend } from "@/utils/commonFunction";
+import { getClientDropdownData } from "@/utils/commonDropdownApiCall";
 
 const project_InitialFilter = {
   ...client_project_InitialFilter,
@@ -240,7 +240,7 @@ const ProjectFilter = ({
 
   useEffect(() => {
     const filterDropdowns = async () => {
-      setClientDropdown(await getClientData());
+      setClientDropdown(await getClientDropdownData());
       setProjectDropdown(
         await getProjectData(clientName.length > 0 ? clientName[0] : 0)
       );

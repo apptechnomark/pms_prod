@@ -1335,8 +1335,13 @@ const ClientContent = forwardRef<
                       defaultValue={taxGroup}
                       options={groupTypeData}
                       onSelect={() => {}}
-                      getValue={(e) => setTaxGroup(e)}
-                      getError={(e) => setTaxGroupHasErr(e)}
+                      getValue={(e) => {
+                        setTaxGroup(e);
+                        e.length <= 0 && setTaxGroupHasErr(false);
+                      }}
+                      getError={(e) => {
+                        setTaxGroupHasErr(e);
+                      }}
                       hasError={taxGroupErr}
                       validate
                       errorClass="!-mt-[15px]"
@@ -1434,7 +1439,10 @@ const ClientContent = forwardRef<
                       defaultValue={accGroup}
                       options={groupTypeData}
                       onSelect={() => {}}
-                      getValue={(e) => setAccGroup(e)}
+                      getValue={(e) => {
+                        setAccGroup(e);
+                        e.length <= 0 && setAccGroupHasErr(false);
+                      }}
                       getError={(e) => setAccGroupHasErr(e)}
                       hasError={accGroupErr}
                       validate
@@ -1533,7 +1541,10 @@ const ClientContent = forwardRef<
                       defaultValue={auditGroup}
                       options={groupTypeData}
                       onSelect={() => {}}
-                      getValue={(e) => setAuditGroup(e)}
+                      getValue={(e) => {
+                        setAuditGroup(e);
+                        e.length <= 0 && setAuditGroupHasErr(false);
+                      }}
                       getError={(e) => setAuditGroupHasErr(e)}
                       hasError={auditGroupErr}
                       validate
