@@ -688,6 +688,7 @@ const Page = () => {
           onRecurring={hasRecurring}
           onComment={hasComment}
           onHasId={hasId}
+          isUnassigneeClicked={isUnassigneeClicked}
         />
         <DrawerOverlay isOpen={openDrawer} onClose={handleDrawerClose} />
 

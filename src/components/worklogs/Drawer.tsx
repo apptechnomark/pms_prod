@@ -75,6 +75,7 @@ const EditDrawer = ({
   onDataFetch,
   onRecurring,
   onComment,
+  isUnassigneeClicked,
 }: any) => {
   const router = useRouter();
   const yearWorklogsDrawerDropdown = getYears();
@@ -88,6 +89,7 @@ const EditDrawer = ({
     useState(false);
   const [editDataWorklogs, setEditDataWorklogs] = useState<any>([]);
   const [isManual, setIsManual] = useState<any>(null);
+  const [isIdDisabled, setIsIdDisabled] = useState(false);
 
   useEffect(() => {
     onRecurring && scrollToPanel(4);
@@ -1449,7 +1451,8 @@ const EditDrawer = ({
   ]);
   const [errorTypeWorklogsErr, setErrorTypeWorklogsErr] = useState([false]);
   const [rootCauseWorklogsErr, setRootCauseWorklogsErr] = useState([false]);
-  const [errorLogPriorityWorklogsErr, setErrorLogPriorityWorklogsErr] = useState([false]);
+  const [errorLogPriorityWorklogsErr, setErrorLogPriorityWorklogsErr] =
+    useState([false]);
   const [errorCountWorklogsErr, setErrorCountWorklogsErr] = useState([false]);
   const [natureOfWorklogsErr, setNatureOfWorklogsErr] = useState([false]);
 
@@ -1529,7 +1532,9 @@ const EditDrawer = ({
                 ErrorCount: i.ErrorCount,
                 NatureOfError: i.NatureOfError,
                 CC: i.CC.map((i: any) =>
-                  cCDropdownDataWorklogs.find((j: { value: any }) => j.value === i)
+                  cCDropdownDataWorklogs.find(
+                    (j: { value: any }) => j.value === i
+                  )
                 ).filter(Boolean),
                 Remark: i.Remark,
                 Attachments:
@@ -2171,6 +2176,7 @@ const EditDrawer = ({
 
   // OnEdit
   const getEditDataWorklogs = async () => {
+    const pathname = window.location.href.includes("id=");
     const params = {
       WorkitemId: onEdit,
     };
@@ -2260,6 +2266,13 @@ const EditDrawer = ({
             ? 2
             : 0
         );
+        if (pathname) {
+          if (ResponseData.AssignedId == localStorage.getItem("UserId")) {
+            setIsIdDisabled(false);
+          } else {
+            setIsIdDisabled(true);
+          }
+        }
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -2461,6 +2474,7 @@ const EditDrawer = ({
   };
 
   const handleClose = () => {
+    setIsIdDisabled(false);
     setEditDataWorklogs([]);
     setIsCreatedByClientWorklogsDrawer(false);
     setUserId(0);
@@ -2733,8 +2747,9 @@ const EditDrawer = ({
                           setReviewerWorklogsErr(false);
                         }}
                         disabled={
-                          isCreatedByClientWorklogsDrawer &&
-                          editDataWorklogs.ClientId > 0
+                          (isCreatedByClientWorklogsDrawer &&
+                            editDataWorklogs.ClientId > 0) ||
+                          isIdDisabled
                         }
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -2768,8 +2783,9 @@ const EditDrawer = ({
                         sx={{ mx: 0.75, width: 300, mt: -0.3 }}
                         error={typeOfWorkWorklogsErr}
                         disabled={
-                          isCreatedByClientWorklogsDrawer &&
-                          editDataWorklogs.WorkTypeId > 0
+                          (isCreatedByClientWorklogsDrawer &&
+                            editDataWorklogs.WorkTypeId > 0) ||
+                          isIdDisabled
                         }
                       >
                         <InputLabel id="demo-simple-select-standard-label">
@@ -2838,8 +2854,9 @@ const EditDrawer = ({
                           ) || null
                         }
                         disabled={
-                          isCreatedByClientWorklogsDrawer &&
-                          editDataWorklogs.ProjectId > 0
+                          (isCreatedByClientWorklogsDrawer &&
+                            editDataWorklogs.ProjectId > 0) ||
+                          isIdDisabled
                         }
                         onChange={(e, value: any) => {
                           value && setProjectNameWorklogs(value.value);
@@ -2882,7 +2899,8 @@ const EditDrawer = ({
                           onEdit === 0 ||
                           statusWorklogs === 7 ||
                           statusWorklogs === 8 ||
-                          statusWorklogs === 9
+                          statusWorklogs === 9 ||
+                          isIdDisabled
                         }
                         value={
                           onEdit === 0 && manualSwitchWorklogs
@@ -2937,8 +2955,9 @@ const EditDrawer = ({
                           ) || null
                         }
                         disabled={
-                          isCreatedByClientWorklogsDrawer &&
-                          editDataWorklogs.ProcessId > 0
+                          (isCreatedByClientWorklogsDrawer &&
+                            editDataWorklogs.ProcessId > 0) ||
+                          isIdDisabled
                         }
                         onChange={(e, value: any) => {
                           value && setProcessNameWorklogs(value.value);
@@ -2980,8 +2999,9 @@ const EditDrawer = ({
                           ) || null
                         }
                         disabled={
-                          isCreatedByClientWorklogsDrawer &&
-                          editDataWorklogs.SubProcessId > 0
+                          (isCreatedByClientWorklogsDrawer &&
+                            editDataWorklogs.SubProcessId > 0) ||
+                          isIdDisabled
                         }
                         onChange={(e, value: any) => {
                           value && setSubProcessWorklogs(value.value);
@@ -3022,6 +3042,7 @@ const EditDrawer = ({
                         }
                         fullWidth
                         className="pt-1"
+                        disabled={isIdDisabled}
                         value={
                           clientTaskNameWorklogs?.trim().length <= 0
                             ? ""
@@ -3070,6 +3091,7 @@ const EditDrawer = ({
                             ? ""
                             : descriptionWorklogs
                         }
+                        disabled={isIdDisabled}
                         onChange={(e) => setDescriptionWorklogs(e.target.value)}
                         margin="normal"
                         variant="standard"
@@ -3080,6 +3102,7 @@ const EditDrawer = ({
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -1.2 }}
+                        disabled={isIdDisabled}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Priority
@@ -3152,6 +3175,7 @@ const EditDrawer = ({
                         }
                         type="number"
                         fullWidth
+                        disabled={isIdDisabled}
                         value={quantityWorklogs}
                         onChange={(e) => {
                           setQuantityWorklogs(e.target.value);
@@ -3245,6 +3269,7 @@ const EditDrawer = ({
                               </span>
                             }
                             onError={() => setReceiverDateWorklogsErr(false)}
+                            disabled={isIdDisabled}
                             value={
                               receiverDateWorklogs === ""
                                 ? null
@@ -3320,6 +3345,7 @@ const EditDrawer = ({
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
                             label="All Info Date"
+                            disabled={isIdDisabled}
                             value={
                               allInfoDateWorklogs === ""
                                 ? null
@@ -3337,7 +3363,7 @@ const EditDrawer = ({
                         disablePortal
                         id="combo-box-demo"
                         options={assigneeWorklogsDropdownData}
-                        disabled={!assigneeWorklogsDisable}
+                        disabled={!assigneeWorklogsDisable || isIdDisabled}
                         value={
                           assigneeWorklogsDropdownData.find(
                             (i: any) => i.value === assigneeWorklogs
@@ -3383,6 +3409,7 @@ const EditDrawer = ({
                         disablePortal
                         id="combo-box-demo"
                         options={reviewerWorklogsDropdownData}
+                        disabled={isIdDisabled}
                         value={
                           reviewerWorklogsDropdownData.find(
                             (i: any) => i.value === reviewerWorklogs
@@ -3432,6 +3459,7 @@ const EditDrawer = ({
                         disablePortal
                         id="combo-box-demo"
                         options={managerWorklogsDropdownData}
+                        disabled={isIdDisabled}
                         value={
                           managerWorklogsDropdownData.find(
                             (i: any) => i.value === managerWorklogs
@@ -3477,6 +3505,7 @@ const EditDrawer = ({
                             variant="standard"
                             sx={{ width: 300, mt: -0.3, mx: 0.75 }}
                             error={returnYearWorklogsErr}
+                            disabled={isIdDisabled}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Return Year
@@ -3519,6 +3548,7 @@ const EditDrawer = ({
                             label="No of Pages"
                             type="number"
                             fullWidth
+                            disabled={isIdDisabled}
                             value={
                               noOfPagesWorklogs === 0 ? "" : noOfPagesWorklogs
                             }
@@ -3535,6 +3565,7 @@ const EditDrawer = ({
                             variant="standard"
                             sx={{ width: 300, mt: -0.8, mx: 0.75 }}
                             error={checklistWorkpaperWorklogsErr}
+                            disabled={isIdDisabled}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Checklist/Workpaper
@@ -3648,7 +3679,7 @@ const EditDrawer = ({
                     <span className="ml-[21px]">Sub-Task</span>
                   </span>
                   <span className="flex items-center">
-                    {onEdit > 0 && subTaskSwitchWorklogs && (
+                    {onEdit > 0 && subTaskSwitchWorklogs && !isIdDisabled && (
                       <Button
                         variant="contained"
                         className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
@@ -3707,7 +3738,7 @@ const EditDrawer = ({
                             </span>
                           }
                           fullWidth
-                          disabled={!subTaskSwitchWorklogs}
+                          disabled={!subTaskSwitchWorklogs || isIdDisabled}
                           value={field.Title}
                           onChange={(e) =>
                             handleSubTaskChangeWorklogs(e, index)
@@ -3746,7 +3777,7 @@ const EditDrawer = ({
                             </span>
                           }
                           fullWidth
-                          disabled={!subTaskSwitchWorklogs}
+                          disabled={!subTaskSwitchWorklogs || isIdDisabled}
                           value={field.Description}
                           onChange={(e) =>
                             handleSubTaskDescriptionChangeWorklogs(e, index)
@@ -3779,50 +3810,52 @@ const EditDrawer = ({
                           variant="standard"
                           sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
                         />
-                        {index === 0 ? (
-                          <span
-                            className="cursor-pointer"
-                            onClick={addTaskFieldWorklogs}
-                          >
-                            <svg
-                              className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                              focusable="false"
-                              aria-hidden="true"
-                              viewBox="0 0 24 24"
-                              data-testid="AddIcon"
-                            >
-                              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
-                            </svg>
-                          </span>
-                        ) : (
-                          <span
-                            className="cursor-pointer"
-                            onClick={
-                              hasPermissionWorklog(
-                                "Task/SubTask",
-                                "Delete",
-                                "WorkLogs"
-                              ) &&
-                              hasPermissionWorklog(
-                                "Task/SubTask",
-                                "Save",
-                                "WorkLogs"
-                              )
-                                ? () => removeTaskFieldWorklogs(index)
-                                : undefined
-                            }
-                          >
-                            <svg
-                              className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                              focusable="false"
-                              aria-hidden="true"
-                              viewBox="0 0 24 24"
-                              data-testid="RemoveIcon"
-                            >
-                              <path d="M19 13H5v-2h14v2z"></path>
-                            </svg>
-                          </span>
-                        )}
+                        {index === 0
+                          ? !isIdDisabled && (
+                              <span
+                                className="cursor-pointer"
+                                onClick={addTaskFieldWorklogs}
+                              >
+                                <svg
+                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                  focusable="false"
+                                  aria-hidden="true"
+                                  viewBox="0 0 24 24"
+                                  data-testid="AddIcon"
+                                >
+                                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                                </svg>
+                              </span>
+                            )
+                          : !isIdDisabled && (
+                              <span
+                                className="cursor-pointer"
+                                onClick={
+                                  hasPermissionWorklog(
+                                    "Task/SubTask",
+                                    "Delete",
+                                    "WorkLogs"
+                                  ) &&
+                                  hasPermissionWorklog(
+                                    "Task/SubTask",
+                                    "Save",
+                                    "WorkLogs"
+                                  )
+                                    ? () => removeTaskFieldWorklogs(index)
+                                    : undefined
+                                }
+                              >
+                                <svg
+                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                  focusable="false"
+                                  aria-hidden="true"
+                                  viewBox="0 0 24 24"
+                                  data-testid="RemoveIcon"
+                                >
+                                  <path d="M19 13H5v-2h14v2z"></path>
+                                </svg>
+                              </span>
+                            )}
                       </div>
                     ))}
                   </div>
@@ -3871,6 +3904,7 @@ const EditDrawer = ({
                             <FormGroup className="ml-8 mt-2">
                               {i.Activities.map((j: any, index: number) => (
                                 <FormControlLabel
+                                  disabled={isIdDisabled || isUnassigneeClicked}
                                   control={
                                     <Checkbox
                                       checked={j.IsCheck}
@@ -3899,9 +3933,9 @@ const EditDrawer = ({
                             "WorkLogs"
                           ) &&
                             itemStatesWorklogs[index] &&
-                            !itemStatesWorklogs[
-                              `addChecklistField_${index}`
-                            ] && (
+                            !itemStatesWorklogs[`addChecklistField_${index}`] &&
+                            !isIdDisabled &&
+                            !isUnassigneeClicked && (
                               <span
                                 className="flex items-center gap-3 ml-8 cursor-pointer text-[#6E6D7A]"
                                 onClick={() => toggleAddChecklistField(index)}
@@ -4000,6 +4034,7 @@ const EditDrawer = ({
                         <Select
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
+                          disabled={isUnassigneeClicked}
                           value={commentSelectWorklogs}
                           onChange={(e) => {
                             setCommentSelectWorklogs(e.target.value);
@@ -4254,6 +4289,7 @@ const EditDrawer = ({
                           <MentionsInput
                             style={mentionsInputStyle}
                             className="!w-[92%] textareaOutlineNone"
+                            disabled={isUnassigneeClicked}
                             value={valueWorklogs}
                             onChange={(e) => {
                               setValueWorklogs(e.target.value);
@@ -4279,13 +4315,18 @@ const EditDrawer = ({
                                     commentAttachmentWorklogs
                                   )
                                 }
-                                isDisable={false}
+                                isDisable={false || isUnassigneeClicked}
                               />
                             </div>
                           </div>
                           <button
                             type="button"
-                            className="!bg-secondary text-white p-[6px] rounded-md cursor-pointer mr-2"
+                            className={`${
+                              isUnassigneeClicked
+                                ? "cursor-not-allowed"
+                                : "cursor-pointer"
+                            } !bg-secondary  text-white p-[6px] rounded-md mr-2`}
+                            disabled={isUnassigneeClicked}
                             onClick={(e) =>
                               handleSubmitCommentWorklogs(
                                 e,
@@ -4361,15 +4402,18 @@ const EditDrawer = ({
                     <span className="ml-[21px]">Recurring</span>
                   </span>
                   <span className="flex items-center">
-                    {onEdit > 0 && recurringSwitch && (
-                      <Button
-                        variant="contained"
-                        className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
-                        onClick={handleSubmitRecurringWorklogs}
-                      >
-                        Update
-                      </Button>
-                    )}
+                    {onEdit > 0 &&
+                      recurringSwitch &&
+                      !isIdDisabled &&
+                      !isUnassigneeClicked && (
+                        <Button
+                          variant="contained"
+                          className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
+                          onClick={handleSubmitRecurringWorklogs}
+                        >
+                          Update
+                        </Button>
+                      )}
                     {hasPermissionWorklog("Reccuring", "Save", "WorkLogs") ? (
                       <Switch
                         checked={recurringSwitch}
@@ -4415,7 +4459,11 @@ const EditDrawer = ({
                                 </span>
                               </span>
                             }
-                            disabled={!recurringSwitch}
+                            disabled={
+                              !recurringSwitch ||
+                              isIdDisabled ||
+                              isUnassigneeClicked
+                            }
                             onError={() => setRecurringStartDateErr(false)}
                             minDate={dayjs(receiverDateWorklogs)}
                             maxDate={dayjs(recurringEndDate)}
@@ -4455,7 +4503,11 @@ const EditDrawer = ({
                               </span>
                             }
                             minDate={dayjs(receiverDateWorklogs)}
-                            disabled={!recurringSwitch}
+                            disabled={
+                              !recurringSwitch ||
+                              isIdDisabled ||
+                              isUnassigneeClicked
+                            }
                             onError={() => setRecurringEndDateErr(false)}
                             value={
                               recurringEndDate === ""
@@ -4482,7 +4534,11 @@ const EditDrawer = ({
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, minWidth: 145 }}
-                        disabled={!recurringSwitch}
+                        disabled={
+                          !recurringSwitch ||
+                          isIdDisabled ||
+                          isUnassigneeClicked
+                        }
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           {recurringTime === 1 ? (
@@ -4548,6 +4604,7 @@ const EditDrawer = ({
                           }
                           getOptionLabel={(option) => option.label}
                           disableCloseOnSelect
+                          disabled={isIdDisabled || isUnassigneeClicked}
                           onChange={handleMultiSelectMonth}
                           style={{ width: 500 }}
                           renderInput={(params) => (
@@ -4619,22 +4676,25 @@ const EditDrawer = ({
                     <span className="ml-[21px]">Manual Time</span>
                   </span>
                   <span className="flex items-center">
-                    {onEdit > 0 && manualSwitchWorklogs && (
-                      <Button
-                        variant="contained"
-                        className={`rounded-[4px] !h-[36px] mr-6 ${
-                          manualSubmitWorklogsDisable ? "" : "!bg-secondary"
-                        }`}
-                        disabled={manualSubmitWorklogsDisable}
-                        onClick={
-                          manualSubmitWorklogsDisable
-                            ? undefined
-                            : handleSubmitManualWorklogs
-                        }
-                      >
-                        Update
-                      </Button>
-                    )}
+                    {onEdit > 0 &&
+                      manualSwitchWorklogs &&
+                      !isIdDisabled &&
+                      !isUnassigneeClicked && (
+                        <Button
+                          variant="contained"
+                          className={`rounded-[4px] !h-[36px] mr-6 ${
+                            manualSubmitWorklogsDisable ? "" : "!bg-secondary"
+                          }`}
+                          disabled={manualSubmitWorklogsDisable}
+                          onClick={
+                            manualSubmitWorklogsDisable
+                              ? undefined
+                              : handleSubmitManualWorklogs
+                          }
+                        >
+                          Update
+                        </Button>
+                      )}
                     <Switch
                       checked={manualSwitchWorklogs}
                       onChange={(e) => {
@@ -4725,7 +4785,9 @@ const EditDrawer = ({
                                   !manualSwitchWorklogs ||
                                   field.IsApproved ||
                                   (field.AssigneeId !== 0 &&
-                                    field.AssigneeId !== userId)
+                                    field.AssigneeId !== userId) ||
+                                  isIdDisabled ||
+                                  isUnassigneeClicked
                                 }
                                 onError={() => {
                                   if (
@@ -4776,7 +4838,9 @@ const EditDrawer = ({
                               !manualSwitchWorklogs ||
                               field.IsApproved ||
                               (field.AssigneeId !== 0 &&
-                                field.AssigneeId !== userId)
+                                field.AssigneeId !== userId) ||
+                              isIdDisabled ||
+                              isUnassigneeClicked
                             }
                             fullWidth
                             value={field.startTime}
@@ -4823,7 +4887,9 @@ const EditDrawer = ({
                               !manualSwitchWorklogs ||
                               field.IsApproved ||
                               (field.AssigneeId !== 0 &&
-                                field.AssigneeId !== userId)
+                                field.AssigneeId !== userId) ||
+                              isIdDisabled ||
+                              isUnassigneeClicked
                             }
                             fullWidth
                             value={field.endTime}
@@ -4936,7 +5002,9 @@ const EditDrawer = ({
                               !manualSwitchWorklogs ||
                               field.IsApproved ||
                               (field.AssigneeId !== 0 &&
-                                field.AssigneeId !== userId)
+                                field.AssigneeId !== userId) ||
+                              isIdDisabled ||
+                              isUnassigneeClicked
                             }
                             fullWidth
                             value={field.manualDesc}
@@ -4972,7 +5040,9 @@ const EditDrawer = ({
                             sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
                           />
                           {index === 0
-                            ? manualSwitchWorklogs && (
+                            ? manualSwitchWorklogs &&
+                              !isIdDisabled &&
+                              !isUnassigneeClicked && (
                                 <span
                                   className="cursor-pointer"
                                   onClick={addManulaFieldWorklogs}
@@ -4989,6 +5059,8 @@ const EditDrawer = ({
                                 </span>
                               )
                             : manualSwitchWorklogs &&
+                              !isIdDisabled &&
+                              !isUnassigneeClicked &&
                               !field.IsApproved && (
                                 <span
                                   className="cursor-pointer"
@@ -5032,15 +5104,18 @@ const EditDrawer = ({
                     <span className="ml-[21px]">Reminder</span>
                   </span>
                   <span className="flex items-center">
-                    {onEdit > 0 && reminderSwitch && (
-                      <Button
-                        variant="contained"
-                        className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
-                        onClick={handleSubmitReminderWorklogs}
-                      >
-                        Update
-                      </Button>
-                    )}
+                    {onEdit > 0 &&
+                      reminderSwitch &&
+                      !isIdDisabled &&
+                      !isUnassigneeClicked && (
+                        <Button
+                          variant="contained"
+                          className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
+                          onClick={handleSubmitReminderWorklogs}
+                        >
+                          Update
+                        </Button>
+                      )}
                     {hasPermissionWorklog("Reminder", "Save", "WorkLogs") ? (
                       <Switch
                         checked={reminderSwitch}
@@ -5089,25 +5164,41 @@ const EditDrawer = ({
                         }}
                       >
                         <FormControlLabel
-                          disabled={!reminderSwitch}
+                          disabled={
+                            !reminderSwitch ||
+                            isIdDisabled ||
+                            isUnassigneeClicked
+                          }
                           value={1}
                           control={<Radio />}
                           label="Due Date"
                         />
                         <FormControlLabel
-                          disabled={!reminderSwitch}
+                          disabled={
+                            !reminderSwitch ||
+                            isIdDisabled ||
+                            isUnassigneeClicked
+                          }
                           value={2}
                           control={<Radio />}
                           label="Specific Date"
                         />
                         <FormControlLabel
-                          disabled={!reminderSwitch}
+                          disabled={
+                            !reminderSwitch ||
+                            isIdDisabled ||
+                            isUnassigneeClicked
+                          }
                           value={3}
                           control={<Radio />}
                           label="Daily"
                         />
                         <FormControlLabel
-                          disabled={!reminderSwitch}
+                          disabled={
+                            !reminderSwitch ||
+                            isIdDisabled ||
+                            isUnassigneeClicked
+                          }
                           value={4}
                           control={<Radio />}
                           label="Days Before Due Date"
@@ -5131,7 +5222,11 @@ const EditDrawer = ({
                                   </span>
                                 </span>
                               }
-                              disabled={!reminderSwitch}
+                              disabled={
+                                !reminderSwitch ||
+                                isIdDisabled ||
+                                isUnassigneeClicked
+                              }
                               onError={() => setReminderDateErr(false)}
                               value={
                                 reminderDate === "" ? null : dayjs(reminderDate)
@@ -5169,7 +5264,11 @@ const EditDrawer = ({
                                   </span>
                                 </span>
                               }
-                              disabled={!reminderSwitch}
+                              disabled={
+                                !reminderSwitch ||
+                                isIdDisabled ||
+                                isUnassigneeClicked
+                              }
                               onError={() => setReminderDateErr(false)}
                               value={
                                 reminderDate === "" ? null : dayjs(reminderDate)
@@ -5195,6 +5294,9 @@ const EditDrawer = ({
                         variant="standard"
                         sx={{ mx: 0.75, minWidth: 100 }}
                         error={reminderTimeErr}
+                        disabled={
+                          !reminderSwitch || isIdDisabled || isUnassigneeClicked
+                        }
                       >
                         <InputLabel id="demo-simple-select-standard-label">
                           Hour
@@ -5203,7 +5305,6 @@ const EditDrawer = ({
                         <Select
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
-                          disabled={!reminderSwitch}
                           value={reminderTime === 0 ? "" : reminderTime}
                           onChange={(e) => setReminderTime(e.target.value)}
                           onBlur={(e: any) => {
@@ -5228,7 +5329,9 @@ const EditDrawer = ({
                         multiple
                         limitTags={2}
                         id="checkboxes-tags-demo"
-                        disabled={!reminderSwitch}
+                        disabled={
+                          !reminderSwitch || isIdDisabled || isUnassigneeClicked
+                        }
                         options={
                           Array.isArray(assigneeWorklogsDropdownData)
                             ? assigneeWorklogsDropdownData
@@ -5322,6 +5425,7 @@ const EditDrawer = ({
                                 variant="standard"
                                 sx={{ mx: 0.75, minWidth: 230 }}
                                 error={errorTypeWorklogsErr[index]}
+                                disabled={isIdDisabled || isUnassigneeClicked}
                               >
                                 <InputLabel id="demo-simple-select-standard-label">
                                   Error Type
@@ -5352,6 +5456,7 @@ const EditDrawer = ({
                                 variant="standard"
                                 sx={{ mx: 0.75, minWidth: 230 }}
                                 error={rootCauseWorklogsErr[index]}
+                                disabled={isIdDisabled || isUnassigneeClicked}
                               >
                                 <InputLabel id="demo-simple-select-standard-label">
                                   Root Cause
@@ -5372,7 +5477,9 @@ const EditDrawer = ({
                                         ...rootCauseWorklogsErr,
                                       ];
                                       newRootCauseWorklogsErrors[index] = false;
-                                      setRootCauseWorklogsErr(newRootCauseWorklogsErrors);
+                                      setRootCauseWorklogsErr(
+                                        newRootCauseWorklogsErrors
+                                      );
                                     }
                                   }}
                                   readOnly={
@@ -5394,6 +5501,7 @@ const EditDrawer = ({
                                 variant="standard"
                                 sx={{ mx: 0.75, minWidth: 230 }}
                                 error={natureOfWorklogsErr[index]}
+                                disabled={isIdDisabled || isUnassigneeClicked}
                               >
                                 <InputLabel id="demo-simple-select-standard-label">
                                   Nature of Error
@@ -5416,7 +5524,9 @@ const EditDrawer = ({
                                         ...natureOfWorklogsErr,
                                       ];
                                       newNatureOfErrorErrors[index] = false;
-                                      setNatureOfWorklogsErr(newNatureOfErrorErrors);
+                                      setNatureOfWorklogsErr(
+                                        newNatureOfErrorErrors
+                                      );
                                     }
                                   }}
                                   readOnly={
@@ -5461,6 +5571,7 @@ const EditDrawer = ({
                                 variant="standard"
                                 sx={{ mx: 0.75, minWidth: 230 }}
                                 error={errorLogPriorityWorklogsErr[index]}
+                                disabled={isIdDisabled || isUnassigneeClicked}
                               >
                                 <InputLabel id="demo-simple-select-standard-label">
                                   Priority
@@ -5481,7 +5592,9 @@ const EditDrawer = ({
                                         ...errorLogPriorityWorklogsErr,
                                       ];
                                       newPriorityErrors[index] = false;
-                                      setErrorLogPriorityWorklogsErr(newPriorityErrors);
+                                      setErrorLogPriorityWorklogsErr(
+                                        newPriorityErrors
+                                      );
                                     }
                                   }}
                                   readOnly={
@@ -5509,6 +5622,7 @@ const EditDrawer = ({
                                     </span>
                                   </span>
                                 }
+                                disabled={isIdDisabled || isUnassigneeClicked}
                                 type="number"
                                 fullWidth
                                 value={i.ErrorCount}
@@ -5521,12 +5635,15 @@ const EditDrawer = ({
                                       ...errorCountWorklogsErr,
                                     ];
                                     newErrorCountWorklogsErrors[index] = false;
-                                    setErrorCountWorklogsErr(newErrorCountWorklogsErrors);
+                                    setErrorCountWorklogsErr(
+                                      newErrorCountWorklogsErrors
+                                    );
                                   }
                                 }}
                                 error={errorCountWorklogsErr[index]}
                                 helperText={
-                                  errorCountWorklogsErr[index] && i.ErrorCount <= 0
+                                  errorCountWorklogsErr[index] &&
+                                  i.ErrorCount <= 0
                                     ? "Add valid number."
                                     : errorCountWorklogsErr[index] &&
                                       i.ErrorCount.toString().length > 4
@@ -5546,6 +5663,7 @@ const EditDrawer = ({
                                   multiple
                                   limitTags={2}
                                   id="checkboxes-tags-demo"
+                                  disabled={isIdDisabled || isUnassigneeClicked}
                                   readOnly={
                                     cCDropdownDataWorklogs.filter((obj: any) =>
                                       i.CC.includes(obj.value)
@@ -5583,6 +5701,7 @@ const EditDrawer = ({
                                       </span>
                                     </span>
                                   }
+                                  disabled={isIdDisabled || isUnassigneeClicked}
                                   fullWidth
                                   value={i.Remark}
                                   margin="normal"
@@ -5635,7 +5754,9 @@ const EditDrawer = ({
                                       // statusWorklogs === 7 ||
                                       // statusWorklogs === 9 ||
                                       // statusWorklogs === 8 ||
-                                      i.DisableErrorLog
+                                      i.DisableErrorLog ||
+                                      isIdDisabled ||
+                                      isUnassigneeClicked
                                     }
                                     control={
                                       <Checkbox
