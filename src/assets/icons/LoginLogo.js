@@ -582,7 +582,7 @@ const LoginLogo = () => {
                     xlinkHref="#path-3"
                   ></use>
                 </g>
-                <g id="Path-3" stroke-linecap="round" mask="url(#mask-4)">
+                <g id="Path-3" strokeLinecap="round" mask="url(#mask-4)">
                   <use
                     fill="black"
                     fill-opacity="1"
@@ -868,21 +868,21 @@ const LoginLogo = () => {
                     id="Path"
                     stroke="#F77B7B"
                     strokeWidth="1.5"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                     transform="translate(31.043817, 36.326987) rotate(-18.000000) translate(-31.043817, -36.326987) "
                   ></path>
                   <path
                     d="M29.7818223,39.0292407 C30.7010721,39.4152636 31.5729746,39.4152801 32.33593,38.9717159"
                     id="Path"
                     stroke="#F49494"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                     transform="translate(31.058876, 39.141832) rotate(2.000000) translate(-31.058876, -39.141832) "
                   ></path>
                   <path
                     d="M13.5801623,28.5824793 C13.9467413,27.2611372 13.7845131,26.1070952 12.4730282,25.5799499"
                     id="Path-8"
                     stroke="#F77B7B"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                     transform="translate(13.111813, 27.081215) rotate(-13.000000) translate(-13.111813, -27.081215) "
                   ></path>
                   <path
@@ -984,7 +984,7 @@ const LoginLogo = () => {
                     id="Path-38"
                     stroke="#FFFFFF"
                     strokeWidth="2"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                   ></line>
                   <line
                     x1="32.6397846"
@@ -994,7 +994,7 @@ const LoginLogo = () => {
                     id="Path-38"
                     stroke="#FFFFFF"
                     strokeWidth="2"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                   ></line>
                   <line
                     x1="36.1489645"
@@ -1004,7 +1004,7 @@ const LoginLogo = () => {
                     id="Path-38"
                     stroke="#FFFFFF"
                     strokeWidth="2"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                   ></line>
                   <path
                     d="M-3.11677788e-14,0 C-3.11677788e-14,0 8.7534163,96.3795493 9.02568616,103.079373 C9.29795603,109.779197 6.2142299,121.341641 6.27420124,133.873956 C6.31418213,142.228832 6.6896027,161.129322 7.40046294,190.575426 L26.7100339,190.983933 C32.1202481,137.772679 34.8545412,107.177396 34.9129133,99.1980835 C34.9998718,87.2291144 35.7441161,1.15202233 35.7441161,1.15202233 L-3.11677788e-14,0 Z"
@@ -1038,7 +1038,7 @@ const LoginLogo = () => {
                     id="Path-39"
                     stroke="#FFFFFF"
                     strokeWidth="2"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                   ></line>
                   <line
                     x1="8.68547009"
@@ -1048,7 +1048,7 @@ const LoginLogo = () => {
                     id="Path-39"
                     stroke="#FFFFFF"
                     strokeWidth="2"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                   ></line>
                   <line
                     x1="9.56912534"
@@ -1058,7 +1058,7 @@ const LoginLogo = () => {
                     id="Path-39"
                     stroke="#FFFFFF"
                     strokeWidth="2"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                   ></line>
                   <path
                     d="M14.4006735,1.264748 C14.4006735,1.264748 8.26686347,67.3308488 8.35022391,79.9824545 C8.43358436,92.6346627 10.2379152,98.1909809 7.670051,107.266923 C5.95773884,113.317551 4.37153164,140.490516 2.91142942,188.785816 L21.9025959,190.864345 C29.9909179,139.185631 34.4748355,109.763781 35.3543486,102.598796 C36.6736183,91.8513189 52.9796464,0.353056276 52.9796464,0.353056276 L14.4006735,1.264748 Z"
@@ -1101,7 +1101,7 @@ const LoginLogo = () => {
                     d="M55.2041008,26.3933461 C58.4435853,24.8933286 61.9826716,26.7476498 63.9332769,29.7234923"
                     id="Path-41"
                     stroke="#5386BF"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                   ></path>
                 </g>
                 <g id="Head" transform="translate(37.000000, 0.000000)">
@@ -1130,14 +1130,14 @@ const LoginLogo = () => {
                       d="M18.8157844,31.3779383 C18.8157844,31.3779383 20.6729444,33.6518571 24.1872746,32.6513011"
                       id="Path"
                       stroke="#CC6969"
-                      stroke-linecap="round"
+                      strokeLinecap="round"
                       transform="translate(21.501529, 32.141810) rotate(-15.000000) translate(-21.501529, -32.141810) "
                     ></path>
                     <path
                       d="M5.16239396,23.2191675 C5.4865848,22.0546831 5.3361938,21.0357183 4.15544257,20.5653482"
                       id="Path-8"
                       stroke="#DE6767"
-                      stroke-linecap="round"
+                      strokeLinecap="round"
                       transform="translate(4.733298, 21.892258) rotate(-13.000000) translate(-4.733298, -21.892258) "
                     ></path>
                   </g>
@@ -1227,7 +1227,7 @@ const LoginLogo = () => {
                     d="M52.5389078,55.5928642 C53.6332373,58.6849545 53.0689577,62.3753167 51.7927016,65.0138233"
                     id="Path-40"
                     stroke="#5386BF"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                     transform="translate(52.456541, 60.303344) rotate(2.000000) translate(-52.456541, -60.303344) "
                   ></path>
                 </g>
@@ -1473,21 +1473,21 @@ const LoginLogo = () => {
                     id="Path"
                     stroke="#F77B7B"
                     strokeWidth="1.5"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                     transform="translate(26.132920, 35.411438) rotate(-18.000000) translate(-26.132920, -35.411438) "
                   ></path>
                   <path
                     d="M24.8673644,38.1201267 C25.7892466,38.5070311 26.6636527,38.5070311 27.4288074,38.0624194"
                     id="Path"
                     stroke="#F49494"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                     transform="translate(26.148086, 38.232943) rotate(2.000000) translate(-26.148086, -38.232943) "
                   ></path>
                   <path
                     d="M8.61933251,27.6491329 C8.98679677,26.3247221 8.82396936,25.1679422 7.50869093,24.6393988"
                     id="Path-8"
                     stroke="#F77B7B"
-                    stroke-linecap="round"
+                    strokeLinecap="round"
                     transform="translate(8.149406, 26.144266) rotate(-13.000000) translate(-8.149406, -26.144266) "
                   ></path>
                 </g>

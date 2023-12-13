@@ -877,6 +877,19 @@ const Datatable = ({
           },
         },
       };
+    } else if (column.label === "Task ID") {
+      return {
+        name: "WorkitemId",
+        options: {
+          filter: true,
+          viewColumns: false,
+          sort: true,
+          customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
+          customBodyRender: (value: any, tableMeta: any) => {
+            return generateCommonBodyRender(value);
+          },
+        },
+      };
     } else if (column.name === "IsManual") {
       return {
         name: "IsManual",

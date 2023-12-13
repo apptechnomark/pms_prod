@@ -18,15 +18,15 @@ const Loading = () => {
             r="28"
             fill="none"
             stroke="url(#sGD)"
-            stroke-width="8"
+            strokeWidth="8"
           />
           <path
             className={styles.pathSolid}
             d="M 32,4 A 28 28,0,0,0,32,60"
             fill="none"
             stroke="#6E6D7A67"
-            stroke-width="8"
-            stroke-linecap="round"
+            strokeWidth="8"
+            strokeLinecap="round"
           />
           <defs>
             <linearGradient

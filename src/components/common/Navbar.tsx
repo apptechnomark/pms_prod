@@ -10,7 +10,12 @@ import { toast } from "react-toastify";
 import { handleLogoutUtil } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
 
-const Navbar = (props: any) => {
+type NavbarPropsType = {
+  onUserDetailsFetch?: (arg1: any) => void;
+  onHandleModuleNames?: (a: any, b: any, c: any, d: any, e: any) => void;
+};
+
+const Navbar = (props: NavbarPropsType) => {
   const routerNavbar = useRouter();
   const [orgDataNavbar, setOrgDataNavbar] = useState([]);
   const [openLogoutNavbar, setOpenLogoutNavbar] = useState(false);
@@ -143,13 +148,15 @@ const Navbar = (props: any) => {
           ProcessModuleName,
           SubProcessModuleName,
         } = filteredOrganization[0];
-        props?.onHandleModuleNames(
-          ClientModuleName,
-          ProjectModuleName,
-          ProcessModuleName,
-          SubProcessModuleName,
-          response.data.ResponseData.RoleId
-        );
+        if (!!props.onHandleModuleNames) {
+          props.onHandleModuleNames(
+            ClientModuleName,
+            ProjectModuleName,
+            ProcessModuleName,
+            SubProcessModuleName,
+            response.data.ResponseData.RoleId
+          );
+        }
       }
     } catch (error: any) {
       if (error.response?.status === 401) {
@@ -161,7 +168,9 @@ const Navbar = (props: any) => {
 
   const fetchData = async () => {
     await getUserDetails();
-    props?.onUserDetailsFetch(() => fetchData());
+    if (!!props.onUserDetailsFetch) {
+      props.onUserDetailsFetch(() => fetchData());
+    }
   };
 
   useEffect(() => {
@@ -226,15 +235,15 @@ const Navbar = (props: any) => {
 
       <span className="flex items-center gap-[15px]">
         {/* <span className="flex items-center gap-[20px] mr-[20px]">
-          <span className="cursor-pointer">
-            <NotificationIcon />
-          </span>
-          {userDataNavbar.RoleId !== 1 ? (
-            <span className="cursor-pointer">
-              <Btn_Help />
-            </span>
-          ) : null}
-        </span> */}
+    <span className="cursor-pointer">
+      <NotificationIcon />
+    </span>
+    {userDataNavbar.RoleId !== 1 ? (
+      <span className="cursor-pointer">
+        <Btn_Help />
+      </span>
+    ) : null}
+  </span> */}
         <div className="flex flex-col">
           <span className="inline-block text-base font-semibold text-darkCharcoal">
             {userDataNavbar?.FirstName} {userDataNavbar?.LastName}

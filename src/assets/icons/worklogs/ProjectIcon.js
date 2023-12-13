@@ -5,7 +5,7 @@ const ProjectIcon = () => {
     <svg
       stroke="currentColor"
       fill="#6E6D7A"
-      stroke-width="0"
+      strokeWidth="0"
       viewBox="0 0 24 24"
       height="22px"
       width="22px"
