@@ -2267,7 +2267,10 @@ const EditDrawer = ({
             : 0
         );
         if (pathname) {
-          if (ResponseData.AssignedId == localStorage.getItem("UserId")) {
+          if (
+            ResponseData.AssignedId == localStorage.getItem("UserId") ||
+            ResponseData.ReviewerId == localStorage.getItem("UserId")
+          ) {
             setIsIdDisabled(false);
           } else {
             setIsIdDisabled(true);
