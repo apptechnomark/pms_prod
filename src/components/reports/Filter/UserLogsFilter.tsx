@@ -216,7 +216,7 @@ const UserLogsFilter = ({
     const isAnyFieldSelected =
       userlogs_userNames.length > 0 ||
       userlogs_dept !== 0 ||
-      userlogs_dateFilter !== null ||
+      // userlogs_dateFilter !== null ||
       userlogs_dateFilter !== "" ||
       userlogs_isloggedIn !== 0;
 
