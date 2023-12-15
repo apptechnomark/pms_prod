@@ -38,7 +38,13 @@ import { useRouter } from "next/navigation";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import { extractText, getTimeDifference, getYears, hasPermissionWorklog, isWeekend } from "@/utils/commonFunction";
+import {
+  extractText,
+  getTimeDifference,
+  getYears,
+  hasPermissionWorklog,
+  isWeekend,
+} from "@/utils/commonFunction";
 import ImageUploader from "../common/ImageUploader";
 import { Mention, MentionsInput } from "react-mentions";
 import mentionsInputStyle from "../../utils/worklog/mentionsInputStyle";
@@ -263,7 +269,7 @@ const EditDrawer = ({
         }
       }
     } else {
-      toast.warning("Only Assingnee can Edit Manual time.");
+      toast.warning("Only Reviewer can Edit Manual time.");
       getManualData();
     }
   };
