@@ -124,7 +124,7 @@ const BillingReport = ({
       } else {
         setBillingReportFields({
           ...billingReportFields,
-          loaded: false,
+          loaded: true,
         });
       }
     };

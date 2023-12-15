@@ -36,7 +36,7 @@ const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
           dataCount: data.TotalCount,
         });
       } else {
-        setProjectFields({ ...projectFields, loaded: false });
+        setProjectFields({ ...projectFields, loaded: true });
       }
     };
 

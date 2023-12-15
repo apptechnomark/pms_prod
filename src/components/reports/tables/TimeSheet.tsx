@@ -434,7 +434,7 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
           dataCount: data.TotalCount,
         });
       } else {
-        setTimesheetFields({ ...timesheetFields, loaded: false });
+        setTimesheetFields({ ...timesheetFields, loaded: true });
       }
     };
 

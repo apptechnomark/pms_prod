@@ -41,7 +41,7 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
           dataCount: data.TotalCount,
         });
       } else {
-        setUserFields({ ...userFields, loaded: false });
+        setUserFields({ ...userFields, loaded: true });
       }
     };
 

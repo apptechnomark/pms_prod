@@ -36,58 +36,65 @@ const WorkLoadFilter = ({
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [userNames, setUserNames] = useState<number[]>([]);
-  const [users, setUsers] = useState<number[]>([]);
-  const [dept, setDept] = useState<string | number>(0);
-  const [dateFilter, setDateFilter] = useState<any>("");
-  const [filterName, setFilterName] = useState<string>("");
-  const [saveFilter, setSaveFilter] = useState<boolean>(false);
-  const [deptDropdown, setDeptDropdown] = useState<any[]>([]);
-  const [userDropdown, setUserDropdown] = useState<any[]>([]);
-  const [anyFieldSelected, setAnyFieldSelected] = useState(false);
-  const [currentFilterId, setCurrentFilterId] = useState<any>("");
-  const [savedFilters, setSavedFilters] = useState<any[]>([]);
-  const [defaultFilter, setDefaultFilter] = useState<boolean>(false);
-  const [searchValue, setSearchValue] = useState<string>("");
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [error, setError] = useState("");
+  const [workload_userNames, setWorkload_UserNames] = useState<number[]>([]);
+  const [workload_users, setWorkload_Users] = useState<number[]>([]);
+  const [workload_dept, setWorkload_Dept] = useState<string | number>(0);
+  const [workload_dateFilter, setWorkload_DateFilter] = useState<any>("");
+  const [workload_filterName, setWorkload_FilterName] = useState<string>("");
+  const [workload_saveFilter, setWorkload_SaveFilter] =
+    useState<boolean>(false);
+  const [workload_deptDropdown, setWorkload_DeptDropdown] = useState<any[]>([]);
+  const [workload_userDropdown, setWorkload_UserDropdown] = useState<any[]>([]);
+  const [workload_anyFieldSelected, setWorkload_AnyFieldSelected] =
+    useState(false);
+  const [workload_currentFilterId, setWorkload_CurrentFilterId] =
+    useState<any>("");
+  const [workload_savedFilters, setWorkload_SavedFilters] = useState<any[]>([]);
+  const [workload_defaultFilter, setWorkload_DefaultFilter] =
+    useState<boolean>(false);
+  const [workload_searchValue, setWorkload_SearchValue] = useState<string>("");
+  const [workload_isDeleting, setWorkload_IsDeleting] =
+    useState<boolean>(false);
+  const [workload_error, setWorkload_Error] = useState("");
 
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
 
-  const handleResetAll = () => {
-    setUserNames([]);
-    setUsers([]);
-    setDept(0);
-    setDateFilter("");
-    setError("");
+  const handleUserResetAll = () => {
+    setWorkload_UserNames([]);
+    setWorkload_Users([]);
+    setWorkload_Dept(0);
+    setWorkload_DateFilter("");
+    setWorkload_Error("");
 
     sendFilterToPage({
       ...workLoad_InitialFilter,
     });
   };
 
-  const handleClose = () => {
-    setFilterName("");
+  const handleUserClose = () => {
     onDialogClose(false);
-    setDefaultFilter(false);
-    setDept(0);
-    setDateFilter("");
-    setUserNames([]);
-    setUsers([]);
-    setError("");
+    setWorkload_FilterName("");
+    setWorkload_DefaultFilter(false);
+    setWorkload_Dept(0);
+    setWorkload_DateFilter("");
+    setWorkload_UserNames([]);
+    setWorkload_Users([]);
+    setWorkload_Error("");
   };
 
   const handleFilterApply = () => {
     sendFilterToPage({
       ...workLoad_InitialFilter,
-      users: userNames,
-      departmentId: dept === 0 || dept === "" ? null : dept,
+      users: workload_userNames,
+      departmentId:
+        workload_dept === 0 || workload_dept === "" ? null : workload_dept,
       dateFilter:
-        dateFilter === null || dateFilter.toString().trim().length <= 0
+        workload_dateFilter === null ||
+        workload_dateFilter.toString().trim().length <= 0
           ? null
-          : getFormattedDate(dateFilter),
+          : getFormattedDate(workload_dateFilter),
     });
 
     onDialogClose(false);
@@ -98,9 +105,9 @@ const WorkLoadFilter = ({
       if (index !== undefined) {
         sendFilterToPage({
           ...workLoad_InitialFilter,
-          users: savedFilters[index].AppliedFilter.users,
-          department: savedFilters[index].AppliedFilter.Department,
-          dateFilter: savedFilters[index].AppliedFilter.dateFilter,
+          users: workload_savedFilters[index].AppliedFilter.users,
+          department: workload_savedFilters[index].AppliedFilter.Department,
+          dateFilter: workload_savedFilters[index].AppliedFilter.dateFilter,
         });
       }
     }
@@ -109,12 +116,12 @@ const WorkLoadFilter = ({
   };
 
   const handleSaveFilter = async () => {
-    if (filterName.trim().length === 0) {
-      setError("This is required field!");
-    } else if (filterName.trim().length > 15) {
-      setError("Max 15 characters allowed!");
+    if (workload_filterName.trim().length === 0) {
+      setWorkload_Error("This is required field!");
+    } else if (workload_filterName.trim().length > 15) {
+      setWorkload_Error("Max 15 characters allowed!");
     } else {
-      setError("");
+      setWorkload_Error("");
 
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -122,12 +129,14 @@ const WorkLoadFilter = ({
         const response = await axios.post(
           `${process.env.worklog_api_url}/filter/savefilter`,
           {
-            filterId: !currentFilterId ? null : currentFilterId,
-            name: filterName,
+            filterId: !workload_currentFilterId
+              ? null
+              : workload_currentFilterId,
+            name: workload_filterName,
             AppliedFilter: {
-              users: userNames.length > 0 ? userNames : [],
-              Department: dept === 0 ? null : dept,
-              dateFilter: !dateFilter ? null : dateFilter,
+              users: workload_userNames.length > 0 ? workload_userNames : [],
+              Department: workload_dept === 0 ? null : workload_dept,
+              dateFilter: !workload_dateFilter ? null : workload_dateFilter,
             },
             type: workload,
           },
@@ -142,10 +151,10 @@ const WorkLoadFilter = ({
         if (response.status === 200) {
           if (response.data.ResponseStatus.toLowerCase() === "success") {
             toast.success("Filter has been successully saved.");
-            handleClose();
+            handleUserClose();
             getFilterList();
             handleFilterApply();
-            setSaveFilter(false);
+            setWorkload_SaveFilter(false);
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -170,16 +179,18 @@ const WorkLoadFilter = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      dept !== 0 || dateFilter !== "" || userNames.length > 0;
+      workload_dept !== 0 ||
+      workload_dateFilter !== "" ||
+      workload_userNames.length > 0;
 
-    setAnyFieldSelected(isAnyFieldSelected);
-    setSaveFilter(false);
-  }, [dept, dateFilter, userNames]);
+    setWorkload_AnyFieldSelected(isAnyFieldSelected);
+    setWorkload_SaveFilter(false);
+  }, [workload_dept, workload_dateFilter, workload_userNames]);
 
   useEffect(() => {
     const workLoadDropdowns = async () => {
-      setDeptDropdown(await getDeptData());
-      setUserDropdown(await getUserData());
+      setWorkload_DeptDropdown(await getDeptData());
+      setWorkload_UserDropdown(await getUserData());
     };
 
     workLoadDropdowns();
@@ -204,7 +215,7 @@ const WorkLoadFilter = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          setSavedFilters(response.data.ResponseData);
+          setWorkload_SavedFilters(response.data.ResponseData);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -227,20 +238,26 @@ const WorkLoadFilter = ({
   };
 
   const handleSavedFilterEdit = (index: number) => {
-    setUsers(
-      savedFilters[index].AppliedFilter.users.length > 0
-        ? userDropdown.filter((user: any) =>
-            savedFilters[index].AppliedFilter.users.includes(user.value)
+    setWorkload_Users(
+      workload_savedFilters[index].AppliedFilter.users.length > 0
+        ? workload_userDropdown.filter((user: any) =>
+            workload_savedFilters[index].AppliedFilter.users.includes(
+              user.value
+            )
           )
         : []
     );
-    setUserNames(savedFilters[index].AppliedFilter.users);
-    setCurrentFilterId(savedFilters[index].FilterId);
-    setFilterName(savedFilters[index].Name);
-    setDept(savedFilters[index].AppliedFilter.Department ?? 0);
-    setDateFilter(savedFilters[index].AppliedFilter.dateFilter ?? "");
-    setDefaultFilter(true);
-    setSaveFilter(true);
+    setWorkload_UserNames(workload_savedFilters[index].AppliedFilter.users);
+    setWorkload_CurrentFilterId(workload_savedFilters[index].FilterId);
+    setWorkload_FilterName(workload_savedFilters[index].Name);
+    setWorkload_Dept(
+      workload_savedFilters[index].AppliedFilter.Department ?? 0
+    );
+    setWorkload_DateFilter(
+      workload_savedFilters[index].AppliedFilter.dateFilter ?? ""
+    );
+    setWorkload_DefaultFilter(true);
+    setWorkload_SaveFilter(true);
   };
 
   const handleSavedFilterDelete = async () => {
@@ -250,7 +267,7 @@ const WorkLoadFilter = ({
       const response = await axios.post(
         `${process.env.worklog_api_url}/filter/delete`,
         {
-          filterId: currentFilterId,
+          filterId: workload_currentFilterId,
         },
         {
           headers: {
@@ -263,9 +280,9 @@ const WorkLoadFilter = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Filter has been deleted successfully.");
-          handleClose();
+          handleUserClose();
           getFilterList();
-          setCurrentFilterId("");
+          setWorkload_CurrentFilterId("");
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -289,12 +306,12 @@ const WorkLoadFilter = ({
 
   return (
     <>
-      {savedFilters.length > 0 && !defaultFilter ? (
+      {workload_savedFilters.length > 0 && !workload_defaultFilter ? (
         <Popover
           id={idFilter}
           open={isFiltering}
           anchorEl={anchorElFilter}
-          onClose={handleClose}
+          onClose={handleUserClose}
           anchorOrigin={{
             vertical: 130,
             horizontal: 1290,
@@ -308,8 +325,8 @@ const WorkLoadFilter = ({
             <span
               className="p-2 cursor-pointer hover:bg-lightGray"
               onClick={() => {
-                setDefaultFilter(true);
-                setCurrentFilterId(0);
+                setWorkload_DefaultFilter(true);
+                setWorkload_CurrentFilterId(0);
               }}
             >
               Default Filter
@@ -321,15 +338,15 @@ const WorkLoadFilter = ({
                 className="pr-7 border-b border-b-slatyGrey w-full"
                 placeholder="Search saved filters"
                 inputProps={{ "aria-label": "search" }}
-                value={searchValue}
-                onChange={(e: any) => setSearchValue(e.target.value)}
+                value={workload_searchValue}
+                onChange={(e: any) => setWorkload_SearchValue(e.target.value)}
                 sx={{ fontSize: 14 }}
               />
               <span className="absolute top-4 right-3 text-slatyGrey">
                 <SearchIcon />
               </span>
             </span>
-            {savedFilters.map((i: any, index: number) => {
+            {workload_savedFilters.map((i: any, index: number) => {
               return (
                 <>
                   <div
@@ -339,7 +356,7 @@ const WorkLoadFilter = ({
                     <span
                       className="pl-1"
                       onClick={() => {
-                        setCurrentFilterId(i.FilterId);
+                        setWorkload_CurrentFilterId(i.FilterId);
                         onDialogClose(false);
                         handleSavedFilterApply(index);
                       }}
@@ -354,8 +371,8 @@ const WorkLoadFilter = ({
                       </span>
                       <span
                         onClick={() => {
-                          setIsDeleting(true);
-                          setCurrentFilterId(i.FilterId);
+                          setWorkload_IsDeleting(true);
+                          setWorkload_CurrentFilterId(i.FilterId);
                         }}
                       >
                         <Tooltip title="Delete" placement="top" arrow>
@@ -368,7 +385,7 @@ const WorkLoadFilter = ({
               );
             })}
             <hr className="text-lightSilver mt-2" />
-            <Button onClick={handleResetAll} className="mt-2" color="error">
+            <Button onClick={handleUserResetAll} className="mt-2" color="error">
               clear all
             </Button>
           </div>
@@ -379,11 +396,11 @@ const WorkLoadFilter = ({
           TransitionComponent={DialogTransition}
           keepMounted
           maxWidth="md"
-          onClose={handleClose}
+          onClose={handleUserClose}
         >
           <DialogTitle className="h-[64px] p-[20px] flex items-center justify-between border-b border-b-lightSilver">
             <span className="text-lg font-medium">Filter</span>
-            <Button color="error" onClick={handleResetAll}>
+            <Button color="error" onClick={handleUserResetAll}>
               Reset all
             </Button>
           </DialogTitle>
@@ -397,13 +414,13 @@ const WorkLoadFilter = ({
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={userDropdown}
+                    options={workload_userDropdown}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setUserNames(data.map((d: any) => d.value));
-                      setUsers(data);
+                      setWorkload_UserNames(data.map((d: any) => d.value));
+                      setWorkload_Users(data);
                     }}
-                    value={users}
+                    value={workload_users}
                     renderInput={(params: any) => (
                       <TextField
                         {...params}
@@ -422,10 +439,10 @@ const WorkLoadFilter = ({
                   <Select
                     labelId="department"
                     id="department"
-                    value={dept === 0 ? "" : dept}
-                    onChange={(e) => setDept(e.target.value)}
+                    value={workload_dept === 0 ? "" : workload_dept}
+                    onChange={(e) => setWorkload_Dept(e.target.value)}
                   >
-                    {deptDropdown.map((i: any, index: number) => (
+                    {workload_deptDropdown.map((i: any, index: number) => (
                       <MenuItem value={i.value} key={i.value}>
                         {i.label}
                       </MenuItem>
@@ -440,8 +457,14 @@ const WorkLoadFilter = ({
                       label="Date"
                       shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
-                      value={dateFilter === "" ? null : dayjs(dateFilter)}
-                      onChange={(newValue: any) => setDateFilter(newValue)}
+                      value={
+                        workload_dateFilter === ""
+                          ? null
+                          : dayjs(workload_dateFilter)
+                      }
+                      onChange={(newValue: any) =>
+                        setWorkload_DateFilter(newValue)
+                      }
                       slotProps={{
                         textField: {
                           readOnly: true,
@@ -454,13 +477,13 @@ const WorkLoadFilter = ({
             </div>
           </DialogContent>
           <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">
-            {!saveFilter ? (
+            {!workload_saveFilter ? (
               <>
                 <Button
                   variant="contained"
                   color="info"
-                  className={`${anyFieldSelected && "!bg-secondary"}`}
-                  disabled={!anyFieldSelected}
+                  className={`${workload_anyFieldSelected && "!bg-secondary"}`}
+                  disabled={!workload_anyFieldSelected}
                   onClick={handleFilterApply}
                 >
                   Apply Filter
@@ -469,9 +492,9 @@ const WorkLoadFilter = ({
                 <Button
                   variant="contained"
                   color="info"
-                  className={`${anyFieldSelected && "!bg-secondary"}`}
-                  onClick={() => setSaveFilter(true)}
-                  disabled={!anyFieldSelected}
+                  className={`${workload_anyFieldSelected && "!bg-secondary"}`}
+                  onClick={() => setWorkload_SaveFilter(true)}
+                  disabled={!workload_anyFieldSelected}
                 >
                   Save Filter
                 </Button>
@@ -487,13 +510,13 @@ const WorkLoadFilter = ({
                     fullWidth
                     required
                     variant="standard"
-                    value={filterName}
+                    value={workload_filterName}
                     onChange={(e) => {
-                      setFilterName(e.target.value);
-                      setError("");
+                      setWorkload_FilterName(e.target.value);
+                      setWorkload_Error("");
                     }}
-                    error={error.length > 0 ? true : false}
-                    helperText={error}
+                    error={workload_error.length > 0 ? true : false}
+                    helperText={workload_error}
                   />
                 </FormControl>
                 <Button
@@ -501,16 +524,16 @@ const WorkLoadFilter = ({
                   color="info"
                   onClick={handleSaveFilter}
                   className={`${
-                    filterName.length === 0 ? "" : "!bg-secondary"
+                    workload_filterName.length === 0 ? "" : "!bg-secondary"
                   }`}
-                  disabled={filterName.length === 0}
+                  disabled={workload_filterName.length === 0}
                 >
                   Save & Apply
                 </Button>
               </>
             )}
 
-            <Button variant="outlined" color="info" onClick={handleClose}>
+            <Button variant="outlined" color="info" onClick={handleUserClose}>
               Cancel
             </Button>
           </DialogActions>
@@ -518,8 +541,8 @@ const WorkLoadFilter = ({
       )}
 
       <DeleteDialog
-        isOpen={isDeleting}
-        onClose={() => setIsDeleting(false)}
+        isOpen={workload_isDeleting}
+        onClose={() => setWorkload_IsDeleting(false)}
         onActionClick={handleSavedFilterDelete}
         Title={"Delete Filter"}
         firstContent={"Are you sure you want to delete this saved filter?"}

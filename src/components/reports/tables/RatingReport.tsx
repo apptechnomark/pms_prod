@@ -31,7 +31,7 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
           dataCount: data.TotalCount,
         });
       } else {
-        setRatingReportFields({ ...ratingReportFields, loaded: false });
+        setRatingReportFields({ ...ratingReportFields, loaded: true });
       }
     };
 

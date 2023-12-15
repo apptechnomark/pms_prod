@@ -47,7 +47,7 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
           dataCount: data.TotalCount,
         });
       } else {
-        setWorkloadFields({ ...workloadFields, loaded: false });
+        setWorkloadFields({ ...workloadFields, loaded: true });
       }
     };
 

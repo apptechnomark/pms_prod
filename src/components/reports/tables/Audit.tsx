@@ -37,7 +37,7 @@ const Audit = ({ filteredData, searchValue, onHandleExport }: any) => {
       } else {
         setAuditFields({
           ...auditFields,
-          loaded: false,
+          loaded: true,
         });
       }
     };
