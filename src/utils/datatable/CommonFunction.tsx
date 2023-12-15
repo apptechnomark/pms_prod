@@ -161,6 +161,27 @@ export const generateDaysBodyRender = (bodyValue: any) => {
   );
 };
 
+export const generateCustomeTaskIdwithErrorLogs = (
+  bodyValue: any,
+  TableMeta: any,
+  RowIndex: number
+) => {
+  const IsHasErrorlog = TableMeta.rowData[RowIndex];
+
+  return (
+    <div>
+      {IsHasErrorlog && (
+        <div
+          className={
+            "w-[10px] h-[10px] rounded-full inline-block mr-2 bg-defaultRed"
+          }
+        ></div>
+      )}
+      {bodyValue === null || bodyValue === "" ? "-" : bodyValue}
+    </div>
+  );
+};
+
 export const generateRatingsBodyRender = (bodyValue: any) => {
   return <Rating name="read-only" value={bodyValue} readOnly />;
 };

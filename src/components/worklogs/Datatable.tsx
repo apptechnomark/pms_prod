@@ -31,6 +31,7 @@ import {
   generateStatusWithColor,
   handlePageChangeWithFilter,
   handleChangeRowsPerPageWithFilter,
+  generateCustomeTaskIdwithErrorLogs,
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
@@ -886,7 +887,7 @@ const Datatable = ({
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
           customBodyRender: (value: any, tableMeta: any) => {
-            return generateCommonBodyRender(value);
+            return generateCustomeTaskIdwithErrorLogs(value, tableMeta, 18);
           },
         },
       };

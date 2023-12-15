@@ -156,7 +156,7 @@ const EditDrawer = ({
 
   const saveReviewerManualTimelog = async () => {
     const local: any = await localStorage.getItem("UserId");
-    if (assignee === parseInt(local)) {
+    if (reviewer === parseInt(local)) {
       let hasManualErrors = false;
       const newInputDateErrors = reviewermanualFields.map(
         (field) => manualSwitch && field.inputDate === ""
