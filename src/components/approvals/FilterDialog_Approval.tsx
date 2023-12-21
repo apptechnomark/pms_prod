@@ -14,8 +14,13 @@ import {
   getProjectDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { DialogTransition } from "@/utils/style/DialogTransition";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import { isWeekend } from "@/utils/commonFunction";
 
 interface FilterModalProps {
+  activeTab: number;
   onOpen: boolean;
   onClose: () => void;
   onActionClick?: () => void;
@@ -28,10 +33,14 @@ const initialFilter = {
   userId: null,
   ProjectId: null,
   ProcessId: null,
-  StatusId: 6,
+  StatusId: null,
+  dueDate: null,
+  startDate: null,
+  endDate: null,
 };
 
 const FilterDialog_Approval: React.FC<FilterModalProps> = ({
+  activeTab,
   onOpen,
   onClose,
   currentFilterData,
@@ -48,6 +57,9 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
   const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
   const [statusDropdownData, setStatusDropdownData] = useState([]);
   const [processDropdownData, setProcessDropdownData] = useState([]);
+  const [dueDate, setDueDate] = useState<null | string>(null);
+  const [startDate, setStartDate] = useState<null | string>(null);
+  const [endDate, setEndDate] = useState<null | string>(null);
 
   const sendFilterToPage = () => {
     currentFilterData(currSelectedFields);
@@ -60,6 +72,9 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     setProjectName(0);
     setProjectDropdownData([]);
     setStatus(0);
+    setDueDate(null);
+    setStartDate(null);
+    setEndDate(null);
     setProcessName(0);
     setProcessDropdownData([]);
     currentFilterData(initialFilter);
@@ -163,22 +178,24 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           setStatusDropdownData(
-            response.data.ResponseData.filter(
-              (i: any) =>
-                //     i.Type !== "Errorlogs" &&
-                //     i.Type !== "InProgress" &&
-                //     i.Type !== "NotStarted" &&
-                //     i.Type !== "PartialSubmitted" &&
-                i.Type !== "Reject"
-              // &&
-              //     i.Type !== "Rework" &&
-              //     i.Type !== "Stop"
-            )
+            activeTab === 1
+              ? response.data.ResponseData.filter(
+                  (item: any) =>
+                    item.Type === "InReview" ||
+                    item.Type === "OnHoldFromClient" ||
+                    item.Type === "ReworkInReview" ||
+                    item.Type === "Submitted" ||
+                    item.Type === "ReworkSubmitted" ||
+                    item.Type === "SecondManagerReview" ||
+                    item.Type === "WithDraw" ||
+                    item.Type === "WithdrawnbyClient"
+                )
+              : response.data.ResponseData
           );
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Error duplicating task.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
@@ -186,7 +203,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       } else {
         const data = response.data.Message;
         if (data === null) {
-          toast.error("Error duplicating task.");
+          toast.error("Please try again later.");
         } else {
           toast.error(data);
         }
@@ -220,10 +237,22 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       userName !== 0 ||
       projectName !== 0 ||
       status !== 0 ||
-      processName !== 0;
+      processName !== 0 ||
+      dueDate !== null ||
+      startDate !== null ||
+      endDate !== null;
 
     setAnyFieldSelected(isAnyFieldSelected);
-  }, [clientName, userName, projectName, processName, status]);
+  }, [
+    clientName,
+    userName,
+    projectName,
+    processName,
+    status,
+    dueDate,
+    startDate,
+    endDate,
+  ]);
 
   useEffect(() => {
     const selectedFields = {
@@ -232,9 +261,40 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
       ProjectId: projectName || null,
       StatusId: status || null,
       ProcessId: processName || null,
+      startDate:
+        startDate !== null
+          ? new Date(
+              new Date(startDate).getTime() + 24 * 60 * 60 * 1000
+            )?.toISOString()
+          : null,
+      dueDate:
+        dueDate !== null
+          ? new Date(
+              new Date(dueDate).getTime() + 24 * 60 * 60 * 1000
+            )?.toISOString()
+          : null,
+      endDate:
+        endDate !== null
+          ? new Date(
+              new Date(endDate).getTime() + 24 * 60 * 60 * 1000
+            )?.toISOString()
+          : null,
     };
     setCurrSelectedFileds(selectedFields);
-  }, [clientName, userName, projectName, processName, status]);
+  }, [
+    clientName,
+    userName,
+    projectName,
+    processName,
+    status,
+    dueDate,
+    startDate,
+    endDate,
+  ]);
+
+  useEffect(() => {
+    handleResetAll();
+  }, [activeTab]);
 
   return (
     <div>
@@ -336,7 +396,73 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
                   ))}
                 </Select>
               </FormControl>
+              {activeTab === 2 && (
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Due Date"
+                      value={dueDate === null ? null : dayjs(dueDate)}
+                      onChange={(newDate: any) => {
+                        setDueDate(newDate.$d);
+                      }}
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now())}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+              )}
             </div>
+            {activeTab === 2 && (
+              <div className="flex gap-[20px]">
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="From"
+                      value={startDate === null ? null : dayjs(startDate)}
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now())}
+                      onChange={(newDate: any) => {
+                        setStartDate(newDate.$d);
+                      }}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-[200px] max-w-[300px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="To"
+                      value={endDate === null ? null : dayjs(endDate)}
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now())}
+                      onChange={(newDate: any) => {
+                        setEndDate(newDate.$d);
+                      }}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+              </div>
+            )}
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">

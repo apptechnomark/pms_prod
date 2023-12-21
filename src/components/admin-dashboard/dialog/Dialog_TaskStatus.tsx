@@ -93,7 +93,7 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Error duplicating task.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
@@ -101,7 +101,7 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
       } else {
         const data = response.data.Message;
         if (data === null) {
-          toast.error("Error duplicating task.");
+          toast.error("Please try again later.");
         } else {
           toast.error(data);
         }

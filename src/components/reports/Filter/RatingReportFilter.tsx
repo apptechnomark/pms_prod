@@ -423,6 +423,8 @@ const RatingReportFilter = ({
     getRatingReport_FilterList();
   }, []);
 
+  const ALL = -1;
+
   useEffect(() => {
     const isAnyFieldSelected =
       ratingreport_clientName.length > 0 ||
@@ -446,7 +448,10 @@ const RatingReportFilter = ({
 
   useEffect(() => {
     const filterDropdowns = async () => {
-      setRatingReport_ClientDropdown(await getClientDropdownData());
+      setRatingReport_ClientDropdown([
+        { label: "Select All", value: ALL },
+        ...(await getClientDropdownData()),
+      ]);
       setRatingReport_ProjectDropdown(
         await getProjectData(
           ratingreport_clientName.length > 0 ? ratingreport_clientName[0] : 0
@@ -580,17 +585,38 @@ const RatingReportFilter = ({
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={ratingreport_clientDropdown.filter(
-                      (option) =>
-                        !ratingreport_clients.find(
-                          (client) => client.value === option.value
-                        )
-                    )}
+                    options={
+                      ratingreport_clientDropdown.length - 1 ===
+                      ratingreport_clients.length
+                        ? []
+                        : ratingreport_clientDropdown.filter(
+                            (option) =>
+                              !ratingreport_clients.find(
+                                (client) => client.value === option.value
+                              )
+                          )
+                    }
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setRatingReport_Clients(data);
-                      setRatingReport_ClientName(data.map((d: any) => d.value));
-                      setRatingReport_ProjectName(0);
+                      if (data.some((d: any) => d.value === -1)) {
+                        setRatingReport_Clients(
+                          ratingreport_clientDropdown.filter(
+                            (d: any) => d.value !== -1
+                          )
+                        );
+                        setRatingReport_ClientName(
+                          ratingreport_clientDropdown
+                            .filter((d: any) => d.value !== -1)
+                            .map((d: any) => d.value)
+                        );
+                        setRatingReport_ProjectName(0);
+                      } else {
+                        setRatingReport_Clients(data);
+                        setRatingReport_ClientName(
+                          data.map((d: any) => d.value)
+                        );
+                        setRatingReport_ProjectName(0);
+                      }
                     }}
                     value={ratingreport_clients}
                     renderInput={(params: any) => (

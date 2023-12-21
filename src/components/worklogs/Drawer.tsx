@@ -29,6 +29,7 @@ import {
   Select,
   Switch,
   TextField,
+  ThemeProvider,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -65,8 +66,11 @@ import {
 } from "@/utils/commonDropdownApiCall";
 import ImageUploader from "../common/ImageUploader";
 import { getFileFromBlob } from "@/utils/downloadFile";
-import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import { ColorToolTip, getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { callAPI } from "@/utils/API/callAPI";
+import MUIDataTable from "mui-datatables";
+import TablePagination from "@mui/material/TablePagination";
+import { generateCommonBodyRender } from "@/utils/datatable/CommonFunction";
 
 const EditDrawer = ({
   onOpen,
@@ -110,7 +114,7 @@ const EditDrawer = ({
           hasPermissionWorklog("Reminder", "View", "WorkLogs") && "Reminder",
           hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && "Error Logs",
           "Reviewer's Note",
-          // "Logs",
+          "Logs",
         ])
       : (Task = [
           hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "Task",
@@ -343,56 +347,56 @@ const EditDrawer = ({
       newSubTaskDescErrors.some((error) => error);
 
     if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
-      if (
-        editStatusWorklogs === 4 ||
-        editStatusWorklogs === 5 ||
-        statusWorklogs === 7 ||
-        statusWorklogs === 8 ||
-        statusWorklogs === 9 ||
-        statusWorklogs === 13
-      ) {
-        toast.warning(
-          "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-        );
-        onEdit > 0 && getSubTaskDataWorklogs();
-      } else {
-        if (!hasSubErrors) {
-          const params = {
-            workitemId: onEdit,
-            subtasks: subTaskSwitchWorklogs
-              ? subTaskFieldsWorklogs.map(
-                  (i: any) =>
-                    new Object({
-                      SubtaskId: i.SubtaskId,
-                      Title: i.Title.trim(),
-                      Description: i.Description.trim(),
-                    })
-                )
-              : null,
-            deletedWorkitemSubtaskIds: deletedSubTaskWorklogs,
-          };
-          const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
-          const successCallback = (
-            ResponseData: any,
-            error: any,
-            ResponseStatus: any
-          ) => {
-            if (ResponseStatus === "Success" && error === false) {
-              toast.success(`Sub Task Updated successfully.`);
-              setDeletedSubTaskWorklogs([]);
-              setSubTaskFieldsWorklogs([
-                {
-                  SubtaskId: 0,
-                  Title: "",
-                  Description: "",
-                },
-              ]);
-              getSubTaskDataWorklogs();
-            }
-          };
-          callAPI(url, params, successCallback, "POST");
-        }
+      // if (
+      //   editStatusWorklogs === 4 ||
+      //   editStatusWorklogs === 5 ||
+      //   statusWorklogs === 7 ||
+      //   statusWorklogs === 8 ||
+      //   statusWorklogs === 9 ||
+      //   statusWorklogs === 13
+      // ) {
+      //   toast.warning(
+      //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+      //   );
+      //   onEdit > 0 && getSubTaskDataWorklogs();
+      // } else {
+      if (!hasSubErrors) {
+        const params = {
+          workitemId: onEdit,
+          subtasks: subTaskSwitchWorklogs
+            ? subTaskFieldsWorklogs.map(
+                (i: any) =>
+                  new Object({
+                    SubtaskId: i.SubtaskId,
+                    Title: i.Title.trim(),
+                    Description: i.Description.trim(),
+                  })
+              )
+            : null,
+          deletedWorkitemSubtaskIds: deletedSubTaskWorklogs,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success(`Sub Task Updated successfully.`);
+            setDeletedSubTaskWorklogs([]);
+            setSubTaskFieldsWorklogs([
+              {
+                SubtaskId: 0,
+                Title: "",
+                Description: "",
+              },
+            ]);
+            getSubTaskDataWorklogs();
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
       }
+      // }
     } else {
       toast.error("User don't have permission to Update Sub-Task.");
       getSubTaskDataWorklogs();
@@ -1029,45 +1033,45 @@ const EditDrawer = ({
     const hasErrors = Object.values(fieldValidations).some((error) => error);
 
     if (hasPermissionWorklog("Reminder", "save", "WorkLogs")) {
-      if (
-        editStatusWorklogs === 4 ||
-        statusWorklogs === 7 ||
-        statusWorklogs === 8 ||
-        statusWorklogs === 9 ||
-        statusWorklogs === 13
-      ) {
-        toast.warning(
-          "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-        );
-        getReminderDataWorklogs();
-      } else {
-        if (!hasErrors) {
-          const params = {
-            ReminderId: reminderId,
-            ReminderType: reminderCheckboxValue,
-            WorkitemId: onEdit,
-            ReminderDate:
-              reminderCheckboxValue === 2
-                ? dayjs(reminderDate).format("YYYY/MM/DD")
-                : null,
-            ReminderTime: reminderTime,
-            ReminderUserIds: reminderNotification.map((i: any) => i.value),
-          };
-          const url = `${process.env.worklog_api_url}/workitem/reminder/savebyworkitem`;
-          const successCallback = (
-            ResponseData: any,
-            error: any,
-            ResponseStatus: any
-          ) => {
-            if (ResponseStatus === "Success" && error === false) {
-              toast.success(`Reminder Updated successfully.`);
-              getReminderDataWorklogs();
-              setReminderId(0);
-            }
-          };
-          callAPI(url, params, successCallback, "POST");
-        }
+      // if (
+      //   editStatusWorklogs === 4 ||
+      //   statusWorklogs === 7 ||
+      //   statusWorklogs === 8 ||
+      //   statusWorklogs === 9 ||
+      //   statusWorklogs === 13
+      // ) {
+      //   toast.warning(
+      //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+      //   );
+      //   getReminderDataWorklogs();
+      // } else {
+      if (!hasErrors) {
+        const params = {
+          ReminderId: reminderId,
+          ReminderType: reminderCheckboxValue,
+          WorkitemId: onEdit,
+          ReminderDate:
+            reminderCheckboxValue === 2
+              ? dayjs(reminderDate).format("YYYY/MM/DD")
+              : null,
+          ReminderTime: reminderTime,
+          ReminderUserIds: reminderNotification.map((i: any) => i.value),
+        };
+        const url = `${process.env.worklog_api_url}/workitem/reminder/savebyworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success(`Reminder Updated successfully.`);
+            getReminderDataWorklogs();
+            setReminderId(0);
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
       }
+      // }
     } else {
       toast.error("User don't have permission to Update Recurring.");
       setDeletedSubTaskWorklogs([]);
@@ -1102,50 +1106,50 @@ const EditDrawer = ({
     index: number
   ) => {
     if (hasPermissionWorklog("CheckList", "save", "WorkLogs")) {
-      if (
-        editStatusWorklogs === 4 ||
-        statusWorklogs === 7 ||
-        statusWorklogs === 8 ||
-        statusWorklogs === 9 ||
-        statusWorklogs === 13
-      ) {
-        toast.warning(
-          "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-        );
-        getCheckListDataWorklogs();
-      } else {
-        setCheckListNameWorklogsError(
-          checkListNameWorklogs.trim().length < 5 ||
-            checkListNameWorklogs.trim().length > 500
-        );
+      // if (
+      //   editStatusWorklogs === 4 ||
+      //   statusWorklogs === 7 ||
+      //   statusWorklogs === 8 ||
+      //   statusWorklogs === 9 ||
+      //   statusWorklogs === 13
+      // ) {
+      //   toast.warning(
+      //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+      //   );
+      //   getCheckListDataWorklogs();
+      // } else {
+      setCheckListNameWorklogsError(
+        checkListNameWorklogs.trim().length < 5 ||
+          checkListNameWorklogs.trim().length > 500
+      );
 
-        if (
-          !checkListNameWorklogsError &&
-          checkListNameWorklogs.trim().length > 4 &&
-          checkListNameWorklogs.trim().length < 500
-        ) {
-          const params = {
-            workItemId: onEdit,
-            category: Category,
-            title: checkListNameWorklogs,
-            isCheck: true,
-          };
-          const url = `${process.env.worklog_api_url}/workitem/checklist/createbyworkitem`;
-          const successCallback = (
-            ResponseData: any,
-            error: any,
-            ResponseStatus: any
-          ) => {
-            if (ResponseStatus === "Success" && error === false) {
-              toast.success(`Checklist created successfully.`);
-              setCheckListNameWorklogs("");
-              getCheckListDataWorklogs();
-              toggleAddChecklistField(index);
-            }
-          };
-          callAPI(url, params, successCallback, "POST");
-        }
+      if (
+        !checkListNameWorklogsError &&
+        checkListNameWorklogs.trim().length > 4 &&
+        checkListNameWorklogs.trim().length < 500
+      ) {
+        const params = {
+          workItemId: onEdit,
+          category: Category,
+          title: checkListNameWorklogs,
+          isCheck: true,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/checklist/createbyworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success(`Checklist created successfully.`);
+            setCheckListNameWorklogs("");
+            getCheckListDataWorklogs();
+            toggleAddChecklistField(index);
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
       }
+      // }
     } else {
       toast.error("User don't have permission to Add Checklist.");
       getCheckListDataWorklogs();
@@ -1182,37 +1186,37 @@ const EditDrawer = ({
     Title: any
   ) => {
     if (hasPermissionWorklog("CheckList", "save", "WorkLogs")) {
-      if (
-        editStatusWorklogs === 4 ||
-        statusWorklogs === 7 ||
-        statusWorklogs === 8 ||
-        statusWorklogs === 9 ||
-        statusWorklogs === 13
-      ) {
-        toast.warning(
-          "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-        );
-        getCheckListDataWorklogs();
-      } else {
-        const params = {
-          workItemId: onEdit,
-          category: Category,
-          title: Title,
-          isCheck: IsCheck,
-        };
-        const url = `${process.env.worklog_api_url}/workitem/checklist/savebyworkitem`;
-        const successCallback = (
-          ResponseData: any,
-          error: any,
-          ResponseStatus: any
-        ) => {
-          if (ResponseStatus === "Success" && error === false) {
-            toast.success(`CheckList Updated successfully.`);
-            getCheckListDataWorklogs();
-          }
-        };
-        callAPI(url, params, successCallback, "POST");
-      }
+      // if (
+      //   editStatusWorklogs === 4 ||
+      //   statusWorklogs === 7 ||
+      //   statusWorklogs === 8 ||
+      //   statusWorklogs === 9 ||
+      //   statusWorklogs === 13
+      // ) {
+      //   toast.warning(
+      //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+      //   );
+      //   getCheckListDataWorklogs();
+      // } else {
+      const params = {
+        workItemId: onEdit,
+        category: Category,
+        title: Title,
+        isCheck: IsCheck,
+      };
+      const url = `${process.env.worklog_api_url}/workitem/checklist/savebyworkitem`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success(`CheckList Updated successfully.`);
+          getCheckListDataWorklogs();
+        }
+      };
+      callAPI(url, params, successCallback, "POST");
+      // }
     } else {
       toast.error("User don't have permission to Add Checklist.");
       getCheckListDataWorklogs();
@@ -1707,6 +1711,62 @@ const EditDrawer = ({
     callAPI(url, params, successCallback, "POST");
   };
 
+  // Logs
+  const [logsWorklogsDrawer, setLogsWorklogsDrawer] = useState(true);
+  const [logsDataWorklogs, setLogsDateWorklogs] = useState<any>([]);
+
+  const logsDatatableTaskCols = [
+    {
+      name: "Filed",
+      label: "Filed Name",
+      options: {
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "OldValue",
+      label: "Old Value",
+      options: {
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "NewValue",
+      label: "New Value",
+      options: {
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+  ];
+
+  const getLogsDataWorklogs = async () => {
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.report_api_url}/auditlog/getbyworkitem`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (
+        ResponseStatus === "Success" &&
+        ResponseData !== null &&
+        ResponseData.List.length >= 0 &&
+        error === false
+      ) {
+        setLogsDateWorklogs(ResponseData.List);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
@@ -2046,6 +2106,7 @@ const EditDrawer = ({
             onEdit > 0 &&
               typeOfWorkWorklogs === 3 &&
               getCheckListDataWorklogs();
+            onEdit > 0 && getLogsDataWorklogs();
             onEdit === 0 && onClose();
             onEdit === 0 && handleClose();
           } else {
@@ -2113,26 +2174,27 @@ const EditDrawer = ({
       }
     }
 
+    // if (
+    //   (onEdit > 0 && editStatusWorklogs === 4) ||
+    //   (onEdit > 0 && editStatusWorklogs === 5) ||
+    //   (onEdit > 0 && statusWorklogs === 7) ||
+    //   (onEdit > 0 && statusWorklogs === 8) ||
+    //   (onEdit > 0 && statusWorklogs === 9) ||
+    //   (onEdit > 0 && statusWorklogs === 13)
+    // ) {
+    //   toast.warning(
+    //     "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+    //   );
+    //   getEditDataWorklogs();
+    // } else
     if (
-      (onEdit > 0 && editStatusWorklogs === 4) ||
-      (onEdit > 0 && editStatusWorklogs === 5) ||
-      (onEdit > 0 && statusWorklogs === 7) ||
-      (onEdit > 0 && statusWorklogs === 8) ||
-      (onEdit > 0 && statusWorklogs === 9) ||
-      (onEdit > 0 && statusWorklogs === 13)
-    ) {
-      toast.warning(
-        "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-      );
-      getEditDataWorklogs();
-    } else if (
       onEdit > 0 &&
-      editStatusWorklogs !== 4 &&
-      editStatusWorklogs !== 5 &&
-      statusWorklogs !== 7 &&
-      statusWorklogs !== 8 &&
-      statusWorklogs !== 9 &&
-      statusWorklogs !== 13 &&
+      // editStatusWorklogs !== 4 &&
+      // editStatusWorklogs !== 5 &&
+      // statusWorklogs !== 7 &&
+      // statusWorklogs !== 8 &&
+      // statusWorklogs !== 9 &&
+      // statusWorklogs !== 13 &&
       typeOfWorkWorklogs !== 3 &&
       !hasEditErrors &&
       clientTaskNameWorklogs.trim().length > 3 &&
@@ -2150,12 +2212,12 @@ const EditDrawer = ({
       }
     } else if (
       onEdit > 0 &&
-      editStatusWorklogs !== 4 &&
-      editStatusWorklogs !== 5 &&
-      statusWorklogs !== 7 &&
-      statusWorklogs !== 8 &&
-      statusWorklogs !== 9 &&
-      statusWorklogs !== 13 &&
+      // editStatusWorklogs !== 4 &&
+      // editStatusWorklogs !== 5 &&
+      // statusWorklogs !== 7 &&
+      // statusWorklogs !== 8 &&
+      // statusWorklogs !== 9 &&
+      // statusWorklogs !== 13 &&
       typeOfWorkWorklogs === 3 &&
       !hasEditErrors &&
       clientTaskNameWorklogs.trim().length > 3 &&
@@ -2209,30 +2271,59 @@ const EditDrawer = ({
         setAllInfoDateWorklogs(
           ResponseData.AllInfoDate === null ? "" : ResponseData.AllInfoDate
         );
-        ResponseData.StatusId === 2 && ResponseData.IsManual === true
+        // ResponseData.StatusId === 2
+        !ResponseData.ErrorlogSignedOffPending
           ? setStatusWorklogsDropdownDataUse(
-              statusWorklogsDropdownData
-                .map((i: any) =>
-                  i.Type === "OnHoldFromClient" ||
-                  i.Type === "WithDraw" ||
-                  i.Type === "Stop" ||
-                  i.value === ResponseData.StatusId
-                    ? i
-                    : ""
-                )
-                .filter((i: any) => i !== "")
+              statusWorklogsDropdownData.filter(
+                (item: any) =>
+                  item.Type === "Assigned" ||
+                  item.Type === "OnHoldFromClient" ||
+                  item.Type === "WithDraw" ||
+                  item.Type === "WithdrawnbyClient" ||
+                  item.Type === "NotStarted" ||
+                  item.Type === "InProgress" ||
+                  item.Type === "Stop" ||
+                  item.Type === "Rework" ||
+                  item.value == ResponseData.StatusId
+              )
             )
           : setStatusWorklogsDropdownDataUse(
-              statusWorklogsDropdownData
-                .map((i: any) =>
-                  i.Type === "OnHoldFromClient" ||
-                  i.Type === "WithDraw" ||
-                  i.value === ResponseData.StatusId
-                    ? i
-                    : ""
-                )
-                .filter((i: any) => i !== "")
+              statusWorklogsDropdownData.filter(
+                (item: any) =>
+                  item.Type === "Assigned" ||
+                  item.Type === "OnHoldFromClient" ||
+                  item.Type === "WithDraw" ||
+                  item.Type === "WithdrawnbyClient" ||
+                  item.Type === "Rework" ||
+                  item.Type === "ReworkInProgress" ||
+                  item.Type === "ReworkPrepCompleted" ||
+                  item.value === ResponseData.StatusId
+              )
             );
+        // ResponseData.StatusId === 2 && ResponseData.IsManual === true
+        //   ? setStatusWorklogsDropdownDataUse(
+        //       statusWorklogsDropdownData
+        //         .map((i: any) =>
+        //           i.Type === "OnHoldFromClient" ||
+        //           i.Type === "WithDraw" ||
+        //           i.Type === "Stop" ||
+        //           i.value === ResponseData.StatusId
+        //             ? i
+        //             : ""
+        //         )
+        //         .filter((i: any) => i !== "")
+        //     )
+        //   : setStatusWorklogsDropdownDataUse(
+        //       statusWorklogsDropdownData
+        //         .map((i: any) =>
+        //           i.Type === "OnHoldFromClient" ||
+        //           i.Type === "WithDraw" ||
+        //           i.value === ResponseData.StatusId
+        //             ? i
+        //             : ""
+        //         )
+        //         .filter((i: any) => i !== "")
+        //     );
         setPriorityWorklogs(
           ResponseData.Priority === null ? 0 : ResponseData.Priority
         );
@@ -2282,14 +2373,17 @@ const EditDrawer = ({
   };
 
   const onEditDataWorklogs = () => {
+    const pathname = window.location.href.includes("comment=");
     if (onEdit > 0) {
       getEditDataWorklogs();
       getSubTaskDataWorklogs();
       getRecurringDataWorklogs();
       getManualDataWorklogs();
       getCheckListDataWorklogs();
-      getCommentDataWorklogs(1);
+      setCommentSelectWorklogs(pathname ? 2 : 1);
+      getCommentDataWorklogs(pathname ? 2 : 1);
       getReviewerNoteDataWorklogs();
+      getLogsDataWorklogs();
     }
   };
 
@@ -2303,19 +2397,38 @@ const EditDrawer = ({
   }, [assigneeWorklogsDropdownData]);
 
   // GEtDropdownData
-  useEffect(() => {
-    const getData = async () => {
-      await setStatusWorklogsDropdownData(await getStatusDropdownData());
-      await setCCDropdownDataWorklogs(await getCCDropdownData());
-    };
-    getData();
-  }, []);
+  // useEffect(() => {
+  //   const getData = async () => {
+  //     await setStatusWorklogsDropdownData(await getStatusDropdownData());
+  //     await setCCDropdownDataWorklogs(await getCCDropdownData());
+  //   };
+  //   getData();
+  // }, []);
 
   useEffect(() => {
     const getData = async () => {
+      const statusData = await getStatusDropdownData();
       onOpen &&
         statusWorklogsDropdownData.length === 0 &&
-        (await setStatusWorklogsDropdownData(await getStatusDropdownData()));
+        (await setStatusWorklogsDropdownData(statusData));
+      onOpen &&
+        statusWorklogsDropdownData.length === 0 &&
+        (await setStatusWorklogsDropdownDataUse(
+          statusData.filter(
+            (item: any) =>
+              item.Type === "Assigned" ||
+              item.Type === "NotStarted" ||
+              item.Type === "InProgress" ||
+              item.Type === "Stop" ||
+              item.Type === "OnHoldFromClient" ||
+              item.Type === "WithDraw" ||
+              item.Type === "WithdrawnbyClient" ||
+              (onEdit > 0 &&
+                (item.Type === "Rework" ||
+                  item.Type === "ReworkInProgress" ||
+                  item.Type === "ReworkPrepCompleted"))
+          )
+        ));
       onOpen &&
         onEdit === 0 &&
         setStatusWorklogs(
@@ -2633,6 +2746,9 @@ const EditDrawer = ({
     // Reviewer note
     setReviewerNoteDataWorklogs([]);
 
+    // Log
+    setLogsDateWorklogs([]);
+
     // Dropdown
     setClientWorklogsDropdownData([]);
     setTypeOfWorkWorklogsDropdownData([]);
@@ -2648,7 +2764,7 @@ const EditDrawer = ({
     onDataFetch();
 
     if (typeof window !== "undefined") {
-      const pathname = window.location.href.includes("=");
+      const pathname = window.location.href.includes("id=");
       if (pathname) {
         onClose();
         router.push("/worklogs");
@@ -2661,7 +2777,7 @@ const EditDrawer = ({
   return (
     <>
       <div
-        className={`fixed top-0 right-0 z-30 h-screen overflow-y-auto w-[1300px] border border-lightSilver bg-pureWhite transform  ${
+        className={`fixed top-0 right-0 z-30 h-screen w-[1300px] border border-lightSilver bg-pureWhite transform  ${
           onOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-in-out`}
       >
@@ -2700,8 +2816,10 @@ const EditDrawer = ({
                     <span className="ml-[21px]">Task</span>
                   </span>
                   <div className="flex gap-4">
-                    {onEdit > 0 && (
-                      <span>Created By : {editDataWorklogs.CreatedByName}</span>
+                    {onEdit > 0 && editDataWorklogs?.length > 0 && (
+                      <span>
+                        Created By : {editDataWorklogs?.CreatedByName}
+                      </span>
                     )}
                     <span
                       className={`cursor-pointer ${
@@ -2894,30 +3012,36 @@ const EditDrawer = ({
                       <Autocomplete
                         id="combo-box-demo"
                         options={
-                          onEdit === 0
-                            ? statusWorklogsDropdownData
-                            : statusWorklogsDropdownDataUse
+                          // onEdit === 0
+                          //   ? statusWorklogsDropdownData
+                          //   :
+                          statusWorklogsDropdownDataUse
                         }
-                        disabled={
-                          onEdit === 0 ||
-                          statusWorklogs === 7 ||
-                          statusWorklogs === 8 ||
-                          statusWorklogs === 9 ||
-                          isIdDisabled
-                        }
+                        // disabled={
+                        //   onEdit === 0 ||
+                        //   statusWorklogs === 7 ||
+                        //   statusWorklogs === 8 ||
+                        //   statusWorklogs === 9
+                        // }
                         value={
-                          onEdit === 0 && manualSwitchWorklogs
-                            ? statusWorklogsDropdownData.find(
-                                (i: any) => i.value === statusWorklogs
-                              ) || null
-                            : onEdit === 0
-                            ? statusWorklogsDropdownData.find(
-                                (i: any) => i.value === statusWorklogs
-                              ) || null
-                            : statusWorklogsDropdownDataUse.find(
-                                (i: any) => i.value === statusWorklogs
-                              ) || null
+                          // onEdit === 0 && manualSwitchWorklogs
+                          //   ? statusWorklogsDropdownData.find(
+                          //       (i: any) => i.value === statusWorklogs
+                          //     ) || null
+                          //   :
+                          // onEdit === 0
+                          //   ? statusWorklogsDropdownData.find(
+                          //       (i: any) => i.value === statusWorklogs
+                          //     ) || null
+                          //   :
+                          statusWorklogsDropdownDataUse.find(
+                            (i: any) => i.value === statusWorklogs
+                          ) || null
+                          // : statusWorklogsDropdownDataUse.find(
+                          //     (i: any) => i.value === statusWorklogs
+                          //   ) || null
                         }
+                        disabled={isIdDisabled}
                         onChange={(e, value: any) => {
                           value && setStatusWorklogs(value.value);
                         }}
@@ -2964,6 +3088,7 @@ const EditDrawer = ({
                         }
                         onChange={(e, value: any) => {
                           value && setProcessNameWorklogs(value.value);
+                          value && setSubProcessWorklogs(0);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -4731,21 +4856,21 @@ const EditDrawer = ({
                             IsApproved: false,
                           },
                         ]);
-                        e.target.checked === true
-                          ? setStatusWorklogs(
-                              statusWorklogsDropdownData
-                                .map((i: any) =>
-                                  i.Type === "InProgress" ? i.value : undefined
-                                )
-                                .filter((i: any) => i !== undefined)[0]
-                            )
-                          : setStatusWorklogs(
-                              statusWorklogsDropdownData
-                                .map((i: any) =>
-                                  i.Type === "NotStarted" ? i.value : undefined
-                                )
-                                .filter((i: any) => i !== undefined)[0]
-                            );
+                        // e.target.checked === true
+                        //   ? setStatusWorklogs(
+                        //       statusWorklogsDropdownData
+                        //         .map((i: any) =>
+                        //           i.Type === "InProgress" ? i.value : undefined
+                        //         )
+                        //         .filter((i: any) => i !== undefined)[0]
+                        //     )
+                        //   : setStatusWorklogs(
+                        //       statusWorklogsDropdownData
+                        //         .map((i: any) =>
+                        //           i.Type === "NotStarted" ? i.value : undefined
+                        //         )
+                        //         .filter((i: any) => i !== undefined)[0]
+                        //     );
                       }}
                     />
                     <span
@@ -5418,7 +5543,11 @@ const EditDrawer = ({
                                 {i.SubmitedBy}
                               </span>
                               <span className="font-bold">Reviewer Date</span>
-                              <span className="ml-3">{i.SubmitedOn}</span>
+                              <span className="ml-3">
+                                {i.SubmitedOn.split("/")[1]}-
+                                {i.SubmitedOn.split("/")[0]}-
+                                {i.SubmitedOn.split("/")[2]}
+                              </span>
                             </div>
                             <div
                               className="w-[100%] mt-2 text-[14px]"
@@ -5818,7 +5947,12 @@ const EditDrawer = ({
                   reviewerNoteWorklogs.length > 0 &&
                   reviewerNoteWorklogs.map((i: any, index: number) => (
                     <div className="mt-5 pl-[70px] text-sm">
-                      <span className="font-semibold">{i.ReviewedDate}</span>
+                      <span className="font-semibold">
+                        {i.ReviewedDate.split("-")
+                          .slice(1)
+                          .concat(i.ReviewedDate.split("-")[0])
+                          .join("-")}
+                      </span>
                       {i.Details.map((j: any, index: number) => (
                         <div className="flex gap-3 mt-4">
                           <span className="mt-2">{index + 1}</span>
@@ -5868,8 +6002,15 @@ const EditDrawer = ({
             )}
 
             {/* Logs */}
-            {/* {onEdit > 0 && (
-              <div className="mt-14" id={`${onEdit > 0 && "tabpanel-9"}`}>
+            {onEdit > 0 && (
+              <div
+                className="mt-14"
+                id={`${
+                  isManual === true || isManual === null
+                    ? "tabpanel-9"
+                    : "tabpanel-8"
+                }`}
+              >
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
                     <HistoryIcon />
@@ -5877,48 +6018,60 @@ const EditDrawer = ({
                   </span>
                   <span
                     className={`cursor-pointer ${
-                      logsDrawer ? "rotate-180" : ""
+                      logsWorklogsDrawer ? "rotate-180" : ""
                     }`}
-                    onClick={() => setLogsDrawer(!logsDrawer)}
+                    onClick={() => setLogsWorklogsDrawer(!logsWorklogsDrawer)}
                   >
                     <ChevronDownIcon />
                   </span>
                 </div>
-                {logsDrawer && <div className="mt-5 pl-[70px] text-sm">
-                  <span className="font-semibold">13/06/2023</span>
-                  <div className="flex gap-3 mt-4">
-                    <span className="mt-2">1</span>
-                    <Avatar
-                      alt="Remy Sharp"
-                      src="data:image/jpeg;base64,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"
-                    />
-                    <div className="flex flex-col items-start">
-                      <span>{splittedText}</span>
-                      <span>Accepted Reason</span>
-                      <span>at 04:47 pm</span>
+                {logsWorklogsDrawer &&
+                  logsDataWorklogs.length > 0 &&
+                  logsDataWorklogs.map((i: any, index: number) => (
+                    <div className="mt-5 pl-[70px] text-sm">
+                      <div className="flex gap-3 mt-4">
+                        <b className="mt-2">{index + 1}</b>
+                        <div className="flex flex-col items-start">
+                          <b>Modify By: {i.UpdatedBy}</b>
+                          <b>
+                            Date & Time:&nbsp;
+                            {i.UpdatedOn.split("T")[0]
+                              .split("-")
+                              .slice(1)
+                              .concat(i.UpdatedOn.split("T")[0].split("-")[0])
+                              .join("-")}
+                            &nbsp;&&nbsp;
+                            {i.UpdatedOn.split("T")[1]}
+                          </b>
+                          <br />
+                          <ThemeProvider theme={getMuiTheme()}>
+                            <MUIDataTable
+                              data={i.UpdatedFieldsList}
+                              columns={logsDatatableTaskCols}
+                              title={undefined}
+                              options={{
+                                responsive: "standard",
+                                // tableBodyHeight: "73vh",
+                                viewColumns: false,
+                                filter: false,
+                                print: false,
+                                download: false,
+                                search: false,
+                                selectToolbarPlacement: "none",
+                                selectableRows: "none",
+                                elevation: 0,
+                                pagination: false,
+                              }}
+                              data-tableid="task_Report_Datatable"
+                            />
+                          </ThemeProvider>
+                          <br />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex gap-3 mt-4">
-                    <span className="mt-2">2</span>
-                    <Avatar />
-                    <div className="flex flex-col items-start">
-                      <span>{splittedText}</span>
-                      <span>Accepted Reason</span>
-                      <span>at 04:47 pm</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-3 mt-4">
-                    <span className="mt-2">3</span>
-                    <Avatar />
-                    <div className="flex flex-col items-start">
-                      <span>{splittedText}</span>
-                      <span>Accepted Reason</span>
-                      <span>at 04:47 pm</span>
-                    </div>
-                  </div>
-                </div>}
+                  ))}
               </div>
-            )} */}
+            )}
 
             <div className="sticky bottom-0 !h-[9%] bg-whiteSmoke border-b z-30 border-lightSilver flex p-2 justify-end items-center">
               <div>
@@ -5934,7 +6087,7 @@ const EditDrawer = ({
                 <Button
                   type="submit"
                   variant="contained"
-                  className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary"
+                  className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary cursor-pointer"
                 >
                   <span className="flex items-center justify-center gap-[10px] px-[5px]">
                     {onEdit > 0 ? "Save Task" : "Create Task"}

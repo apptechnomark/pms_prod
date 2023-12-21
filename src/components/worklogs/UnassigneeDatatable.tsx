@@ -98,25 +98,25 @@ const UnassigneeDatatable = ({
 
     const lastSelectedWorkItemId =
       selectedData.length > 0
-        ? selectedData[selectedData.length - 1].WorkitemId
+        ? selectedData[selectedData.length - 1]?.WorkitemId
         : null;
     setSelectedRowId(lastSelectedWorkItemId);
 
     const selectedWorkItemStatusIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.StatusId)
+        ? selectedData.map((selectedRow: any) => selectedRow?.StatusId)
         : [];
     setSelectedRowStatusId(selectedWorkItemStatusIds);
 
     const selectedWorkItemClientIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.ClientId)
+        ? selectedData.map((selectedRow: any) => selectedRow?.ClientId)
         : [];
     setSelectedRowClientId(selectedWorkItemClientIds);
 
     const selectedWorkItemWorkTypeIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.WorkTypeId)
+        ? selectedData.map((selectedRow: any) => selectedRow?.WorkTypeId)
         : [];
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
 

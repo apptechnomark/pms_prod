@@ -246,6 +246,44 @@ const reportsProjectsColConfig = [
   },
 ];
 
+const reportsLogColConfig = [
+  {
+    header: "WorkItemId",
+    label: "Task Id",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "WorkItemTaskName",
+    label: "Task Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "Filed",
+    label: "Field Name",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "OldValue",
+    label: "Old Value",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "NewValue",
+    label: "New Value",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "UpdatedOn",
+    label: "Date & Time",
+    bodyRenderer: generateCommonBodyRender,
+  },
+  {
+    header: "UpdatedBy",
+    label: "Modify By",
+    bodyRenderer: generateCommonBodyRender,
+  },
+];
+
 const reportsRatingColConfig = [
   {
     name: "WorkItemId",
@@ -299,55 +337,6 @@ const reportsRatingColConfig = [
   },
 ];
 
-const UserLogsColConfig = [
-  {
-    header: "UserName",
-    label: "User Name",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    header: "ReportingManager",
-    label: "Reporting Manager",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    header: "DepartmentName",
-    label: "Department",
-    bodyRenderer: generateCommonBodyRender,
-  },
-  {
-    header: "LoginTime",
-    label: "Login",
-    bodyRenderer: generateDateWithTime,
-  },
-
-  {
-    header: "LogoutTime",
-    label: "Logout",
-    bodyRenderer: generateDateWithTime,
-  },
-  {
-    header: "TotalIdleTime",
-    label: "Idle Time",
-    bodyRenderer: generateInitialTimer,
-  },
-  {
-    header: "TotalBreakTime",
-    label: "Break Time",
-    bodyRenderer: generateInitialTimer,
-  },
-  {
-    header: "TotalProductiveTime",
-    label: "Productive Time",
-    bodyRenderer: generateInitialTimer,
-  },
-  {
-    header: "IsLoggedIn",
-    label: "IsLoggedIn",
-    bodyRenderer: generateIsLoggedInBodyRender,
-  },
-];
-
 const generateCustomizableCols = (
   column: {
     name: string;
@@ -374,6 +363,67 @@ const generateCustomizableCols = (
         display: false,
       },
     };
+  } else if (column.name === "LoginTime") {
+    return {
+      name: "LoginTime",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Login"),
+        customBodyRender: (value: any) => {
+          return generateDateWithTime(value);
+        },
+      },
+    };
+  } else if (column.name === "LogoutTime") {
+    return {
+      name: "LogoutTime",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Logout"),
+        customBodyRender: (value: any) => {
+          return generateDateWithTime(value);
+        },
+      },
+    };
+  } else if (column.name === "TotalIdleTime") {
+    return {
+      name: "TotalIdleTime",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Idle Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    };
+  } else if (column.name === "TotalBreakTime") {
+    return {
+      name: "TotalBreakTime",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Break Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    };
+  } else if (column.name === "TotalProductiveTime") {
+    return {
+      name: "TotalProductiveTime",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Productive Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    };
   } else {
     return generateCustomColumn(column.name, column.label, column.bodyRenderer);
   }
@@ -391,6 +441,10 @@ const reportsAuditCols: any = auditColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
 
+const reportsLogCols: any = reportsLogColConfig.map((col: any) =>
+  generateCustomColumn(col.header, col.label, col.bodyRenderer)
+);
+
 const reportsProjectsCols: any = reportsProjectsColConfig.map((col: any) =>
   generateCustomColumn(col.header, col.label, col.bodyRenderer)
 );
@@ -398,10 +452,6 @@ const reportsProjectsCols: any = reportsProjectsColConfig.map((col: any) =>
 const reportsRatingCols: any = reportsRatingColConfig.map((col: any) =>
   generateCustomColumn(col.name, col.label, col.bodyRenderer)
 );
-
-// const reportsUserLogsCols: any = UserLogsColConfig.map((col: any) =>
-//   generateCustomColumn(col.name, col.label, col.bodyRenderer)
-// );
 
 const reportsUserLogsCols: any[] = [
   {
@@ -510,4 +560,5 @@ export {
   reportsProjectsCols,
   reportsRatingCols,
   reportsUserLogsCols,
+  reportsLogCols,
 };

@@ -135,6 +135,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
                 "-"
               ) : (
                 <a
+                  target="_blank"
                   href={`${process.env.redirectURL}${tableMeta.rowData[0]}`}
                   className="text-[#0592C6] cursor-pointer"
                 >

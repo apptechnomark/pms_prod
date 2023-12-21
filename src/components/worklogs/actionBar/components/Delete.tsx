@@ -22,27 +22,31 @@ const Delete = ({
 
   // Function for handling conditionally delete task
   const handleDeleteClick = (selectedRowStatusId: any) => {
-    const isInProgressOrNotStarted =
-      selectedRowStatusId.includes(1) || selectedRowStatusId.includes(2);
+    // const isInProgressOrNotStarted =
+    //   selectedRowStatusId.includes(1) || selectedRowStatusId.includes(2);
 
-    if (selectedRowStatusId.length === 1) {
-      if (
-        workItemData
-          .map((i: any) => i.WorkitemId === selectedRowId && i.IsHasErrorlog)
-          .filter((i: any) => i === true)
-          .includes(true)
-      ) {
-        toast.warning("After resolving the error log, users can delete it.");
-      } else if (isInProgressOrNotStarted) {
-        setIsDeleteOpen(true);
-      } else {
-        toast.warning(
-          "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
-        );
-      }
-    } else {
-      setIsDeleteOpen(true);
-    }
+    // if (selectedRowStatusId.length === 1) {
+    //   if (
+    //     workItemData
+    //       .map((i: any) => i.WorkitemId === selectedRowId && i.IsHasErrorlog)
+    //       .filter((i: any) => i === true)
+    //       .includes(true)
+    //   ) {
+    //     toast.warning("After resolving the error log, users can delete it.");
+    //   }
+    //   else
+    // if (isInProgressOrNotStarted)
+    // {
+    //   setIsDeleteOpen(true);
+    // }
+    // else {
+    //   toast.warning(
+    //     "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
+    //   );
+    // }
+    // } else {
+    setIsDeleteOpen(true);
+    // }
   };
 
   // Delete WorkItem API
@@ -58,47 +62,47 @@ const Delete = ({
       )
       .filter((i: any) => i !== undefined);
 
-    shouldWarn = workItemData
-      .map((item: any) =>
-        selectedRowIds.includes(item.WorkitemId) && !item.IsCreatedByClient
-          ? item.StatusId
-          : undefined
-      )
-      .filter((item: any) => item !== undefined)
-      .map((id: number) => {
-        if (!warningStatusIds.includes(id)) {
-          return id;
-        }
-        return undefined;
-      })
-      .filter((id: number) => id !== undefined);
+    // shouldWarn = workItemData
+    //   .map((item: any) =>
+    //     selectedRowIds.includes(item.WorkitemId) && !item.IsCreatedByClient
+    //       ? item.StatusId
+    //       : undefined
+    //   )
+    //   .filter((item: any) => item !== undefined)
+    //   .map((id: number) => {
+    //     if (!warningStatusIds.includes(id)) {
+    //       return id;
+    //     }
+    //     return undefined;
+    //   })
+    //   .filter((id: number) => id !== undefined);
 
     if (selectedRowIds.length > 0) {
-      if (
-        workItemData.some(
-          (item: any) =>
-            selectedRowIds.includes(item.WorkitemId) && item.IsHasErrorlog
-        )
-      ) {
-        toast.warning("After resolving the error log, users can delete it.");
-      }
-      if (
-        (selectedRowStatusId.includes(3) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(4) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(5) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(6) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(7) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(8) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(9) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(10) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(11) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(12) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(13) && selectedRowIds.length > 1)
-      ) {
-        toast.warning(
-          "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
-        );
-      }
+      // if (
+      //   workItemData.some(
+      //     (item: any) =>
+      //       selectedRowIds.includes(item.WorkitemId) && item.IsHasErrorlog
+      //   )
+      // ) {
+      //   toast.warning("After resolving the error log, users can delete it.");
+      // }
+      // if (
+      //   (selectedRowStatusId.includes(3) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(4) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(5) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(6) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(7) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(8) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(9) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(10) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(11) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(12) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(13) && selectedRowIds.length > 1)
+      // ) {
+      //   toast.warning(
+      //     "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
+      //   );
+      // }
       if (
         workItemData.some(
           (item: any) =>
@@ -107,7 +111,10 @@ const Delete = ({
       ) {
         toast.warning("You can not delete task which is created by Client.");
       }
-      if (shouldWarn.length > 0 && deletedId.length > 0) {
+      if (
+        // shouldWarn.length > 0 &&
+        deletedId.length > 0
+      ) {
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
 
@@ -124,29 +131,35 @@ const Delete = ({
               },
             }
           );
-
-          if (
-            response.status === 200 &&
-            response.data.ResponseStatus === "Success"
-          ) {
-            toast.success("Task has been deleted successfully.");
-            handleClearSelection();
-            getWorkItemList();
-            shouldWarn = [];
-          } else {
-            const data = response.data.Message || "An error occurred.";
-            toast.error(data);
+          if (response.status === 200) {
+            const data = response.data.Message;
+            if (response.data.ResponseStatus === "Success") {
+              toast.success("Task has been deleted successfully.");
+              handleClearSelection();
+              getWorkItemList();
+              shouldWarn = [];
+            } else if (response.data.ResponseStatus === "Warning" && !!data) {
+              toast.warning(data);
+              handleClearSelection();
+              getWorkItemList();
+              shouldWarn = [];
+            } else {
+              toast.error(data || "Please try again later.");
+              handleClearSelection();
+              getWorkItemList();
+            }
           }
         } catch (error) {
           console.error(error);
           toast.error("An error occurred while deleting the task.");
         }
       }
-    } else if (shouldWarn.includes[1] || shouldWarn.includes[2]) {
-      toast.warning(
-        "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
-      );
     }
+    // else if (shouldWarn.includes[1] || shouldWarn.includes[2]) {
+    //   toast.warning(
+    //     "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
+    //   );
+    // }
   };
 
   return (

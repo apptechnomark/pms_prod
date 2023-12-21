@@ -29,6 +29,7 @@ import {
   Select,
   Switch,
   TextField,
+  ThemeProvider,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -65,7 +66,10 @@ import {
   months,
 } from "@/utils/commonDropdownApiCall";
 import { getFileFromBlob } from "@/utils/downloadFile";
-import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import { ColorToolTip, getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { callAPI } from "@/utils/API/callAPI";
+import { generateCommonBodyRender } from "@/utils/datatable/CommonFunction";
+import MUIDataTable from "mui-datatables";
 
 const EditDrawer = ({
   onOpen,
@@ -245,6 +249,7 @@ const EditDrawer = ({
               toast.success(`Manual Time Updated successfully.`);
               setDeletedManualTime([]);
               getManualTimeLogForReviewer(onEdit);
+              getEditData();
             } else {
               const data = response.data.Message;
               if (data === null) {
@@ -594,7 +599,7 @@ const EditDrawer = ({
     hasPermissionWorklog("Reminder", "View", "WorkLogs") && "Reminder",
     hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && "Error Logs",
     "Reviewer's Note",
-    // "Logs",
+    "Logs",
   ];
 
   useEffect(() => {
@@ -802,58 +807,6 @@ const EditDrawer = ({
       newTaskErrors.some((error) => error) ||
       newSubTaskDescErrors.some((error) => error);
 
-    // Maual
-    let hasManualErrors = false;
-    const newInputDateErrors = manualFields.map(
-      (field) => onEdit === 0 && manualSwitch && field.inputDate === ""
-    );
-    manualSwitch && setInputDateErrors(newInputDateErrors);
-    const newStartTimeErrors = manualFields.map(
-      (field) =>
-        (onEdit === 0 && manualSwitch && field.startTime.trim().length === 0) ||
-        (onEdit === 0 && manualSwitch && field.startTime.trim().length < 8)
-    );
-    manualSwitch && setStartTimeErrors(newStartTimeErrors);
-    const newEndTimeErrors = manualFields.map(
-      (field) =>
-        (onEdit === 0 && manualSwitch && field.endTime.trim().length === 0) ||
-        (onEdit === 0 && manualSwitch && field.endTime.trim().length < 8) ||
-        (onEdit === 0 && manualSwitch && field.endTime <= field.startTime) ||
-        field.startTime
-          .split(":")
-          .reduce(
-            (acc, timePart, index) =>
-              acc + parseInt(timePart) * [3600, 60, 1][index],
-            0
-          ) +
-          "07:59:59"
-            .split(":")
-            .reduce(
-              (acc, timePart, index) =>
-                acc + parseInt(timePart) * [3600, 60, 1][index],
-              0
-            ) <
-          field.endTime
-            .split(":")
-            .reduce(
-              (acc, timePart, index) =>
-                acc + parseInt(timePart) * [3600, 60, 1][index],
-              0
-            )
-    );
-    manualSwitch && setEndTimeErrors(newEndTimeErrors);
-    const newManualDescErrors = manualFields.map(
-      (field) =>
-        (onEdit === 0 && manualSwitch && field.manualDesc.trim().length < 5) ||
-        (onEdit === 0 && manualSwitch && field.manualDesc.trim().length > 500)
-    );
-    manualSwitch && setManualDescErrors(newManualDescErrors);
-    hasManualErrors =
-      newInputDateErrors.some((error) => error) ||
-      newStartTimeErrors.some((error) => error) ||
-      newEndTimeErrors.some((error) => error) ||
-      newManualDescErrors.some((error) => error);
-
     const data = {
       WorkItemId: onEdit > 0 ? onEdit : 0,
       ClientId: clientName,
@@ -984,26 +937,27 @@ const EditDrawer = ({
       }
     };
 
+    // if (
+    //   (onEdit > 0 && editStatus === 4) ||
+    //   (onEdit > 0 && editStatus === 5) ||
+    //   (onEdit > 0 && status === 7) ||
+    //   (onEdit > 0 && status === 8) ||
+    //   (onEdit > 0 && status === 9) ||
+    //   (onEdit > 0 && status === 13)
+    // ) {
+    //   toast.warning(
+    //     "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+    //   );
+    //   getEditData();
+    // } else
     if (
-      (onEdit > 0 && editStatus === 4) ||
-      (onEdit > 0 && editStatus === 5) ||
-      (onEdit > 0 && status === 7) ||
-      (onEdit > 0 && status === 8) ||
-      (onEdit > 0 && status === 9) ||
-      (onEdit > 0 && status === 13)
-    ) {
-      toast.warning(
-        "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-      );
-      getEditData();
-    } else if (
       onEdit > 0 &&
-      editStatus !== 4 &&
-      editStatus !== 5 &&
-      status !== 7 &&
-      status !== 8 &&
-      status !== 9 &&
-      status !== 13 &&
+      // editStatus !== 4 &&
+      // editStatus !== 5 &&
+      // status !== 7 &&
+      // status !== 8 &&
+      // status !== 9 &&
+      // status !== 13 &&
       typeOfWork !== 3 &&
       !hasEditErrors &&
       clientTaskName.trim().length > 3 &&
@@ -1022,12 +976,12 @@ const EditDrawer = ({
       }
     } else if (
       onEdit > 0 &&
-      editStatus !== 4 &&
-      editStatus !== 5 &&
-      status !== 7 &&
-      status !== 8 &&
-      status !== 9 &&
-      status !== 13 &&
+      // editStatus !== 4 &&
+      // editStatus !== 5 &&
+      // status !== 7 &&
+      // status !== 8 &&
+      // status !== 9 &&
+      // status !== 13 &&
       typeOfWork === 3 &&
       !hasEditErrors &&
       clientTaskName.trim().length > 3 &&
@@ -1110,222 +1064,55 @@ const EditDrawer = ({
   };
 
   const handleSubmitSubTask = async () => {
-    if (
-      editStatus === 4 ||
-      editStatus === 5 ||
-      status === 7 ||
-      status === 8 ||
-      status === 9 ||
-      status === 13
-    ) {
-      toast.warning(
-        "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-      );
-      getWorklogData();
-    } else {
-      let hasSubErrors = false;
-      const newTaskErrors = subTaskFields.map(
-        (field) =>
-          (subTaskSwitch && field.Title.trim().length < 5) ||
-          (subTaskSwitch && field.Title.trim().length > 500)
-      );
-      subTaskSwitch && setTaskNameErr(newTaskErrors);
-      const newSubTaskDescErrors = subTaskFields.map(
-        (field) =>
-          (subTaskSwitch && field.Description.trim().length < 5) ||
-          (subTaskSwitch && field.Description.trim().length > 500)
-      );
-      subTaskSwitch && setSubTaskDescriptionErr(newSubTaskDescErrors);
-      hasSubErrors =
-        newTaskErrors.some((error) => error) ||
-        newSubTaskDescErrors.some((error) => error);
+    // if (
+    //   editStatus === 4 ||
+    //   editStatus === 5 ||
+    //   status === 7 ||
+    //   status === 8 ||
+    //   status === 9 ||
+    //   status === 13
+    // ) {
+    //   toast.warning(
+    //     "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+    //   );
+    //   getWorklogData();
+    // } else {
+    let hasSubErrors = false;
+    const newTaskErrors = subTaskFields.map(
+      (field) =>
+        (subTaskSwitch && field.Title.trim().length < 5) ||
+        (subTaskSwitch && field.Title.trim().length > 500)
+    );
+    subTaskSwitch && setTaskNameErr(newTaskErrors);
+    const newSubTaskDescErrors = subTaskFields.map(
+      (field) =>
+        (subTaskSwitch && field.Description.trim().length < 5) ||
+        (subTaskSwitch && field.Description.trim().length > 500)
+    );
+    subTaskSwitch && setSubTaskDescriptionErr(newSubTaskDescErrors);
+    hasSubErrors =
+      newTaskErrors.some((error) => error) ||
+      newSubTaskDescErrors.some((error) => error);
 
-      if (!hasSubErrors) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`,
-            {
-              workitemId: onEdit,
-              subtasks: subTaskSwitch
-                ? subTaskFields.map(
-                    (i: any) =>
-                      new Object({
-                        SubtaskId: i.SubtaskId,
-                        Title: i.Title.trim(),
-                        Description: i.Description.trim(),
-                      })
-                  )
-                : null,
-              deletedWorkitemSubtaskIds: deletedSubTask,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Sub Task Updated successfully.`);
-              setDeletedSubTask([]);
-              setSubTaskFields([
-                {
-                  SubtaskId: 0,
-                  Title: "",
-                  Description: "",
-                },
-              ]);
-              getWorklogData();
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
-      }
-    }
-  };
-
-  // Checklist
-  const [addChecklistField, setAddChecklistField] = useState(false);
-  const [checkListName, setCheckListName] = useState("");
-  const [checkListNameError, setCheckListNameError] = useState(false);
-  const [checkListData, setCheckListData] = useState([]);
-  const [itemStates, setItemStates] = useState<any>({});
-  const toggleGeneralOpen = (index: any) => {
-    setItemStates((prevStates: any) => ({
-      ...prevStates,
-      [index]: !prevStates[index],
-    }));
-  };
-
-  const toggleAddChecklistField = (index: any) => {
-    setItemStates((prevStates: any) => ({
-      ...prevStates,
-      [`addChecklistField_${index}`]: !prevStates[`addChecklistField_${index}`],
-    }));
-  };
-
-  const handleSaveCheckListName = async (Category: any, index: number) => {
-    if (
-      editStatus === 4 ||
-      status === 7 ||
-      status === 8 ||
-      status === 9 ||
-      status === 13
-    ) {
-      toast.warning(
-        "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-      );
-      getCheckListData();
-    } else {
-      setCheckListNameError(
-        checkListName.trim().length < 5 || checkListName.trim().length > 500
-      );
-
-      if (
-        !checkListNameError &&
-        checkListName.trim().length > 4 &&
-        checkListName.trim().length < 500
-      ) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/checklist/createbyworkitem`,
-            {
-              workItemId: onEdit,
-              category: Category,
-              title: checkListName,
-              isCheck: true,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Checklist created successfully.`);
-              setCheckListName("");
-              getCheckListData();
-              toggleAddChecklistField(index);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
-      }
-    }
-  };
-
-  const handleChangeChecklist = async (
-    Category: any,
-    IsCheck: any,
-    Title: any
-  ) => {
-    if (
-      editStatus === 4 ||
-      status === 7 ||
-      status === 8 ||
-      status === 9 ||
-      status === 13
-    ) {
-      toast.warning(
-        "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-      );
-      getCheckListData();
-    } else {
+    if (!hasSubErrors) {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
       try {
         const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/checklist/savebyworkitem`,
+          `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`,
           {
-            workItemId: onEdit,
-            category: Category,
-            title: Title,
-            isCheck: IsCheck,
+            workitemId: onEdit,
+            subtasks: subTaskSwitch
+              ? subTaskFields.map(
+                  (i: any) =>
+                    new Object({
+                      SubtaskId: i.SubtaskId,
+                      Title: i.Title.trim(),
+                      Description: i.Description.trim(),
+                    })
+                )
+              : null,
+            deletedWorkitemSubtaskIds: deletedSubTask,
           },
           {
             headers: {
@@ -1337,8 +1124,16 @@ const EditDrawer = ({
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            toast.success(`CheckList Updated successfully.`);
-            getCheckListData();
+            toast.success(`Sub Task Updated successfully.`);
+            setDeletedSubTask([]);
+            setSubTaskFields([
+              {
+                SubtaskId: 0,
+                Title: "",
+                Description: "",
+              },
+            ]);
+            getWorklogData();
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -1362,6 +1157,165 @@ const EditDrawer = ({
         }
       }
     }
+    // }
+  };
+
+  // Checklist
+  const [addChecklistField, setAddChecklistField] = useState(false);
+  const [checkListName, setCheckListName] = useState("");
+  const [checkListNameError, setCheckListNameError] = useState(false);
+  const [checkListData, setCheckListData] = useState([]);
+  const [itemStates, setItemStates] = useState<any>({});
+  const toggleGeneralOpen = (index: any) => {
+    setItemStates((prevStates: any) => ({
+      ...prevStates,
+      [index]: !prevStates[index],
+    }));
+  };
+
+  const toggleAddChecklistField = (index: any) => {
+    setItemStates((prevStates: any) => ({
+      ...prevStates,
+      [`addChecklistField_${index}`]: !prevStates[`addChecklistField_${index}`],
+    }));
+  };
+
+  const handleSaveCheckListName = async (Category: any, index: number) => {
+    // if (
+    //   editStatus === 4 ||
+    //   status === 7 ||
+    //   status === 8 ||
+    //   status === 9 ||
+    //   status === 13
+    // ) {
+    //   toast.warning(
+    //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+    //   );
+    //   getCheckListData();
+    // } else {
+    setCheckListNameError(
+      checkListName.trim().length < 5 || checkListName.trim().length > 500
+    );
+
+    if (
+      !checkListNameError &&
+      checkListName.trim().length > 4 &&
+      checkListName.trim().length < 500
+    ) {
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/workitem/checklist/createbyworkitem`,
+          {
+            workItemId: onEdit,
+            category: Category,
+            title: checkListName,
+            isCheck: true,
+          },
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            toast.success(`Checklist created successfully.`);
+            setCheckListName("");
+            getCheckListData();
+            toggleAddChecklistField(index);
+          } else {
+            const data = response.data.Message;
+            if (data === null) {
+              toast.error("Please try again later.");
+            } else {
+              toast.error(data);
+            }
+          }
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Failed Please try again.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          router.push("/login");
+          localStorage.clear();
+        }
+      }
+    }
+    // }
+  };
+
+  const handleChangeChecklist = async (
+    Category: any,
+    IsCheck: any,
+    Title: any
+  ) => {
+    // if (
+    //   editStatus === 4 ||
+    //   status === 7 ||
+    //   status === 8 ||
+    //   status === 9 ||
+    //   status === 13
+    // ) {
+    //   toast.warning(
+    //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+    //   );
+    //   getCheckListData();
+    // } else {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/checklist/savebyworkitem`,
+        {
+          workItemId: onEdit,
+          category: Category,
+          title: Title,
+          isCheck: IsCheck,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          toast.success(`CheckList Updated successfully.`);
+          getCheckListData();
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again later.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Failed Please try again.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        router.push("/login");
+        localStorage.clear();
+      }
+    }
+    // }
   };
 
   // Comments
@@ -1601,103 +1555,103 @@ const EditDrawer = ({
   const [reminderCheckboxValue, setReminderCheckboxValue] = useState<any>(1);
   const [reminderId, setReminderId] = useState(0);
   const handleSubmitReminder = async () => {
-    if (
-      editStatus === 4 ||
-      status === 7 ||
-      status === 8 ||
-      status === 9 ||
-      status === 13
-    ) {
-      toast.warning(
-        "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-      );
-      getReminderData();
-    } else {
-      const validateField = (value: any) => {
-        if (
-          value === 0 ||
-          value === "" ||
-          value === null ||
-          (Array.isArray(value) && value.length === 0)
-        ) {
-          return true;
-        }
-        return false;
-      };
+    // if (
+    //   editStatus === 4 ||
+    //   status === 7 ||
+    //   status === 8 ||
+    //   status === 9 ||
+    //   status === 13
+    // ) {
+    //   toast.warning(
+    //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+    //   );
+    //   getReminderData();
+    // } else {
+    const validateField = (value: any) => {
+      if (
+        value === 0 ||
+        value === "" ||
+        value === null ||
+        (Array.isArray(value) && value.length === 0)
+      ) {
+        return true;
+      }
+      return false;
+    };
 
-      const fieldValidations = {
-        reminderTime: reminderSwitch && validateField(reminderTime),
-        reminderNotification:
-          reminderSwitch && validateField(reminderNotification),
-        reminderDate:
-          reminderSwitch &&
-          reminderCheckboxValue === 2 &&
-          validateField(reminderDate),
-      };
-
-      reminderSwitch && setReminderTimeErr(fieldValidations.reminderTime);
-      reminderSwitch &&
-        setReminderNotificationErr(fieldValidations.reminderNotification);
-      reminderSwitch &&
+    const fieldValidations = {
+      reminderTime: reminderSwitch && validateField(reminderTime),
+      reminderNotification:
+        reminderSwitch && validateField(reminderNotification),
+      reminderDate:
+        reminderSwitch &&
         reminderCheckboxValue === 2 &&
-        setReminderDateErr(fieldValidations.reminderDate);
+        validateField(reminderDate),
+    };
 
-      const hasErrors = Object.values(fieldValidations).some((error) => error);
+    reminderSwitch && setReminderTimeErr(fieldValidations.reminderTime);
+    reminderSwitch &&
+      setReminderNotificationErr(fieldValidations.reminderNotification);
+    reminderSwitch &&
+      reminderCheckboxValue === 2 &&
+      setReminderDateErr(fieldValidations.reminderDate);
 
-      if (!hasErrors) {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/reminder/savebyworkitem`,
-            {
-              ReminderId: reminderId,
-              ReminderType: reminderCheckboxValue,
-              WorkitemId: onEdit,
-              ReminderDate:
-                reminderCheckboxValue === 2
-                  ? dayjs(reminderDate).format("YYYY/MM/DD")
-                  : null,
-              ReminderTime: reminderTime,
-              ReminderUserIds: reminderNotification.map((i: any) => i.value),
+    const hasErrors = Object.values(fieldValidations).some((error) => error);
+
+    if (!hasErrors) {
+      const token = await localStorage.getItem("token");
+      const Org_Token = await localStorage.getItem("Org_Token");
+      try {
+        const response = await axios.post(
+          `${process.env.worklog_api_url}/workitem/reminder/savebyworkitem`,
+          {
+            ReminderId: reminderId,
+            ReminderType: reminderCheckboxValue,
+            WorkitemId: onEdit,
+            ReminderDate:
+              reminderCheckboxValue === 2
+                ? dayjs(reminderDate).format("YYYY/MM/DD")
+                : null,
+            ReminderTime: reminderTime,
+            ReminderUserIds: reminderNotification.map((i: any) => i.value),
+          },
+          {
+            headers: {
+              Authorization: `bearer ${token}`,
+              org_token: `${Org_Token}`,
             },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
+          }
+        );
 
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Reminder Updated successfully.`);
-              getReminderData();
-              setReminderId(0);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
+        if (response.status === 200) {
+          if (response.data.ResponseStatus === "Success") {
+            toast.success(`Reminder Updated successfully.`);
+            getReminderData();
+            setReminderId(0);
           } else {
             const data = response.data.Message;
             if (data === null) {
-              toast.error("Failed Please try again.");
+              toast.error("Please try again later.");
             } else {
               toast.error(data);
             }
           }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Failed Please try again.");
+          } else {
+            toast.error(data);
           }
+        }
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          router.push("/login");
+          localStorage.clear();
         }
       }
     }
+    // }
   };
 
   const handleMultiSelect = (e: React.SyntheticEvent, value: any) => {
@@ -2235,29 +2189,59 @@ const EditDrawer = ({
           setStatus(data.StatusId);
           setAllInfoDate(data.AllInfoDate === null ? "" : data.AllInfoDate);
           setEditStatus(data.StatusId);
-          const filterStatusDropdown = (
-            statusId: number,
-            isManual: boolean
-          ) => {
-            const filteredData = statusDropdownData
-              .map((i: any) =>
-                (i.Type === "OnHoldFromClient" ||
-                  i.Type === "WithDraw" ||
-                  i.value === statusId) &&
-                (!isManual || i.Type === "Stop")
-                  ? i
-                  : ""
+          !data.ErrorlogSignedOffPending
+            ? setStatusDropdownDataUse(
+                statusDropdownData.filter(
+                  (item: any) =>
+                    item.Type === "Rework" ||
+                    item.Type === "InReview" ||
+                    item.Type === "Submitted" ||
+                    item.Type === "Accept" ||
+                    item.Type === "AcceptWithNotes" ||
+                    item.Type === "SecondManagerReview" ||
+                    item.Type === "OnHoldFromClient" ||
+                    item.Type === "WithDraw" ||
+                    item.Type === "WithdrawnbyClient" ||
+                    item.value == data.StatusId
+                )
               )
-              .filter((i: any) => i !== "");
+            : setStatusDropdownDataUse(
+                statusDropdownData.filter(
+                  (item: any) =>
+                    item.Type === "Rework In Review" ||
+                    item.Type === "ReworkSubmitted" ||
+                    item.Type === "ReworkAccept" ||
+                    item.Type === "ReworkAcceptWithNotes" ||
+                    item.Type === "SecondManagerReview" ||
+                    item.Type === "OnHoldFromClient" ||
+                    item.Type === "WithDraw" ||
+                    item.Type === "WithdrawnbyClient" ||
+                    item.value == data.StatusId
+                )
+              );
+          // const filterStatusDropdown = (
+          //   statusId: number,
+          //   isManual: boolean
+          // ) => {
+          //   const filteredData = statusDropdownData
+          //     .map((i: any) =>
+          //       (i.Type === "OnHoldFromClient" ||
+          //         i.Type === "WithDraw" ||
+          //         i.value === statusId) &&
+          //       (!isManual || i.Type === "Stop")
+          //         ? i
+          //         : ""
+          //     )
+          //     .filter((i: any) => i !== "");
 
-            setStatusDropdownDataUse(filteredData);
-          };
+          //   setStatusDropdownDataUse(filteredData);
+          // };
 
-          if (data.StatusId === 2) {
-            filterStatusDropdown(data.StatusId, data.IsManual === true);
-          } else {
-            filterStatusDropdown(data.StatusId, false);
-          }
+          // if (data.StatusId === 2) {
+          //   filterStatusDropdown(data.StatusId, data.IsManual === true);
+          // } else {
+          //   filterStatusDropdown(data.StatusId, false);
+          // }
           setPriority(data.Priority);
           setQuantity(data.Quantity);
           setDescription(data.Description === null ? "" : data.Description);
@@ -2306,7 +2290,15 @@ const EditDrawer = ({
   };
 
   useEffect(() => {
-    if (onEdit > 0) {
+    const getData = async () => {
+      const statusData = await getStatusDropdownData();
+
+      await setStatusDropdownData(statusData);
+      await setCCDropdownData(await getCCDropdownData());
+    };
+
+    onOpen && statusDropdownData.length === 0 && getData();
+    if (onEdit > 0 && statusDropdownData.length > 0) {
       getEditData();
       getWorklogData();
       getRecurringData();
@@ -2315,8 +2307,9 @@ const EditDrawer = ({
       getCheckListData();
       getCommentData(1);
       getReviewerNoteData();
+      getLogsDataWorklogs();
     }
-  }, [onEdit]);
+  }, [onEdit, statusDropdownData]);
 
   useEffect(() => {
     onEdit > 0 && assigneeDropdownData.length > 0 && getErrorLogData();
@@ -2584,6 +2577,7 @@ const EditDrawer = ({
             if (response.data.ResponseStatus === "Success") {
               toast.success(`Error logged successfully.`);
               setDeletedErrorLog([]);
+              getEditData();
               getErrorLogData();
               onDataFetch();
             } else {
@@ -2615,6 +2609,62 @@ const EditDrawer = ({
     }
   };
 
+  // Logs
+  const [logsWorklogsDrawer, setLogsWorklogsDrawer] = useState(true);
+  const [logsDataWorklogs, setLogsDateWorklogs] = useState<any>([]);
+
+  const logsDatatableTaskCols = [
+    {
+      name: "Filed",
+      label: "Filed Name",
+      options: {
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "OldValue",
+      label: "Old Value",
+      options: {
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "NewValue",
+      label: "New Value",
+      options: {
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+  ];
+
+  const getLogsDataWorklogs = async () => {
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.report_api_url}/auditlog/getbyworkitem`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (
+        ResponseStatus === "Success" &&
+        ResponseData !== null &&
+        ResponseData.List.length >= 0 &&
+        error === false
+      ) {
+        setLogsDateWorklogs(ResponseData.List);
+      }
+    };
+    callAPI(url, params, successCallback, "POST");
+  };
+
   // API CALLS dropdown data
   const getUserDetails = async () => {
     try {
@@ -2638,13 +2688,43 @@ const EditDrawer = ({
     }
   };
 
-  useEffect(() => {
-    const getData = async () => {
-      await setStatusDropdownData(await getStatusDropdownData());
-      await setCCDropdownData(await getCCDropdownData());
-    };
-    getData();
-  }, []);
+  // useEffect(() => {
+  //   const getData = async () => {
+  //     const statusData = await getStatusDropdownData();
+  //     statusData.length === 0 &&
+  //       (await setStatusDropdownData(
+  //         statusData
+  //         // .filter((i: any) => i.Type !== "SignedOff")
+  //       ));
+  //     await setCCDropdownData(await getCCDropdownData());
+  //   };
+  //   getData();
+  // }, []);
+
+  // useEffect(() => {
+  //   const getData = async () => {
+  //     const statusData = await getStatusDropdownData();
+  //     onOpen &&
+  //       statusDropdownData.length === 0 &&
+  //       (await setStatusDropdownData(
+  //         statusData.filter(
+  //           (i: any) =>
+  //             // i.Type !== "OnHoldFromClient" &&
+  //             // i.Type !== "Accept" &&
+  //             // i.Type !== "AcceptWithNotes" &&
+  //             // i.Type !== "ReworkInReview" &&
+  //             // i.Type !== "ReworkAccept" &&
+  //             // i.Type !== "ReworkAcceptWithNotes" &&
+  //             // i.Type !== "SecondManagerReview" &&
+  //             i.Type !== "SignedOff"
+  //         )
+  //       ));
+  //     onOpen &&
+  //       statusDropdownData.length === 0 &&
+  //       (await setCCDropdownData(await getCCDropdownData()));
+  //   };
+  //   getData();
+  // }, [onEdit, onOpen, statusDropdownData]);
 
   useEffect(() => {
     const getData = async () => {
@@ -2884,6 +2964,9 @@ const EditDrawer = ({
     setAssigneeDropdownData([]);
     setReviewerDropdownData([]);
 
+    // Logs
+    setLogsDateWorklogs([]);
+
     // Others
     scrollToPanel(0);
     onDataFetch();
@@ -2903,7 +2986,7 @@ const EditDrawer = ({
   return (
     <>
       <div
-        className={`fixed top-0 right-0 z-30 h-screen overflow-y-auto w-[1300px] border border-lightSilver bg-pureWhite transform  ${
+        className={`fixed top-0 right-0 z-30 h-screen w-[1300px] border border-lightSilver bg-pureWhite transform  ${
           onOpen ? "translate-x-0" : "translate-x-full"
         } transition-transform duration-300 ease-in-out`}
       >
@@ -3123,24 +3206,29 @@ const EditDrawer = ({
                             ? statusDropdownData
                             : statusDropdownDataUse
                         }
-                        disabled={
-                          onEdit === 0 ||
-                          status === 7 ||
-                          status === 8 ||
-                          status === 9
-                        }
+                        // disabled={
+                        //   onEdit === 0 ||
+                        //   status === 7 ||
+                        //   status === 8 ||
+                        //   status === 9
+                        // }
                         value={
-                          onEdit === 0 && manualSwitch
-                            ? statusDropdownData.find(
-                                (i: any) => i.value === status
-                              ) || null
-                            : onEdit === 0
+                          // onEdit === 0 && manualSwitch
+                          //   ? statusDropdownData.find(
+                          //       (i: any) => i.value === status
+                          //     ) || null
+                          //   : onEdit === 0
+                          //   ?
+                          onEdit === 0
                             ? statusDropdownData.find(
                                 (i: any) => i.value === status
                               ) || null
                             : statusDropdownDataUse.find(
                                 (i: any) => i.value === status
                               ) || null
+                          // : statusDropdownDataUse.find(
+                          //     (i: any) => i.value === status
+                          //   ) || null
                         }
                         onChange={(e, value: any) => {
                           value && setStatus(value.value);
@@ -3182,6 +3270,7 @@ const EditDrawer = ({
                         disabled={isCreatedByClient && editData.ProcessId > 0}
                         onChange={(e, value: any) => {
                           value && setProcessName(value.value);
+                          value && setSubProcess(0);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -4846,21 +4935,21 @@ const EditDrawer = ({
                             IsApproved: false,
                           },
                         ]);
-                        e.target.checked === true
-                          ? setStatus(
-                              statusDropdownData
-                                .map((i: any) =>
-                                  i.Type === "InProgress" ? i.value : undefined
-                                )
-                                .filter((i: any) => i !== undefined)[0]
-                            )
-                          : setStatus(
-                              statusDropdownData
-                                .map((i: any) =>
-                                  i.Type === "NotStarted" ? i.value : undefined
-                                )
-                                .filter((i: any) => i !== undefined)[0]
-                            );
+                        // e.target.checked === true
+                        //   ? setStatus(
+                        //       statusDropdownData
+                        //         .map((i: any) =>
+                        //           i.Type === "InProgress" ? i.value : undefined
+                        //         )
+                        //         .filter((i: any) => i !== undefined)[0]
+                        //     )
+                        //   : setStatus(
+                        //       statusDropdownData
+                        //         .map((i: any) =>
+                        //           i.Type === "NotStarted" ? i.value : undefined
+                        //         )
+                        //         .filter((i: any) => i !== undefined)[0]
+                        //     );
                       }}
                     />
                     <span
@@ -5480,7 +5569,11 @@ const EditDrawer = ({
                                 {field.SubmitedBy}
                               </span>
                               <span className="font-bold">Reviewer Date</span>
-                              <span className="ml-3">{field.SubmitedOn}</span>
+                              <span className="ml-3">
+                                {field.SubmitedOn.split("/")[1]}-
+                                {field.SubmitedOn.split("/")[0]}-
+                                {field.SubmitedOn.split("/")[2]}
+                              </span>
                             </div>
                           )}
                           <FormControl
@@ -5978,7 +6071,12 @@ const EditDrawer = ({
                 reviewerNote.length > 0 &&
                 reviewerNote.map((i: any, index: number) => (
                   <div className="mt-5 pl-[70px] text-sm">
-                    <span className="font-semibold">{i.ReviewedDate}</span>
+                    <span className="font-semibold">
+                      {i.ReviewedDate.split("-")
+                        .slice(1)
+                        .concat(i.ReviewedDate.split("-")[0])
+                        .join("-")}
+                    </span>
                     {i.Details.map((j: any, index: number) => (
                       <div className="flex gap-3 mt-4">
                         <span className="mt-2">{index + 1}</span>
@@ -6019,55 +6117,76 @@ const EditDrawer = ({
             </div>
 
             {/* Logs */}
-            {/* <div className="mt-14" id="tabpanel-9">
-              <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
-                <span className="flex items-center">
-                  <HistoryIcon />
-                  <span className="ml-[21px]">Logs</span>
-                </span>
-                <span
-                  className={`cursor-pointer ${logsDrawer ? "rotate-180" : ""}`}
-                  onClick={() => setLogsDrawer(!logsDrawer)}
-                >
-                  <ChevronDownIcon />
-                </span>
-              </div>
-              {logsDrawer && (
-                <div className="mt-5 pl-[70px] text-sm">
-                  <span className="font-semibold">13/06/2023</span>
-                  <div className="flex gap-3 mt-4">
-                    <span className="mt-2">1</span>
-                    <Avatar
-                      alt="Remy Sharp"
-                      src="data:image/jpeg;base64,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"
-                    />
-                    <div className="flex flex-col items-start">
-                      <span>{splittedText}</span>
-                      <span>Accepted Reason</span>
-                      <span>at 04:47 pm</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-3 mt-4">
-                    <span className="mt-2">2</span>
-                    <Avatar />
-                    <div className="flex flex-col items-start">
-                      <span>{splittedText}</span>
-                      <span>Accepted Reason</span>
-                      <span>at 04:47 pm</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-3 mt-4">
-                    <span className="mt-2">3</span>
-                    <Avatar />
-                    <div className="flex flex-col items-start">
-                      <span>{splittedText}</span>
-                      <span>Accepted Reason</span>
-                      <span>at 04:47 pm</span>
-                    </div>
-                  </div>
+            {onEdit > 0 && (
+              <div
+                className="mt-14"
+                id={`${
+                  isManual === true || isManual === null
+                    ? "tabpanel-9"
+                    : "tabpanel-8"
+                }`}
+              >
+                <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
+                  <span className="flex items-center">
+                    <HistoryIcon />
+                    <span className="ml-[21px]">Logs</span>
+                  </span>
+                  <span
+                    className={`cursor-pointer ${
+                      logsWorklogsDrawer ? "rotate-180" : ""
+                    }`}
+                    onClick={() => setLogsWorklogsDrawer(!logsWorklogsDrawer)}
+                  >
+                    <ChevronDownIcon />
+                  </span>
                 </div>
-              )}
-            </div> */}
+                {logsWorklogsDrawer &&
+                  logsDataWorklogs.length > 0 &&
+                  logsDataWorklogs.map((i: any, index: number) => (
+                    <div className="mt-5 pl-[70px] text-sm">
+                      <div className="flex gap-3 mt-4">
+                        <b className="mt-2">{index + 1}</b>
+                        <div className="flex flex-col items-start">
+                          <b>Modify By: {i.UpdatedBy}</b>
+                          <b>
+                            Date & Time:&nbsp;
+                            {i.UpdatedOn.split("T")[0]
+                              .split("-")
+                              .slice(1)
+                              .concat(i.UpdatedOn.split("T")[0].split("-")[0])
+                              .join("-")}
+                            &nbsp;&&nbsp;
+                            {i.UpdatedOn.split("T")[1]}
+                          </b>
+                          <br />
+                          <ThemeProvider theme={getMuiTheme()}>
+                            <MUIDataTable
+                              data={i.UpdatedFieldsList}
+                              columns={logsDatatableTaskCols}
+                              title={undefined}
+                              options={{
+                                responsive: "standard",
+                                // tableBodyHeight: "73vh",
+                                viewColumns: false,
+                                filter: false,
+                                print: false,
+                                download: false,
+                                search: false,
+                                selectToolbarPlacement: "none",
+                                selectableRows: "none",
+                                elevation: 0,
+                                pagination: false,
+                              }}
+                              data-tableid="task_Report_Datatable"
+                            />
+                          </ThemeProvider>
+                          <br />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
 
             <div className="sticky bottom-0 !h-[9%] bg-whiteSmoke border-b z-30 border-lightSilver flex p-2 justify-end items-center">
               <div>

@@ -10,3 +10,4 @@ export const audit = 10;
 export const billingReport = 11;
 export const customReport = 12;
 export const AdminRatingsReports = 13;
+export const logReport = 14;

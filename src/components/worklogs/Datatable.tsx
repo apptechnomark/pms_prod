@@ -117,14 +117,14 @@ const Datatable = ({
     const selectedData = allRowsSelected.map(
       (row: any) => workItemData[row.dataIndex]
     );
-    setSelectedRowsCount(rowsSelected.length);
+    setSelectedRowsCount(rowsSelected?.length);
     setSelectedRows(rowsSelected);
     setSelectedRowsData(selectedData);
 
     // adding all selected Ids in an array
     const selectedWorkItemIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.WorkitemId)
+        ? selectedData.map((selectedRow: any) => selectedRow?.WorkitemId)
         : [];
 
     setSelectedRowIds(selectedWorkItemIds);
@@ -132,14 +132,14 @@ const Datatable = ({
     // adding only one or last selected id
     const lastSelectedWorkItemId =
       selectedData.length > 0
-        ? selectedData[selectedData.length - 1].WorkitemId
+        ? selectedData[selectedData.length - 1]?.WorkitemId
         : null;
     setSelectedRowId(lastSelectedWorkItemId);
 
     // adding all selected row's status name in an array
     const selectedWorkItemStatus =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.StatusName)
+        ? selectedData.map((selectedRow: any) => selectedRow?.StatusName)
         : [];
 
     setSelectedRowStatusName(selectedWorkItemStatus);
@@ -147,7 +147,7 @@ const Datatable = ({
     // adding all selected row's status Ids in an array
     const selectedWorkItemStatusIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.StatusId)
+        ? selectedData.map((selectedRow: any) => selectedRow?.StatusId)
         : [];
 
     setSelectedRowStatusId(selectedWorkItemStatusIds);
@@ -155,7 +155,7 @@ const Datatable = ({
     // adding all selected row's Client Ids in an array
     const selectedWorkItemClientIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.ClientId)
+        ? selectedData.map((selectedRow: any) => selectedRow?.ClientId)
         : [];
 
     setSelectedRowClientId(selectedWorkItemClientIds);
@@ -163,7 +163,7 @@ const Datatable = ({
     // adding all selected row's WorkType Ids in an array
     const selectedWorkItemWorkTypeIds =
       selectedData.length > 0
-        ? selectedData.map((selectedRow: any) => selectedRow.WorkTypeId)
+        ? selectedData.map((selectedRow: any) => selectedRow?.WorkTypeId)
         : [];
 
     setSelectedRowWorkTypeId(selectedWorkItemWorkTypeIds);
@@ -179,9 +179,10 @@ const Datatable = ({
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const pathname = window.location.href.includes("=");
+      const pathname = window.location.href.includes("id=");
       if (pathname) {
-        const id = window.location.href.split("=")[1];
+        const idMatch = window.location.href.match(/id=([^?&]+)/);
+        const id = idMatch ? idMatch[1] : null;
         onEdit(id);
         onDrawerOpen();
       }
@@ -775,6 +776,14 @@ const Datatable = ({
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 8 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 4 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 11 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 13 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 53 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 54 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 55 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 57 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 58 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 59 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 60 &&
                   tableMeta.rowData[tableMeta.rowData.length - 1] !==
                     isRunning &&
                   (tableMeta.rowData[tableMeta.rowData.length - 2] === 0 ? (
@@ -963,6 +972,7 @@ const Datatable = ({
         name: "StatusId",
         options: {
           display: false,
+          viewColumns: false,
         },
       };
     } else if (column.name === "State") {
@@ -970,6 +980,7 @@ const Datatable = ({
         name: "State",
         options: {
           display: false,
+          viewColumns: false,
         },
       };
     } else if (column.name === "WorkitemId") {
@@ -977,6 +988,7 @@ const Datatable = ({
         name: "WorkitemId",
         options: {
           display: false,
+          viewColumns: false,
         },
       };
     } else {
@@ -1026,6 +1038,8 @@ const Datatable = ({
             title={undefined}
             options={{
               ...worklogs_Options,
+              tableBodyHeight: "68vh",
+              viewColumns: true,
               selectAllRows: isPopupOpen && selectedRowsCount === 0,
               rowsSelected: selectedRows,
               textLabels: {

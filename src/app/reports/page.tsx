@@ -40,6 +40,8 @@ import RatingReportFilter from "@/components/reports/Filter/RatingReportFilter";
 import AuditFilter from "@/components/reports/Filter/AuditFilter";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import CustomToastContainer from "@/utils/style/CustomToastContainer";
+import LogReport from "@/components/reports/tables/LogReport";
+import LogReportFilter from "@/components/reports/Filter/LogReportFilter";
 
 const primaryTabs = [
   { label: "project", value: 1 },
@@ -54,6 +56,7 @@ const secondaryTabs = [
   { label: "user log", value: 5 },
   { label: "audit", value: 6 },
   { label: "rating", value: 9 },
+  { label: "log", value: 10 },
 ];
 
 const MoreTabs = ({ moreTabs, handleMoreTabsClick }: any) => {
@@ -145,11 +148,11 @@ const Page = () => {
           hasPermissionWorklog(tab.label, "view", "report") ? tab : false
         )
       );
-      setMoreTabs(
-        secondaryTabs.map((tab: any) =>
-          hasPermissionWorklog(tab.label, "view", "report") ? tab : false
-        )
-      );
+      // setMoreTabs(
+      //   secondaryTabs.map((tab: any) =>
+      //     hasPermissionWorklog(tab.label, "view", "report") ? tab : false
+      //   )
+      // );
       setActiveTab(
         primaryTabs
           .map((tab: any) =>
@@ -463,6 +466,14 @@ const Page = () => {
             onHandleExport={handleCanExport}
           />
         )}
+
+        {activeTab === 10 && (
+          <LogReport
+            searchValue={searchValue}
+            filteredData={filteredData}
+            onHandleExport={handleCanExport}
+          />
+        )}
       </div>
 
       {/* tabs filter */}
@@ -530,6 +541,13 @@ const Page = () => {
       )}
       {activeTab === 9 && (
         <RatingReportFilter
+          isFiltering={isFiltering}
+          sendFilterToPage={handleFilterData}
+          onDialogClose={handleFilter}
+        />
+      )}
+      {activeTab === 10 && (
+        <LogReportFilter
           isFiltering={isFiltering}
           sendFilterToPage={handleFilterData}
           onDialogClose={handleFilter}

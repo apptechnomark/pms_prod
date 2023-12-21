@@ -162,7 +162,9 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
               hasPermissionWorklog("user log", "View", "Report") ||
               hasPermissionWorklog("audit", "View", "Report") ||
               hasPermissionWorklog("billing report", "View", "Report") ||
-              hasPermissionWorklog("custom report", "View", "Report")) &&
+              hasPermissionWorklog("custom report", "View", "Report") ||
+              hasPermissionWorklog("rating", "View", "Report") ||
+              hasPermissionWorklog("log", "View", "Report")) &&
             !isClient && {
               name: "Reports",
               href: "/reports",

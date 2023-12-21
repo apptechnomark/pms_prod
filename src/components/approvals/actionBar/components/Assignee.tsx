@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Avatar, InputBase, List, Popover } from "@mui/material";
@@ -7,15 +7,13 @@ import SearchIcon from "@/assets/icons/SearchIcon";
 import AssigneeIcon from "@/assets/icons/worklogs/Assignee";
 
 const Assignee = ({
-  selectedRowIds,
+  selectedWorkItemIds,
+  selectedRowStatusId,
+  selectedRowsCount,
+  handleClearSelection,
+  getReviewList,
   selectedRowClientId,
   selectedRowWorkTypeId,
-  areAllValuesSame,
-  selectedRowStatusId,
-  workItemData,
-  selectedRowsCount,
-  getWorkItemList,
-  handleClearSelection,
 }: any) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [assignee, setAssignee] = useState<any | any[]>([]);
@@ -25,6 +23,7 @@ const Assignee = ({
 
   const handleClickAssignee = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorElAssignee(event.currentTarget);
+    getAssignee();
   };
 
   const handleCloseAssignee = () => {
@@ -38,70 +37,57 @@ const Assignee = ({
     setSearchQuery(event.target.value);
   };
 
-  const filteredAssignees = assignee?.filter((assignee: any) =>
+  const filteredAssignees = assignee.filter((assignee: any) =>
     assignee.label.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleOptionAssignee = (id: any) => {
-    updateAssignee(selectedRowIds, id);
+    updateAssignee(selectedWorkItemIds, id);
     handleCloseAssignee();
   };
 
-  // API for get Assignee with all conditions
-  useEffect(() => {
-    if (
-      selectedRowClientId.length > 0 &&
-      selectedRowWorkTypeId.length > 0 &&
-      areAllValuesSame(selectedRowClientId) &&
-      areAllValuesSame(selectedRowWorkTypeId)
-    ) {
-      const getAssignee = async () => {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.api_url}/user/GetAssigneeUserDropdown`,
-            {
-              ClientIds: selectedRowClientId,
-              WorktypeId: selectedRowWorkTypeId[0],
-              IsAll: selectedRowClientId.length > 1 ? true : false,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              setAssignee(response.data.ResponseData);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Something went wrong, Please try again later..");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Something went wrong, Please try again later..");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error) {
-          console.error(error);
+  const getAssignee = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.api_url}/user/GetAssigneeUserDropdown`,
+        {
+          ClientIds: selectedRowClientId,
+          WorktypeId: selectedRowWorkTypeId[0],
+          IsAll: selectedRowClientId.length > 0 ? true : false,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
         }
-      };
+      );
 
-      // calling function
-      getAssignee();
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setAssignee(response.data.ResponseData);
+        } else {
+          const data = response.data.Message;
+          if (data === null) {
+            toast.error("Please try again after some time.");
+          } else {
+            toast.error(data);
+          }
+        }
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again after some time.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
     }
-  }, [selectedRowClientId, selectedRowWorkTypeId]);
+  };
 
   // API for update Assignee
   const updateAssignee = async (id: number[], assigneeId: number) => {
@@ -113,35 +99,15 @@ const Assignee = ({
       //   [7, 8, 9, 13].includes(statusId)
       // );
 
-      const isRunning = workItemData
-        .map((item: any) =>
-          id.includes(item.WorkitemId) && item.IsActive === true
-            ? item.WorkitemId
-            : false
-        )
-        .filter((j: any) => j !== false);
-
-      const isNotRunning = workItemData
-        .map((item: any) =>
-          id.includes(item.WorkitemId) && item.IsActive !== true
-            ? item.WorkitemId
-            : false
-        )
-        .filter((j: any) => j !== false);
-      // console.log(isRunning, isNotRunning);
-
       // if (selectedRowsCount >= 1 && isInvalidStatus) {
       //   toast.warning(
       //     "Cannot change Assignee for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
       //   );
-      // } else
-      if (isRunning.length > 0) {
-        toast.warning("Cannot change Assignee for Running tasks.");
-      } else if (isNotRunning.length > 0) {
+      // } else {
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdateAssignee`,
           {
-            workitemIds: isNotRunning,
+            workitemIds: id,
             assigneeId: assigneeId,
           },
           {
@@ -157,15 +123,15 @@ const Assignee = ({
           if (response.data.ResponseStatus === "Success") {
             toast.success("Assignee has been updated successfully.");
             handleClearSelection();
-            getWorkItemList();
+            getReviewList();
           } else {
-            toast.error(data || "Please try again later.");
+            toast.error(data || "Please try again after some time.");
           }
         } else {
           const data = response.data.Message;
-          toast.error(data || "Please try again later.");
+          toast.error(data || "Please try again after some time.");
         }
-      }
+      // }
     } catch (error) {
       console.error(error);
     }
@@ -174,7 +140,10 @@ const Assignee = ({
   return (
     <div>
       <ColorToolTip title="Assignee" arrow>
-        <span aria-describedby={idAssignee} onClick={handleClickAssignee}>
+        <span
+          aria-describedby={idAssignee}
+          onClick={handleClickAssignee}
+        >
           <AssigneeIcon />
         </span>
       </ColorToolTip>

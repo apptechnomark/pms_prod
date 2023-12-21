@@ -146,6 +146,21 @@ export const rating_InitialFilter: any = {
   EndDate: null,
 };
 
+export const logReport_InitialFilter = {
+  pageNo: 1,
+  pageSize: 10,
+  globalSearch: "",
+  sortColumn: null,
+  isDesc: false,
+  clientFilter: [],
+  isDownload: false,
+  projectFilter: [],
+  processFilter: [],
+  updatedByFilter: [],
+  startDate: new Date(),
+  endDate: new Date(),
+};
+
 export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
   if (activeTab === 1) {
     return getBody ? client_project_InitialFilter : "project";
@@ -173,5 +188,8 @@ export const getCurrentTabDetails = (activeTab: number, getBody?: boolean) => {
   }
   if (activeTab === 9) {
     return getBody ? rating_InitialFilter : "admin/rating";
+  }
+  if (activeTab === 10) {
+    return getBody ? logReport_InitialFilter : "auditlog";
   }
 };

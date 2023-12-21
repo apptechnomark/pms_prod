@@ -1,22 +1,18 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Button, Card } from "@mui/material";
-import Minus from "@/assets/icons/worklogs/Minus";
+import { Button } from "@mui/material";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import {
   getProjectDropdownData,
   getSubProcessDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import {
-  Edit,
   Delete,
-  Priority,
   Assignee,
   Status,
   Duplicate,
   Recurring,
-  Comments,
   Client,
   Project,
   Process,
@@ -25,10 +21,15 @@ import {
   Manager,
   DateReceived,
 } from "./components/ActionBarComponents";
+import {
+  Edit,
+  Priority,
+  Comments,
+} from "@/components/common/actionBar/components/ActionBarComponents";
+import CustomActionBar from "@/components/common/actionBar/CustomActionBar";
 
 const WorklogsActionBar = ({
   selectedRowsCount,
-  selectedRows,
   selectedRowStatusId,
   selectedRowId,
   selectedRowsdata,
@@ -47,19 +48,6 @@ const WorklogsActionBar = ({
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [processDropdownData, setProcessDropdownData] = useState([]);
   const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: any) => {
-      if (event.key === "Escape") {
-        handleClearSelection();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
 
   // API for process Data
   const getProcessData = async (ids: any) => {
@@ -261,16 +249,14 @@ const WorklogsActionBar = ({
       return;
     }
 
-    const hasInProgressOrStopStatus =
-      selctedWorkItemStatusIds.includes(2) ||
-      selctedWorkItemStatusIds.includes(4);
+    // const hasInProgressOrStopStatus = selctedWorkItemStatusIds.includes(4);
 
-    if (!hasInProgressOrStopStatus) {
-      toast.warning(
-        "Tasks can only be submitted if they are currently in the 'In Progress' or 'Stop' status."
-      );
-      return;
-    }
+    // if (!hasInProgressOrStopStatus) {
+    //   toast.warning(
+    //     "Tasks can only be submitted if they are currently in the 'Preparation Completed' status."
+    //   );
+    //   return;
+    // }
 
     if (workItemIds.length < selectedRowsCount) {
       toast.warning("Only Assignee can submit the task.");
@@ -293,30 +279,35 @@ const WorklogsActionBar = ({
       );
 
       if (response.status === 200) {
+        const data = response.data.Message;
         if (response.data.ResponseStatus === "Success") {
-          if (
-            (selectedRowStatusName.length > 0 &&
-              selectedRowStatusName.includes("In Progress")) ||
-            selectedRowStatusId.includes(2)
-          ) {
-            toast.success("Task has been Partially Submitted.");
-          } else {
-            toast.success("The task has been successfully submitted.");
-          }
-
+          // if (
+          //   (selectedRowStatusName.length > 0 &&
+          //     selectedRowStatusName.includes("In Progress")) ||
+          //   selectedRowStatusId.includes(2)
+          // ) {
+          //   toast.success("Task has been Partially Submitted.");
+          // } else {
+          // toast.success("The task has been successfully submitted.");
+          // }
+          toast.success("The task has been successfully submitted.");
+          handleClearSelection();
+          getWorkItemList();
+        } else if (response.data.ResponseStatus === "Warning" && !!data) {
+          toast.warning(data);
           handleClearSelection();
           getWorkItemList();
         } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
+          if (!!data) {
             toast.error(data);
+          } else {
+            toast.error("Please try again later.");
           }
+          handleClearSelection();
         }
       } else {
         const data = response.data.Message;
-        if (data === null) {
+        if (!!data) {
           toast.error("Please try again later.");
         } else {
           toast.error(data);
@@ -326,6 +317,18 @@ const WorklogsActionBar = ({
       console.error(error);
     }
   };
+
+  const SubmitButton = () => (
+    <span className="pl-2 pr-2 border-t-0 cursor-pointer border-b-0 border-x-[1.5px] border-gray-300">
+      <Button
+        variant="outlined"
+        className=" rounded-[4px] h-8 !text-[10px]"
+        onClick={submitWorkItem}
+      >
+        Submit Task
+      </Button>
+    </span>
+  );
 
   // All props to pass in action Bar components
   const propsForActionBar = {
@@ -347,307 +350,322 @@ const WorklogsActionBar = ({
     subProcessDropdownData,
   };
 
+  const ConditionalComponentWithoutConditions = ({
+    Component,
+    propsForActionBar,
+    className,
+  }: any) => (
+    <span
+      className={`pl-2 pr-2 cursor-pointer border-l-[1.5px] border-gray-300 ${className}`}
+    >
+      <Component {...propsForActionBar} />
+    </span>
+  );
+
+  const ConditionalComponent = ({
+    condition,
+    className,
+    Component,
+    propsForActionBar,
+    additionalBorderClass = "",
+  }: any) =>
+    condition ? (
+      <span
+        className={`pl-2 pr-2 cursor-pointer border-l-[1.5px] border-gray-300 ${additionalBorderClass} ${className}`}
+      >
+        <Component {...propsForActionBar} />
+      </span>
+    ) : null;
+
   return (
     <div>
-      {selectedRowsCount > 0 && (
-        <div className="flex items-center justify-start mx-8">
-          <Card
-            className={`rounded-full flex border p-2 border-[#1976d2] absolute shadow-lg  ${
-              selectedRowsCount === 1 ? "w-[80%]" : "w-[71%]"
-            } bottom-12 -translate-y-1/2`}
-          >
-            <div className="flex flex-row w-full">
-              <div className="pt-1 pl-2 flex w-[25%]">
-                <span className="cursor-pointer" onClick={handleClearSelection}>
-                  <Minus />
-                </span>
-                <span className="pl-2 pt-[1px] pr-6 text-[14px]">
-                  {selectedRowsCount || selectedRows} task selected
-                </span>
-              </div>
+      <CustomActionBar {...propsForActionBar}>
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+            selectedRowsCount === 1
+            // &&
+            // !selectedRowStatusId.some((statusId: number) =>
+            //   [4, 7, 8, 9, 13].includes(statusId)
+            // )
+          }
+          className="text-slatyGrey"
+          Component={Edit}
+          propsForActionBar={{ onEdit: onEdit, selectedRowId: selectedRowId }}
+        />
 
-              <div
-                className={`flex flex-row z-10 h-8 justify-center ${
-                  selectedRowsCount === 1 ? "w-[100%]" : "w-[80%]"
-                }`}
-              >
-                {selectedRowsCount === 1 &&
-                  !selectedRowStatusId.some((statusId: number) =>
-                    [4, 7, 8, 9, 13].includes(statusId)
-                  ) && (
-                    <span className="pl-2 pr-2 pt-1 text-slatyGrey cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                      <Edit {...propsForActionBar} />
-                    </span>
-                  )}
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("Task/SubTask", "Delete", "WorkLogs") &&
+            !isUnassigneeClicked
+          }
+          Component={Delete}
+          propsForActionBar={propsForActionBar}
+        />
 
-                {hasPermissionWorklog("Task/SubTask", "Delete", "WorkLogs") &&
-                  !isUnassigneeClicked && (
-                    <span className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                      <Delete {...propsForActionBar} />
-                    </span>
-                  )}
+        <ConditionalComponentWithoutConditions
+          Component={Priority}
+          propsForActionBar={{
+            selectedRowIds: selectedRowIds,
+            selectedRowStatusId: selectedRowStatusId,
+            selectedRowsCount: selectedRowsCount,
+            getData: getWorkItemList,
+          }}
+        />
 
-                <span className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                  <Priority {...propsForActionBar} />
-                </span>
+        <ConditionalComponent
+          condition={
+            areAllValuesSame(selectedRowClientId) &&
+            areAllValuesSame(selectedRowWorkTypeId)
+          }
+          Component={Assignee}
+          propsForActionBar={propsForActionBar}
+        />
 
-                {/* if the selected client Ids and worktype ids are same then only the Assignee icon will show */}
-                {areAllValuesSame(selectedRowClientId) &&
-                  areAllValuesSame(selectedRowWorkTypeId) && (
-                    <span className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                      <Assignee {...propsForActionBar} />
-                    </span>
-                  )}
+        <ConditionalComponentWithoutConditions
+          Component={Status}
+          propsForActionBar={propsForActionBar}
+        />
 
-                <span className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                  <Status {...propsForActionBar} />
-                </span>
+        <ConditionalComponent
+          condition={!isUnassigneeClicked}
+          Component={Duplicate}
+          propsForActionBar={propsForActionBar}
+        />
 
-                {!isUnassigneeClicked && (
-                  <span className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                    <Duplicate {...propsForActionBar} />
-                  </span>
-                )}
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("Reccuring", "View", "WorkLogs") &&
+            selectedRowsCount === 1
+          }
+          Component={Recurring}
+          propsForActionBar={propsForActionBar}
+        />
 
-                {hasPermissionWorklog("Reccuring", "View", "WorkLogs") &&
-                  selectedRowsCount === 1 && (
-                    <span className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                      <Recurring {...propsForActionBar} />
-                    </span>
-                  )}
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("Comment", "View", "WorkLogs") &&
+            selectedRowsCount === 1 &&
+            !isUnassigneeClicked
+          }
+          Component={Comments}
+          propsForActionBar={{
+            onComment: onComment,
+            selectedRowId: selectedRowId,
+          }}
+        />
 
-                {hasPermissionWorklog("Comment", "View", "WorkLogs") &&
-                  selectedRowsCount === 1 &&
-                  !isUnassigneeClicked && (
-                    <span className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                      <Comments {...propsForActionBar} />
-                    </span>
-                  )}
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.ClientId === 0 || i.ClientId === null)
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length > 0 &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) && i.ClientId > 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length <= 0
+          }
+          Component={Client}
+          propsForActionBar={propsForActionBar}
+        />
 
-                {/* Change client */}
-                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) &&
-                      (i.ClientId === 0 || i.ClientId === null)
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length > 0 &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) && i.ClientId > 0
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length <= 0 && (
-                    <span className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                      <Client {...propsForActionBar} />
-                    </span>
-                  )}
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId > 0 &&
+                i.ProjectId === 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length > 0 &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length <= 0 &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId > 0 &&
+                i.ProjectId !== 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length <= 0 &&
+            Array.from(new Set(selectedRowClientId)).length === 1
+          }
+          Component={Project}
+          propsForActionBar={propsForActionBar}
+        />
 
-                {/* Change Project */}
-                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) &&
-                      i.ClientId > 0 &&
-                      i.ProjectId === 0
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length > 0 &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length <= 0 &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) &&
-                      i.ClientId > 0 &&
-                      i.ProjectId !== 0
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length <= 0 &&
-                  Array.from(new Set(selectedRowClientId)).length === 1 && (
-                    <span className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                      <Project {...propsForActionBar} />
-                    </span>
-                  )}
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId > 0 &&
+                i.ProcessId === 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length > 0 &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length <= 0 &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId > 0 &&
+                i.ProcessId !== 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length <= 0
+          }
+          Component={Process}
+          propsForActionBar={propsForActionBar}
+        />
 
-                {/* Change Process */}
-                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) &&
-                      i.ClientId > 0 &&
-                      i.ProcessId === 0
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length > 0 &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) && i.ClientId === 0
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length <= 0 &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) &&
-                      i.ClientId > 0 &&
-                      i.ProcessId !== 0
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length <= 0 && (
-                    <span className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                      <Process {...propsForActionBar} />
-                    </span>
-                  )}
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId > 0 &&
+                i.ProcessId > 0 &&
+                i.SubProcessId === 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length > 0 &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId === 0 &&
+                i.ProcessId === 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length <= 0 &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                i.ClientId > 0 &&
+                i.ProcessId > 0 &&
+                i.SubProcessId !== 0
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length <= 0 &&
+            Array.from(
+              new Set(
+                workItemData
+                  .map(
+                    (i: any) =>
+                      selectedRowIds.includes(i.WorkitemId) && i.ProcessId
+                  )
+                  .filter((j: any) => j !== false)
+              )
+            ).length === 1
+          }
+          Component={SubProcess}
+          propsForActionBar={propsForActionBar}
+        />
 
-                {/* Change Sub-Process */}
-                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) &&
-                      i.ClientId > 0 &&
-                      i.ProcessId > 0 &&
-                      i.SubProcessId === 0
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length > 0 &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) &&
-                      i.ClientId === 0 &&
-                      i.ProcessId === 0
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length <= 0 &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) &&
-                      i.ClientId > 0 &&
-                      i.ProcessId > 0 &&
-                      i.SubProcessId !== 0
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length <= 0 &&
-                  Array.from(
-                    new Set(
-                      workItemData
-                        .map(
-                          (i: any) =>
-                            selectedRowIds.includes(i.WorkitemId) && i.ProcessId
-                        )
-                        .filter((j: any) => j !== false)
-                    )
-                  ).length === 1 && (
-                    <span className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                      <SubProcess {...propsForActionBar} />
-                    </span>
-                  )}
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.ReturnYear === 0 || i.ReturnYear === null)
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length > 0 &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.ReturnYear > 0 || i.ReturnYear !== null)
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length <= 0
+          }
+          Component={ReturnYear}
+          propsForActionBar={propsForActionBar}
+        />
 
-                {/* Change Return Year */}
-                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) &&
-                      (i.ReturnYear === 0 || i.ReturnYear === null)
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length > 0 &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) &&
-                      (i.ReturnYear > 0 || i.ReturnYear !== null)
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length <= 0 && (
-                    <span className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                      <ReturnYear {...propsForActionBar} />
-                    </span>
-                  )}
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.ManagerId === 0 || i.ManagerId === null)
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length > 0 &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.ManagerId > 0 || i.ManagerId !== null)
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length <= 0
+          }
+          Component={Manager}
+          propsForActionBar={propsForActionBar}
+        />
 
-                {/* Change manager */}
-                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) &&
-                      (i.ManagerId === 0 || i.ManagerId === null)
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length > 0 &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) &&
-                      (i.ManagerId > 0 || i.ManagerId !== null)
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length <= 0 && (
-                    <span className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                      <Manager {...propsForActionBar} />
-                    </span>
-                  )}
+        <ConditionalComponent
+          condition={
+            hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.ReceiverDate?.length === 0 || i.ReceiverDate === null)
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length > 0 &&
+            workItemData
+              .map((i: any) =>
+                selectedRowIds.includes(i.WorkitemId) &&
+                (i.ReceiverDate?.length > 0 || i.ReceiverDate !== null)
+                  ? i.WorkitemId
+                  : undefined
+              )
+              .filter((j: any) => j !== undefined).length <= 0
+          }
+          Component={DateReceived}
+          propsForActionBar={propsForActionBar}
+        />
 
-                {/* Change date received */}
-                {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) &&
-                      (i.ReceiverDate?.length === 0 || i.ReceiverDate === null)
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length > 0 &&
-                  workItemData
-                    .map((i: any) =>
-                      selectedRowIds.includes(i.WorkitemId) &&
-                      (i.ReceiverDate?.length > 0 || i.ReceiverDate !== null)
-                        ? i.WorkitemId
-                        : undefined
-                    )
-                    .filter((j: any) => j !== undefined).length <= 0 && (
-                    <span className="pl-2 pr-2 pt-1 cursor-pointer border-t-0 border-b-0 border-l-[1.5px] border-gray-300">
-                      <DateReceived {...propsForActionBar} />
-                    </span>
-                  )}
-
-                {!isUnassigneeClicked && (
-                  <span className="pl-2 pr-2 border-t-0 cursor-pointer border-b-0 border-l-[1.5px] border-r-[1.5px] border-gray-300">
-                    <Button
-                      variant="outlined"
-                      className=" rounded-[4px] h-8 !text-[10px]"
-                      onClick={submitWorkItem}
-                    >
-                      Submit Task
-                    </Button>
-                  </span>
-                )}
-              </div>
-
-              <div className="flex right-0 justify-end pr-3 pt-1 w-[40%]">
-                <span className="text-gray-400 italic text-[14px] pl-2">
-                  shift+click to select, esc to deselect all
-                </span>
-              </div>
-            </div>
-          </Card>
-        </div>
-      )}
+        <SubmitButton />
+      </CustomActionBar>
     </div>
   );
 };

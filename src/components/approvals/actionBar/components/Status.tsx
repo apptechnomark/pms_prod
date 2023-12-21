@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import { List, Popover } from "@mui/material";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
@@ -7,12 +7,12 @@ import DetectorStatus from "@/assets/icons/worklogs/DetectorStatus";
 import { getStatusDropdownData } from "@/utils/commonDropdownApiCall";
 
 const Status = ({
-  selectedRowIds,
+  selectedWorkItemIds,
   selectedRowStatusId,
-  workItemData,
+  reviewList,
   selectedRowsCount,
-  getWorkItemList,
   handleClearSelection,
+  getReviewList,
 }: any) => {
   const [allStatus, setAllStatus] = useState<any | any[]>([]);
 
@@ -32,7 +32,7 @@ const Status = ({
   const idStatus = openStatus ? "simple-popover" : undefined;
 
   const handleOptionStatus = (id: any) => {
-    updateStatus(selectedRowIds, id);
+    updateStatus(selectedWorkItemIds, id);
     handleCloseStatus();
   };
 
@@ -40,8 +40,8 @@ const Status = ({
   const getAllStatus = async () => {
     let isRework: any = [];
     let isNotRework: any = [];
-    workItemData.map((i: any) => {
-      if (selectedRowIds.includes(i.WorkitemId)) {
+    reviewList.map((i: any) => {
+      if (selectedWorkItemIds.includes(i.WorkitemId)) {
         if (i.ErrorlogSignedOffPending) {
           isRework.push(i.WorkitemId);
         } else {
@@ -55,15 +55,18 @@ const Status = ({
         data.filter(
           (item: any) =>
             item.Type === "Rework" ||
-            item.Type === "Assigned" ||
             (isNotRework.length > 0
-              ? item.Type === "NotStarted" ||
-                item.Type === "InProgress" ||
-                item.Type === "Stop" ||
-                item.Type === "Submitted"
-              : item.Type === "ReworkInProgress" ||
-                item.Type === "ReworkPrepCompleted" ||
-                item.Type === "ReworkSubmitted") ||
+              ? item.Type === "InReview" ||
+                item.Type === "Submitted" ||
+                item.Type === "Accept"
+              : // ||
+                // item.Type === "AcceptWithNotes"
+                item.Type === "ReworkInReview" ||
+                item.Type === "ReworkSubmitted" ||
+                item.Type === "ReworkAccept") ||
+            // ||
+            // item.Type === "ReworkAcceptWithNotes"
+            item.Type === "SecondManagerReview" ||
             item.Type === "OnHoldFromClient" ||
             item.Type === "WithDraw" ||
             item.Type === "WithdrawnbyClient"
@@ -72,11 +75,11 @@ const Status = ({
   };
 
   // API for update status
-  const updateStatus = async (id: number[], statusId: number) => {
+  const updateStatus = async (ids: number[], statusId: number) => {
     let isRework: any = [];
     let isNotRework: any = [];
-    workItemData.map((i: any) => {
-      if (selectedRowIds.includes(i.WorkitemId)) {
+    reviewList.map((i: any) => {
+      if (selectedWorkItemIds.includes(i.WorkitemId)) {
         if (i.ErrorlogSignedOffPending) {
           isRework.push(i.WorkitemId);
         } else {
@@ -84,21 +87,6 @@ const Status = ({
         }
       }
     });
-    // let hasTime: any = [];
-    // let hasNoTime: any = [];
-    // if (statusId === 58) {
-    //   workItemData.map((i: any) => {
-    //     if (id.includes(i.WorkitemId)) {
-    //       if (i.ActualTimeSec > 0) {
-    //         hasTime.push(i.WorkitemId);
-    //       } else {
-    //         hasNoTime.push(i.WorkitemId);
-    //       }
-    //     }
-    //   });
-    // } else {
-    //   id.map((i: any) => hasTime.push(i));
-    // }
     try {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -107,45 +95,46 @@ const Status = ({
       //   [7, 8, 9, 13].includes(status)
       // );
 
-      // const hasRunningTasks = workItemData.some((item: any) =>
-      //   id.includes(item.WorkitemId)
+      // const hasRunningTasks = reviewList.some((item: any) =>
+      //   ids.includes(item.WorkitemId)
       //     ? item.TimelogId !== null
       //       ? true
       //       : false
       //     : false
       // );
 
-      // if (selectedRowsCount === 1 && isInvalidStatus) {
-      //   toast.warning(
-      //     "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      //   );
-      // } else if (selectedRowsCount > 1 && isInvalidStatus) {
-      //   toast.warning(
-      //     "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      //   );
-      // } else
-      // if (hasRunningTasks) {
+      // if (isInvalidStatus) {
+      //   if (selectedRowsCount > 1 || selectedRowsCount === 1) {
+      //     toast.warning(
+      //       "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+      //     );
+      //   }
+      // } else if (hasRunningTasks) {
       //   toast.warning("Cannot change status for running task.");
-      // }
-      // if (hasNoTime.length > 0) {
-      //   toast.warning("Cannot change status for the task with no Time.");
-      // }
-      // if (hasTime.length > 0) {
+      // } else {
+      // const filteredWorkitemIds = reviewList
+      //   .map(
+      //     (item: { WorkitemId: number; TimelogId: null; StatusId: number }) => {
+      //       if (ids.includes(item.WorkitemId)) {
+      //         if (
+      //           item.TimelogId === null &&
+      //           ![7, 8, 9, 13].includes(item.StatusId)
+      //         ) {
+      //           return item.WorkitemId;
+      //         } else {
+      //           return false;
+      //         }
+      //       } else {
+      //         return undefined;
+      //       }
+      //     }
+      //   )
+      //   .filter((i: boolean | undefined) => i !== undefined && i !== false);
+
       const response = await axios.post(
         `${process.env.worklog_api_url}/workitem/UpdateStatus`,
         {
           workitemIds: isNotRework.length > 0 ? isNotRework : isRework,
-          // workItemData
-          //   .map((item: any) =>
-          //     id.includes(item.WorkitemId)
-          //       ? item.TimelogId === null &&
-          //         ![7, 8, 9, 13].includes(item.StatusId)
-          //         ? item.WorkitemId
-          //         : false
-          //       : undefined
-          //   )
-          //   .filter((i: any) => i !== undefined)
-          //   .filter((i: any) => i !== false),
           statusId: statusId,
         },
         {
@@ -160,22 +149,20 @@ const Status = ({
         const data = response.data.Message;
         if (response.data.ResponseStatus === "Success") {
           toast.success("Status has been updated successfully.");
-          handleClearSelection();
           isNotRework = [];
           isRework = [];
-          // hasNoTime = [];
-          // hasTime = [];
-          getWorkItemList();
+          handleClearSelection();
+          getReviewList();
         } else if (response.data.ResponseStatus === "Warning" && !!data) {
           toast.warning(data);
           handleClearSelection();
           isNotRework = [];
           isRework = [];
-          getWorkItemList();
+          getReviewList();
         } else {
           toast.error(data || "Please try again later.");
           handleClearSelection();
-          getWorkItemList();
+          getReviewList();
         }
       } else {
         const data = response.data.Message;
@@ -194,7 +181,7 @@ const Status = ({
           <DetectorStatus />
         </span>
       </ColorToolTip>
-      {/* Status Popover */}
+
       <Popover
         id={idStatus}
         open={openStatus}
@@ -211,27 +198,21 @@ const Status = ({
       >
         <nav className="!w-52">
           <List>
-            {allStatus.length === 0 ? (
-              <span className="flex flex-col py-2 px-4  text-sm">
-                No Data Available
-              </span>
-            ) : (
-              allStatus.map((option: any) => {
-                return (
+            {allStatus.map((option: any) => {
+              return (
+                <span
+                  key={option.value}
+                  className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                >
                   <span
-                    key={option.value}
-                    className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                    className="p-1 cursor-pointer"
+                    onClick={() => handleOptionStatus(option.value)}
                   >
-                    <span
-                      className="p-1 cursor-pointer"
-                      onClick={() => handleOptionStatus(option.value)}
-                    >
-                      {option.label}
-                    </span>
+                    {option.label}
                   </span>
-                );
-              })
-            )}
+                </span>
+              );
+            })}
           </List>
         </nav>
       </Popover>

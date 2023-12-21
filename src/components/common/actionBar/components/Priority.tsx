@@ -15,7 +15,7 @@ const Priority = ({
   selectedRowIds,
   selectedRowStatusId,
   selectedRowsCount,
-  getWorkItemList,
+  getData,
 }: any) => {
   const [anchorElPriority, setAnchorElPriority] =
     React.useState<HTMLButtonElement | null>(null);
@@ -71,7 +71,7 @@ const Priority = ({
           if (response.data.ResponseStatus === "Success") {
             toast.success("Priority has been updated successfully.");
             // handleClearSelection();
-            getWorkItemList();
+            getData();
           } else {
             toast.error(data || "Please try again later.");
           }

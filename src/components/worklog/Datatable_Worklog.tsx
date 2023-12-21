@@ -3,7 +3,6 @@ import axios from "axios";
 
 import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
-import DeleteDialog from "../common/workloags/DeleteDialog";
 import { CircularProgress } from "@mui/material";
 import TablePagination from "@mui/material/TablePagination";
 // icons imports

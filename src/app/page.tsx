@@ -83,7 +83,6 @@ const Home = () => {
     localStorage.setItem("isClient", response.data.ResponseData.IsClientUser);
     localStorage.setItem("clientId", response.data.ResponseData.ClientId);
 
-    // Set organization details if not already set
     if (localStorage.getItem("Org_Token") === null) {
       localStorage.setItem(
         "Org_Token",

@@ -97,17 +97,17 @@ const WorklogActionbar = ({
     const isInProgressOrNotStarted =
       selectedRowStatusId.includes(1) || selectedRowStatusId.includes(2);
 
-    if (selectedRowStatusId.length === 1) {
-      if (isInProgressOrNotStarted) {
-        setIsDeleteOpen(true);
-      } else {
-        toast.warning(
-          "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
-        );
-      }
-    } else {
-      setIsDeleteOpen(true);
-    }
+    // if (selectedRowStatusId.length === 1) {
+    //   if (isInProgressOrNotStarted) {
+    //     setIsDeleteOpen(true);
+    //   } else {
+    //     toast.warning(
+    //       "Only tasks in 'In Preparation' or 'Not Started' status will be deleted."
+    //     );
+    //   }
+    // } else {
+    setIsDeleteOpen(true);
+    // }
   };
 
   // Update Priority API
@@ -116,43 +116,43 @@ const WorklogActionbar = ({
     const Org_Token = await localStorage.getItem("Org_Token");
 
     try {
-      const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
-        [7, 8, 9, 13].includes(statusId)
+      // const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
+      //   [7, 8, 9, 13].includes(statusId)
+      // );
+
+      // if (selectedRowsCount >= 1 && isInvalidStatus) {
+      //   toast.warning(
+      //     "Cannot change Priority for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+      //   );
+      // } else {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/UpdatePriority`,
+        {
+          workitemIds: id,
+          priority: priorityId,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
       );
 
-      if (selectedRowsCount >= 1 && isInvalidStatus) {
-        toast.warning(
-          "Cannot change Priority for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-        );
-      } else {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/UpdatePriority`,
-          {
-            workitemIds: id,
-            priority: priorityId,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          const data = response.data.Message;
-          if (response.data.ResponseStatus === "Success") {
-            toast.success("Priority has been updated successfully.");
-            handleClearSelection();
-            getWorkItemList();
-          } else {
-            toast.error(data || "Please try again later.");
-          }
+      if (response.status === 200) {
+        const data = response.data.Message;
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Priority has been updated successfully.");
+          handleClearSelection();
+          getWorkItemList();
         } else {
-          const data = response.data.Message;
           toast.error(data || "Please try again later.");
         }
+      } else {
+        const data = response.data.Message;
+        toast.error(data || "Please try again later.");
       }
+      // }
     } catch (error) {
       console.error(error);
     }
@@ -171,20 +171,20 @@ const WorklogActionbar = ({
       )
       .filter((i: any) => i !== undefined);
 
-    shouldWarn = workItemData
-      .map((item: any) =>
-        selectedRowIds.includes(item.WorkitemId) && item.IsCreatedByClient
-          ? item.StatusId
-          : undefined
-      )
-      .filter((item: any) => item !== undefined)
-      .map((id: number) => {
-        if (!warningStatusIds.includes(id)) {
-          return id;
-        }
-        return undefined;
-      })
-      .filter((id: number) => id !== undefined);
+    // shouldWarn = workItemData
+    //   .map((item: any) =>
+    //     selectedRowIds.includes(item.WorkitemId) && item.IsCreatedByClient
+    //       ? item.StatusId
+    //       : undefined
+    //   )
+    //   .filter((item: any) => item !== undefined)
+    //   .map((id: number) => {
+    //     if (!warningStatusIds.includes(id)) {
+    //       return id;
+    //     }
+    //     return undefined;
+    //   })
+    //   .filter((id: number) => id !== undefined);
 
     if (selectedRowIds.length > 0) {
       if (
@@ -195,23 +195,23 @@ const WorklogActionbar = ({
       ) {
         toast.warning("After resolving the error log, users can delete it.");
       }
-      if (
-        (selectedRowStatusId.includes(3) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(4) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(5) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(6) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(7) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(8) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(9) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(10) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(11) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(12) && selectedRowIds.length > 1) ||
-        (selectedRowStatusId.includes(13) && selectedRowIds.length > 1)
-      ) {
-        toast.warning(
-          "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
-        );
-      }
+      // if (
+      //   (selectedRowStatusId.includes(3) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(4) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(5) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(6) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(7) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(8) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(9) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(10) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(11) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(12) && selectedRowIds.length > 1) ||
+      //   (selectedRowStatusId.includes(13) && selectedRowIds.length > 1)
+      // ) {
+      //   toast.warning(
+      //     "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
+      //   );
+      // }
       if (
         workItemData.some(
           (item: any) =>
@@ -220,7 +220,10 @@ const WorklogActionbar = ({
       ) {
         toast.warning("You can not delete task which is created by PABS.");
       }
-      if (shouldWarn.length > 0 && deletedId.length > 0) {
+      if (
+        // shouldWarn.length > 0 &&
+        deletedId.length > 0
+      ) {
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
 
@@ -245,7 +248,7 @@ const WorklogActionbar = ({
             toast.success("Task has been deleted successfully.");
             handleClearSelection();
             getWorkItemList();
-            shouldWarn.splice(0, shouldWarn.length);
+            // shouldWarn.splice(0, shouldWarn.length);
           } else {
             const data = response.data.Message || "An error occurred.";
             toast.error(data);
@@ -255,11 +258,12 @@ const WorklogActionbar = ({
           toast.error("An error occurred while deleting the task.");
         }
       }
-    } else if (shouldWarn.includes[1] || shouldWarn.includes[2]) {
-      toast.warning(
-        "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
-      );
     }
+    // else if (shouldWarn.includes[1] || shouldWarn.includes[2]) {
+    //   toast.warning(
+    //     "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
+    //   );
+    // }
   };
 
   // Duplicate Task API
@@ -308,7 +312,7 @@ const WorklogActionbar = ({
           } else {
             const data = response.data.Message;
             if (data === null) {
-              toast.error("Error duplicating task.");
+              toast.error("Please try again later.");
             } else {
               toast.error(data);
             }
@@ -316,7 +320,7 @@ const WorklogActionbar = ({
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Error duplicating task.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
@@ -346,13 +350,15 @@ const WorklogActionbar = ({
         if (response.data.ResponseStatus === "Success") {
           setAllStatus(
             response.data.ResponseData.map((i: any) =>
-              i.Type === "WithDraw" ? i : ""
+              i.Type === "WithdrawnbyClient" || i.Type === "OnHoldFromClient"
+                ? i
+                : ""
             ).filter((i: any) => i !== "")
           );
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Error duplicating task.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
@@ -360,7 +366,7 @@ const WorklogActionbar = ({
       } else {
         const data = response.data.Message;
         if (data === null) {
-          toast.error("Error duplicating task.");
+          toast.error("Please try again later.");
         } else {
           toast.error(data);
         }
@@ -375,55 +381,55 @@ const WorklogActionbar = ({
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 
-    const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
-      [7, 8, 9, 13].includes(statusId)
-    );
+    // const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
+    //   [7, 8, 9, 13].includes(statusId)
+    // );
 
-    if (selectedRowsCount >= 1 && isInvalidStatus) {
-      toast.warning(
-        "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      );
-    } else {
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/UpdateStatus`,
-          {
-            workitemIds: id,
-            statusId: statusId,
+    // if (selectedRowsCount >= 1 && isInvalidStatus) {
+    //   toast.warning(
+    //     "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
+    //   );
+    // } else {
+    try {
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/UpdateStatus`,
+        {
+          workitemIds: id,
+          statusId: statusId,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        }
+      );
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            toast.success("Status has been updated successfully.");
-            handleClearSelection();
-            getWorkItemList();
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Error duplicating task.");
-            } else {
-              toast.error(data);
-            }
-          }
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Status has been updated successfully.");
+          handleClearSelection();
+          getWorkItemList();
         } else {
           const data = response.data.Message;
           if (data === null) {
-            toast.error("Error duplicating task.");
+            toast.error("Please try again later.");
           } else {
             toast.error(data);
           }
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
       }
+    } catch (error) {
+      console.error(error);
     }
+    // }
   };
 
   return (
@@ -444,10 +450,10 @@ const WorklogActionbar = ({
               <div className="flex flex-row z-10 h-8 justify-center w-[90%]">
                 {hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
                   selectedRowsCount === 1 &&
-                  isCreatedByClient &&
-                  !selectedRowStatusId.some((statusId: number) =>
-                    [4, 7, 8, 9, 13].includes(statusId)
-                  ) && (
+                  isCreatedByClient && (
+                    // !selectedRowStatusId.some((statusId: number) =>
+                    //   [4, 7, 8, 9, 13].includes(statusId)
+                    // ) &&
                     <ColorToolTip title="Edit" arrow>
                       <span
                         className="pl-2 pr-2 pt-1 text-slatyGrey cursor-pointer border-l border-lightSilver"

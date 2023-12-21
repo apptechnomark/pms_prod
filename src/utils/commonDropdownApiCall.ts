@@ -252,7 +252,7 @@ export const getStatusDropdownData = async () => {
         toast.error("Please try again later.");
       }
     } else {
-      toast.error("Please try again.");
+      toast.error("Please try again later.");
     }
   } catch (error: any) {
     if (error.response && error.response.status === 401) {

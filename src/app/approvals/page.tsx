@@ -30,16 +30,18 @@ const exportBody = {
   isDesc: true,
   globalSearch: "",
   userId: null,
-  clientId: null,
+  ClientId: null,
   projectId: null,
   startDate: null,
   endDate: null,
-  StatusId: 6,
+  dueDate: null,
+  StatusId: null,
   ProcessId: null,
 };
 
 const Page = () => {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<number>(1);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEditId, setHasEditId] = useState(0);
   const [iconIndex, setIconIndex] = useState<number>(0);
@@ -127,7 +129,9 @@ const Page = () => {
     const Org_Token = localStorage.getItem("Org_Token");
 
     const response = await axios.post(
-      `${process.env.worklog_api_url}/workitem/approval/GetReviewExportExcelList`,
+      `${process.env.worklog_api_url}${
+        activeTab === 1 ? "/workitem/approval/GetReviewExportExcelList" : ""
+      }`,
       {
         ...exportBody,
         ...currentFilterData,
@@ -171,9 +175,27 @@ const Page = () => {
         <Navbar />
         <div className="bg-white flex justify-between items-center px-[20px]">
           <div className="flex gap-[10px] items-center py-[6.5px]">
-            <label className="py-[10px] cursor-pointer select-none text-[16px] text-slatyGrey">
+            <span
+              className={`py-[10px] cursor-pointer select-none text-[16px] ${
+                activeTab === 1
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
+              }`}
+              onClick={() => setActiveTab(1)}
+            >
               Review
-            </label>
+            </span>
+            <span className="text-lightSilver">|</span>
+            <span
+              className={`py-[10px] cursor-pointer select-none text-[16px] ${
+                activeTab === 2
+                  ? "text-secondary font-semibold"
+                  : "text-slatyGrey"
+              }`}
+              onClick={() => setActiveTab(2)}
+            >
+              All Task
+            </span>
           </div>
           <div className="flex gap-[20px] items-center">
             <div className="relative">
@@ -210,6 +232,7 @@ const Page = () => {
           </div>
         </div>
         <Datatable
+          activeTab={activeTab}
           searchValue={globalSearchValue}
           onDataFetch={handleDataFetch}
           onEdit={handleEdit}
@@ -236,6 +259,7 @@ const Page = () => {
         />
 
         <FilterDialog_Approval
+          activeTab={activeTab}
           onOpen={isFilterOpen}
           onClose={handleCloseFilter}
           onDataFetch={() => {}}

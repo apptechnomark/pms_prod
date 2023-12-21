@@ -95,7 +95,7 @@ const hasPermissionWorklog = (
 };
 
 const getYears = () => {
-  const currentYear = new Date().getFullYear();
+  const currentYear = new Date().getFullYear() + 1;
   const Years = [];
 
   for (let year = 2010; year <= currentYear; year++) {

@@ -90,7 +90,8 @@ const CustomReportFilter = ({
   const [returnYear, setReturnYear] = useState<number | string>(0);
   const [status, setStatus] = useState<number | string>(0);
   const [priority, setPriority] = useState<string | number>(0);
-  const [receivedDate, setReceivedDate] = useState<string | number>("");
+  const [startDate, setStartDate] = useState<string | number>("");
+  const [endDate, setEndDate] = useState<string | number>("");
   const [dueDate, setDueDate] = useState<string | number>("");
   const [allInfoDate, setAllInfoDate] = useState<string | number>("");
 
@@ -138,7 +139,8 @@ const CustomReportFilter = ({
     setComplexity(0);
     setStatus(0);
     setPriority(0);
-    setReceivedDate("");
+    setStartDate("");
+    setEndDate("");
     setDueDate("");
     setAllInfoDate("");
     setError("");
@@ -167,7 +169,8 @@ const CustomReportFilter = ({
     setComplexity(0);
     setStatus(0);
     setPriority(0);
-    setReceivedDate("");
+    setStartDate("");
+    setEndDate("");
     setDueDate("");
     setAllInfoDate("");
     setError("");
@@ -195,10 +198,14 @@ const CustomReportFilter = ({
       complexity: complexity === 0 || complexity === "" ? null : complexity,
       StatusId: status === 0 || status === "" ? null : status,
       priority: priority === 0 || priority === "" ? null : priority,
-      receivedDate:
-        receivedDate.toString().trim().length <= 0
+      startDate:
+        startDate.toString().trim().length <= 0
           ? null
-          : getFormattedDate(receivedDate),
+          : getFormattedDate(startDate),
+      endDate:
+        endDate.toString().trim().length <= 0
+          ? null
+          : getFormattedDate(endDate),
       dueDate:
         dueDate.toString().trim().length <= 0
           ? null
@@ -229,7 +236,8 @@ const CustomReportFilter = ({
           complexity: savedFilters[index].AppliedFilter.complexity,
           StatusId: savedFilters[index].AppliedFilter.StatusId,
           priority: savedFilters[index].AppliedFilter.priority,
-          receivedDate: savedFilters[index].AppliedFilter.receivedDate,
+          startDate: savedFilters[index].AppliedFilter.startDate,
+          endDate: savedFilters[index].AppliedFilter.endDate,
           dueDate: savedFilters[index].AppliedFilter.dueDate,
           allInfoDate: savedFilters[index].AppliedFilter.allInfoDate,
         });
@@ -279,10 +287,14 @@ const CustomReportFilter = ({
                 complexity === 0 || complexity === "" ? null : complexity,
               StatusId: status === 0 || status === "" ? null : status,
               priority: priority === 0 || priority === "" ? null : priority,
-              receivedDate:
-                receivedDate.toString().trim().length <= 0
+              startDate:
+                startDate.toString().trim().length <= 0
                   ? null
-                  : getFormattedDate(receivedDate),
+                  : getFormattedDate(startDate),
+              endDate:
+                endDate.toString().trim().length <= 0
+                  ? null
+                  : getFormattedDate(endDate),
               dueDate:
                 dueDate.toString().trim().length <= 0
                   ? null
@@ -349,7 +361,8 @@ const CustomReportFilter = ({
       complexity !== 0 ||
       status !== 0 ||
       priority !== 0 ||
-      receivedDate.toString().trim().length > 0 ||
+      startDate.toString().trim().length > 0 ||
+      endDate.toString().trim().length > 0 ||
       dueDate.toString().trim().length > 0 ||
       allInfoDate.toString().trim().length > 0;
 
@@ -369,7 +382,8 @@ const CustomReportFilter = ({
     complexity,
     status,
     priority,
-    receivedDate,
+    startDate,
+    endDate,
     dueDate,
     allInfoDate,
   ]);
@@ -486,7 +500,8 @@ const CustomReportFilter = ({
     setComplexity(savedFilters[index].AppliedFilter.complexity ?? 0);
     setStatus(savedFilters[index].AppliedFilter.status ?? 0);
     setPriority(savedFilters[index].AppliedFilter.priority ?? 0);
-    setReceivedDate(savedFilters[index].AppliedFilter.receivedDate ?? "");
+    setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
+    setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
     setDueDate(savedFilters[index].AppliedFilter.dueDate ?? "");
     setAllInfoDate(savedFilters[index].AppliedFilter.allInfoDate ?? "");
   };
@@ -898,11 +913,30 @@ const CustomReportFilter = ({
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      label="Received Date"
-                      value={receivedDate === "" ? null : dayjs(receivedDate)}
+                      label="From"
+                      value={startDate === "" ? null : dayjs(startDate)}
                       shouldDisableDate={isWeekend}
-                      maxDate={dayjs(Date.now()) || dayjs(dueDate)}
-                      onChange={(newValue: any) => setReceivedDate(newValue)}
+                      maxDate={dayjs(Date.now())}
+                      onChange={(newValue: any) => setStartDate(newValue)}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        } as Record<string, any>,
+                      }}
+                    />
+                  </LocalizationProvider>
+                </div>
+                <div
+                  className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
+                >
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="To"
+                      value={endDate === "" ? null : dayjs(endDate)}
+                      shouldDisableDate={isWeekend}
+                      maxDate={dayjs(Date.now())}
+                      minDate={dayjs(startDate)}
+                      onChange={(newValue: any) => setEndDate(newValue)}
                       slotProps={{
                         textField: {
                           readOnly: true,
@@ -919,7 +953,7 @@ const CustomReportFilter = ({
                       label="Due Date"
                       value={dueDate === "" ? null : dayjs(dueDate)}
                       shouldDisableDate={isWeekend}
-                      minDate={dayjs(receivedDate)}
+                      minDate={dayjs(startDate)}
                       maxDate={dayjs(Date.now())}
                       onChange={(newValue: any) => setDueDate(newValue)}
                       slotProps={{
@@ -930,6 +964,8 @@ const CustomReportFilter = ({
                     />
                   </LocalizationProvider>
                 </div>
+              </div>
+              <div className="flex gap-[20px]">
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[200px]`}
                 >

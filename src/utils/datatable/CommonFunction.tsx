@@ -161,6 +161,14 @@ export const generateDaysBodyRender = (bodyValue: any) => {
   );
 };
 
+export const generateRatingsBodyRender = (bodyValue: any) => {
+  return <Rating name="read-only" value={bodyValue} readOnly />;
+};
+
+export const generateIsLoggedInBodyRender = (bodyValue: any) => {
+  return bodyValue === 0 ? <div>No</div> : bodyValue === 1 && <div>Yes</div>;
+};
+
 export const generateCustomeTaskIdwithErrorLogs = (
   bodyValue: any,
   TableMeta: any,
@@ -180,14 +188,6 @@ export const generateCustomeTaskIdwithErrorLogs = (
       {bodyValue === null || bodyValue === "" ? "-" : bodyValue}
     </div>
   );
-};
-
-export const generateRatingsBodyRender = (bodyValue: any) => {
-  return <Rating name="read-only" value={bodyValue} readOnly />;
-};
-
-export const generateIsLoggedInBodyRender = (bodyValue: any) => {
-  return bodyValue === 0 ? <div>No</div> : bodyValue === 1 && <div>Yes</div>;
 };
 
 // functions for handling pagination

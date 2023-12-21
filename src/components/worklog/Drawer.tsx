@@ -284,53 +284,53 @@ const Drawer = ({
 
     if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
       if (!hasSubErrors) {
-        if (
-          (onEdit > 0 && editStatusClientWorklog === 4) ||
-          (onEdit > 0 && editStatusClientWorklog === 7) ||
-          (onEdit > 0 && editStatusClientWorklog === 8) ||
-          (onEdit > 0 && editStatusClientWorklog === 9) ||
-          (onEdit > 0 && editStatusClientWorklog === 13)
-        ) {
-          toast.warning(
-            "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-          );
-          onEdit > 0 && getSubTaskDataClientWorklog();
-        } else {
-          const params = {
-            workitemId: onEdit,
-            subtasks: subTaskClientWorklogSwitch
-              ? subTaskClientWorklogFields.map(
-                  (i: any) =>
-                    new Object({
-                      SubtaskId: i.SubtaskId,
-                      Title: i.Title.trim(),
-                      Description: i.Description.trim(),
-                    })
-                )
-              : null,
-            deletedWorkitemSubtaskIds: deletedSubTaskClientWorklog,
-          };
-          const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
-          const successCallback = (
-            ResponseData: any,
-            error: any,
-            ResponseStatus: any
-          ) => {
-            if (ResponseStatus === "Success" && error === false) {
-              toast.success(`Sub Task Updated successfully.`);
-              setDeletedSubTaskClientWorklog([]);
-              setSubTaskClientWorklogFields([
-                {
-                  SubtaskId: 0,
-                  Title: "",
-                  Description: "",
-                },
-              ]);
-              getSubTaskDataClientWorklog();
-            }
-          };
-          callAPI(url, params, successCallback, "POST");
-        }
+        // if (
+        //   (onEdit > 0 && editStatusClientWorklog === 4) ||
+        //   (onEdit > 0 && editStatusClientWorklog === 7) ||
+        //   (onEdit > 0 && editStatusClientWorklog === 8) ||
+        //   (onEdit > 0 && editStatusClientWorklog === 9) ||
+        //   (onEdit > 0 && editStatusClientWorklog === 13)
+        // ) {
+        //   toast.warning(
+        //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+        //   );
+        //   onEdit > 0 && getSubTaskDataClientWorklog();
+        // } else {
+        const params = {
+          workitemId: onEdit,
+          subtasks: subTaskClientWorklogSwitch
+            ? subTaskClientWorklogFields.map(
+                (i: any) =>
+                  new Object({
+                    SubtaskId: i.SubtaskId,
+                    Title: i.Title.trim(),
+                    Description: i.Description.trim(),
+                  })
+              )
+            : null,
+          deletedWorkitemSubtaskIds: deletedSubTaskClientWorklog,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/subtask/savebyworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success(`Sub Task Updated successfully.`);
+            setDeletedSubTaskClientWorklog([]);
+            setSubTaskClientWorklogFields([
+              {
+                SubtaskId: 0,
+                Title: "",
+                Description: "",
+              },
+            ]);
+            getSubTaskDataClientWorklog();
+          }
+        };
+        callAPI(url, params, successCallback, "POST");
+        // }
       }
     } else {
       toast.error("User don't have permission to Update Sub-Task.");
@@ -936,20 +936,20 @@ const Drawer = ({
 
     if (!hasErrors && !hasSubErrors) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
-        if (
-          (onEdit > 0 && editStatusClientWorklog === 4) ||
-          (onEdit > 0 && editStatusClientWorklog === 7) ||
-          (onEdit > 0 && editStatusClientWorklog === 8) ||
-          (onEdit > 0 && editStatusClientWorklog === 9) ||
-          (onEdit > 0 && editStatusClientWorklog === 13)
-        ) {
-          toast.warning(
-            "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-          );
-          onEdit > 0 && getEditDataClientWorklog();
-        } else {
-          saveWorklog();
-        }
+        // if (
+        //   (onEdit > 0 && editStatusClientWorklog === 4) ||
+        //   (onEdit > 0 && editStatusClientWorklog === 7) ||
+        //   (onEdit > 0 && editStatusClientWorklog === 8) ||
+        //   (onEdit > 0 && editStatusClientWorklog === 9) ||
+        //   (onEdit > 0 && editStatusClientWorklog === 13)
+        // ) {
+        //   toast.warning(
+        //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
+        //   );
+        //   onEdit > 0 && getEditDataClientWorklog();
+        // } else {
+        saveWorklog();
+        // }
       } else {
         toast.error("User don't have permission to Update Task.");
         onEdit > 0 && getEditDataClientWorklog();
@@ -1072,7 +1072,7 @@ const Drawer = ({
   }, [onOpen, onEdit, processNameClientWorklog]);
 
   useEffect(() => {
-    const getSubTaskDropdownData = async () => {
+    const getCommentDropdownData = async () => {
       const clientId = await localStorage.getItem("clientId");
       const params = {
         clientId: clientId,
@@ -1091,7 +1091,7 @@ const Drawer = ({
       callAPI(url, params, successCallback, "POST");
     };
 
-    typeOfWorkClientWorklog !== 0 && onEdit > 0 && getSubTaskDropdownData();
+    typeOfWorkClientWorklog !== 0 && onEdit > 0 && getCommentDropdownData();
   }, [typeOfWorkClientWorklog]);
 
   const handleCloseClientWorklog = () => {
@@ -1244,47 +1244,46 @@ const Drawer = ({
                 <Grid container className="px-8">
                   {clientWorklogFieldsData.map((type: any) => (
                     <>
-                      {type.Type === "TypeOfWork" &&
-                        type.IsChecked &&
-                        typeOfWorkClientWorklogDropdownData.length > 1 && (
-                          <Grid item xs={3} className="pt-4">
-                            <FormControl
-                              variant="standard"
-                              sx={{ width: 300, mt: -0.3 }}
-                              disabled={
-                                !isCreatedByClientWorklog ||
-                                (isCompletedTaskClicked &&
-                                  onEdit > 0 &&
-                                  !isCreatedByClientWorklog) ||
-                                statusClientWorklog > 1
+                      {type.Type === "TypeOfWork" && type.IsChecked && (
+                        <Grid item xs={3} className="pt-4">
+                          <FormControl
+                            variant="standard"
+                            sx={{ width: 300, mt: -0.3 }}
+                            disabled={
+                              !isCreatedByClientWorklog ||
+                              (isCompletedTaskClicked &&
+                                onEdit > 0 &&
+                                !isCreatedByClientWorklog) ||
+                              statusClientWorklog > 1
+                            }
+                          >
+                            <InputLabel id="demo-simple-select-standard-label">
+                              Type of Work
+                            </InputLabel>
+                            <Select
+                              labelId="demo-simple-select-standard-label"
+                              id="demo-simple-select-standard"
+                              value={
+                                typeOfWorkClientWorklog === 0
+                                  ? ""
+                                  : typeOfWorkClientWorklog
                               }
+                              onChange={(e) => {
+                                setTypeOfWorkClientWorklog(e.target.value);
+                              }}
                             >
-                              <InputLabel id="demo-simple-select-standard-label">
-                                Type of Work
-                              </InputLabel>
-                              <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                value={
-                                  typeOfWorkClientWorklog === 0
-                                    ? ""
-                                    : typeOfWorkClientWorklog
-                                }
-                                onChange={(e) => {
-                                  setTypeOfWorkClientWorklog(e.target.value);
-                                }}
-                              >
-                                {typeOfWorkClientWorklogDropdownData.map(
+                              {
+                                typeOfWorkClientWorklogDropdownData.map(
                                   (i: any, index: number) => (
                                     <MenuItem value={i.value} key={index}>
                                       {i.label}
                                     </MenuItem>
                                   )
                                 )}
-                              </Select>
-                            </FormControl>
-                          </Grid>
-                        )}
+                            </Select>
+                          </FormControl>
+                        </Grid>
+                      )}
                       {type.Type === "ProjectName" && type.IsChecked && (
                         <Grid item xs={3} className="pt-4">
                           <Autocomplete
