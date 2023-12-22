@@ -189,7 +189,7 @@ const CustomReportFilter = ({
       returnTypeId: returnTypeName === null ? null : returnTypeName.value,
       numberOfPages: noofPages.toString().trim().length <= 0 ? null : noofPages,
       returnYear: returnYear === null ? null : returnYear.value,
-      complexity: subProcessName === null ? null : subProcessName.value,
+      subProcessId: subProcessName === null ? null : subProcessName.value,
       StatusId: status === null ? null : status.value,
       priority: priority === null ? null : priority.value,
       startDate:
@@ -227,7 +227,7 @@ const CustomReportFilter = ({
           returnTypeId: savedFilters[index].AppliedFilter.returnTypeId,
           numberOfPages: savedFilters[index].AppliedFilter.numberOfPages,
           returnYear: savedFilters[index].AppliedFilter.returnYear,
-          complexity: savedFilters[index].AppliedFilter.complexity,
+          subProcessId: savedFilters[index].AppliedFilter.subProcessId,
           StatusId: savedFilters[index].AppliedFilter.StatusId,
           priority: savedFilters[index].AppliedFilter.priority,
           startDate: savedFilters[index].AppliedFilter.startDate,
@@ -269,7 +269,8 @@ const CustomReportFilter = ({
               numberOfPages:
                 noofPages.toString().trim().length <= 0 ? null : noofPages,
               returnYear: returnYear === null ? null : returnYear.value,
-              complexity: subProcessName === null ? null : subProcessName.value,
+              subProcessId:
+                subProcessName === null ? null : subProcessName.value,
               StatusId: status === null ? null : status.value,
               priority: priority === null ? null : priority.value,
               startDate:
@@ -386,10 +387,15 @@ const CustomReportFilter = ({
         // await getProcessDropdownData(clientName.length > 0 ? clientName[0] : 0)
         await getAllProcessDropdownData()
       );
+
       setSubProcessDropdown(
         await getSubProcessDropdownData(
           clientName.length > 0 ? clientName[0] : 0,
           processName === null ? 0 : processName.value
+        ).then((result: any) =>
+          result.map(
+            (item: any) => new Object({ label: item.Name, value: item.Id })
+          )
         )
       );
       setUserDropdown(await getUserData());
@@ -400,12 +406,7 @@ const CustomReportFilter = ({
     if (clientName.length > 0 || resetting) {
       onDialogClose(true);
     }
-  }, [clientName]);
-
-  useEffect(() => {
-    const customDropdowns = async () => {};
-    customDropdowns();
-  }, [processName]);
+  }, [clientName, processName]);
 
   const getFilterList = async () => {
     const token = await localStorage.getItem("token");
@@ -526,11 +527,11 @@ const CustomReportFilter = ({
           )
     );
     setSubProcessName(
-      savedFilters[index].AppliedFilter.complexity === null
+      savedFilters[index].AppliedFilter.subProcessId === null
         ? null
         : subProcessDropdown.filter(
             (item: any) =>
-              item.value === savedFilters[index].AppliedFilter.complexity
+              item.value === savedFilters[index].AppliedFilter.subProcessId
           )
     );
     setStatus(
