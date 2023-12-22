@@ -10,7 +10,7 @@ export const days = [
   "Friday",
   "Saturday",
   "Sunday",
-];
+]; 
 
 export const months = [
   { label: "1", value: 1 },
