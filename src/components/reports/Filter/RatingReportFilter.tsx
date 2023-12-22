@@ -41,7 +41,10 @@ import { getProjectData } from "./api/getDropDownData";
 import { Edit, Delete } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { isWeekend } from "@/utils/commonFunction";
-import { getClientDropdownData } from "@/utils/commonDropdownApiCall";
+import {
+  getClientDropdownData,
+  getProjectDropdownData,
+} from "@/utils/commonDropdownApiCall";
 
 const RatingReportFilter = ({
   isFiltering,
@@ -52,21 +55,17 @@ const RatingReportFilter = ({
   const [ratingreport_clientName, setRatingReport_ClientName] = useState<any[]>(
     []
   );
-  const [ratingreport_projectName, setRatingReport_ProjectName] = useState<
-    number | string
-  >(0);
-  const [ratingreport_returnType, setRatingReport_ReturnType] = useState<
-    null | number
-  >(0);
+  const [ratingreport_projectName, setRatingReport_ProjectName] =
+    useState<any>(null);
+  const [ratingreport_returnType, setRatingReport_ReturnType] =
+    useState<any>(null);
   const [ratingreport_startDate, setRatingReport_StartDate] = useState<
     null | string
   >(null);
   const [ratingreport_endDate, setRatingReport_EndDate] = useState<
     null | string
   >(null);
-  const [ratingreport_ratings, setRatingReport_Ratings] = useState<
-    null | number
-  >(0);
+  const [ratingreport_ratings, setRatingReport_Ratings] = useState<any>(null);
   const [ratingreport_filterName, setRatingReport_FilterName] =
     useState<string>("");
   const [ratingreport_saveFilter, setRatingReport_SaveFilter] =
@@ -95,15 +94,32 @@ const RatingReportFilter = ({
   const anchorElFilter: HTMLButtonElement | null = null;
   const openFilter = Boolean(anchorElFilter);
   const idFilter = openFilter ? "simple-popover" : undefined;
+  const ratingReport_Dropdown = [
+    {
+      label: "Individual Return",
+      value: "1",
+    },
+    {
+      label: "Business Return",
+      value: "2",
+    },
+  ];
+  const ratingReportRating_Dropdown = [
+    { label: "1", value: "1" },
+    { label: "2", value: "2" },
+    { label: "3", value: "3" },
+    { label: "4", value: "4" },
+    { label: "5", value: "5" },
+  ];
 
   const handleRatingReport_ResetAll = () => {
     setRatingReport_Clients([]);
     setRatingReport_ClientName([]);
-    setRatingReport_ProjectName(0);
-    setRatingReport_ReturnType(0);
+    setRatingReport_ProjectName(null);
+    setRatingReport_ReturnType(null);
     setRatingReport_StartDate(null);
     setRatingReport_EndDate(null);
-    setRatingReport_Ratings(0);
+    setRatingReport_Ratings(null);
     setRatingReport_Resetting(true);
     setRatingReport_Error("");
 
@@ -119,11 +135,11 @@ const RatingReportFilter = ({
     setRatingReport_DefaultFilter(false);
     setRatingReport_ClientName([]);
     setRatingReport_Clients([]);
-    setRatingReport_ProjectName(0);
-    setRatingReport_ReturnType(0);
+    setRatingReport_ProjectName(null);
+    setRatingReport_ReturnType(null);
     setRatingReport_StartDate(null);
     setRatingReport_EndDate(null);
-    setRatingReport_Ratings(0);
+    setRatingReport_Ratings(null);
     setRatingReport_Error("");
   };
 
@@ -132,12 +148,13 @@ const RatingReportFilter = ({
       ...rating_InitialFilter,
       Clients: ratingreport_clientName,
       Projects:
-        ratingreport_projectName === 0 || ratingreport_projectName === ""
+        ratingreport_projectName === null || ratingreport_projectName === ""
           ? []
-          : [ratingreport_projectName],
+          : [ratingreport_projectName.value],
       ReturnTypeId:
-        ratingreport_returnType !== 0 ? ratingreport_returnType : null,
-      Ratings: ratingreport_ratings !== 0 ? ratingreport_ratings : null,
+        ratingreport_returnType !== null ? ratingreport_returnType.value : null,
+      Ratings:
+        ratingreport_ratings !== null ? ratingreport_ratings.value : null,
       StartDate:
         ratingreport_startDate !== null
           ? new Date(
@@ -218,13 +235,18 @@ const RatingReportFilter = ({
                   ? ratingreport_clientName
                   : [],
               Projects:
-                ratingreport_projectName === 0 ||
+                ratingreport_projectName === null ||
                 ratingreport_projectName === ""
                   ? []
-                  : [ratingreport_projectName],
+                  : [ratingreport_projectName.value],
               ReturnTypeId:
-                ratingreport_returnType !== 0 ? ratingreport_returnType : null,
-              Ratings: ratingreport_ratings !== 0 ? ratingreport_ratings : null,
+                ratingreport_returnType !== null
+                  ? ratingreport_returnType.value
+                  : null,
+              Ratings:
+                ratingreport_ratings !== null
+                  ? ratingreport_ratings.value
+                  : null,
               StartDate:
                 ratingreport_startDate !== null
                   ? new Date(
@@ -338,7 +360,7 @@ const RatingReportFilter = ({
     }
   };
 
-  const handleRatingReport_SavedFilterEdit = (index: number) => {
+  const handleRatingReport_SavedFilterEdit = async (index: number) => {
     setRatingReport_SaveFilter(true);
     setRatingReport_DefaultFilter(true);
     setRatingReport_FilterName(ratingreport_savedFilters[index].Name);
@@ -358,11 +380,25 @@ const RatingReportFilter = ({
     );
     setRatingReport_ProjectName(
       ratingreport_savedFilters[index].AppliedFilter.Projects.length > 0
-        ? ratingreport_savedFilters[index].AppliedFilter.Projects[0]
-        : 0
+        ? (
+            await getProjectDropdownData(
+              ratingreport_savedFilters[index].AppliedFilter.Clients[0]
+            )
+          ).filter(
+            (item: any) =>
+              item.value ===
+              ratingreport_savedFilters[index].AppliedFilter.Projects[0]
+          )[0]
+        : null
     );
     setRatingReport_ReturnType(
-      ratingreport_savedFilters[index].AppliedFilter.ReturnTypeId ?? 0
+      ratingreport_savedFilters[index].AppliedFilter.ReturnTypeId === null
+        ? null
+        : ratingReport_Dropdown.filter(
+            (item: any) =>
+              item.value ===
+              ratingreport_savedFilters[index].AppliedFilter.ReturnTypeId
+          )[0]
     );
     setRatingReport_StartDate(
       ratingreport_savedFilters[index].AppliedFilter.StartDate ?? ""
@@ -371,7 +407,13 @@ const RatingReportFilter = ({
       ratingreport_savedFilters[index].AppliedFilter.EndDate ?? ""
     );
     setRatingReport_Ratings(
-      ratingreport_savedFilters[index].AppliedFilter.Ratings ?? ""
+      ratingreport_savedFilters[index].AppliedFilter.Ratings === null
+        ? null
+        : ratingReportRating_Dropdown.filter(
+            (item: any) =>
+              item.value ===
+              ratingreport_savedFilters[index].AppliedFilter.Ratings
+          )[0]
     );
   };
 
@@ -423,14 +465,12 @@ const RatingReportFilter = ({
     getRatingReport_FilterList();
   }, []);
 
-  const ALL = -1;
-
   useEffect(() => {
     const isAnyFieldSelected =
       ratingreport_clientName.length > 0 ||
-      ratingreport_projectName !== 0 ||
-      ratingreport_returnType !== 0 ||
-      ratingreport_ratings !== 0 ||
+      ratingreport_projectName !== null ||
+      ratingreport_returnType !== null ||
+      ratingreport_ratings !== null ||
       ratingreport_startDate !== null ||
       ratingreport_endDate !== null;
 
@@ -448,10 +488,7 @@ const RatingReportFilter = ({
 
   useEffect(() => {
     const filterDropdowns = async () => {
-      setRatingReport_ClientDropdown([
-        { label: "Select All", value: ALL },
-        ...(await getClientDropdownData()),
-      ]);
+      setRatingReport_ClientDropdown(await getClientDropdownData());
       setRatingReport_ProjectDropdown(
         await getProjectData(
           ratingreport_clientName.length > 0 ? ratingreport_clientName[0] : 0
@@ -585,38 +622,17 @@ const RatingReportFilter = ({
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={
-                      ratingreport_clientDropdown.length - 1 ===
-                      ratingreport_clients.length
-                        ? []
-                        : ratingreport_clientDropdown.filter(
-                            (option) =>
-                              !ratingreport_clients.find(
-                                (client) => client.value === option.value
-                              )
-                          )
-                    }
+                    options={ratingreport_clientDropdown.filter(
+                      (option) =>
+                        !ratingreport_clients.find(
+                          (client) => client.value === option.value
+                        )
+                    )}
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      if (data.some((d: any) => d.value === -1)) {
-                        setRatingReport_Clients(
-                          ratingreport_clientDropdown.filter(
-                            (d: any) => d.value !== -1
-                          )
-                        );
-                        setRatingReport_ClientName(
-                          ratingreport_clientDropdown
-                            .filter((d: any) => d.value !== -1)
-                            .map((d: any) => d.value)
-                        );
-                        setRatingReport_ProjectName(0);
-                      } else {
-                        setRatingReport_Clients(data);
-                        setRatingReport_ClientName(
-                          data.map((d: any) => d.value)
-                        );
-                        setRatingReport_ProjectName(0);
-                      }
+                      setRatingReport_Clients(data);
+                      setRatingReport_ClientName(data.map((d: any) => d.value));
+                      setRatingReport_ProjectName(null);
                     }}
                     value={ratingreport_clients}
                     renderInput={(params: any) => (
@@ -632,49 +648,44 @@ const RatingReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="project_Name">Project Name</InputLabel>
-                  <Select
-                    labelId="project_Name"
-                    id="project_Name"
-                    value={
-                      ratingreport_projectName === 0
-                        ? ""
-                        : ratingreport_projectName
-                    }
-                    onChange={(e) =>
-                      setRatingReport_ProjectName(e.target.value)
-                    }
+                  <Autocomplete
+                    id="tags-standard"
+                    options={ratingreport_projectDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setRatingReport_ProjectName(data);
+                    }}
+                    value={ratingreport_projectName}
                     disabled={ratingreport_clientName.length > 1}
-                  >
-                    {ratingreport_projectDropdown.map(
-                      (i: any, index: number) => (
-                        <MenuItem value={i.value} key={i.value}>
-                          {i.label}
-                        </MenuItem>
-                      )
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Project Name"
+                      />
                     )}
-                  </Select>
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="workTypes-label">Return Type</InputLabel>
-                  <Select
-                    labelId="workTypes-label"
-                    id="workTypes-select"
-                    value={
-                      ratingreport_returnType === 0
-                        ? ""
-                        : ratingreport_returnType
-                    }
-                    onChange={(e: any) =>
-                      setRatingReport_ReturnType(e.target.value)
-                    }
-                  >
-                    <MenuItem value={1}>Individual Return</MenuItem>
-                    <MenuItem value={2}>Business Return</MenuItem>
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={ratingReport_Dropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setRatingReport_ReturnType(data);
+                    }}
+                    value={ratingreport_returnType}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Return Type"
+                      />
+                    )}
+                  />
                 </FormControl>
               </div>
               <div className="flex gap-[20px]">
@@ -727,23 +738,22 @@ const RatingReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="ratings">Ratings</InputLabel>
-                  <Select
-                    labelId="ratings"
-                    id="ratings"
-                    value={
-                      ratingreport_ratings === 0 ? "" : ratingreport_ratings
-                    }
-                    onChange={(e: any) =>
-                      setRatingReport_Ratings(e.target.value)
-                    }
-                  >
-                    <MenuItem value={1}>1</MenuItem>
-                    <MenuItem value={2}>2</MenuItem>
-                    <MenuItem value={3}>3</MenuItem>
-                    <MenuItem value={4}>4</MenuItem>
-                    <MenuItem value={5}>5</MenuItem>
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={ratingReportRating_Dropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setRatingReport_Ratings(data);
+                    }}
+                    value={ratingreport_ratings}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Ratings"
+                      />
+                    )}
+                  />
                 </FormControl>
               </div>
             </div>

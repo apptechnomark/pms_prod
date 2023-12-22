@@ -463,3 +463,34 @@ export const getCCDropdownData = async () => {
     }
   }
 };
+
+export const getCommentUserDropdownData = async (fields: any) => {
+  const token = await localStorage.getItem("token");
+  const Org_Token = await localStorage.getItem("Org_Token");
+  try {
+    const response = await axios.post(
+      `${process.env.api_url}/user/getgroupusersdropdown`,
+      fields,
+      {
+        headers: {
+          Authorization: `bearer ${token}`,
+          org_token: `${Org_Token}`,
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      if (response.data.ResponseStatus === "Success") {
+        return response.data.ResponseData;
+      } else {
+        toast.error("Please try again later.");
+      }
+    } else {
+      toast.error("Please try again.");
+    }
+  } catch (error: any) {
+    if (error.response && error.response.status === 401) {
+      localStorage.clear();
+    }
+  }
+};

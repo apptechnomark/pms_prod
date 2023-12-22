@@ -147,6 +147,7 @@ const Status = ({
           //   .filter((i: any) => i !== undefined)
           //   .filter((i: any) => i !== false),
           statusId: statusId,
+          SecondManagerReviewId: null,
         },
         {
           headers: {

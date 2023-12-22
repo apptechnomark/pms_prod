@@ -1174,7 +1174,16 @@ const Drawer = ({
     setDeletedErrorLogClientWorklog([]);
 
     onDataFetch();
-    onClose();
+
+    if (typeof window !== "undefined") {
+      const pathname = window.location.href.includes("id=");
+      if (pathname) {
+        onClose();
+        router.push("/worklog");
+      } else {
+        onClose();
+      }
+    }
   };
 
   return (
@@ -1272,14 +1281,13 @@ const Drawer = ({
                                 setTypeOfWorkClientWorklog(e.target.value);
                               }}
                             >
-                              {
-                                typeOfWorkClientWorklogDropdownData.map(
-                                  (i: any, index: number) => (
-                                    <MenuItem value={i.value} key={index}>
-                                      {i.label}
-                                    </MenuItem>
-                                  )
-                                )}
+                              {typeOfWorkClientWorklogDropdownData.map(
+                                (i: any, index: number) => (
+                                  <MenuItem value={i.value} key={index}>
+                                    {i.label}
+                                  </MenuItem>
+                                )
+                              )}
                             </Select>
                           </FormControl>
                         </Grid>

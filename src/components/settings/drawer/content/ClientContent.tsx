@@ -1266,14 +1266,13 @@ const ClientContent = forwardRef<
                 minChar={5}
                 maxChar={100}
               />
-              <Tel
+              <Text
                 className="telPadding"
                 value={tel}
                 getValue={(e) => setTel(e)}
                 hasError={telError}
                 placeholder="Enter Mobile No."
                 label="Mobile Number"
-                maxLength={14}
                 getError={() => {}}
               />
 

@@ -33,6 +33,7 @@ import { isWeekend } from "@/utils/commonFunction";
 import {
   getAllProcessDropdownData,
   getClientDropdownData,
+  getCommentUserDropdownData,
 } from "@/utils/commonDropdownApiCall";
 
 const LogReportFilter = ({
@@ -42,15 +43,9 @@ const LogReportFilter = ({
 }: FilterType) => {
   const [logReport_clients, setLogReport_Clients] = useState<any[]>([]);
   const [logReport_clientName, setLogReport_ClientName] = useState<any[]>([]);
-  const [logReport_projectName, setLogReport_ProjectName] = useState<
-    number | string
-  >(0);
-  const [logReport_process, setLogReport_Process] = useState<number | string>(
-    0
-  );
-  const [logReport_updatedBy, setLogReport_UpdatedBy] = useState<
-    number | string
-  >(0);
+  const [logReport_projectName, setLogReport_ProjectName] = useState<any>(null);
+  const [logReport_process, setLogReport_Process] = useState<any>(null);
+  const [logReport_updatedBy, setLogReport_UpdatedBy] = useState<any>(null);
   const [logReport_startDate, setLogReport_StartDate] = useState<
     string | number
   >("");
@@ -98,9 +93,9 @@ const LogReportFilter = ({
     setLogReport_ClientName([]);
     setLogReport_Clients([]);
     setLogReport_UpdatedByDropdown([]);
-    setLogReport_ProjectName(0);
-    setLogReport_Process(0);
-    setLogReport_UpdatedBy(0);
+    setLogReport_ProjectName(null);
+    setLogReport_Process(null);
+    setLogReport_UpdatedBy(null);
     setLogReport_StartDate("");
     setLogReport_EndDate("");
     setLogReport_Error("");
@@ -119,9 +114,9 @@ const LogReportFilter = ({
     setLogReport_ClientName([]);
     setLogReport_Clients([]);
     setLogReport_UpdatedByDropdown([]);
-    setLogReport_ProjectName(0);
-    setLogReport_Process(0);
-    setLogReport_UpdatedBy(0);
+    setLogReport_ProjectName(null);
+    setLogReport_Process(null);
+    setLogReport_UpdatedBy(null);
     setLogReport_StartDate("");
     setLogReport_EndDate("");
     setLogReport_Error("");
@@ -132,17 +127,17 @@ const LogReportFilter = ({
       ...logReport_InitialFilter,
       clientFilter: logReport_clientName.length > 0 ? logReport_clientName : [],
       projectFilter:
-        logReport_projectName === 0 || logReport_projectName === ""
+        logReport_projectName === null || logReport_projectName === ""
           ? []
-          : [logReport_projectName],
+          : [logReport_projectName.value],
       processFilter:
-        logReport_process === 0 || logReport_process === ""
+        logReport_process === null || logReport_process === ""
           ? null
-          : [logReport_process],
+          : [logReport_process.value],
       updatedByFilter:
-        logReport_updatedBy === 0 || logReport_updatedBy === ""
-          ? null
-          : logReport_updatedBy,
+        logReport_updatedBy === null || logReport_updatedBy === ""
+          ? []
+          : [logReport_updatedBy.value],
       startDate:
         logReport_startDate.toString().trim().length <= 0
           ? logReport_endDate.toString().trim().length <= 0
@@ -205,11 +200,13 @@ const LogReportFilter = ({
               clientFilter:
                 logReport_clientName.length > 0 ? logReport_clientName : [],
               projectFilter:
-                logReport_projectName === 0 ? [] : [logReport_projectName],
+                logReport_projectName === null
+                  ? []
+                  : [logReport_projectName.value],
               processFilter:
-                logReport_process === 0 ? null : [logReport_process],
+                logReport_process === null ? null : [logReport_process.value],
               updatedByFilter:
-                logReport_updatedBy === 0 ? null : logReport_updatedBy,
+                logReport_updatedBy === null ? [] : [logReport_updatedBy.value],
               startDate:
                 logReport_startDate.toString().trim().length <= 0
                   ? logReport_endDate.toString().trim().length <= 0
@@ -269,9 +266,9 @@ const LogReportFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       logReport_clientName.length > 0 ||
-      logReport_projectName !== 0 ||
-      logReport_process !== 0 ||
-      logReport_updatedBy !== 0 ||
+      logReport_projectName !== null ||
+      logReport_process !== null ||
+      logReport_updatedBy !== null ||
       logReport_startDate.toString().trim().length > 0 ||
       logReport_endDate.toString().trim().length > 0;
 
@@ -287,47 +284,14 @@ const LogReportFilter = ({
     logReport_endDate,
   ]);
 
-  const getUpdatedByData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.api_url}/user/getdropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setLogReport_UpdatedByDropdown(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   useEffect(() => {
     const filterDropdowns = async () => {
-      getUpdatedByData();
+      setLogReport_UpdatedByDropdown(
+        await getCommentUserDropdownData({
+          ClientId: null,
+          GetClientUser: true,
+        })
+      );
       setLogReport_ClientDropdown(await getClientDropdownData());
       setLogReport_ProjectDropdown(
         await getProjectData(
@@ -335,7 +299,6 @@ const LogReportFilter = ({
         )
       );
       setLogReport_ProcessDropdown(await getAllProcessDropdownData());
-      //   setLogReport_UpdatedByDropdown();
     };
     filterDropdowns();
 
@@ -385,37 +348,55 @@ const LogReportFilter = ({
     }
   };
 
-  const handleLogReport_SavedFilterEdit = (index: number) => {
+  const handleLogReport_SavedFilterEdit = async (index: number) => {
     setLogReport_SaveFilter(true);
     setLogReport_DefaultFilter(true);
     setLogReport_FilterName(logReport_savedFilters[index].Name);
     setLogReport_CurrentFilterId(logReport_savedFilters[index].FilterId);
 
     setLogReport_Clients(
-      logReport_savedFilters[index].AppliedFilter.clients.length > 0
+      logReport_savedFilters[index].AppliedFilter.clientFilter.length > 0
         ? logReport_clientDropdown.filter((client: any) =>
-            logReport_savedFilters[index].AppliedFilter.clients.includes(
+            logReport_savedFilters[index].AppliedFilter.clientFilter.includes(
               client.value
             )
           )
         : []
     );
     setLogReport_ClientName(
-      logReport_savedFilters[index].AppliedFilter.clients
+      logReport_savedFilters[index].AppliedFilter.clientFilter
     );
     setLogReport_ProjectName(
-      logReport_savedFilters[index].AppliedFilter.projects.length > 0
-        ? logReport_savedFilters[index].AppliedFilter.projects[0]
-        : 0
+      logReport_savedFilters[index].AppliedFilter.projectFilter.length > 0
+        ? (
+            await getProjectData(
+              logReport_savedFilters[index].AppliedFilter.clientFilter[0]
+            )
+          ).filter(
+            (item: any) =>
+              item.value ===
+              logReport_savedFilters[index].AppliedFilter.projectFilter[0]
+          )[0]
+        : null
     );
-    // setLogReport_TypeOfWork(
-    //   logReport_savedFilters[index].AppliedFilter.TypeOfWork === null
-    //     ? 0
-    //     : logReport_savedFilters[index].AppliedFilter.TypeOfWork
-    // );
-    // setLogReport_BillingType(
-    //   logReport_savedFilters[index].AppliedFilter.BillingType ?? 0
-    // );
+    setLogReport_Process(
+      logReport_savedFilters[index].AppliedFilter.processFilter.length > 0
+        ? logReport_processDropdown.filter(
+            (item: any) =>
+              item.value ===
+              logReport_savedFilters[index].AppliedFilter.processFilter[0]
+          )[0]
+        : null
+    );
+    setLogReport_UpdatedBy(
+      logReport_savedFilters[index].AppliedFilter.updatedByFilter.length > 0
+        ? logReport_updatedByDropdown.filter(
+            (item: any) =>
+              item.value ===
+              logReport_savedFilters[index].AppliedFilter.updatedByFilter[0]
+          )[0]
+        : null
+    );
     setLogReport_StartDate(
       logReport_savedFilters[index].AppliedFilter.startDate ?? ""
     );
@@ -593,7 +574,7 @@ const LogReportFilter = ({
                     onChange={(e: any, data: any) => {
                       setLogReport_Clients(data);
                       setLogReport_ClientName(data.map((d: any) => d.value));
-                      setLogReport_ProjectName(0);
+                      setLogReport_ProjectName(null);
                     }}
                     value={logReport_clients}
                     renderInput={(params: any) => (
@@ -609,40 +590,44 @@ const LogReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="project_Name">Project Name</InputLabel>
-                  <Select
-                    labelId="project_Name"
-                    id="project_Name"
-                    value={
-                      logReport_projectName === 0 ? "" : logReport_projectName
-                    }
+                  <Autocomplete
+                    id="tags-standard"
+                    options={logReport_projectDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setLogReport_ProjectName(data);
+                    }}
+                    value={logReport_projectName}
                     disabled={logReport_clientName.length > 1}
-                    onChange={(e) => setLogReport_ProjectName(e.target.value)}
-                  >
-                    {logReport_projectDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Project Name"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="typeOfWork">Process</InputLabel>
-                  <Select
-                    labelId="typeOfWork"
-                    id="typeOfWork"
-                    value={logReport_process === 0 ? "" : logReport_process}
-                    onChange={(e) => setLogReport_Process(e.target.value)}
-                  >
-                    {logReport_processDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={logReport_processDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setLogReport_Process(data);
+                    }}
+                    value={logReport_process}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Process"
+                      />
+                    )}
+                  />
                 </FormControl>
               </div>
               <div className="flex gap-[20px]">
@@ -650,21 +635,22 @@ const LogReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="billingType">Updated By</InputLabel>
-                  <Select
-                    labelId="billingType"
-                    id="billingType"
-                    value={logReport_updatedBy === 0 ? "" : logReport_updatedBy}
-                    onChange={(e) => setLogReport_UpdatedBy(e.target.value)}
-                  >
-                    {logReport_updatedByDropdown.map(
-                      (i: any, index: number) => (
-                        <MenuItem value={i.value} key={i.value}>
-                          {i.label}
-                        </MenuItem>
-                      )
+                  <Autocomplete
+                    id="tags-standard"
+                    options={logReport_updatedByDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setLogReport_UpdatedBy(data);
+                    }}
+                    value={logReport_updatedBy}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Updated By"
+                      />
                     )}
-                  </Select>
+                  />
                 </FormControl>
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}

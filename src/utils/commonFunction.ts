@@ -120,25 +120,36 @@ const isWeekend = (date: any) => {
   return day === 6 || day === 0;
 };
 
-const getTimeDifference = (startTime: any, endTime: any) => {
-  const [s_hours, s_minutes, s_seconds] = startTime.split(":").map(Number);
-  const [e_hours, e_minutes, e_seconds] = endTime.split(":").map(Number);
-  let hours = e_hours - s_hours;
-  let minutes = e_minutes - s_minutes;
-  let seconds = e_seconds - s_seconds;
-  if (seconds < 0) {
-    seconds += 60;
-    minutes--;
-  }
-  if (minutes < 0) {
-    minutes += 60;
-    hours--;
-  }
-  const formattedHours = String(hours).padStart(2, "0");
-  const formattedMinutes = String(minutes).padStart(2, "0");
-  const formattedSeconds = String(seconds).padStart(2, "0");
+// const getTimeDifference = (startTime: any, endTime: any) => {
+//   const [s_hours, s_minutes, s_seconds] = startTime.split(":").map(Number);
+//   const [e_hours, e_minutes, e_seconds] = endTime.split(":").map(Number);
+//   let hours = e_hours - s_hours;
+//   let minutes = e_minutes - s_minutes;
+//   let seconds = e_seconds - s_seconds;
+//   if (seconds < 0) {
+//     seconds += 60;
+//     minutes--;
+//   }
+//   if (minutes < 0) {
+//     minutes += 60;
+//     hours--;
+//   }
+//   const formattedHours = String(hours).padStart(2, "0");
+//   const formattedMinutes = String(minutes).padStart(2, "0");
+//   const formattedSeconds = String(seconds).padStart(2, "0");
 
-  return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+//   return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+// };
+
+const getTimeDifference = (startTime: any, endTime: any) => {
+  const [s, e, s_sec] = startTime.split(":").map(Number);
+  const [t, r, e_sec] = endTime.split(":").map(Number);
+  const minutesDifference = t * 60 + r - s * 60 - e;
+  const secondsDifference = e_sec - s_sec;
+  
+  return `${String(Math.floor(minutesDifference / 60)).padStart(2, "0")}:${String(
+    minutesDifference % 60
+  ).padStart(2, "0")}:${String(secondsDifference).padStart(2, "0")}`;
 };
 
 export {

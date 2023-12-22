@@ -53,7 +53,7 @@ const UserLogsFilter = ({
 }: FilterType) => {
   const [userlogs_users, setUserlogs_Users] = useState<any[]>([]);
   const [userlogs_userNames, setUserlogs_UserNames] = useState<number[]>([]);
-  const [userlogs_dept, setUserlogs_Dept] = useState<string | number>(0);
+  const [userlogs_dept, setUserlogs_Dept] = useState<any>(null);
   const [userlogs_dateFilter, setUserlogs_DateFilter] = useState<any>("");
   const [userlogs_filterName, setUserlogs_FilterName] = useState<string>("");
   const [userlogs_isloggedIn, setUserlogs_IsloggedIn] = useState<
@@ -82,7 +82,7 @@ const UserLogsFilter = ({
   const handleResetAll = () => {
     setUserlogs_UserNames([]);
     setUserlogs_Users([]);
-    setUserlogs_Dept(0);
+    setUserlogs_Dept(null);
     setUserlogs_IsloggedIn(0);
     setUserlogs_DateFilter("");
     setUserlogs_Error("");
@@ -98,7 +98,7 @@ const UserLogsFilter = ({
     setUserlogs_DefaultFilter(false);
     setUserlogs_UserNames([]);
     setUserlogs_Users([]);
-    setUserlogs_Dept(0);
+    setUserlogs_Dept(null);
     setUserlogs_IsloggedIn(0);
     setUserlogs_DateFilter("");
     setUserlogs_Error("");
@@ -115,7 +115,9 @@ const UserLogsFilter = ({
       ...userLogs_InitialFilter,
       users: userlogs_userNames,
       departmentId:
-        userlogs_dept === 0 || userlogs_dept === "" ? null : userlogs_dept,
+        userlogs_dept === null || userlogs_dept === ""
+          ? null
+          : userlogs_dept.value,
       dateFilter:
         userlogs_dateFilter === null ||
         userlogs_dateFilter.toString().trim().length <= 0
@@ -162,7 +164,7 @@ const UserLogsFilter = ({
             name: userlogs_filterName,
             AppliedFilter: {
               users: userlogs_userNames.length > 0 ? userlogs_userNames : [],
-              Department: userlogs_dept === 0 ? null : userlogs_dept,
+              Department: userlogs_dept === null ? null : userlogs_dept.value,
               dateFilter:
                 userlogs_dateFilter === null || userlogs_dateFilter === ""
                   ? null
@@ -215,7 +217,7 @@ const UserLogsFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       userlogs_userNames.length > 0 ||
-      userlogs_dept !== 0 ||
+      userlogs_dept !== null ||
       // userlogs_dateFilter !== null ||
       userlogs_dateFilter !== "" ||
       userlogs_isloggedIn !== 0;
@@ -292,7 +294,13 @@ const UserLogsFilter = ({
     );
     setUserlogs_UserNames(userlogs_savedFilters[index].AppliedFilter.users);
     setUserlogs_Dept(
-      userlogs_savedFilters[index].AppliedFilter.Department ?? 0
+      userlogs_savedFilters[index].AppliedFilter.Department === null
+        ? null
+        : userlogs_deptDropdown.filter(
+            (item: any) =>
+              item.value ===
+              userlogs_savedFilters[index].AppliedFilter.Department
+          )[0]
     );
     setUserlogs_IsloggedIn(
       userlogs_savedFilters[index].AppliedFilter.isLoggedInFilter ?? 0
@@ -480,19 +488,22 @@ const UserLogsFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="department">Department</InputLabel>
-                  <Select
-                    labelId="department"
-                    id="department"
-                    value={userlogs_dept === 0 ? "" : userlogs_dept}
-                    onChange={(e) => setUserlogs_Dept(e.target.value)}
-                  >
-                    {userlogs_deptDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={userlogs_deptDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setUserlogs_Dept(data);
+                    }}
+                    value={userlogs_dept}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Department"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}

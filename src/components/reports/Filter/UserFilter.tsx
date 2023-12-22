@@ -38,7 +38,7 @@ const UserFilter = ({
 }: FilterType) => {
   const [user_userNames, setUser_UserNames] = useState<number[]>([]);
   const [user_users, setUser_Users] = useState<number[]>([]);
-  const [user_dept, setUser_Dept] = useState<string | number>(0);
+  const [user_dept, setUser_Dept] = useState<any>(null);
   const [user_filterName, setUser_FilterName] = useState<string>("");
   const [user_saveFilter, setUser_SaveFilter] = useState<boolean>(false);
   const [user_deptDropdown, setUser_DeptDropdown] = useState<any[]>([]);
@@ -60,7 +60,7 @@ const UserFilter = ({
   const handleUserResetAll = () => {
     setUser_UserNames([]);
     setUser_Users([]);
-    setUser_Dept(0);
+    setUser_Dept(null);
     setUser_StartDate("");
     setUser_EndDate("");
     setUser_Error("");
@@ -76,7 +76,7 @@ const UserFilter = ({
     setUser_DefaultFilter(false);
     setUser_UserNames([]);
     setUser_Users([]);
-    setUser_Dept(0);
+    setUser_Dept(null);
     setUser_StartDate("");
     setUser_EndDate("");
     setUser_Error("");
@@ -86,7 +86,8 @@ const UserFilter = ({
     sendFilterToPage({
       ...user_InitialFilter,
       users: user_userNames,
-      departmentId: user_dept === 0 || user_dept === "" ? null : user_dept,
+      departmentId:
+        user_dept === null || user_dept === "" ? null : user_dept.value,
       startDate:
         user_startDate.toString().trim().length <= 0
           ? user_endDate.toString().trim().length <= 0
@@ -138,7 +139,7 @@ const UserFilter = ({
             name: user_filterName,
             AppliedFilter: {
               users: user_userNames.length > 0 ? user_userNames : [],
-              departmentId: user_dept === 0 ? null : user_dept,
+              departmentId: user_dept === null ? null : user_dept.value,
               startDate:
                 user_startDate.toString().trim().length <= 0
                   ? user_endDate.toString().trim().length <= 0
@@ -198,7 +199,7 @@ const UserFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       user_userNames.length > 0 ||
-      user_dept !== 0 ||
+      user_dept !== null ||
       user_startDate.toString().trim().length > 0 ||
       user_endDate.toString().trim().length > 0;
 
@@ -266,7 +267,14 @@ const UserFilter = ({
         : []
     );
     setUser_UserNames(user_savedFilters[index].AppliedFilter.users);
-    setUser_Dept(user_savedFilters[index].AppliedFilter.Department ?? 0);
+    setUser_Dept(
+      user_savedFilters[index].AppliedFilter.departmentId === null
+        ? null
+        : user_deptDropdown.filter(
+            (item: any) =>
+              item.value === user_savedFilters[index].AppliedFilter.departmentId
+          )[0]
+    );
     setUser_StartDate(user_savedFilters[index].AppliedFilter.startDate ?? "");
     setUser_EndDate(user_savedFilters[index].AppliedFilter.endDate ?? "");
     setUser_DefaultFilter(true);
@@ -447,19 +455,22 @@ const UserFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="department">Department</InputLabel>
-                  <Select
-                    labelId="department"
-                    id="department"
-                    value={user_dept === 0 ? "" : user_dept}
-                    onChange={(e) => setUser_Dept(e.target.value)}
-                  >
-                    {user_deptDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={user_deptDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setUser_Dept(data);
+                    }}
+                    value={user_dept}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Department"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <div
                   className={`inline-flex mx-[6px] -mt-[1px] muiDatepickerCustomizer w-full max-w-[210px]`}

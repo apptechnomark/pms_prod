@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import axios, { AxiosResponse } from "axios";
 import { toast } from "react-toastify";
-import { List, Popover } from "@mui/material";
+import { Avatar, InputBase, List, Popover } from "@mui/material";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import DetectorStatus from "@/assets/icons/worklogs/DetectorStatus";
 import { getStatusDropdownData } from "@/utils/commonDropdownApiCall";
+import SearchIcon from "@/assets/icons/SearchIcon";
 
 const Status = ({
   selectedWorkItemIds,
@@ -13,10 +14,29 @@ const Status = ({
   selectedRowsCount,
   handleClearSelection,
   getReviewList,
+  selectedRowClientId,
+  selectedRowWorkTypeId,
 }: any) => {
   const [allStatus, setAllStatus] = useState<any | any[]>([]);
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [reviewer, setReviewer] = useState<any | any[]>([]);
+  const [searchQueryRW, setSearchQueryRW] = useState("");
+
+  const handleSearchChangeRW = (event: any) => {
+    setSearchQueryRW(event.target.value);
+  };
+
+  const filteredReviewer = reviewer.filter((reviewer: any) =>
+    reviewer.label.toLowerCase().includes(searchQueryRW.toLowerCase())
+  );
+
+  const handleOptionReviewer = (id: any) => {
+    updateStatus(56, id);
+  };
 
   const [anchorElStatus, setAnchorElStatus] =
+    React.useState<HTMLButtonElement | null>(null);
+  const [anchorElSecondPopover, setAnchorElSecondPopover] =
     React.useState<HTMLButtonElement | null>(null);
 
   const handleClickStatus = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -28,11 +48,30 @@ const Status = ({
     setAnchorElStatus(null);
   };
 
+  const handleClickSecondPopover = () => {
+    setAnchorElSecondPopover(anchorElStatus);
+    setOpenDrawer(true);
+  };
+
+  const handleCloseSecondPopover = () => {
+    setAnchorElSecondPopover(null);
+    setOpenDrawer(false);
+  };
+
   const openStatus = Boolean(anchorElStatus);
   const idStatus = openStatus ? "simple-popover" : undefined;
 
+  const openSecondPopover = Boolean(anchorElSecondPopover);
+  const idSecondPopover = openSecondPopover ? "simple-popover" : undefined;
+
   const handleOptionStatus = (id: any) => {
-    updateStatus(selectedWorkItemIds, id);
+    if (id == 56) {
+      getReviwer();
+      setOpenDrawer(true);
+      handleClickSecondPopover();
+    } else {
+      updateStatus(id, null);
+    }
     handleCloseStatus();
   };
 
@@ -59,13 +98,9 @@ const Status = ({
               ? item.Type === "InReview" ||
                 item.Type === "Submitted" ||
                 item.Type === "Accept"
-              : // ||
-                // item.Type === "AcceptWithNotes"
-                item.Type === "ReworkInReview" ||
+              : item.Type === "ReworkInReview" ||
                 item.Type === "ReworkSubmitted" ||
                 item.Type === "ReworkAccept") ||
-            // ||
-            // item.Type === "ReworkAcceptWithNotes"
             item.Type === "SecondManagerReview" ||
             item.Type === "OnHoldFromClient" ||
             item.Type === "WithDraw" ||
@@ -74,8 +109,48 @@ const Status = ({
       );
   };
 
+  // API for get Assignee with all conditions
+  const getReviwer = async () => {
+    const token = await localStorage.getItem("token");
+    const Org_Token = await localStorage.getItem("Org_Token");
+    try {
+      const response = await axios.post(
+        `${process.env.api_url}/user/GetReviewerDropdown`,
+        {
+          ClientIds: selectedRowClientId,
+          WorktypeId: selectedRowWorkTypeId[0],
+          IsAll: selectedRowClientId.length > 0 ? true : false,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        if (response.data.ResponseStatus === "Success") {
+          setReviewer(
+            response.data.ResponseData.map((i: any) =>
+              i.value != localStorage.getItem("UserId") ? i : false
+            ).filter((j: any) => j !== false)
+          );
+        } else {
+          toast.error("Please try again later.");
+        }
+      } else {
+        toast.error("Please try again.");
+      }
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        localStorage.clear();
+      }
+    }
+  };
+
   // API for update status
-  const updateStatus = async (ids: number[], statusId: number) => {
+  const updateStatus = async (statusId: number, secondReviewerId: any) => {
     let isRework: any = [];
     let isNotRework: any = [];
     reviewList.map((i: any) => {
@@ -90,52 +165,12 @@ const Status = ({
     try {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
-
-      // const isInvalidStatus = selectedRowStatusId.some((status: number) =>
-      //   [7, 8, 9, 13].includes(status)
-      // );
-
-      // const hasRunningTasks = reviewList.some((item: any) =>
-      //   ids.includes(item.WorkitemId)
-      //     ? item.TimelogId !== null
-      //       ? true
-      //       : false
-      //     : false
-      // );
-
-      // if (isInvalidStatus) {
-      //   if (selectedRowsCount > 1 || selectedRowsCount === 1) {
-      //     toast.warning(
-      //       "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      //     );
-      //   }
-      // } else if (hasRunningTasks) {
-      //   toast.warning("Cannot change status for running task.");
-      // } else {
-      // const filteredWorkitemIds = reviewList
-      //   .map(
-      //     (item: { WorkitemId: number; TimelogId: null; StatusId: number }) => {
-      //       if (ids.includes(item.WorkitemId)) {
-      //         if (
-      //           item.TimelogId === null &&
-      //           ![7, 8, 9, 13].includes(item.StatusId)
-      //         ) {
-      //           return item.WorkitemId;
-      //         } else {
-      //           return false;
-      //         }
-      //       } else {
-      //         return undefined;
-      //       }
-      //     }
-      //   )
-      //   .filter((i: boolean | undefined) => i !== undefined && i !== false);
-
       const response = await axios.post(
         `${process.env.worklog_api_url}/workitem/UpdateStatus`,
         {
           workitemIds: isNotRework.length > 0 ? isNotRework : isRework,
           statusId: statusId,
+          SecondManagerReviewId: secondReviewerId,
         },
         {
           headers: {
@@ -168,7 +203,6 @@ const Status = ({
         const data = response.data.Message;
         toast.error(data || "Please try again later.");
       }
-      // }
     } catch (error) {
       console.error(error);
     }
@@ -213,6 +247,76 @@ const Status = ({
                 </span>
               );
             })}
+          </List>
+        </nav>
+      </Popover>
+
+      <Popover
+        id={idSecondPopover}
+        open={openDrawer}
+        anchorEl={anchorElSecondPopover}
+        onClose={handleCloseSecondPopover}
+        anchorReference="anchorEl"
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+      >
+        <nav className="!w-52">
+          <div className="mr-4 ml-4 mt-4">
+            <div
+              className="flex items-center h-10 rounded-md pl-2 flex-row"
+              style={{
+                border: "1px solid lightgray",
+              }}
+            >
+              <span className="mr-2">
+                <SearchIcon />
+              </span>
+              <span>
+                <InputBase
+                  placeholder="Search"
+                  inputProps={{ "aria-label": "search" }}
+                  value={searchQueryRW}
+                  onChange={handleSearchChangeRW}
+                  style={{ fontSize: "13px" }}
+                />
+              </span>
+            </div>
+          </div>
+          <List>
+            {reviewer.length === 0 ? (
+              <span className="flex flex-col py-2 px-4  text-sm">
+                No Data Available
+              </span>
+            ) : (
+              filteredReviewer.map((reviewer: any) => {
+                return (
+                  <span
+                    key={reviewer.value}
+                    className="flex flex-col py-2 px-4 hover:bg-gray-100 text-sm"
+                  >
+                    <span
+                      className="pt-1 pb-1 cursor-pointer flex flex-row items-center gap-2"
+                      onClick={() => handleOptionReviewer(reviewer.value)}
+                    >
+                      <Avatar sx={{ width: 32, height: 32, fontSize: 14 }}>
+                        {reviewer.label
+                          ?.split(" ")
+                          .map((word: any) => word.charAt(0).toUpperCase())
+                          .join("")}
+                      </Avatar>
+
+                      <span className="pt-[0.8px]">{reviewer.label}</span>
+                    </span>
+                  </span>
+                );
+              })
+            )}
           </List>
         </nav>
       </Popover>

@@ -38,7 +38,7 @@ const TimesheetFilter = ({
 }: FilterType) => {
   const [timesheetUserNames, setTimesheetUserNames] = useState<number[]>([]);
   const [timesheetUsers, setTimesheetUsers] = useState<number[]>([]);
-  const [timesheetDept, setTimesheetDept] = useState<string | number>(0);
+  const [timesheetDept, setTimesheetDept] = useState<any>(null);
   const [timesheetFilterName, setTimesheetFilterName] = useState<string>("");
   const [timesheetSaveFilter, setTimesheetSaveFilter] =
     useState<boolean>(false);
@@ -67,7 +67,7 @@ const TimesheetFilter = ({
   const handleTimesheetResetAll = () => {
     setTimesheetUserNames([]);
     setTimesheetUsers([]);
-    setTimesheetDept(0);
+    setTimesheetDept(null);
     setTimesheetStartDate("");
     setTimesheetEndDate("");
     setTimesheetError("");
@@ -83,7 +83,7 @@ const TimesheetFilter = ({
     setTimesheetDefaultFilter(false);
     setTimesheetUserNames([]);
     setTimesheetUsers([]);
-    setTimesheetDept(0);
+    setTimesheetDept(null);
     setTimesheetStartDate("");
     setTimesheetEndDate("");
     setTimesheetError("");
@@ -94,7 +94,9 @@ const TimesheetFilter = ({
       ...timeSheet_InitialFilter,
       users: timesheetUserNames,
       departmentId:
-        timesheetDept === 0 || timesheetDept === "" ? null : timesheetDept,
+        timesheetDept === null || timesheetDept === ""
+          ? null
+          : timesheetDept.value,
       startDate:
         timesheetStartDate.toString().trim().length <= 0
           ? timesheetEndDate.toString().trim().length <= 0
@@ -147,7 +149,7 @@ const TimesheetFilter = ({
             name: timesheetFilterName,
             AppliedFilter: {
               users: timesheetUserNames.length > 0 ? timesheetUserNames : [],
-              departmentId: timesheetDept === 0 ? null : timesheetDept,
+              departmentId: timesheetDept === null ? null : timesheetDept.value,
               startDate:
                 timesheetStartDate.toString().trim().length <= 0
                   ? timesheetEndDate.toString().trim().length <= 0
@@ -207,7 +209,7 @@ const TimesheetFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       timesheetUserNames.length > 0 ||
-      timesheetDept !== 0 ||
+      timesheetDept !== null ||
       timesheetStartDate.toString().trim().length > 0 ||
       timesheetEndDate.toString().trim().length > 0;
 
@@ -278,7 +280,13 @@ const TimesheetFilter = ({
     );
     setTimesheetUserNames(timesheetSavedFilters[index].AppliedFilter.users);
     setTimesheetDept(
-      timesheetSavedFilters[index].AppliedFilter.Department ?? 0
+      timesheetSavedFilters[index].AppliedFilter.departmentId === null
+        ? null
+        : timesheetDeptDropdown.filter(
+            (item: any) =>
+              item.value ===
+              timesheetSavedFilters[index].AppliedFilter.departmentId
+          )[0]
     );
     setTimesheetStartDate(
       timesheetSavedFilters[index].AppliedFilter.startDate ?? ""
@@ -470,19 +478,22 @@ const TimesheetFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="department">Department</InputLabel>
-                  <Select
-                    labelId="department"
-                    id="department"
-                    value={timesheetDept === 0 ? "" : timesheetDept}
-                    onChange={(e) => setTimesheetDept(e.target.value)}
-                  >
-                    {timesheetDeptDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={timesheetDeptDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setTimesheetDept(data);
+                    }}
+                    value={timesheetDept}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Department"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}

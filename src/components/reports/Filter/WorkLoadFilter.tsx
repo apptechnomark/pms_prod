@@ -38,7 +38,7 @@ const WorkLoadFilter = ({
 }: FilterType) => {
   const [workload_userNames, setWorkload_UserNames] = useState<number[]>([]);
   const [workload_users, setWorkload_Users] = useState<number[]>([]);
-  const [workload_dept, setWorkload_Dept] = useState<string | number>(0);
+  const [workload_dept, setWorkload_Dept] = useState<any>(null);
   const [workload_dateFilter, setWorkload_DateFilter] = useState<any>("");
   const [workload_filterName, setWorkload_FilterName] = useState<string>("");
   const [workload_saveFilter, setWorkload_SaveFilter] =
@@ -64,7 +64,7 @@ const WorkLoadFilter = ({
   const handleUserResetAll = () => {
     setWorkload_UserNames([]);
     setWorkload_Users([]);
-    setWorkload_Dept(0);
+    setWorkload_Dept(null);
     setWorkload_DateFilter("");
     setWorkload_Error("");
 
@@ -77,7 +77,7 @@ const WorkLoadFilter = ({
     onDialogClose(false);
     setWorkload_FilterName("");
     setWorkload_DefaultFilter(false);
-    setWorkload_Dept(0);
+    setWorkload_Dept(null);
     setWorkload_DateFilter("");
     setWorkload_UserNames([]);
     setWorkload_Users([]);
@@ -89,7 +89,9 @@ const WorkLoadFilter = ({
       ...workLoad_InitialFilter,
       users: workload_userNames,
       departmentId:
-        workload_dept === 0 || workload_dept === "" ? null : workload_dept,
+        workload_dept === null || workload_dept === ""
+          ? null
+          : workload_dept.value,
       dateFilter:
         workload_dateFilter === null ||
         workload_dateFilter.toString().trim().length <= 0
@@ -135,7 +137,7 @@ const WorkLoadFilter = ({
             name: workload_filterName,
             AppliedFilter: {
               users: workload_userNames.length > 0 ? workload_userNames : [],
-              Department: workload_dept === 0 ? null : workload_dept,
+              Department: workload_dept === null ? null : workload_dept.value,
               dateFilter: !workload_dateFilter ? null : workload_dateFilter,
             },
             type: workload,
@@ -179,7 +181,7 @@ const WorkLoadFilter = ({
 
   useEffect(() => {
     const isAnyFieldSelected =
-      workload_dept !== 0 ||
+      workload_dept !== null ||
       workload_dateFilter !== "" ||
       workload_userNames.length > 0;
 
@@ -251,7 +253,13 @@ const WorkLoadFilter = ({
     setWorkload_CurrentFilterId(workload_savedFilters[index].FilterId);
     setWorkload_FilterName(workload_savedFilters[index].Name);
     setWorkload_Dept(
-      workload_savedFilters[index].AppliedFilter.Department ?? 0
+      workload_savedFilters[index].AppliedFilter.Department === null
+        ? null
+        : workload_deptDropdown.filter(
+            (item: any) =>
+              item.value ===
+              workload_savedFilters[index].AppliedFilter.Department
+          )[0]
     );
     setWorkload_DateFilter(
       workload_savedFilters[index].AppliedFilter.dateFilter ?? ""
@@ -435,19 +443,22 @@ const WorkLoadFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="department">Department</InputLabel>
-                  <Select
-                    labelId="department"
-                    id="department"
-                    value={workload_dept === 0 ? "" : workload_dept}
-                    onChange={(e) => setWorkload_Dept(e.target.value)}
-                  >
-                    {workload_deptDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={workload_deptDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setWorkload_Dept(data);
+                    }}
+                    value={workload_dept}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Department"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}

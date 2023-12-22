@@ -143,9 +143,10 @@ const UnassigneeDatatable = ({
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const pathname = window.location.href.includes("=");
+      const pathname = window.location.href.includes("id=");
       if (pathname) {
-        const id = window.location.href.split("=")[1];
+        const idMatch = window.location.href.match(/id=([^?&]+)/);
+        const id = idMatch ? idMatch[1] : null;
         onEdit(id);
         onDrawerOpen();
       }

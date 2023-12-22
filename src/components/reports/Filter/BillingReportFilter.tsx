@@ -42,9 +42,9 @@ const BillingReportFilter = ({
   const isBTCRef_ForPreviousValue = useRef<boolean>(false);
   const [clients, setClients] = useState<any[]>([]);
   const [clientName, setClientName] = useState<any[]>([]);
-  const [projectName, setProjectName] = useState<number | string>(0);
-  const [assignee, setAssignee] = useState<number | string>(0);
-  const [reviewer, setReviewer] = useState<number | string>(0);
+  const [projectName, setProjectName] = useState<any>(null);
+  const [assignee, setAssignee] = useState<any>(null);
+  const [reviewer, setReviewer] = useState<any>(null);
   const [noOfPages, setNoOfPages] = useState<number | string>("");
   const [isBTC, setIsBTC] = useState<boolean>(false);
   const [startDate, setStartDate] = useState<string | number>("");
@@ -86,9 +86,9 @@ const BillingReportFilter = ({
   const handleResetAll = () => {
     setClientName([]);
     setClients([]);
-    setProjectName(0);
-    setAssignee(0);
-    setReviewer(0);
+    setProjectName(null);
+    setAssignee(null);
+    setReviewer(null);
     setNoOfPages("");
     setResetting(true);
     setIsBTC(false);
@@ -109,9 +109,9 @@ const BillingReportFilter = ({
 
     setClientName([]);
     setClients([]);
-    setProjectName(0);
-    setAssignee(0);
-    setReviewer(0);
+    setProjectName(null);
+    setAssignee(null);
+    setReviewer(null);
     setNoOfPages("");
     setIsBTC(false);
     setStartDate("");
@@ -123,9 +123,9 @@ const BillingReportFilter = ({
     sendFilterToPage({
       ...billingreport_InitialFilter,
       clients: clientName.length > 0 ? clientName : [],
-      projects: projectName !== 0 ? [projectName] : [],
-      assigneeId: assignee !== 0 ? assignee : null,
-      reviewerId: reviewer !== 0 ? reviewer : null,
+      projects: projectName !== null ? [projectName.value] : [],
+      assigneeId: assignee !== null ? assignee.value : null,
+      reviewerId: reviewer !== null ? reviewer.value : null,
       numberOfPages: noOfPages.toString().trim().length > 0 ? noOfPages : null,
       IsBTC: isBTC,
       startDate:
@@ -186,9 +186,9 @@ const BillingReportFilter = ({
           name: filterName,
           AppliedFilter: {
             clients: clientName,
-            projects: projectName,
-            assigneeId: assignee !== 0 ? assignee : null,
-            reviewerId: reviewer !== 0 ? reviewer : null,
+            projects: projectName !== null ? [projectName.value] : [],
+            assigneeId: assignee !== null ? assignee.value : null,
+            reviewerId: reviewer !== null ? reviewer.value : null,
             numberOfPages:
               noOfPages.toString().trim().length > 0 ? noOfPages : null,
             IsBTC: isBTC,
@@ -240,9 +240,9 @@ const BillingReportFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       clientName.length > 0 ||
-      projectName !== 0 ||
-      assignee !== 0 ||
-      reviewer !== 0 ||
+      projectName !== null ||
+      assignee !== null ||
+      reviewer !== null ||
       noOfPages.toString().trim().length > 0 ||
       isBTC !== isBTCRef_ForPreviousValue.current ||
       startDate.toString().trim().length > 0 ||
@@ -323,7 +323,7 @@ const BillingReportFilter = ({
     }
   };
 
-  const handleSavedFilterEdit = (index: number) => {
+  const handleSavedFilterEdit = async (index: number) => {
     setClients(
       savedFilters[index].AppliedFilter.clients === null
         ? []
@@ -334,11 +334,33 @@ const BillingReportFilter = ({
     setClientName(savedFilters[index].AppliedFilter.clients);
     setProjectName(
       savedFilters[index].AppliedFilter.projects.length > 0
-        ? savedFilters[index].AppliedFilter.projects[0]
-        : 0
+        ? (
+            await getProjectData(savedFilters[index].AppliedFilter.clients[0])
+          ).filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.projects[0]
+          )[0]
+        : null
     );
-    setAssignee(savedFilters[index].AppliedFilter.assigneeId ?? 0);
-    setReviewer(savedFilters[index].AppliedFilter.reviewerId ?? 0);
+
+    console.log(assigneeDropdown, reviewerDropdown);
+
+    setAssignee(
+      savedFilters[index].AppliedFilter.assigneeId === null
+        ? null
+        : assigneeDropdown.filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.assigneeId
+          )[0]
+    );
+    setReviewer(
+      savedFilters[index].AppliedFilter.reviewerId === null
+        ? null
+        : reviewerDropdown.filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.reviewerId
+          )[0]
+    );
     setNoOfPages(savedFilters[index].AppliedFilter.numberOfPages ?? "");
     setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
     setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
@@ -511,7 +533,7 @@ const BillingReportFilter = ({
                     onChange={(e: any, data: any) => {
                       setClients(data);
                       setClientName(data.map((d: any) => d.value));
-                      setProjectName(0);
+                      setProjectName(null);
                     }}
                     value={clients}
                     renderInput={(params: any) => (
@@ -527,38 +549,44 @@ const BillingReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="projectName">Project Name</InputLabel>
-                  <Select
-                    labelId="projectName"
-                    id="projectName"
-                    value={projectName === 0 ? "" : projectName}
-                    onChange={(e) => setProjectName(e.target.value)}
-                    disabled={clients.length > 1}
-                  >
-                    {projectDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={projectDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setProjectName(data);
+                    }}
+                    disabled={clientName.length > 1}
+                    value={projectName}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Project Name"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="assignee">Prepared/Assignee</InputLabel>
-                  <Select
-                    labelId="assignee"
-                    id="assignee"
-                    value={assignee === 0 ? "" : assignee}
-                    onChange={(e) => setAssignee(e.target.value)}
-                  >
-                    {assigneeDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={assigneeDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setAssignee(data);
+                    }}
+                    value={assignee}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Prepared/Assignee"
+                      />
+                    )}
+                  />
                 </FormControl>
               </div>
               <div className="flex gap-[20px]">
@@ -566,19 +594,22 @@ const BillingReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="reviewer">Reviewer</InputLabel>
-                  <Select
-                    labelId="reviewer"
-                    id="reviewer"
-                    value={reviewer === 0 ? "" : reviewer}
-                    onChange={(e) => setReviewer(e.target.value)}
-                  >
-                    {reviewerDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={reviewerDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setReviewer(data);
+                    }}
+                    value={reviewer}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Reviewer"
+                      />
+                    )}
+                  />
                 </FormControl>
 
                 <FormControl

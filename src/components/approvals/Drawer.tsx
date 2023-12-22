@@ -55,6 +55,7 @@ import {
   getAssigneeDropdownData,
   getCCDropdownData,
   getClientDropdownData,
+  getCommentUserDropdownData,
   getManagerDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
@@ -1334,9 +1335,11 @@ const EditDrawer = ({
       AttachmentPath: process.env.attachment,
     },
   ]);
-  const users =
-    assigneeDropdownData?.length > 0 &&
-    assigneeDropdownData.map(
+  const [commentUserData, setCommentUserData] = useState([]);
+
+  const users: any =
+    commentUserData?.length > 0 &&
+    commentUserData.map(
       (i: any) =>
         new Object({
           id: i.value,
@@ -2198,7 +2201,7 @@ const EditDrawer = ({
                     item.Type === "Submitted" ||
                     item.Type === "Accept" ||
                     item.Type === "AcceptWithNotes" ||
-                    item.Type === "SecondManagerReview" ||
+                    // item.Type === "SecondManagerReview" ||
                     item.Type === "OnHoldFromClient" ||
                     item.Type === "WithDraw" ||
                     item.Type === "WithdrawnbyClient" ||
@@ -2212,7 +2215,7 @@ const EditDrawer = ({
                     item.Type === "ReworkSubmitted" ||
                     item.Type === "ReworkAccept" ||
                     item.Type === "ReworkAcceptWithNotes" ||
-                    item.Type === "SecondManagerReview" ||
+                    // item.Type === "SecondManagerReview" ||
                     item.Type === "OnHoldFromClient" ||
                     item.Type === "WithDraw" ||
                     item.Type === "WithdrawnbyClient" ||
@@ -2747,6 +2750,20 @@ const EditDrawer = ({
 
   useEffect(() => {
     const getData = async () => {
+      onEdit > 0 &&
+        setCommentUserData(
+          await getCommentUserDropdownData({
+            ClientId: clientName,
+            GetClientUser: commentSelect === 2 ? true : false,
+          })
+        );
+    };
+
+    onOpen && getData();
+  }, [clientName, commentSelect]);
+
+  useEffect(() => {
+    const getData = async () => {
       const data: any =
         processName !== 0 &&
         (await getSubProcessDropdownData(clientName, processName));
@@ -2918,6 +2935,7 @@ const EditDrawer = ({
       },
     ]);
     setEditingCommentIndex(-1);
+    setCommentUserData([]);
 
     // Reviewer note
     setReviewerNoteData([]);
@@ -2972,7 +2990,7 @@ const EditDrawer = ({
     onDataFetch();
 
     if (typeof window !== "undefined") {
-      const pathname = window.location.href.includes("=");
+      const pathname = window.location.href.includes("id=");
       if (pathname) {
         onClose();
         router.push("/worklogs");
@@ -4829,7 +4847,7 @@ const EditDrawer = ({
                             variant="standard"
                             sx={{ mx: 0.75, maxWidth: 230 }}
                           />
-                          <TextField
+                          {/* <TextField
                             label="Total Time"
                             disabled
                             fullWidth
@@ -4838,6 +4856,17 @@ const EditDrawer = ({
                                 ? "time"
                                 : "text"
                             }
+                            value={field.totalTime}
+                            margin="normal"
+                            variant="standard"
+                            sx={{ mx: 0.75, maxWidth: 225 }}
+                            InputProps={{ readOnly: true }}
+                            inputProps={{ readOnly: true }}
+                          /> */}
+                          <TextField
+                            label="Total Time"
+                            disabled
+                            fullWidth
                             value={field.totalTime}
                             margin="normal"
                             variant="standard"

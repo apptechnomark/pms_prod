@@ -46,18 +46,12 @@ const ProjectFilter = ({
   sendFilterToPage,
   onDialogClose,
 }: FilterType) => {
-  const [project_typeOfWork, setProject_TypeOfWork] = useState<string | number>(
-    0
-  );
-  const [project_billingType, setProject_BillingType] = useState<
-    string | number
-  >(0);
-
   const [project_clients, setProject_Clients] = useState<any[]>([]);
   const [project_clientName, setProject_ClientName] = useState<any[]>([]);
-  const [project_projectName, setProject_ProjectName] = useState<
-    number | string
-  >(0);
+  const [project_projects, setProject_Projects] = useState<any>(null);
+  const [project_typeOfWork, setProject_TypeOfWork] = useState<any>(null);
+  const [project_billingType, setProject_BillingType] = useState<any>(null);
+
   const [project_filterName, setProject_FilterName] = useState<string>("");
   const [project_saveFilter, setProject_SaveFilter] = useState<boolean>(false);
   const [project_startDate, setProject_StartDate] = useState<string | number>(
@@ -95,9 +89,9 @@ const ProjectFilter = ({
   const handleProject_ResetAll = () => {
     setProject_ClientName([]);
     setProject_Clients([]);
-    setProject_ProjectName(0);
-    setProject_TypeOfWork(0);
-    setProject_BillingType(0);
+    setProject_Projects(null);
+    setProject_TypeOfWork(null);
+    setProject_BillingType(null);
     setProject_Resetting(true);
     setProject_StartDate("");
     setProject_EndDate("");
@@ -113,11 +107,11 @@ const ProjectFilter = ({
     setProject_Resetting(false);
     setProject_FilterName("");
     setProject_DefaultFilter(false);
-    setProject_ClientName([]);
     setProject_Clients([]);
-    setProject_ProjectName(0);
-    setProject_TypeOfWork(0);
-    setProject_BillingType(0);
+    setProject_ClientName([]);
+    setProject_Projects(null);
+    setProject_TypeOfWork(null);
+    setProject_BillingType(null);
     setProject_StartDate("");
     setProject_EndDate("");
     setProject_Error("");
@@ -127,18 +121,9 @@ const ProjectFilter = ({
     sendFilterToPage({
       ...project_filter_InitialFilter,
       clients: project_clientName.length > 0 ? project_clientName : [],
-      projects:
-        project_projectName === 0 || project_projectName === ""
-          ? []
-          : [project_projectName],
-      typeOfWork:
-        project_typeOfWork === 0 || project_typeOfWork === ""
-          ? null
-          : project_typeOfWork,
-      billType:
-        project_billingType === 0 || project_billingType === ""
-          ? null
-          : project_billingType,
+      projects: project_projects !== null ? [project_projects.value] : [],
+      typeOfWork: project_typeOfWork === null ? null : project_typeOfWork.value,
+      billType: project_billingType === null ? null : project_billingType.value,
       startDate:
         project_startDate.toString().trim().length <= 0
           ? project_endDate.toString().trim().length <= 0
@@ -193,10 +178,12 @@ const ProjectFilter = ({
             name: project_filterName,
             AppliedFilter: {
               clients: project_clientName.length > 0 ? project_clientName : [],
-              projects: project_projectName === 0 ? [] : [project_projectName],
-              TypeOfWork: project_typeOfWork === 0 ? null : project_typeOfWork,
+              projects:
+                project_projects !== null ? [project_projects.value] : [],
+              TypeOfWork:
+                project_typeOfWork === null ? null : project_typeOfWork.value,
               BillingType:
-                project_billingType === 0 ? null : project_billingType,
+                project_billingType === null ? null : project_billingType.value,
               startDate:
                 project_startDate.toString().trim().length <= 0
                   ? project_endDate.toString().trim().length <= 0
@@ -256,9 +243,9 @@ const ProjectFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       project_clientName.length > 0 ||
-      project_projectName !== 0 ||
-      project_typeOfWork !== 0 ||
-      project_billingType !== 0 ||
+      project_projects !== null ||
+      project_typeOfWork !== null ||
+      project_billingType !== null ||
       project_startDate.toString().trim().length > 0 ||
       project_endDate.toString().trim().length > 0;
 
@@ -269,7 +256,7 @@ const ProjectFilter = ({
     project_typeOfWork,
     project_billingType,
     project_clientName,
-    project_projectName,
+    project_projects,
     project_startDate,
     project_endDate,
   ]);
@@ -277,16 +264,11 @@ const ProjectFilter = ({
   useEffect(() => {
     const filterDropdowns = async () => {
       setProject_ClientDropdown(await getClientDropdownData());
-      setProject_ProjectDropdown(
-        await getProjectData(
-          project_clientName.length > 0 ? project_clientName[0] : 0
-        )
-      );
-      setProject_WorkTypeDropdown(
-        await getWorkTypeData(
-          project_clientName.length > 0 ? project_clientName[0] : 0
-        )
-      );
+      setProject_ProjectDropdown(await getProjectData(project_clientName[0]));
+      project_clientName.length > 0 &&
+        setProject_WorkTypeDropdown(
+          await getWorkTypeData(project_clientName[0])
+        );
       setProject_BillingTypeDropdown(await getBillingTypeData());
     };
     filterDropdowns();
@@ -337,7 +319,7 @@ const ProjectFilter = ({
     }
   };
 
-  const handleProject_SavedFilterEdit = (index: number) => {
+  const handleProject_SavedFilterEdit = async (index: number) => {
     setProject_SaveFilter(true);
     setProject_DefaultFilter(true);
     setProject_FilterName(project_savedFilters[index].Name);
@@ -353,18 +335,40 @@ const ProjectFilter = ({
         : []
     );
     setProject_ClientName(project_savedFilters[index].AppliedFilter.clients);
-    setProject_ProjectName(
+    setProject_Projects(
       project_savedFilters[index].AppliedFilter.projects.length > 0
-        ? project_savedFilters[index].AppliedFilter.projects[0]
-        : 0
+        ? (
+            await getProjectData(
+              project_savedFilters[index].AppliedFilter.clients[0]
+            )
+          ).filter(
+            (item: any) =>
+              item.value ===
+              project_savedFilters[index].AppliedFilter.projects[0]
+          )[0]
+        : null
     );
     setProject_TypeOfWork(
       project_savedFilters[index].AppliedFilter.TypeOfWork === null
-        ? 0
-        : project_savedFilters[index].AppliedFilter.TypeOfWork
+        ? null
+        : (
+            await getWorkTypeData(
+              project_savedFilters[index].AppliedFilter.clients[0]
+            )
+          ).filter(
+            (item: any) =>
+              item.value ===
+              project_savedFilters[index].AppliedFilter.TypeOfWork
+          )[0]
     );
     setProject_BillingType(
-      project_savedFilters[index].AppliedFilter.BillingType ?? 0
+      project_savedFilters[index].AppliedFilter.BillingType === null
+        ? null
+        : project_billingTypeDropdown.filter(
+            (item: any) =>
+              item.value ===
+              project_savedFilters[index].AppliedFilter.BillingType
+          )[0]
     );
     setProject_StartDate(
       project_savedFilters[index].AppliedFilter.startDate ?? ""
@@ -535,11 +539,11 @@ const ProjectFilter = ({
                         )
                     )}
                     getOptionLabel={(option: any) => option.label}
-                    // disableCloseOnSelect
                     onChange={(e: any, data: any) => {
                       setProject_Clients(data);
                       setProject_ClientName(data.map((d: any) => d.value));
-                      setProject_ProjectName(0);
+                      setProject_Projects(null);
+                      setProject_TypeOfWork(null);
                     }}
                     value={project_clients}
                     renderInput={(params: any) => (
@@ -555,38 +559,45 @@ const ProjectFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="project_Name">Project Name</InputLabel>
-                  <Select
-                    labelId="project_Name"
-                    id="project_Name"
-                    value={project_projectName === 0 ? "" : project_projectName}
+                  <Autocomplete
+                    id="tags-standard"
+                    options={project_projectDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setProject_Projects(data);
+                    }}
                     disabled={project_clientName.length > 1}
-                    onChange={(e) => setProject_ProjectName(e.target.value)}
-                  >
-                    {project_projectDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                    value={project_projects}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Project Name"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="typeOfWork">Type Of Work</InputLabel>
-                  <Select
-                    labelId="typeOfWork"
-                    id="typeOfWork"
-                    value={project_typeOfWork === 0 ? "" : project_typeOfWork}
-                    onChange={(e) => setProject_TypeOfWork(e.target.value)}
-                  >
-                    {project_workTypeDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={project_workTypeDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setProject_TypeOfWork(data);
+                    }}
+                    disabled={project_clientName.length > 1}
+                    value={project_typeOfWork}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Type Of Work"
+                      />
+                    )}
+                  />
                 </FormControl>
               </div>
               <div className="flex gap-[20px]">
@@ -594,21 +605,23 @@ const ProjectFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 210 }}
                 >
-                  <InputLabel id="billingType">Billing Type</InputLabel>
-                  <Select
-                    labelId="billingType"
-                    id="billingType"
-                    value={project_billingType === 0 ? "" : project_billingType}
-                    onChange={(e) => setProject_BillingType(e.target.value)}
-                  >
-                    {project_billingTypeDropdown.map(
-                      (i: any, index: number) => (
-                        <MenuItem value={i.value} key={i.value}>
-                          {i.label}
-                        </MenuItem>
-                      )
+                  <Autocomplete
+                    id="tags-standard"
+                    options={project_billingTypeDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setProject_BillingType(data);
+                    }}
+                    // disabled={project_clientName.length > 1}
+                    value={project_billingType}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Billing Type"
+                      />
                     )}
-                  </Select>
+                  />
                 </FormControl>
                 <div
                   className={`inline-flex mx-[6px] muiDatepickerCustomizer w-full max-w-[210px]`}

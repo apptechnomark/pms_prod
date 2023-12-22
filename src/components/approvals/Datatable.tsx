@@ -258,6 +258,10 @@ const Datatable = ({
   };
 
   useEffect(() => {
+    handleClearSelection();
+  }, [activeTab]);
+
+  useEffect(() => {
     if (onFilterOpen || onFilterOpen === true) {
       handleClearSelection();
     }

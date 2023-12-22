@@ -79,17 +79,17 @@ const CustomReportFilter = ({
 
   const [clients, setClients] = useState<any[]>([]);
   const [clientName, setClientName] = useState<any[]>([]);
-  const [projectName, setProjectName] = useState<number | string>(0);
-  const [processName, setProcessName] = useState<any>(0);
-  const [complexity, setComplexity] = useState<number | string>(0);
-  const [assignByName, setAssignByName] = useState<number | string>(0);
-  const [assigneeName, setAssigneeName] = useState<number | string>(0);
-  const [reviewerName, setReviewerName] = useState<number | string>(0);
-  const [returnTypeName, setReturnTypeName] = useState<number | string>(0);
-  const [noofPages, setNoofPages] = useState<number | string>("");
-  const [returnYear, setReturnYear] = useState<number | string>(0);
-  const [status, setStatus] = useState<number | string>(0);
-  const [priority, setPriority] = useState<string | number>(0);
+  const [projectName, setProjectName] = useState<any>(null);
+  const [processName, setProcessName] = useState<any>(null);
+  const [subProcessName, setSubProcessName] = useState<any>(null);
+  const [assignByName, setAssignByName] = useState<any>(null);
+  const [assigneeName, setAssigneeName] = useState<any>(null);
+  const [reviewerName, setReviewerName] = useState<any>(null);
+  const [returnTypeName, setReturnTypeName] = useState<any>(null);
+  const [noofPages, setNoofPages] = useState<any>("");
+  const [returnYear, setReturnYear] = useState<any>(null);
+  const [status, setStatus] = useState<any>(null);
+  const [priority, setPriority] = useState<any>(null);
   const [startDate, setStartDate] = useState<string | number>("");
   const [endDate, setEndDate] = useState<string | number>("");
   const [dueDate, setDueDate] = useState<string | number>("");
@@ -128,17 +128,17 @@ const CustomReportFilter = ({
   const handleResetAll = () => {
     setClientName([]);
     setClients([]);
-    setProjectName(0);
-    setProcessName(0);
-    setAssignByName(0);
-    setAssigneeName(0);
-    setReviewerName(0);
-    setReturnTypeName(0);
+    setProjectName(null);
+    setProcessName(null);
+    setAssignByName(null);
+    setAssigneeName(null);
+    setReviewerName(null);
+    setReturnTypeName(null);
     setNoofPages("");
-    setReturnYear(0);
-    setComplexity(0);
-    setStatus(0);
-    setPriority(0);
+    setReturnYear(null);
+    setSubProcessName(null);
+    setStatus(null);
+    setPriority(null);
     setStartDate("");
     setEndDate("");
     setDueDate("");
@@ -158,17 +158,17 @@ const CustomReportFilter = ({
     // resetting filter fields
     setClientName([]);
     setClients([]);
-    setProjectName(0);
-    setProcessName(0);
-    setAssignByName(0);
-    setAssigneeName(0);
-    setReviewerName(0);
-    setReturnTypeName(0);
+    setProjectName(null);
+    setProcessName(null);
+    setAssignByName(null);
+    setAssigneeName(null);
+    setReviewerName(null);
+    setReturnTypeName(null);
     setNoofPages("");
-    setReturnYear(0);
-    setComplexity(0);
-    setStatus(0);
-    setPriority(0);
+    setReturnYear(null);
+    setSubProcessName(null);
+    setStatus(null);
+    setPriority(null);
     setStartDate("");
     setEndDate("");
     setDueDate("");
@@ -181,23 +181,17 @@ const CustomReportFilter = ({
     sendFilterToPage({
       ...customreport_InitialFilter,
       clientIdsJSON: clientName.length > 0 ? clientName : [],
-      projectIdsJSON:
-        projectName === 0 || projectName === "" ? [] : [projectName],
-      processIdsJSON:
-        processName === 0 || processName === "" ? [] : [processName],
-      assignedById:
-        assignByName === 0 || assignByName === "" ? null : assignByName,
-      assigneeId:
-        assigneeName === 0 || assigneeName === "" ? null : assigneeName,
-      reviewerId:
-        reviewerName === 0 || reviewerName === "" ? null : reviewerName,
-      returnTypeId:
-        returnTypeName === 0 || returnTypeName === "" ? null : returnTypeName,
+      projectIdsJSON: projectName === null ? [] : [projectName.value],
+      processIdsJSON: processName === null ? [] : [processName.value],
+      assignedById: assignByName === null ? null : assignByName.value,
+      assigneeId: assigneeName === null ? null : assigneeName.value,
+      reviewerId: reviewerName === null ? null : reviewerName.value,
+      returnTypeId: returnTypeName === null ? null : returnTypeName.value,
       numberOfPages: noofPages.toString().trim().length <= 0 ? null : noofPages,
-      returnYear: returnYear === 0 || returnYear === "" ? null : returnYear,
-      complexity: complexity === 0 || complexity === "" ? null : complexity,
-      StatusId: status === 0 || status === "" ? null : status,
-      priority: priority === 0 || priority === "" ? null : priority,
+      returnYear: returnYear === null ? null : returnYear.value,
+      complexity: subProcessName === null ? null : subProcessName.value,
+      StatusId: status === null ? null : status.value,
+      priority: priority === null ? null : priority.value,
       startDate:
         startDate.toString().trim().length <= 0
           ? null
@@ -265,28 +259,19 @@ const CustomReportFilter = ({
             name: filterName,
             AppliedFilter: {
               clientIdsJSON: clientName.length > 0 ? clientName : [],
-              projectIdsJSON:
-                projectName === 0 || projectName === "" ? [] : [projectName],
-              processIdsJSON:
-                processName === 0 || processName === "" ? [] : [processName],
-              assignedById:
-                assignByName === 0 || assignByName === "" ? null : assignByName,
-              assigneeId:
-                assigneeName === 0 || assigneeName === "" ? null : assigneeName,
-              reviewerId:
-                reviewerName === 0 || reviewerName === "" ? null : reviewerName,
+              projectIdsJSON: projectName === null ? [] : [projectName.value],
+              processIdsJSON: processName === null ? [] : [processName.value],
+              assignedById: assignByName === null ? null : assignByName.value,
+              assigneeId: assigneeName === null ? null : assigneeName.value,
+              reviewerId: reviewerName === null ? null : reviewerName.value,
               returnTypeId:
-                returnTypeName === 0 || returnTypeName === ""
-                  ? null
-                  : returnTypeName,
+                returnTypeName === null ? null : returnTypeName.value,
               numberOfPages:
                 noofPages.toString().trim().length <= 0 ? null : noofPages,
-              returnYear:
-                returnYear === 0 || returnYear === "" ? null : returnYear,
-              complexity:
-                complexity === 0 || complexity === "" ? null : complexity,
-              StatusId: status === 0 || status === "" ? null : status,
-              priority: priority === 0 || priority === "" ? null : priority,
+              returnYear: returnYear === null ? null : returnYear.value,
+              complexity: subProcessName === null ? null : subProcessName.value,
+              StatusId: status === null ? null : status.value,
+              priority: priority === null ? null : priority.value,
               startDate:
                 startDate.toString().trim().length <= 0
                   ? null
@@ -350,17 +335,17 @@ const CustomReportFilter = ({
   useEffect(() => {
     const isAnyFieldSelected =
       clientName.length > 0 ||
-      projectName !== 0 ||
-      processName !== 0 ||
-      assignByName !== 0 ||
-      assigneeName !== 0 ||
-      reviewerName !== 0 ||
-      returnTypeName !== 0 ||
+      projectName !== null ||
+      processName !== null ||
+      assignByName !== null ||
+      assigneeName !== null ||
+      reviewerName !== null ||
+      returnTypeName !== null ||
       noofPages.toString().trim().length > 0 ||
-      returnYear !== 0 ||
-      complexity !== 0 ||
-      status !== 0 ||
-      priority !== 0 ||
+      returnYear !== null ||
+      subProcessName !== null ||
+      status !== null ||
+      priority !== null ||
       startDate.toString().trim().length > 0 ||
       endDate.toString().trim().length > 0 ||
       dueDate.toString().trim().length > 0 ||
@@ -379,7 +364,7 @@ const CustomReportFilter = ({
     returnTypeName,
     noofPages,
     returnYear,
-    complexity,
+    subProcessName,
     status,
     priority,
     startDate,
@@ -401,6 +386,12 @@ const CustomReportFilter = ({
         // await getProcessDropdownData(clientName.length > 0 ? clientName[0] : 0)
         await getAllProcessDropdownData()
       );
+      setSubProcessDropdown(
+        await getSubProcessDropdownData(
+          clientName.length > 0 ? clientName[0] : 0,
+          processName === null ? 0 : processName.value
+        )
+      );
       setUserDropdown(await getUserData());
       setStatusDropdown(await getStatusDropdownData());
     };
@@ -412,15 +403,7 @@ const CustomReportFilter = ({
   }, [clientName]);
 
   useEffect(() => {
-    const customDropdowns = async () => {
-      processName > 0 &&
-        setSubProcessDropdown(
-          await getSubProcessDropdownData(
-            clientName.length > 0 ? clientName[0] : 0,
-            processName
-          )
-        );
-    };
+    const customDropdowns = async () => {};
     customDropdowns();
   }, [processName]);
 
@@ -465,7 +448,7 @@ const CustomReportFilter = ({
     }
   };
 
-  const handleSavedFilterEdit = (index: number) => {
+  const handleSavedFilterEdit = async (index: number) => {
     setSaveFilter(true);
     setDefaultFilter(true);
     setFilterName(savedFilters[index].Name);
@@ -483,23 +466,89 @@ const CustomReportFilter = ({
     setClientName(savedFilters[index].AppliedFilter.clientIdsJSON);
     setProjectName(
       savedFilters[index].AppliedFilter.projectIdsJSON.length > 0
-        ? savedFilters[index].AppliedFilter.projectIdsJSON[0]
-        : 0
+        ? (
+            await getProjectDropdownData(
+              savedFilters[index].AppliedFilter.clientIdsJSON[0]
+            )
+          ).filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.projectIdsJSON[0]
+          )[0]
+        : null
     );
     setProcessName(
       savedFilters[index].AppliedFilter.processIdsJSON.length > 0
-        ? savedFilters[index].AppliedFilter.processIdsJSON[0]
-        : 0
+        ? processDropdown.filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.processIdsJSON[0]
+          )[0]
+        : null
     );
-    setAssignByName(savedFilters[index].AppliedFilter.assignedById ?? 0);
-    setAssigneeName(savedFilters[index].AppliedFilter.assigneeId ?? 0);
-    setReviewerName(savedFilters[index].AppliedFilter.reviewerId ?? 0);
-    setReturnTypeName(savedFilters[index].AppliedFilter.returnTypeId ?? 0);
+    setAssignByName(
+      savedFilters[index].AppliedFilter.assignedById === null
+        ? null
+        : userDropdown.filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.assignedById
+          )[0]
+    );
+    setAssigneeName(
+      savedFilters[index].AppliedFilter.assigneeId === null
+        ? null
+        : userDropdown.filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.assigneeId
+          )[0]
+    );
+    setReviewerName(
+      savedFilters[index].AppliedFilter.reviewerId === null
+        ? null
+        : userDropdown.filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.reviewerId
+          )[0]
+    );
+    setReturnTypeName(
+      savedFilters[index].AppliedFilter.returnTypeId === null
+        ? null
+        : returnTypeDropdown.filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.returnTypeId
+          )[0]
+    );
     setNoofPages(savedFilters[index].AppliedFilter.numberOfPages ?? "");
-    setReturnYear(savedFilters[index].AppliedFilter.returnYear ?? 0);
-    setComplexity(savedFilters[index].AppliedFilter.complexity ?? 0);
-    setStatus(savedFilters[index].AppliedFilter.status ?? 0);
-    setPriority(savedFilters[index].AppliedFilter.priority ?? 0);
+    setReturnYear(
+      savedFilters[index].AppliedFilter.returnYear === null
+        ? null
+        : yearDropdown.filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.returnYear
+          )
+    );
+    setSubProcessName(
+      savedFilters[index].AppliedFilter.complexity === null
+        ? null
+        : subProcessDropdown.filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.complexity
+          )
+    );
+    setStatus(
+      savedFilters[index].AppliedFilter.status === null
+        ? null
+        : statusDropdown.filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.status
+          )[0]
+    );
+    setPriority(
+      savedFilters[index].AppliedFilter.priority === null
+        ? null
+        : priorityDropdown.filter(
+            (item: any) =>
+              item.value === savedFilters[index].AppliedFilter.priority
+          )[0]
+    );
     setStartDate(savedFilters[index].AppliedFilter.startDate ?? "");
     setEndDate(savedFilters[index].AppliedFilter.endDate ?? "");
     setDueDate(savedFilters[index].AppliedFilter.dueDate ?? "");
@@ -681,12 +730,15 @@ const CustomReportFilter = ({
                             .filter((d: any) => d.value !== -1)
                             .map((d: any) => d.value)
                         );
-                        setProjectName(0);
-                        setProcessName(0);
+                        setProjectName(null);
+                        setProcessName(null);
+                        setSubProcessName(null);
                       } else {
                         setClients(data);
                         setClientName(data.map((d: any) => d.value));
-                        setProjectName(0);
+                        setProjectName(null);
+                        setProcessName(null);
+                        setSubProcessName(null);
                       }
                     }}
                     value={clients}
@@ -703,94 +755,45 @@ const CustomReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
-                  <InputLabel id="projectName">Project Name</InputLabel>
-                  <Select
-                    labelId="projectName"
-                    id="projectName"
-                    value={projectName === 0 ? "" : projectName}
-                    onChange={(e) => setProjectName(e.target.value)}
-                    disabled={clients.length > 1}
-                  >
-                    {projectDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={projectDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setProjectName(data);
+                    }}
+                    disabled={clientName.length > 1}
+                    value={projectName}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Project Name"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
-                  <InputLabel id="processName">Process Name</InputLabel>
-                  <Select
-                    labelId="processName"
-                    id="processName"
-                    value={processName === 0 ? "" : processName}
-                    onChange={(e) => setProcessName(e.target.value)}
-                  >
-                    {processDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </div>
-              <div className="flex gap-[20px]">
-                <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
-                >
-                  <InputLabel id="complexity">Sub-Process Name</InputLabel>
-                  <Select
-                    labelId="complexity"
-                    id="complexity"
-                    value={complexity === 0 ? "" : complexity}
-                    onChange={(e) => setComplexity(e.target.value)}
-                  >
-                    {subProcessDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.Id} key={i.Id}>
-                        {i.Name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
-                >
-                  <InputLabel id="assignBy">Assign By</InputLabel>
-                  <Select
-                    labelId="assignBy"
-                    id="assignBy"
-                    value={assignByName === 0 ? "" : assignByName}
-                    onChange={(e) => setAssignByName(e.target.value)}
-                  >
-                    {userDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl
-                  variant="standard"
-                  sx={{ mx: 0.75, minWidth: 200 }}
-                >
-                  <InputLabel id="assigneeName">Prepared/Assignee</InputLabel>
-                  <Select
-                    labelId="assigneeName"
-                    id="assigneeName"
-                    value={assigneeName === 0 ? "" : assigneeName}
-                    onChange={(e) => setAssigneeName(e.target.value)}
-                  >
-                    {userDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={processDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setProcessName(data);
+                    }}
+                    disabled={clientName.length > 1}
+                    value={processName}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Process Name"
+                      />
+                    )}
+                  />
                 </FormControl>
               </div>
               <div className="flex gap-[20px]">
@@ -798,37 +801,109 @@ const CustomReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
-                  <InputLabel id="reviewer">Reviewer</InputLabel>
-                  <Select
-                    labelId="reviewer"
-                    id="reviewer"
-                    value={reviewerName === 0 ? "" : reviewerName}
-                    onChange={(e) => setReviewerName(e.target.value)}
-                  >
-                    {userDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={subProcessDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setSubProcessName(data);
+                    }}
+                    disabled={clientName.length > 1}
+                    value={subProcessName}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Sub-Process Name"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
-                  <InputLabel id="returnType">Return Type</InputLabel>
-                  <Select
-                    labelId="returnType"
-                    id="returnType"
-                    value={returnTypeName === 0 ? "" : returnTypeName}
-                    onChange={(e) => setReturnTypeName(e.target.value)}
-                  >
-                    {returnTypeDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={userDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setAssignByName(data);
+                    }}
+                    value={assignByName}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Assign By"
+                      />
+                    )}
+                  />
+                </FormControl>
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, minWidth: 200 }}
+                >
+                  <Autocomplete
+                    id="tags-standard"
+                    options={userDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setAssigneeName(data);
+                    }}
+                    value={assigneeName}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Prepared/Assignee"
+                      />
+                    )}
+                  />
+                </FormControl>
+              </div>
+              <div className="flex gap-[20px]">
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, minWidth: 200 }}
+                >
+                  <Autocomplete
+                    id="tags-standard"
+                    options={userDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setReviewerName(data);
+                    }}
+                    value={reviewerName}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Reviewer"
+                      />
+                    )}
+                  />
+                </FormControl>
+                <FormControl
+                  variant="standard"
+                  sx={{ mx: 0.75, minWidth: 200 }}
+                >
+                  <Autocomplete
+                    id="tags-standard"
+                    options={returnTypeDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setReturnTypeName(data);
+                    }}
+                    value={returnTypeName}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Return Type"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"
@@ -848,63 +923,64 @@ const CustomReportFilter = ({
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
-                  <InputLabel id="returnYear">Return Year</InputLabel>
-                  <Select
-                    labelId="returnYear"
-                    id="returnYear"
-                    value={returnYear === 0 ? "" : returnYear}
-                    onChange={(e) => setReturnYear(e.target.value)}
-                  >
-                    {yearDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={yearDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setReturnYear(data);
+                    }}
+                    value={returnYear}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Return Year"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
-                  <InputLabel id="status">Status</InputLabel>
-                  <Select
-                    labelId="status"
-                    id="status"
-                    value={status === 0 ? "" : status}
-                    onChange={(e) => setStatus(e.target.value)}
-                  >
-                    {statusDropdown
-                      // .filter(
-                      //   (stats: any) =>
-                      //     stats.Type.toLowerCase() === IN_PROGRESS ||
-                      //     stats.Type.toLowerCase() === IN_REVIEW ||
-                      //     stats.Type.toLowerCase() === SIGNED_OFF ||
-                      //     stats.Type.toLowerCase() === ACCEPTED
-                      // )
-                      .map((i: any, index: number) => (
-                        <MenuItem value={i.value} key={i.value}>
-                          {i.label}
-                        </MenuItem>
-                      ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={statusDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setStatus(data);
+                    }}
+                    value={status}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Status"
+                      />
+                    )}
+                  />
                 </FormControl>
                 <FormControl
                   variant="standard"
                   sx={{ mx: 0.75, minWidth: 200 }}
                 >
-                  <InputLabel id="priority">Priority</InputLabel>
-                  <Select
-                    labelId="priority"
-                    id="priority"
-                    value={priority === 0 ? "" : priority}
-                    onChange={(e) => setPriority(e.target.value)}
-                  >
-                    {priorityDropdown.map((i: any, index: number) => (
-                      <MenuItem value={i.value} key={i.value}>
-                        {i.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <Autocomplete
+                    id="tags-standard"
+                    options={priorityDropdown}
+                    getOptionLabel={(option: any) => option.label}
+                    onChange={(e: any, data: any) => {
+                      setPriority(data);
+                    }}
+                    value={priority}
+                    renderInput={(params: any) => (
+                      <TextField
+                        {...params}
+                        variant="standard"
+                        label="Priority"
+                      />
+                    )}
+                  />
                 </FormControl>
               </div>
               <div className="flex gap-[20px]">

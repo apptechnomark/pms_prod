@@ -396,6 +396,7 @@ const WorklogActionbar = ({
         {
           workitemIds: id,
           statusId: statusId,
+          SecondManagerReviewId: null,
         },
         {
           headers: {
