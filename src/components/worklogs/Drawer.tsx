@@ -2553,6 +2553,7 @@ const EditDrawer = ({
       reviewerData.length > 0 &&
         onEdit === 0 &&
         setReviewerWorklogs(reviwerId === false ? 0 : reviwerId);
+      typeOfWorkWorklogs === 3 && setReturnYearWorklogs(2023);
     };
 
     typeOfWorkWorklogs !== 0 && getData();

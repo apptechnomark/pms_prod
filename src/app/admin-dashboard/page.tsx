@@ -243,7 +243,7 @@ const Page = () => {
     Withdraw: <Withdraw_Outlined />,
     Rework: <RestorePageOutlinedIcon />,
     "Total Received": <PlaylistAddCheckOutlinedIcon />,
-    "Review Complated": <TaskOutlinedIcon />,
+    "Review Completed": <TaskOutlinedIcon />,
   };
 
   const exportSummaryReport = async () => {
