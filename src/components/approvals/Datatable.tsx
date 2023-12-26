@@ -9,7 +9,6 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  CircularProgress,
 } from "@mui/material";
 import { toast } from "react-toastify";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
@@ -41,6 +40,7 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import ApprovalsActionBar from "./actionBar/ApprovalsActionBar";
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
 import CustomActionBar from "../common/actionBar/CustomActionBar";
+import { Spinner } from "next-ts-lib";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -649,7 +649,8 @@ const Datatable = ({
                   (reviewList[tableMeta.rowIndex].ReviewerIsManual === null ||
                     reviewList[tableMeta.rowIndex].ReviewerIsManual ===
                       false) &&
-                  (reviewList[tableMeta.rowIndex].StatusId === 58 ||
+                  (reviewList[tableMeta.rowIndex].StatusId === 56 ||
+                    reviewList[tableMeta.rowIndex].StatusId === 58 ||
                     reviewList[tableMeta.rowIndex].StatusId === 59 ||
                     reviewList[tableMeta.rowIndex].StatusId === 6 ||
                     reviewList[tableMeta.rowIndex].StatusId === 54) &&
@@ -918,7 +919,7 @@ const Datatable = ({
         </ThemeProvider>
       ) : (
         <div className="h-screen w-full flex justify-center my-[20%]">
-          <CircularProgress />
+          <Spinner />
         </div>
       )}
 

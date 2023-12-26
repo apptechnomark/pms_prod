@@ -1,5 +1,4 @@
 import { ThemeProvider } from "@emotion/react";
-import { CircularProgress } from "@mui/material";
 import MUIDataTable from "mui-datatables";
 import React, { useEffect, useState } from "react";
 import TablePagination from "@mui/material/TablePagination";
@@ -7,6 +6,7 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { callAPI } from "@/utils/API/callAPI";
 import { report_Options } from "@/utils/datatable/TableOptions";
 import { reportDatatatbleRatingCols } from "@/utils/datatable/columns/ReportsDatatableColumns";
+import ReportLoader from "../common/ReportLoader";
 
 const Data = new Date();
 
@@ -146,9 +146,7 @@ const Datatable_Rating = ({
       />
     </ThemeProvider>
   ) : (
-    <div className="h-screen w-full flex justify-center my-[20%]">
-      <CircularProgress />
-    </div>
+    <ReportLoader />
   );
 };
 

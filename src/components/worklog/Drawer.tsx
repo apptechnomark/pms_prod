@@ -48,6 +48,7 @@ import dayjs from "dayjs";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import mentionsInputStyle from "@/utils/worklog/mentionsInputStyle";
 import { callAPI } from "@/utils/API/callAPI";
+import OverLay from "../common/OverLay";
 
 const Drawer = ({
   onOpen,
@@ -61,6 +62,7 @@ const Drawer = ({
 }: any) => {
   const router = useRouter();
   const yearDropdown = getYears();
+  const [isLoadingClientWorklog, setIsLoadingClientWorklog] = useState(false);
   const [clientWorklogUserId, setClientWorklogUserId] = useState(0);
   const [isCreatedByClientWorklog, setIsCreatedByClientWorklog] =
     useState(true);
@@ -284,18 +286,7 @@ const Drawer = ({
 
     if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
       if (!hasSubErrors) {
-        // if (
-        //   (onEdit > 0 && editStatusClientWorklog === 4) ||
-        //   (onEdit > 0 && editStatusClientWorklog === 7) ||
-        //   (onEdit > 0 && editStatusClientWorklog === 8) ||
-        //   (onEdit > 0 && editStatusClientWorklog === 9) ||
-        //   (onEdit > 0 && editStatusClientWorklog === 13)
-        // ) {
-        //   toast.warning(
-        //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-        //   );
-        //   onEdit > 0 && getSubTaskDataClientWorklog();
-        // } else {
+        setIsLoadingClientWorklog(true);
         const params = {
           workitemId: onEdit,
           subtasks: subTaskClientWorklogSwitch
@@ -327,7 +318,9 @@ const Drawer = ({
               },
             ]);
             getSubTaskDataClientWorklog();
+            setIsLoadingClientWorklog(false);
           }
+          setIsLoadingClientWorklog(false);
         };
         callAPI(url, params, successCallback, "POST");
         // }
@@ -495,6 +488,7 @@ const Drawer = ({
       !commentValueClientWorklogError
     ) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
+        setIsLoadingClientWorklog(true);
         const params = {
           workitemId: onEdit,
           CommentId: 0,
@@ -527,7 +521,9 @@ const Drawer = ({
             setCommentValueClientWorklogEdit("");
             setCommentValueClientWorklog("");
             getCommentDataClientWorklog();
+            setIsLoadingClientWorklog(false);
           }
+          setIsLoadingClientWorklog(false);
         };
         callAPI(url, params, successCallback, "POST");
       } else {
@@ -727,6 +723,7 @@ const Drawer = ({
 
     if (!hasErrorLogErrors) {
       if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
+        setIsLoadingClientWorklog(true);
         const params = {
           WorkItemId: onEdit,
           Errors: errorLogClientWorklogFields.map(
@@ -760,8 +757,10 @@ const Drawer = ({
             toast.success(`ErrorLog Updated successfully.`);
             setDeletedErrorLogClientWorklog([]);
             getErrorLogDataClientWorklog();
+            setIsLoadingClientWorklog(false);
           } else {
             setDeletedErrorLogClientWorklog([]);
+            setIsLoadingClientWorklog(false);
           }
         };
         callAPI(url, params, successCallback, "POST");
@@ -834,6 +833,7 @@ const Drawer = ({
       newSubTaskDescErrors.some((error) => error);
 
     const saveWorklog = async () => {
+      setIsLoadingClientWorklog(true);
       const clientId = await localStorage.getItem("clientId");
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
@@ -910,6 +910,7 @@ const Drawer = ({
               `Worklog ${onEdit > 0 ? "Updated" : "created"} successfully.`
             );
             onEdit === 0 && handleCloseClientWorklog();
+            setIsLoadingClientWorklog(false);
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -917,6 +918,7 @@ const Drawer = ({
             } else {
               toast.error(data);
             }
+            setIsLoadingClientWorklog(false);
           }
         } else {
           const data = response.data.Message;
@@ -925,6 +927,7 @@ const Drawer = ({
           } else {
             toast.error(data);
           }
+          setIsLoadingClientWorklog(false);
         }
       } catch (error: any) {
         if (error.response?.status === 401) {
@@ -1187,414 +1190,79 @@ const Drawer = ({
   };
 
   return (
-    <div
-      className={`fixed top-0 right-0 z-30 h-screen overflow-y-auto w-[1300px] border border-lightSilver bg-pureWhite transform  ${
-        onOpen ? "translate-x-0" : "translate-x-full"
-      } transition-transform duration-300 ease-in-out`}
-    >
-      <div className="sticky top-0 !h-[9%] bg-whiteSmoke border-b z-30 border-lightSilver">
-        <div className="flex p-[6px] justify-between items-center">
-          <div className="flex items-center py-[6.5px] pl-[5px]">
-            {Task.map((task) => task)
-              .filter((i: any) => i !== false)
-              .map((task: any, index: number) => (
-                <div
-                  key={index}
-                  className={`my-2 px-3 text-[14px] ${
-                    index !== Task.length - 1 && "border-r border-r-lightSilver"
-                  } cursor-pointer font-bold hover:text-[#0592C6] text-slatyGrey`}
-                  onClick={() => handleTabClickClientWorklog(index)}
-                >
-                  {task}
-                </div>
-              ))}
-          </div>
-          <Tooltip title="Close" placement="left" arrow>
-            <IconButton
-              className="mr-[10px]"
-              onClick={handleCloseClientWorklog}
-            >
-              <Close />
-            </IconButton>
-          </Tooltip>
-        </div>
-      </div>
-      <div className={`${onEdit > 0 && "overflow-y-scroll"} !h-[91%]`}>
-        <form
-          onSubmit={handleSubmitClientWorklog}
-          className="flex flex-col justify-between h-[100%]"
-        >
-          <div>
-            <div className="pt-1" id="tabpanel-0">
-              <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
-                <span className="flex items-center">
-                  <TaskIcon />
-                  <span className="ml-[21px]">Task</span>
-                </span>
-                <div className="flex gap-4">
-                  {onEdit > 0 && (
-                    <span>
-                      Created By : {clientWorklogEditData.CreatedByName}
-                    </span>
-                  )}
-                  <span
-                    className={`cursor-pointer ${
-                      taskClientWorklogDrawer ? "rotate-180" : ""
-                    }`}
-                    onClick={() =>
-                      setTaskClientWorklogDrawer(!taskClientWorklogDrawer)
-                    }
+    <>
+      <div
+        className={`fixed top-0 right-0 z-30 h-screen overflow-y-auto w-[1300px] border border-lightSilver bg-pureWhite transform  ${
+          onOpen ? "translate-x-0" : "translate-x-full"
+        } transition-transform duration-300 ease-in-out`}
+      >
+        <div className="sticky top-0 !h-[9%] bg-whiteSmoke border-b z-30 border-lightSilver">
+          <div className="flex p-[6px] justify-between items-center">
+            <div className="flex items-center py-[6.5px] pl-[5px]">
+              {Task.map((task) => task)
+                .filter((i: any) => i !== false)
+                .map((task: any, index: number) => (
+                  <div
+                    key={index}
+                    className={`my-2 px-3 text-[14px] ${
+                      index !== Task.length - 1 &&
+                      "border-r border-r-lightSilver"
+                    } cursor-pointer font-bold hover:text-[#0592C6] text-slatyGrey`}
+                    onClick={() => handleTabClickClientWorklog(index)}
                   >
-                    <ChevronDownIcon />
+                    {task}
+                  </div>
+                ))}
+            </div>
+            <Tooltip title="Close" placement="left" arrow>
+              <IconButton
+                className="mr-[10px]"
+                onClick={handleCloseClientWorklog}
+              >
+                <Close />
+              </IconButton>
+            </Tooltip>
+          </div>
+        </div>
+        <div className={`${onEdit > 0 && "overflow-y-scroll"} !h-[91%]`}>
+          <form
+            onSubmit={handleSubmitClientWorklog}
+            className="flex flex-col justify-between h-[100%]"
+          >
+            <div>
+              <div className="pt-1" id="tabpanel-0">
+                <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
+                  <span className="flex items-center">
+                    <TaskIcon />
+                    <span className="ml-[21px]">Task</span>
                   </span>
+                  <div className="flex gap-4">
+                    {onEdit > 0 && (
+                      <span>
+                        Created By : {clientWorklogEditData.CreatedByName}
+                      </span>
+                    )}
+                    <span
+                      className={`cursor-pointer ${
+                        taskClientWorklogDrawer ? "rotate-180" : ""
+                      }`}
+                      onClick={() =>
+                        setTaskClientWorklogDrawer(!taskClientWorklogDrawer)
+                      }
+                    >
+                      <ChevronDownIcon />
+                    </span>
+                  </div>
                 </div>
-              </div>
-              {taskClientWorklogDrawer && (
-                <Grid container className="px-8">
-                  {clientWorklogFieldsData.map((type: any) => (
-                    <>
-                      {type.Type === "TypeOfWork" && type.IsChecked && (
-                        <Grid item xs={3} className="pt-4">
-                          <FormControl
-                            variant="standard"
-                            sx={{ width: 300, mt: -0.3 }}
-                            disabled={
-                              !isCreatedByClientWorklog ||
-                              (isCompletedTaskClicked &&
-                                onEdit > 0 &&
-                                !isCreatedByClientWorklog) ||
-                              statusClientWorklog > 1
-                            }
-                          >
-                            <InputLabel id="demo-simple-select-standard-label">
-                              Type of Work
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-standard-label"
-                              id="demo-simple-select-standard"
-                              value={
-                                typeOfWorkClientWorklog === 0
-                                  ? ""
-                                  : typeOfWorkClientWorklog
-                              }
-                              onChange={(e) => {
-                                setTypeOfWorkClientWorklog(e.target.value);
-                              }}
-                            >
-                              {typeOfWorkClientWorklogDropdownData.map(
-                                (i: any, index: number) => (
-                                  <MenuItem value={i.value} key={index}>
-                                    {i.label}
-                                  </MenuItem>
-                                )
-                              )}
-                            </Select>
-                          </FormControl>
-                        </Grid>
-                      )}
-                      {type.Type === "ProjectName" && type.IsChecked && (
-                        <Grid item xs={3} className="pt-4">
-                          <Autocomplete
-                            disablePortal
-                            id="combo-box-demo"
-                            disabled={
-                              !isCreatedByClientWorklog ||
-                              (isCompletedTaskClicked &&
-                                onEdit > 0 &&
-                                !isCreatedByClientWorklog) ||
-                              statusClientWorklog > 1
-                            }
-                            options={projectClientWorklogDropdownData}
-                            value={
-                              projectClientWorklogDropdownData.find(
-                                (i: any) => i.value === projectNameClientWorklog
-                              ) || null
-                            }
-                            onChange={(e, value: any) => {
-                              value && setProjectNameClientWorklog(value.value);
-                            }}
-                            sx={{ width: 300 }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                variant="standard"
-                                label="Project Name"
-                              />
-                            )}
-                          />
-                        </Grid>
-                      )}
-                      {type.Type === "ProcessName" && type.IsChecked && (
-                        <Grid item xs={3} className="pt-4">
-                          <Autocomplete
-                            disablePortal
-                            id="combo-box-demo"
-                            disabled={
-                              !isCreatedByClientWorklog ||
-                              (isCompletedTaskClicked &&
-                                onEdit > 0 &&
-                                !isCreatedByClientWorklog) ||
-                              statusClientWorklog > 1
-                            }
-                            options={processClientWorklogDropdownData}
-                            value={
-                              processClientWorklogDropdownData.find(
-                                (i: any) => i.value === processNameClientWorklog
-                              ) || null
-                            }
-                            onChange={(e, value: any) => {
-                              value && setProcessNameClientWorklog(value.value);
-                            }}
-                            sx={{ width: 300 }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                variant="standard"
-                                label="Process Name"
-                              />
-                            )}
-                          />
-                        </Grid>
-                      )}
-                      {type.Type === "SubProcessName" && type.IsChecked && (
-                        <Grid item xs={3} className="pt-4">
-                          <Autocomplete
-                            disablePortal
-                            id="combo-box-demo"
-                            disabled={
-                              !isCreatedByClientWorklog ||
-                              (isCompletedTaskClicked &&
-                                onEdit > 0 &&
-                                !isCreatedByClientWorklog) ||
-                              statusClientWorklog > 1
-                            }
-                            options={subProcessClientWorklogDropdownData}
-                            value={
-                              subProcessClientWorklogDropdownData.find(
-                                (i: any) =>
-                                  i.value === subProcessNameClientWorklog
-                              ) || null
-                            }
-                            onChange={(e, value: any) => {
-                              value &&
-                                setSubProcessNameClientWorklog(value.value);
-                            }}
-                            sx={{ width: 300 }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                variant="standard"
-                                label="Sub-Process"
-                              />
-                            )}
-                          />
-                        </Grid>
-                      )}
-                      {type.Type === "TaskName" && type.IsChecked && (
-                        <Grid item xs={3}>
-                          <TextField
-                            label={
-                              <span>
-                                Task Name
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            disabled={
-                              !isCreatedByClientWorklog ||
-                              (isCompletedTaskClicked &&
-                                onEdit > 0 &&
-                                !isCreatedByClientWorklog) ||
-                              statusClientWorklog > 1
-                            }
-                            fullWidth
-                            value={
-                              clientTaskNameClientWorklog?.trim().length <= 0
-                                ? ""
-                                : clientTaskNameClientWorklog
-                            }
-                            onChange={(e) => {
-                              setClientTaskNameClientWorklog(e.target.value);
-                              setClientTaskNameClientWorklogErr(false);
-                            }}
-                            onBlur={(e: any) => {
-                              if (e.target.value.trim().length > 4) {
-                                setClientTaskNameClientWorklogErr(false);
-                              }
-                              if (
-                                e.target.value.trim().length > 4 &&
-                                e.target.value.trim().length < 50
-                              ) {
-                                setClientTaskNameClientWorklogErr(false);
-                              }
-                            }}
-                            error={clientTaskNameClientWorklogErr}
-                            helperText={
-                              clientTaskNameClientWorklogErr &&
-                              clientTaskNameClientWorklog?.trim().length > 0 &&
-                              clientTaskNameClientWorklog?.trim().length < 4
-                                ? "Minimum 4 characters required."
-                                : clientTaskNameClientWorklogErr &&
-                                  clientTaskNameClientWorklog?.trim().length >
-                                    50
-                                ? "Maximum 50 characters allowed."
-                                : clientTaskNameClientWorklogErr
-                                ? "This is a required field."
-                                : ""
-                            }
-                            margin="normal"
-                            variant="standard"
-                            sx={{ width: 300 }}
-                          />
-                        </Grid>
-                      )}
-                      {type.Type === "Priority" && type.IsChecked && (
-                        <Grid item xs={3} className="pt-4">
-                          <Autocomplete
-                            disablePortal
-                            id="combo-box-demo"
-                            disabled={
-                              !isCreatedByClientWorklog ||
-                              (isCompletedTaskClicked &&
-                                onEdit > 0 &&
-                                !isCreatedByClientWorklog) ||
-                              statusClientWorklog > 1
-                            }
-                            options={priorityClientWorklogDropdownData}
-                            value={
-                              priorityClientWorklogDropdownData.find(
-                                (i: any) => i.value === priorityClientWorklog
-                              ) || null
-                            }
-                            onChange={(e, value: any) => {
-                              value && setPriorityClientWorklog(value.value);
-                            }}
-                            sx={{ width: 300 }}
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                variant="standard"
-                                label="Priority"
-                              />
-                            )}
-                          />
-                        </Grid>
-                      )}
-                      {type.Type === "Quantity" && type.IsChecked && (
-                        <Grid item xs={3} className="pt-4">
-                          <TextField
-                            label="Quantity"
-                            onFocus={(e) =>
-                              e.target.addEventListener(
-                                "wheel",
-                                function (e) {
-                                  e.preventDefault();
-                                },
-                                { passive: false }
-                              )
-                            }
-                            disabled={
-                              !isCreatedByClientWorklog ||
-                              (isCompletedTaskClicked &&
-                                onEdit > 0 &&
-                                !isCreatedByClientWorklog) ||
-                              statusClientWorklog > 1
-                            }
-                            type="number"
-                            fullWidth
-                            value={quantityClientWorklog}
-                            onChange={(e) =>
-                              setQuantityClientWorklog(e.target.value)
-                            }
-                            margin="normal"
-                            variant="standard"
-                            sx={{ width: 300, mt: 0 }}
-                          />
-                        </Grid>
-                      )}
-                      {type.Type === "StartDate" && type.IsChecked && (
-                        <Grid item xs={3} className="pt-4">
-                          <div
-                            className={`inline-flex -mt-[4px] muiDatepickerCustomizer w-full max-w-[300px]`}
-                          >
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                              <DatePicker
-                                label="Received Date"
-                                value={
-                                  receiverDateClientWorklog === ""
-                                    ? null
-                                    : dayjs(receiverDateClientWorklog)
-                                }
-                                disabled={
-                                  !isCreatedByClientWorklog ||
-                                  (isCompletedTaskClicked &&
-                                    onEdit > 0 &&
-                                    !isCreatedByClientWorklog) ||
-                                  statusClientWorklog > 1
-                                }
-                                shouldDisableDate={isWeekend}
-                                maxDate={dayjs(Date.now())}
-                                onChange={(newDate: any) => {
-                                  setReceiverDateClientWorklog(newDate.$d);
-                                  const selectedDate = dayjs(newDate.$d);
-                                  let nextDate: any = selectedDate;
-                                  if (
-                                    selectedDate.day() === 4 ||
-                                    selectedDate.day() === 5
-                                  ) {
-                                    nextDate = nextDate.add(4, "day");
-                                  } else {
-                                    nextDate = dayjs(newDate.$d)
-                                      .add(2, "day")
-                                      .toDate();
-                                  }
-                                  setDueDateClientWorklog(nextDate);
-                                }}
-                                slotProps={{
-                                  textField: {
-                                    readOnly: true,
-                                  } as Record<string, any>,
-                                }}
-                              />
-                            </LocalizationProvider>
-                          </div>
-                        </Grid>
-                      )}
-                      {type.Type === "EndDate" && type.IsChecked && (
-                        <Grid item xs={3} className="pt-4">
-                          <div
-                            className={`inline-flex -mt-[4px] muiDatepickerCustomizer w-full max-w-[300px]`}
-                          >
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                              <DatePicker
-                                label="Due Date"
-                                value={
-                                  dueDateClientWorklog === ""
-                                    ? null
-                                    : dayjs(dueDateClientWorklog)
-                                }
-                                disabled
-                                onChange={(newDate: any) => {
-                                  setDueDateClientWorklog(newDate.$d);
-                                }}
-                                slotProps={{
-                                  textField: {
-                                    readOnly: true,
-                                  } as Record<string, any>,
-                                }}
-                              />
-                            </LocalizationProvider>
-                          </div>
-                        </Grid>
-                      )}
-                      {type.Type === "ReturnYear" &&
-                        type.IsChecked &&
-                        typeOfWorkClientWorklog === 3 && (
+                {taskClientWorklogDrawer && (
+                  <Grid container className="px-8">
+                    {clientWorklogFieldsData.map((type: any) => (
+                      <>
+                        {type.Type === "TypeOfWork" && type.IsChecked && (
                           <Grid item xs={3} className="pt-4">
                             <FormControl
                               variant="standard"
-                              sx={{ width: 300, mt: -0.4, mx: 0.75 }}
+                              sx={{ width: 300, mt: -0.3 }}
                               disabled={
                                 !isCreatedByClientWorklog ||
                                 (isCompletedTaskClicked &&
@@ -1604,362 +1272,1089 @@ const Drawer = ({
                               }
                             >
                               <InputLabel id="demo-simple-select-standard-label">
-                                Return Year
+                                Type of Work
                               </InputLabel>
                               <Select
                                 labelId="demo-simple-select-standard-label"
                                 id="demo-simple-select-standard"
                                 value={
-                                  returnYearClientWorklog === 0
+                                  typeOfWorkClientWorklog === 0
                                     ? ""
-                                    : returnYearClientWorklog
+                                    : typeOfWorkClientWorklog
                                 }
-                                onChange={(e) =>
-                                  setReturnYearClientWorklog(e.target.value)
-                                }
+                                onChange={(e) => {
+                                  setTypeOfWorkClientWorklog(e.target.value);
+                                }}
                               >
-                                {yearDropdown.map((i: any, index: number) => (
-                                  <MenuItem value={i.value} key={index}>
-                                    {i.label}
-                                  </MenuItem>
-                                ))}
+                                {typeOfWorkClientWorklogDropdownData.map(
+                                  (i: any, index: number) => (
+                                    <MenuItem value={i.value} key={index}>
+                                      {i.label}
+                                    </MenuItem>
+                                  )
+                                )}
                               </Select>
                             </FormControl>
                           </Grid>
                         )}
+                        {type.Type === "ProjectName" && type.IsChecked && (
+                          <Grid item xs={3} className="pt-4">
+                            <Autocomplete
+                              disablePortal
+                              id="combo-box-demo"
+                              disabled={
+                                !isCreatedByClientWorklog ||
+                                (isCompletedTaskClicked &&
+                                  onEdit > 0 &&
+                                  !isCreatedByClientWorklog) ||
+                                statusClientWorklog > 1
+                              }
+                              options={projectClientWorklogDropdownData}
+                              value={
+                                projectClientWorklogDropdownData.find(
+                                  (i: any) =>
+                                    i.value === projectNameClientWorklog
+                                ) || null
+                              }
+                              onChange={(e, value: any) => {
+                                value &&
+                                  setProjectNameClientWorklog(value.value);
+                              }}
+                              sx={{ width: 300 }}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  variant="standard"
+                                  label="Project Name"
+                                />
+                              )}
+                            />
+                          </Grid>
+                        )}
+                        {type.Type === "ProcessName" && type.IsChecked && (
+                          <Grid item xs={3} className="pt-4">
+                            <Autocomplete
+                              disablePortal
+                              id="combo-box-demo"
+                              disabled={
+                                !isCreatedByClientWorklog ||
+                                (isCompletedTaskClicked &&
+                                  onEdit > 0 &&
+                                  !isCreatedByClientWorklog) ||
+                                statusClientWorklog > 1
+                              }
+                              options={processClientWorklogDropdownData}
+                              value={
+                                processClientWorklogDropdownData.find(
+                                  (i: any) =>
+                                    i.value === processNameClientWorklog
+                                ) || null
+                              }
+                              onChange={(e, value: any) => {
+                                value &&
+                                  setProcessNameClientWorklog(value.value);
+                              }}
+                              sx={{ width: 300 }}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  variant="standard"
+                                  label="Process Name"
+                                />
+                              )}
+                            />
+                          </Grid>
+                        )}
+                        {type.Type === "SubProcessName" && type.IsChecked && (
+                          <Grid item xs={3} className="pt-4">
+                            <Autocomplete
+                              disablePortal
+                              id="combo-box-demo"
+                              disabled={
+                                !isCreatedByClientWorklog ||
+                                (isCompletedTaskClicked &&
+                                  onEdit > 0 &&
+                                  !isCreatedByClientWorklog) ||
+                                statusClientWorklog > 1
+                              }
+                              options={subProcessClientWorklogDropdownData}
+                              value={
+                                subProcessClientWorklogDropdownData.find(
+                                  (i: any) =>
+                                    i.value === subProcessNameClientWorklog
+                                ) || null
+                              }
+                              onChange={(e, value: any) => {
+                                value &&
+                                  setSubProcessNameClientWorklog(value.value);
+                              }}
+                              sx={{ width: 300 }}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  variant="standard"
+                                  label="Sub-Process"
+                                />
+                              )}
+                            />
+                          </Grid>
+                        )}
+                        {type.Type === "TaskName" && type.IsChecked && (
+                          <Grid item xs={3}>
+                            <TextField
+                              label={
+                                <span>
+                                  Task Name
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              disabled={
+                                !isCreatedByClientWorklog ||
+                                (isCompletedTaskClicked &&
+                                  onEdit > 0 &&
+                                  !isCreatedByClientWorklog) ||
+                                statusClientWorklog > 1
+                              }
+                              fullWidth
+                              value={
+                                clientTaskNameClientWorklog?.trim().length <= 0
+                                  ? ""
+                                  : clientTaskNameClientWorklog
+                              }
+                              onChange={(e) => {
+                                setClientTaskNameClientWorklog(e.target.value);
+                                setClientTaskNameClientWorklogErr(false);
+                              }}
+                              onBlur={(e: any) => {
+                                if (e.target.value.trim().length > 4) {
+                                  setClientTaskNameClientWorklogErr(false);
+                                }
+                                if (
+                                  e.target.value.trim().length > 4 &&
+                                  e.target.value.trim().length < 50
+                                ) {
+                                  setClientTaskNameClientWorklogErr(false);
+                                }
+                              }}
+                              error={clientTaskNameClientWorklogErr}
+                              helperText={
+                                clientTaskNameClientWorklogErr &&
+                                clientTaskNameClientWorklog?.trim().length >
+                                  0 &&
+                                clientTaskNameClientWorklog?.trim().length < 4
+                                  ? "Minimum 4 characters required."
+                                  : clientTaskNameClientWorklogErr &&
+                                    clientTaskNameClientWorklog?.trim().length >
+                                      50
+                                  ? "Maximum 50 characters allowed."
+                                  : clientTaskNameClientWorklogErr
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ width: 300 }}
+                            />
+                          </Grid>
+                        )}
+                        {type.Type === "Priority" && type.IsChecked && (
+                          <Grid item xs={3} className="pt-4">
+                            <Autocomplete
+                              disablePortal
+                              id="combo-box-demo"
+                              disabled={
+                                !isCreatedByClientWorklog ||
+                                (isCompletedTaskClicked &&
+                                  onEdit > 0 &&
+                                  !isCreatedByClientWorklog) ||
+                                statusClientWorklog > 1
+                              }
+                              options={priorityClientWorklogDropdownData}
+                              value={
+                                priorityClientWorklogDropdownData.find(
+                                  (i: any) => i.value === priorityClientWorklog
+                                ) || null
+                              }
+                              onChange={(e, value: any) => {
+                                value && setPriorityClientWorklog(value.value);
+                              }}
+                              sx={{ width: 300 }}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  variant="standard"
+                                  label="Priority"
+                                />
+                              )}
+                            />
+                          </Grid>
+                        )}
+                        {type.Type === "Quantity" && type.IsChecked && (
+                          <Grid item xs={3} className="pt-4">
+                            <TextField
+                              label="Quantity"
+                              onFocus={(e) =>
+                                e.target.addEventListener(
+                                  "wheel",
+                                  function (e) {
+                                    e.preventDefault();
+                                  },
+                                  { passive: false }
+                                )
+                              }
+                              disabled={
+                                !isCreatedByClientWorklog ||
+                                (isCompletedTaskClicked &&
+                                  onEdit > 0 &&
+                                  !isCreatedByClientWorklog) ||
+                                statusClientWorklog > 1
+                              }
+                              type="number"
+                              fullWidth
+                              value={quantityClientWorklog}
+                              onChange={(e) =>
+                                setQuantityClientWorklog(e.target.value)
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ width: 300, mt: 0 }}
+                            />
+                          </Grid>
+                        )}
+                        {type.Type === "StartDate" && type.IsChecked && (
+                          <Grid item xs={3} className="pt-4">
+                            <div
+                              className={`inline-flex -mt-[4px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                            >
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                  label="Received Date"
+                                  value={
+                                    receiverDateClientWorklog === ""
+                                      ? null
+                                      : dayjs(receiverDateClientWorklog)
+                                  }
+                                  disabled={
+                                    !isCreatedByClientWorklog ||
+                                    (isCompletedTaskClicked &&
+                                      onEdit > 0 &&
+                                      !isCreatedByClientWorklog) ||
+                                    statusClientWorklog > 1
+                                  }
+                                  shouldDisableDate={isWeekend}
+                                  maxDate={dayjs(Date.now())}
+                                  onChange={(newDate: any) => {
+                                    setReceiverDateClientWorklog(newDate.$d);
+                                    const selectedDate = dayjs(newDate.$d);
+                                    let nextDate: any = selectedDate;
+                                    if (
+                                      selectedDate.day() === 4 ||
+                                      selectedDate.day() === 5
+                                    ) {
+                                      nextDate = nextDate.add(4, "day");
+                                    } else {
+                                      nextDate = dayjs(newDate.$d)
+                                        .add(2, "day")
+                                        .toDate();
+                                    }
+                                    setDueDateClientWorklog(nextDate);
+                                  }}
+                                  slotProps={{
+                                    textField: {
+                                      readOnly: true,
+                                    } as Record<string, any>,
+                                  }}
+                                />
+                              </LocalizationProvider>
+                            </div>
+                          </Grid>
+                        )}
+                        {type.Type === "EndDate" && type.IsChecked && (
+                          <Grid item xs={3} className="pt-4">
+                            <div
+                              className={`inline-flex -mt-[4px] muiDatepickerCustomizer w-full max-w-[300px]`}
+                            >
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                  label="Due Date"
+                                  value={
+                                    dueDateClientWorklog === ""
+                                      ? null
+                                      : dayjs(dueDateClientWorklog)
+                                  }
+                                  disabled
+                                  onChange={(newDate: any) => {
+                                    setDueDateClientWorklog(newDate.$d);
+                                  }}
+                                  slotProps={{
+                                    textField: {
+                                      readOnly: true,
+                                    } as Record<string, any>,
+                                  }}
+                                />
+                              </LocalizationProvider>
+                            </div>
+                          </Grid>
+                        )}
+                        {type.Type === "ReturnYear" &&
+                          type.IsChecked &&
+                          typeOfWorkClientWorklog === 3 && (
+                            <Grid item xs={3} className="pt-4">
+                              <FormControl
+                                variant="standard"
+                                sx={{ width: 300, mt: -0.4, mx: 0.75 }}
+                                disabled={
+                                  !isCreatedByClientWorklog ||
+                                  (isCompletedTaskClicked &&
+                                    onEdit > 0 &&
+                                    !isCreatedByClientWorklog) ||
+                                  statusClientWorklog > 1
+                                }
+                              >
+                                <InputLabel id="demo-simple-select-standard-label">
+                                  Return Year
+                                </InputLabel>
+                                <Select
+                                  labelId="demo-simple-select-standard-label"
+                                  id="demo-simple-select-standard"
+                                  value={
+                                    returnYearClientWorklog === 0
+                                      ? ""
+                                      : returnYearClientWorklog
+                                  }
+                                  onChange={(e) =>
+                                    setReturnYearClientWorklog(e.target.value)
+                                  }
+                                >
+                                  {yearDropdown.map((i: any, index: number) => (
+                                    <MenuItem value={i.value} key={index}>
+                                      {i.label}
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                              </FormControl>
+                            </Grid>
+                          )}
+                      </>
+                    ))}
+                  </Grid>
+                )}
+              </div>
+              {clientWorklogFieldsData
+                .map((field: any) => field.IsChecked)
+                .includes(true) && (
+                <div className="mt-14" id="tabpanel-1">
+                  <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
+                    <span className="flex items-center">
+                      <TaskIcon />
+                      <span className="ml-[21px]">Sub-Task</span>
+                    </span>
+                    <span className="flex items-center">
+                      {onEdit > 0 &&
+                        subTaskClientWorklogSwitch &&
+                        isCreatedByClientWorklog && (
+                          <Button
+                            variant="contained"
+                            className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
+                            onClick={handleSubmitSubTaskClientWorklog}
+                          >
+                            Update
+                          </Button>
+                        )}
+                      <Switch
+                        checked={subTaskClientWorklogSwitch}
+                        disabled={
+                          !isCreatedByClientWorklog ||
+                          (isCompletedTaskClicked &&
+                            onEdit > 0 &&
+                            !isCreatedByClientWorklog) ||
+                          statusClientWorklog > 1
+                        }
+                        onChange={(e) => {
+                          setSubTaskClientWorklogSwitch(e.target.checked);
+                          onEdit === 0 &&
+                            setSubTaskClientWorklogFields([
+                              {
+                                SubtaskId: 0,
+                                Title: "",
+                                Description: "",
+                              },
+                            ]);
+                          onEdit === 0 && setTaskNameClientWorklogErr([false]);
+                          onEdit === 0 &&
+                            setSubTaskDescriptionClientWorklogErr([false]);
+                          onEdit === 0 && setDeletedSubTaskClientWorklog([]);
+                        }}
+                      />
+                      <span
+                        className={`cursor-pointer ${
+                          subTaskClientWorklogDrawer ? "rotate-180" : ""
+                        }`}
+                        onClick={() =>
+                          setSubTaskClientWorklogDrawer(
+                            !subTaskClientWorklogDrawer
+                          )
+                        }
+                      >
+                        <ChevronDownIcon />
+                      </span>
+                    </span>
+                  </div>
+                  {subTaskClientWorklogDrawer && (
+                    <>
+                      <div className="mt-3 pl-6">
+                        {subTaskClientWorklogFields.map((field, index) => (
+                          <div className="w-[100%] flex" key={index}>
+                            <TextField
+                              label={
+                                <span>
+                                  Task Name
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              disabled={
+                                !isCreatedByClientWorklog ||
+                                (isCompletedTaskClicked &&
+                                  onEdit > 0 &&
+                                  !isCreatedByClientWorklog) ||
+                                statusClientWorklog > 1
+                              }
+                              fullWidth
+                              value={field.Title}
+                              onChange={(e) =>
+                                handleSubTaskClientWorklogChange(e, index)
+                              }
+                              onBlur={(e: any) => {
+                                if (e.target.value.trim().length > 0) {
+                                  const newTaskNameClientWorklogErrors = [
+                                    ...taskNameClientWorklogErr,
+                                  ];
+                                  newTaskNameClientWorklogErrors[index] = false;
+                                  setTaskNameClientWorklogErr(
+                                    newTaskNameClientWorklogErrors
+                                  );
+                                }
+                              }}
+                              error={taskNameClientWorklogErr[index]}
+                              helperText={
+                                taskNameClientWorklogErr[index] &&
+                                field.Title.length > 0 &&
+                                field.Title.length < 5
+                                  ? "Minumum 5 characters required."
+                                  : taskNameClientWorklogErr[index] &&
+                                    field.Title.length > 50
+                                  ? "Maximum 50 characters allowed."
+                                  : taskNameClientWorklogErr[index]
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                            />
+                            <TextField
+                              label={
+                                <span>
+                                  Description
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
+                                  </span>
+                                </span>
+                              }
+                              disabled={
+                                !isCreatedByClientWorklog ||
+                                (isCompletedTaskClicked &&
+                                  onEdit > 0 &&
+                                  !isCreatedByClientWorklog) ||
+                                statusClientWorklog > 1
+                              }
+                              fullWidth
+                              value={field.Description}
+                              onChange={(e) =>
+                                handleSubTaskDescriptionClientWorklogChange(
+                                  e,
+                                  index
+                                )
+                              }
+                              onBlur={(e: any) => {
+                                if (e.target.value.trim().length > 0) {
+                                  const newSubTaskDescErrors = [
+                                    ...subTaskDescriptionClientWorklogErr,
+                                  ];
+                                  newSubTaskDescErrors[index] = false;
+                                  setSubTaskDescriptionClientWorklogErr(
+                                    newSubTaskDescErrors
+                                  );
+                                }
+                              }}
+                              error={subTaskDescriptionClientWorklogErr[index]}
+                              helperText={
+                                subTaskDescriptionClientWorklogErr[index] &&
+                                field.Description.length > 0 &&
+                                field.Description.length < 5
+                                  ? "Minumum 5 characters required."
+                                  : subTaskDescriptionClientWorklogErr[index] &&
+                                    field.Description.length > 500
+                                  ? "Maximum 500 characters allowed."
+                                  : subTaskDescriptionClientWorklogErr[index]
+                                  ? "This is a required field."
+                                  : ""
+                              }
+                              margin="normal"
+                              variant="standard"
+                              sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
+                            />
+                            {index === 0
+                              ? (onEdit === 0 || !isCompletedTaskClicked) &&
+                                isCreatedByClientWorklog && (
+                                  <span
+                                    className="cursor-pointer"
+                                    onClick={addTaskFieldClientWorklog}
+                                  >
+                                    <svg
+                                      className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                      focusable="false"
+                                      aria-hidden="true"
+                                      viewBox="0 0 24 24"
+                                      data-testid="AddIcon"
+                                    >
+                                      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                                    </svg>
+                                  </span>
+                                )
+                              : (onEdit === 0 || !isCompletedTaskClicked) &&
+                                isCreatedByClientWorklog && (
+                                  <span
+                                    className="cursor-pointer"
+                                    onClick={
+                                      hasPermissionWorklog(
+                                        "Task/SubTask",
+                                        "Delete",
+                                        "WorkLogs"
+                                      ) &&
+                                      hasPermissionWorklog(
+                                        "Task/SubTask",
+                                        "Save",
+                                        "WorkLogs"
+                                      )
+                                        ? () =>
+                                            removeTaskFieldClientWorklog(index)
+                                        : undefined
+                                    }
+                                  >
+                                    <svg
+                                      className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                      focusable="false"
+                                      aria-hidden="true"
+                                      viewBox="0 0 24 24"
+                                      data-testid="RemoveIcon"
+                                    >
+                                      <path d="M19 13H5v-2h14v2z"></path>
+                                    </svg>
+                                  </span>
+                                )}
+                          </div>
+                        ))}
+                      </div>
                     </>
-                  ))}
-                </Grid>
+                  )}
+                </div>
               )}
-            </div>
-            {clientWorklogFieldsData
-              .map((field: any) => field.IsChecked)
-              .includes(true) && (
-              <div className="mt-14" id="tabpanel-1">
-                <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
-                  <span className="flex items-center">
-                    <TaskIcon />
-                    <span className="ml-[21px]">Sub-Task</span>
-                  </span>
-                  <span className="flex items-center">
-                    {onEdit > 0 &&
-                      subTaskClientWorklogSwitch &&
-                      isCreatedByClientWorklog && (
-                        <Button
-                          variant="contained"
-                          className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
-                          onClick={handleSubmitSubTaskClientWorklog}
-                        >
-                          Update
-                        </Button>
-                      )}
-                    <Switch
-                      checked={subTaskClientWorklogSwitch}
-                      disabled={
-                        !isCreatedByClientWorklog ||
-                        (isCompletedTaskClicked &&
-                          onEdit > 0 &&
-                          !isCreatedByClientWorklog) ||
-                        statusClientWorklog > 1
-                      }
-                      onChange={(e) => {
-                        setSubTaskClientWorklogSwitch(e.target.checked);
-                        onEdit === 0 &&
-                          setSubTaskClientWorklogFields([
-                            {
-                              SubtaskId: 0,
-                              Title: "",
-                              Description: "",
-                            },
-                          ]);
-                        onEdit === 0 && setTaskNameClientWorklogErr([false]);
-                        onEdit === 0 &&
-                          setSubTaskDescriptionClientWorklogErr([false]);
-                        onEdit === 0 && setDeletedSubTaskClientWorklog([]);
-                      }}
-                    />
+              {onEdit > 0 && (
+                <div className="mt-14" id="tabpanel-2">
+                  <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
+                    <span className="flex items-center">
+                      <CommentsIcon />
+                      <span className="ml-[21px]">Comments</span>
+                    </span>
                     <span
                       className={`cursor-pointer ${
-                        subTaskClientWorklogDrawer ? "rotate-180" : ""
+                        commentsClientWorklogDrawer ? "rotate-180" : ""
                       }`}
                       onClick={() =>
-                        setSubTaskClientWorklogDrawer(
-                          !subTaskClientWorklogDrawer
+                        setCommentsClientWorklogDrawer(
+                          !commentsClientWorklogDrawer
                         )
                       }
                     >
                       <ChevronDownIcon />
                     </span>
-                  </span>
-                </div>
-                {subTaskClientWorklogDrawer && (
-                  <>
-                    <div className="mt-3 pl-6">
-                      {subTaskClientWorklogFields.map((field, index) => (
-                        <div className="w-[100%] flex" key={index}>
-                          <TextField
-                            label={
-                              <span>
-                                Task Name
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            disabled={
-                              !isCreatedByClientWorklog ||
-                              (isCompletedTaskClicked &&
-                                onEdit > 0 &&
-                                !isCreatedByClientWorklog) ||
-                              statusClientWorklog > 1
-                            }
-                            fullWidth
-                            value={field.Title}
-                            onChange={(e) =>
-                              handleSubTaskClientWorklogChange(e, index)
-                            }
-                            onBlur={(e: any) => {
-                              if (e.target.value.trim().length > 0) {
-                                const newTaskNameClientWorklogErrors = [
-                                  ...taskNameClientWorklogErr,
-                                ];
-                                newTaskNameClientWorklogErrors[index] = false;
-                                setTaskNameClientWorklogErr(
-                                  newTaskNameClientWorklogErrors
-                                );
-                              }
-                            }}
-                            error={taskNameClientWorklogErr[index]}
-                            helperText={
-                              taskNameClientWorklogErr[index] &&
-                              field.Title.length > 0 &&
-                              field.Title.length < 5
-                                ? "Minumum 5 characters required."
-                                : taskNameClientWorklogErr[index] &&
-                                  field.Title.length > 50
-                                ? "Maximum 50 characters allowed."
-                                : taskNameClientWorklogErr[index]
-                                ? "This is a required field."
-                                : ""
-                            }
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
-                          />
-                          <TextField
-                            label={
-                              <span>
-                                Description
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            disabled={
-                              !isCreatedByClientWorklog ||
-                              (isCompletedTaskClicked &&
-                                onEdit > 0 &&
-                                !isCreatedByClientWorklog) ||
-                              statusClientWorklog > 1
-                            }
-                            fullWidth
-                            value={field.Description}
-                            onChange={(e) =>
-                              handleSubTaskDescriptionClientWorklogChange(
-                                e,
-                                index
-                              )
-                            }
-                            onBlur={(e: any) => {
-                              if (e.target.value.trim().length > 0) {
-                                const newSubTaskDescErrors = [
-                                  ...subTaskDescriptionClientWorklogErr,
-                                ];
-                                newSubTaskDescErrors[index] = false;
-                                setSubTaskDescriptionClientWorklogErr(
-                                  newSubTaskDescErrors
-                                );
-                              }
-                            }}
-                            error={subTaskDescriptionClientWorklogErr[index]}
-                            helperText={
-                              subTaskDescriptionClientWorklogErr[index] &&
-                              field.Description.length > 0 &&
-                              field.Description.length < 5
-                                ? "Minumum 5 characters required."
-                                : subTaskDescriptionClientWorklogErr[index] &&
-                                  field.Description.length > 500
-                                ? "Maximum 500 characters allowed."
-                                : subTaskDescriptionClientWorklogErr[index]
-                                ? "This is a required field."
-                                : ""
-                            }
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
-                          />
-                          {index === 0
-                            ? (onEdit === 0 || !isCompletedTaskClicked) &&
-                              isCreatedByClientWorklog && (
-                                <span
-                                  className="cursor-pointer"
-                                  onClick={addTaskFieldClientWorklog}
-                                >
-                                  <svg
-                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                    focusable="false"
-                                    aria-hidden="true"
-                                    viewBox="0 0 24 24"
-                                    data-testid="AddIcon"
-                                  >
-                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
-                                  </svg>
-                                </span>
-                              )
-                            : (onEdit === 0 || !isCompletedTaskClicked) &&
-                              isCreatedByClientWorklog && (
-                                <span
-                                  className="cursor-pointer"
-                                  onClick={
-                                    hasPermissionWorklog(
-                                      "Task/SubTask",
-                                      "Delete",
-                                      "WorkLogs"
-                                    ) &&
-                                    hasPermissionWorklog(
-                                      "Task/SubTask",
-                                      "Save",
-                                      "WorkLogs"
+                  </div>
+                  <div className="my-5 px-16">
+                    <div className="flex flex-col gap-4">
+                      {commentsClientWorklogDrawer &&
+                        commentDataClientWorklog.length > 0 &&
+                        commentDataClientWorklog.map(
+                          (i: any, index: number) => (
+                            <div className="flex gap-4" key={index}>
+                              {i.UserName.length > 0 ? (
+                                <Avatar>
+                                  {i.UserName.split(" ")
+                                    .map((word: any) =>
+                                      word.charAt(0).toUpperCase()
                                     )
-                                      ? () =>
-                                          removeTaskFieldClientWorklog(index)
-                                      : undefined
-                                  }
-                                >
-                                  <svg
-                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                    focusable="false"
-                                    aria-hidden="true"
-                                    viewBox="0 0 24 24"
-                                    data-testid="RemoveIcon"
-                                  >
-                                    <path d="M19 13H5v-2h14v2z"></path>
-                                  </svg>
-                                </span>
+                                    .join("")}
+                                </Avatar>
+                              ) : (
+                                <Avatar sx={{ width: 32, height: 32 }} />
                               )}
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-            {onEdit > 0 && (
-              <div className="mt-14" id="tabpanel-2">
-                <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
-                  <span className="flex items-center">
-                    <CommentsIcon />
-                    <span className="ml-[21px]">Comments</span>
-                  </span>
-                  <span
-                    className={`cursor-pointer ${
-                      commentsClientWorklogDrawer ? "rotate-180" : ""
-                    }`}
-                    onClick={() =>
-                      setCommentsClientWorklogDrawer(
-                        !commentsClientWorklogDrawer
-                      )
-                    }
-                  >
-                    <ChevronDownIcon />
-                  </span>
-                </div>
-                <div className="my-5 px-16">
-                  <div className="flex flex-col gap-4">
-                    {commentsClientWorklogDrawer &&
-                      commentDataClientWorklog.length > 0 &&
-                      commentDataClientWorklog.map((i: any, index: number) => (
-                        <div className="flex gap-4" key={index}>
-                          {i.UserName.length > 0 ? (
-                            <Avatar>
-                              {i.UserName.split(" ")
-                                .map((word: any) =>
-                                  word.charAt(0).toUpperCase()
-                                )
-                                .join("")}
-                            </Avatar>
-                          ) : (
-                            <Avatar sx={{ width: 32, height: 32 }} />
-                          )}
-                          <div>
-                            <Typography>{i.UserName}</Typography>
-                            <Typography>
-                              {i.SubmitedDate},&nbsp;
-                              {new Date(
-                                `1970-01-01T${i.SubmitedTime}:00Z`
-                              ).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </Typography>
-                            <div className="flex items-center gap-2">
-                              {editingCommentIndexClientWorklog === index ? (
+                              <div>
+                                <Typography>{i.UserName}</Typography>
+                                <Typography>
+                                  {i.SubmitedDate},&nbsp;
+                                  {new Date(
+                                    `1970-01-01T${i.SubmitedTime}:00Z`
+                                  ).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </Typography>
                                 <div className="flex items-center gap-2">
-                                  <div className="flex flex-col items-start">
-                                    <div className="flex items-start justify-center">
-                                      <MentionsInput
-                                        style={mentionsInputStyle}
-                                        className="!w-[100%] textareaOutlineNoneEdit"
-                                        value={commentValueClientWorklogEdit}
-                                        onChange={(e) => {
-                                          setCommentValueClientWorklogEdit(
-                                            e.target.value
-                                          );
-                                          setCommentValueClientWorklogEditError(
-                                            false
-                                          );
-                                          handleCommentChangeClientWorklog(
-                                            e.target.value
-                                          );
-                                        }}
-                                        placeholder="Type a next message OR type @ if you want to mention anyone in the message."
-                                      >
-                                        <Mention
-                                          data={users}
-                                          style={{ backgroundColor: "#cee4e5" }}
-                                          trigger="@"
-                                        />
-                                      </MentionsInput>
-                                      <div className="flex flex-col">
-                                        <div className="flex">
-                                          <ImageUploader
-                                            className="!mt-0"
-                                            getData={(data1: any, data2: any) =>
-                                              handleCommentAttachmentsChangeClientWorklog(
-                                                data1,
-                                                data2,
-                                                commentAttachmentClientWorklog
-                                              )
+                                  {editingCommentIndexClientWorklog ===
+                                  index ? (
+                                    <div className="flex items-center gap-2">
+                                      <div className="flex flex-col items-start">
+                                        <div className="flex items-start justify-center">
+                                          <MentionsInput
+                                            style={mentionsInputStyle}
+                                            className="!w-[100%] textareaOutlineNoneEdit"
+                                            value={
+                                              commentValueClientWorklogEdit
                                             }
-                                            isDisable={false}
-                                          />
+                                            onChange={(e) => {
+                                              setCommentValueClientWorklogEdit(
+                                                e.target.value
+                                              );
+                                              setCommentValueClientWorklogEditError(
+                                                false
+                                              );
+                                              handleCommentChangeClientWorklog(
+                                                e.target.value
+                                              );
+                                            }}
+                                            placeholder="Type a next message OR type @ if you want to mention anyone in the message."
+                                          >
+                                            <Mention
+                                              data={users}
+                                              style={{
+                                                backgroundColor: "#cee4e5",
+                                              }}
+                                              trigger="@"
+                                            />
+                                          </MentionsInput>
+                                          <div className="flex flex-col">
+                                            <div className="flex">
+                                              <ImageUploader
+                                                className="!mt-0"
+                                                getData={(
+                                                  data1: any,
+                                                  data2: any
+                                                ) =>
+                                                  handleCommentAttachmentsChangeClientWorklog(
+                                                    data1,
+                                                    data2,
+                                                    commentAttachmentClientWorklog
+                                                  )
+                                                }
+                                                isDisable={false}
+                                              />
+                                            </div>
+                                          </div>
+                                          {commentAttachmentClientWorklog[0]
+                                            ?.SystemFileName.length > 0 && (
+                                            <div className="flex items-center justify-center gap-2">
+                                              <span className="ml-2 cursor-pointer">
+                                                {
+                                                  commentAttachmentClientWorklog[0]
+                                                    ?.UserFileName
+                                                }
+                                              </span>
+                                              <span
+                                                onClick={() =>
+                                                  getFileFromBlob(
+                                                    commentAttachmentClientWorklog[0]
+                                                      ?.SystemFileName,
+                                                    commentAttachmentClientWorklog[0]
+                                                      ?.UserFileName
+                                                  )
+                                                }
+                                              >
+                                                <ColorToolTip
+                                                  title="Download"
+                                                  placement="top"
+                                                  arrow
+                                                >
+                                                  <Download />
+                                                </ColorToolTip>
+                                              </span>
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div className="flex flex-col">
+                                          {commentValueClientWorklogEditError &&
+                                          commentValueClientWorklogEdit.trim()
+                                            .length > 1 &&
+                                          commentValueClientWorklogEdit.trim()
+                                            .length < 5 ? (
+                                            <span className="text-defaultRed text-[14px]">
+                                              Minimum 5 characters required.
+                                            </span>
+                                          ) : commentValueClientWorklogEditError &&
+                                            commentValueClientWorklogEdit.trim()
+                                              .length > 500 ? (
+                                            <span className="text-defaultRed text-[14px]">
+                                              Maximum 500 characters allowed.
+                                            </span>
+                                          ) : (
+                                            commentValueClientWorklogEditError && (
+                                              <span className="text-defaultRed text-[14px]">
+                                                This is a required field.
+                                              </span>
+                                            )
+                                          )}
                                         </div>
                                       </div>
-                                      {commentAttachmentClientWorklog[0]
-                                        ?.SystemFileName.length > 0 && (
+                                      <button
+                                        type="button"
+                                        className="!bg-secondary text-white border rounded-md px-[4px]"
+                                        onClick={(e) =>
+                                          handleSaveClickClientWorklog(e, i)
+                                        }
+                                      >
+                                        <Save className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <span className="hidden"></span>
+                                      <div className="flex items-start">
+                                        {extractText(i.Message).map(
+                                          (i: any) => {
+                                            const assignee =
+                                              commentDropdownDataClientWorklog.map(
+                                                (j: any) => j.label
+                                              );
+                                            return assignee.includes(i) ? (
+                                              <span
+                                                className="text-secondary"
+                                                key={index}
+                                              >
+                                                &nbsp; {i} &nbsp;
+                                              </span>
+                                            ) : (
+                                              i
+                                            );
+                                          }
+                                        )}
+                                      </div>
+                                      {i.Attachment[0]?.SystemFileName.length >
+                                        0 && (
                                         <div className="flex items-center justify-center gap-2">
                                           <span className="ml-2 cursor-pointer">
-                                            {
-                                              commentAttachmentClientWorklog[0]
-                                                ?.UserFileName
-                                            }
+                                            {i.Attachment[0]?.UserFileName}
                                           </span>
                                           <span
                                             onClick={() =>
                                               getFileFromBlob(
-                                                commentAttachmentClientWorklog[0]
+                                                i.Attachment[0]?.SystemFileName,
+                                                i.Attachment[0]?.UserFileName
+                                              )
+                                            }
+                                          >
+                                            <ColorToolTip
+                                              title="Download"
+                                              placement="top"
+                                              arrow
+                                            >
+                                              <Download />
+                                            </ColorToolTip>
+                                          </span>
+                                        </div>
+                                      )}
+                                      {clientWorklogUserId === i.UserId &&
+                                        hasPermissionWorklog(
+                                          "Comment",
+                                          "save",
+                                          "WorkLogs"
+                                        ) && (
+                                          <button
+                                            type="button"
+                                            className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
+                                            onClick={() => {
+                                              handleEditClickClientWorklog(
+                                                index,
+                                                i.Message
+                                              );
+                                              setCommentAttachmentClientWorklog(
+                                                [
+                                                  {
+                                                    AttachmentId:
+                                                      i.Attachment[0]
+                                                        .AttachmentId,
+                                                    UserFileName:
+                                                      i.Attachment[0]
+                                                        .UserFileName,
+                                                    SystemFileName:
+                                                      i.Attachment[0]
+                                                        .SystemFileName,
+                                                    AttachmentPath:
+                                                      process.env.attachment,
+                                                  },
+                                                ]
+                                              );
+                                            }}
+                                          >
+                                            <EditIcon className="h-4 w-4" />
+                                          </button>
+                                        )}
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        )}
+                    </div>
+                  </div>
+                  {commentsClientWorklogDrawer &&
+                    hasPermissionWorklog("Comment", "save", "WorkLogs") && (
+                      <>
+                        <div className="border border-slatyGrey gap-2 py-2 rounded-lg my-2 ml-16 mr-8 flex items-center justify-center">
+                          <MentionsInput
+                            style={mentionsInputStyle}
+                            className="!w-[92%] textareaOutlineNone"
+                            value={commentValueClientWorklog}
+                            onChange={(e) => {
+                              setCommentValueClientWorklog(e.target.value);
+                              setCommentValueClientWorklogError(false);
+                              handleCommentChangeClientWorklog(e.target.value);
+                            }}
+                            placeholder="Type a next message OR type @ if you want to mention anyone in the message."
+                          >
+                            <Mention
+                              data={users}
+                              style={{ backgroundColor: "#cee4e5" }}
+                              trigger="@"
+                            />
+                          </MentionsInput>
+                          <div className="flex flex-col">
+                            <div className="flex">
+                              <ImageUploader
+                                className="!mt-0"
+                                getData={(data1: any, data2: any) =>
+                                  handleCommentAttachmentsChangeClientWorklog(
+                                    data1,
+                                    data2,
+                                    commentAttachmentClientWorklog
+                                  )
+                                }
+                                isDisable={false}
+                              />
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            className="!bg-secondary text-white p-[6px] rounded-md cursor-pointer mr-2"
+                            onClick={handleSubmitCommentClientWorklog}
+                          >
+                            <SendIcon />
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex flex-col">
+                            {commentValueClientWorklogError &&
+                            commentValueClientWorklog.trim().length > 1 &&
+                            commentValueClientWorklog.trim().length < 5 ? (
+                              <span className="text-defaultRed text-[14px] ml-20">
+                                Minimum 5 characters required.
+                              </span>
+                            ) : commentValueClientWorklogError &&
+                              commentValueClientWorklog.trim().length > 500 ? (
+                              <span className="text-defaultRed text-[14px] ml-20">
+                                Maximum 500 characters allowed.
+                              </span>
+                            ) : (
+                              commentValueClientWorklogError && (
+                                <span className="text-defaultRed text-[14px] ml-20">
+                                  This is a required field.
+                                </span>
+                              )
+                            )}
+                          </div>
+                          {commentAttachmentClientWorklog[0].AttachmentId ===
+                            0 &&
+                            commentAttachmentClientWorklog[0]?.SystemFileName
+                              .length > 0 && (
+                              <div className="flex items-center justify-center gap-2 mr-6">
+                                <span className="ml-2 cursor-pointer">
+                                  {
+                                    commentAttachmentClientWorklog[0]
+                                      ?.UserFileName
+                                  }
+                                </span>
+                                <span
+                                  onClick={() =>
+                                    getFileFromBlob(
+                                      commentAttachmentClientWorklog[0]
+                                        ?.SystemFileName,
+                                      commentAttachmentClientWorklog[0]
+                                        ?.UserFileName
+                                    )
+                                  }
+                                >
+                                  <ColorToolTip
+                                    title="Download"
+                                    placement="top"
+                                    arrow
+                                  >
+                                    <Download />
+                                  </ColorToolTip>
+                                </span>
+                              </div>
+                            )}
+                        </div>
+                      </>
+                    )}
+                </div>
+              )}
+              {onEdit > 0 && errorLog && (
+                <div className="my-14" id="tabpanel-3">
+                  <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
+                    <span className="flex items-center">
+                      <TaskIcon />
+                      <span className="ml-[21px]">Error Logs</span>
+                    </span>
+                    <span className="flex items-center">
+                      {onEdit > 0 && (
+                        <Button
+                          variant="contained"
+                          className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
+                          onClick={handleSubmitErrorLogClientWorklog}
+                        >
+                          Update
+                        </Button>
+                      )}
+                      <span
+                        className={`cursor-pointer ${
+                          errorLogClientWorklogDrawer ? "rotate-180" : ""
+                        }`}
+                        onClick={() =>
+                          setErrorLogClientWorklogDrawer(
+                            !errorLogClientWorklogDrawer
+                          )
+                        }
+                      >
+                        <ChevronDownIcon />
+                      </span>
+                    </span>
+                  </div>
+                  {errorLogClientWorklogDrawer &&
+                    hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && (
+                      <>
+                        <div className="mt-3 pl-6">
+                          {errorLogClientWorklogFields.map(
+                            (field: any, index: any) => (
+                              <div className="w-[100%] mt-4" key={index}>
+                                {field.SubmitedBy.length > 0 && (
+                                  <div className="ml-1 mt-8 mb-3">
+                                    <span className="font-bold">
+                                      Correction By
+                                    </span>
+                                    <span className="ml-3 mr-10 text-[14px]">
+                                      {field.SubmitedBy}
+                                    </span>
+                                    <span className="font-bold">
+                                      Reviewer Date
+                                    </span>
+                                    <span className="ml-3">
+                                      {field.SubmitedOn}
+                                    </span>
+                                  </div>
+                                )}
+                                <div className="flex !ml-0">
+                                  <TextField
+                                    label={
+                                      <span>
+                                        Remarks
+                                        <span className="text-defaultRed">
+                                          &nbsp;*
+                                        </span>
+                                      </span>
+                                    }
+                                    fullWidth
+                                    value={
+                                      field.Remark.trim().length === 0
+                                        ? ""
+                                        : field.Remark
+                                    }
+                                    disabled={field.isSolved}
+                                    onChange={(e) =>
+                                      handleRemarksChangeClientWorklog(e, index)
+                                    }
+                                    onBlur={(e: any) => {
+                                      if (e.target.value.length > 0) {
+                                        const newRemarkClientWorklogErrors = [
+                                          ...remarkClientWorklogErr,
+                                        ];
+                                        newRemarkClientWorklogErrors[index] =
+                                          false;
+                                        setRemarkClientWorklogErr(
+                                          newRemarkClientWorklogErrors
+                                        );
+                                      }
+                                    }}
+                                    error={remarkClientWorklogErr[index]}
+                                    helperText={
+                                      remarkClientWorklogErr[index] &&
+                                      field.Remark.length > 0 &&
+                                      field.Remark.length < 5
+                                        ? "Minumum 5 characters required."
+                                        : remarkClientWorklogErr[index] &&
+                                          field.Remark.length > 500
+                                        ? "Maximum 500 characters allowed."
+                                        : remarkClientWorklogErr[index]
+                                        ? "This is a required field."
+                                        : ""
+                                    }
+                                    margin="normal"
+                                    variant="standard"
+                                    sx={{
+                                      mx: 0.75,
+                                      maxWidth: 492,
+                                      mt: 1,
+                                      mr: 2,
+                                    }}
+                                  />
+                                  <div className="flex flex-col">
+                                    <div className="flex">
+                                      <ImageUploader
+                                        getData={(data1: any, data2: any) =>
+                                          handleAttachmentsChangeClientWorklog(
+                                            data1,
+                                            data2,
+                                            field.Attachments,
+                                            index
+                                          )
+                                        }
+                                        isDisable={field.isSolved}
+                                      />
+                                      {field.Attachments[0]?.SystemFileName
+                                        .length > 0 && (
+                                        <div className="flex items-center justify-center gap-2">
+                                          <span className="mt-6 ml-2 cursor-pointer">
+                                            {field.Attachments[0]?.UserFileName}
+                                          </span>
+                                          <span
+                                            className="mt-6"
+                                            onClick={() =>
+                                              getFileFromBlob(
+                                                field.Attachments[0]
                                                   ?.SystemFileName,
-                                                commentAttachmentClientWorklog[0]
+                                                field.Attachments[0]
                                                   ?.UserFileName
                                               )
                                             }
@@ -1975,475 +2370,117 @@ const Drawer = ({
                                         </div>
                                       )}
                                     </div>
-                                    <div className="flex flex-col">
-                                      {commentValueClientWorklogEditError &&
-                                      commentValueClientWorklogEdit.trim()
-                                        .length > 1 &&
-                                      commentValueClientWorklogEdit.trim()
-                                        .length < 5 ? (
-                                        <span className="text-defaultRed text-[14px]">
-                                          Minimum 5 characters required.
-                                        </span>
-                                      ) : commentValueClientWorklogEditError &&
-                                        commentValueClientWorklogEdit.trim()
-                                          .length > 500 ? (
-                                        <span className="text-defaultRed text-[14px]">
-                                          Maximum 500 characters allowed.
-                                        </span>
-                                      ) : (
-                                        commentValueClientWorklogEditError && (
-                                          <span className="text-defaultRed text-[14px]">
-                                            This is a required field.
-                                          </span>
-                                        )
-                                      )}
-                                    </div>
                                   </div>
-                                  <button
-                                    type="button"
-                                    className="!bg-secondary text-white border rounded-md px-[4px]"
-                                    onClick={(e) =>
-                                      handleSaveClickClientWorklog(e, i)
-                                    }
-                                  >
-                                    <Save className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              ) : (
-                                <>
-                                  <span className="hidden"></span>
-                                  <div className="flex items-start">
-                                    {extractText(i.Message).map((i: any) => {
-                                      const assignee =
-                                        commentDropdownDataClientWorklog.map(
-                                          (j: any) => j.label
-                                        );
-                                      return assignee.includes(i) ? (
-                                        <span
-                                          className="text-secondary"
-                                          key={index}
-                                        >
-                                          &nbsp; {i} &nbsp;
-                                        </span>
-                                      ) : (
-                                        i
-                                      );
-                                    })}
-                                  </div>
-                                  {i.Attachment[0]?.SystemFileName.length >
-                                    0 && (
-                                    <div className="flex items-center justify-center gap-2">
-                                      <span className="ml-2 cursor-pointer">
-                                        {i.Attachment[0]?.UserFileName}
-                                      </span>
-                                      <span
-                                        onClick={() =>
-                                          getFileFromBlob(
-                                            i.Attachment[0]?.SystemFileName,
-                                            i.Attachment[0]?.UserFileName
-                                          )
+                                  {field.isSolved && (
+                                    <FormGroup>
+                                      <FormControlLabel
+                                        className="mt-4 ml-2"
+                                        control={
+                                          <Checkbox checked={field.isSolved} />
                                         }
-                                      >
-                                        <ColorToolTip
-                                          title="Download"
-                                          placement="top"
-                                          arrow
-                                        >
-                                          <Download />
-                                        </ColorToolTip>
-                                      </span>
-                                    </div>
+                                        label="Is Resolved"
+                                      />
+                                    </FormGroup>
                                   )}
-                                  {clientWorklogUserId === i.UserId &&
-                                    hasPermissionWorklog(
-                                      "Comment",
-                                      "save",
-                                      "WorkLogs"
-                                    ) && (
-                                      <button
-                                        type="button"
-                                        className="flex items-start !bg-secondary text-white border rounded-md p-[4px]"
-                                        onClick={() => {
-                                          handleEditClickClientWorklog(
-                                            index,
-                                            i.Message
-                                          );
-                                          setCommentAttachmentClientWorklog([
-                                            {
-                                              AttachmentId:
-                                                i.Attachment[0].AttachmentId,
-                                              UserFileName:
-                                                i.Attachment[0].UserFileName,
-                                              SystemFileName:
-                                                i.Attachment[0].SystemFileName,
-                                              AttachmentPath:
-                                                process.env.attachment,
-                                            },
-                                          ]);
-                                        }}
+                                  {index === 0 ? (
+                                    <span
+                                      className="cursor-pointer"
+                                      onClick={
+                                        hasPermissionWorklog(
+                                          "ErrorLog",
+                                          "Save",
+                                          "WorkLogs"
+                                        )
+                                          ? addErrorLogFieldClientWorklog
+                                          : undefined
+                                      }
+                                    >
+                                      <svg
+                                        className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                        focusable="false"
+                                        aria-hidden="true"
+                                        viewBox="0 0 24 24"
+                                        data-testid="AddIcon"
                                       >
-                                        <EditIcon className="h-4 w-4" />
-                                      </button>
-                                    )}
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-                {commentsClientWorklogDrawer &&
-                  hasPermissionWorklog("Comment", "save", "WorkLogs") && (
-                    <>
-                      <div className="border border-slatyGrey gap-2 py-2 rounded-lg my-2 ml-16 mr-8 flex items-center justify-center">
-                        <MentionsInput
-                          style={mentionsInputStyle}
-                          className="!w-[92%] textareaOutlineNone"
-                          value={commentValueClientWorklog}
-                          onChange={(e) => {
-                            setCommentValueClientWorklog(e.target.value);
-                            setCommentValueClientWorklogError(false);
-                            handleCommentChangeClientWorklog(e.target.value);
-                          }}
-                          placeholder="Type a next message OR type @ if you want to mention anyone in the message."
-                        >
-                          <Mention
-                            data={users}
-                            style={{ backgroundColor: "#cee4e5" }}
-                            trigger="@"
-                          />
-                        </MentionsInput>
-                        <div className="flex flex-col">
-                          <div className="flex">
-                            <ImageUploader
-                              className="!mt-0"
-                              getData={(data1: any, data2: any) =>
-                                handleCommentAttachmentsChangeClientWorklog(
-                                  data1,
-                                  data2,
-                                  commentAttachmentClientWorklog
-                                )
-                              }
-                              isDisable={false}
-                            />
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          className="!bg-secondary text-white p-[6px] rounded-md cursor-pointer mr-2"
-                          onClick={handleSubmitCommentClientWorklog}
-                        >
-                          <SendIcon />
-                        </button>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                          {commentValueClientWorklogError &&
-                          commentValueClientWorklog.trim().length > 1 &&
-                          commentValueClientWorklog.trim().length < 5 ? (
-                            <span className="text-defaultRed text-[14px] ml-20">
-                              Minimum 5 characters required.
-                            </span>
-                          ) : commentValueClientWorklogError &&
-                            commentValueClientWorklog.trim().length > 500 ? (
-                            <span className="text-defaultRed text-[14px] ml-20">
-                              Maximum 500 characters allowed.
-                            </span>
-                          ) : (
-                            commentValueClientWorklogError && (
-                              <span className="text-defaultRed text-[14px] ml-20">
-                                This is a required field.
-                              </span>
+                                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                                      </svg>
+                                    </span>
+                                  ) : (
+                                    <span
+                                      className="cursor-pointer"
+                                      onClick={
+                                        hasPermissionWorklog(
+                                          "ErrorLog",
+                                          "Delete",
+                                          "WorkLogs"
+                                        ) &&
+                                        hasPermissionWorklog(
+                                          "ErrorLog",
+                                          "Save",
+                                          "WorkLogs"
+                                        )
+                                          ? () =>
+                                              removeErrorLogFieldClientWorklog(
+                                                index
+                                              )
+                                          : undefined
+                                      }
+                                    >
+                                      <svg
+                                        className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                        focusable="false"
+                                        aria-hidden="true"
+                                        viewBox="0 0 24 24"
+                                        data-testid="RemoveIcon"
+                                      >
+                                        <path d="M19 13H5v-2h14v2z"></path>
+                                      </svg>
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
                             )
                           )}
                         </div>
-                        {commentAttachmentClientWorklog[0].AttachmentId === 0 &&
-                          commentAttachmentClientWorklog[0]?.SystemFileName
-                            .length > 0 && (
-                            <div className="flex items-center justify-center gap-2 mr-6">
-                              <span className="ml-2 cursor-pointer">
-                                {
-                                  commentAttachmentClientWorklog[0]
-                                    ?.UserFileName
-                                }
-                              </span>
-                              <span
-                                onClick={() =>
-                                  getFileFromBlob(
-                                    commentAttachmentClientWorklog[0]
-                                      ?.SystemFileName,
-                                    commentAttachmentClientWorklog[0]
-                                      ?.UserFileName
-                                  )
-                                }
-                              >
-                                <ColorToolTip
-                                  title="Download"
-                                  placement="top"
-                                  arrow
-                                >
-                                  <Download />
-                                </ColorToolTip>
-                              </span>
-                            </div>
-                          )}
-                      </div>
-                    </>
-                  )}
-              </div>
-            )}
-            {onEdit > 0 && errorLog && (
-              <div className="my-14" id="tabpanel-3">
-                <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
-                  <span className="flex items-center">
-                    <TaskIcon />
-                    <span className="ml-[21px]">Error Logs</span>
-                  </span>
-                  <span className="flex items-center">
-                    {onEdit > 0 && (
-                      <Button
-                        variant="contained"
-                        className="rounded-[4px] !h-[36px] mr-6 !bg-secondary"
-                        onClick={handleSubmitErrorLogClientWorklog}
-                      >
-                        Update
-                      </Button>
+                      </>
                     )}
-                    <span
-                      className={`cursor-pointer ${
-                        errorLogClientWorklogDrawer ? "rotate-180" : ""
-                      }`}
-                      onClick={() =>
-                        setErrorLogClientWorklogDrawer(
-                          !errorLogClientWorklogDrawer
-                        )
-                      }
-                    >
-                      <ChevronDownIcon />
-                    </span>
-                  </span>
                 </div>
-                {errorLogClientWorklogDrawer &&
-                  hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && (
-                    <>
-                      <div className="mt-3 pl-6">
-                        {errorLogClientWorklogFields.map(
-                          (field: any, index: any) => (
-                            <div className="w-[100%] mt-4" key={index}>
-                              {field.SubmitedBy.length > 0 && (
-                                <div className="ml-1 mt-8 mb-3">
-                                  <span className="font-bold">
-                                    Correction By
-                                  </span>
-                                  <span className="ml-3 mr-10 text-[14px]">
-                                    {field.SubmitedBy}
-                                  </span>
-                                  <span className="font-bold">
-                                    Reviewer Date
-                                  </span>
-                                  <span className="ml-3">
-                                    {field.SubmitedOn}
-                                  </span>
-                                </div>
-                              )}
-                              <div className="flex !ml-0">
-                                <TextField
-                                  label={
-                                    <span>
-                                      Remarks
-                                      <span className="text-defaultRed">
-                                        &nbsp;*
-                                      </span>
-                                    </span>
-                                  }
-                                  fullWidth
-                                  value={
-                                    field.Remark.trim().length === 0
-                                      ? ""
-                                      : field.Remark
-                                  }
-                                  disabled={field.isSolved}
-                                  onChange={(e) =>
-                                    handleRemarksChangeClientWorklog(e, index)
-                                  }
-                                  onBlur={(e: any) => {
-                                    if (e.target.value.length > 0) {
-                                      const newRemarkClientWorklogErrors = [
-                                        ...remarkClientWorklogErr,
-                                      ];
-                                      newRemarkClientWorklogErrors[index] =
-                                        false;
-                                      setRemarkClientWorklogErr(
-                                        newRemarkClientWorklogErrors
-                                      );
-                                    }
-                                  }}
-                                  error={remarkClientWorklogErr[index]}
-                                  helperText={
-                                    remarkClientWorklogErr[index] &&
-                                    field.Remark.length > 0 &&
-                                    field.Remark.length < 5
-                                      ? "Minumum 5 characters required."
-                                      : remarkClientWorklogErr[index] &&
-                                        field.Remark.length > 500
-                                      ? "Maximum 500 characters allowed."
-                                      : remarkClientWorklogErr[index]
-                                      ? "This is a required field."
-                                      : ""
-                                  }
-                                  margin="normal"
-                                  variant="standard"
-                                  sx={{ mx: 0.75, maxWidth: 492, mt: 1, mr: 2 }}
-                                />
-                                <div className="flex flex-col">
-                                  <div className="flex">
-                                    <ImageUploader
-                                      getData={(data1: any, data2: any) =>
-                                        handleAttachmentsChangeClientWorklog(
-                                          data1,
-                                          data2,
-                                          field.Attachments,
-                                          index
-                                        )
-                                      }
-                                      isDisable={field.isSolved}
-                                    />
-                                    {field.Attachments[0]?.SystemFileName
-                                      .length > 0 && (
-                                      <div className="flex items-center justify-center gap-2">
-                                        <span className="mt-6 ml-2 cursor-pointer">
-                                          {field.Attachments[0]?.UserFileName}
-                                        </span>
-                                        <span
-                                          className="mt-6"
-                                          onClick={() =>
-                                            getFileFromBlob(
-                                              field.Attachments[0]
-                                                ?.SystemFileName,
-                                              field.Attachments[0]?.UserFileName
-                                            )
-                                          }
-                                        >
-                                          <ColorToolTip
-                                            title="Download"
-                                            placement="top"
-                                            arrow
-                                          >
-                                            <Download />
-                                          </ColorToolTip>
-                                        </span>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                                {field.isSolved && (
-                                  <FormGroup>
-                                    <FormControlLabel
-                                      className="mt-4 ml-2"
-                                      control={
-                                        <Checkbox checked={field.isSolved} />
-                                      }
-                                      label="Is Resolved"
-                                    />
-                                  </FormGroup>
-                                )}
-                                {index === 0 ? (
-                                  <span
-                                    className="cursor-pointer"
-                                    onClick={
-                                      hasPermissionWorklog(
-                                        "ErrorLog",
-                                        "Save",
-                                        "WorkLogs"
-                                      )
-                                        ? addErrorLogFieldClientWorklog
-                                        : undefined
-                                    }
-                                  >
-                                    <svg
-                                      className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                      focusable="false"
-                                      aria-hidden="true"
-                                      viewBox="0 0 24 24"
-                                      data-testid="AddIcon"
-                                    >
-                                      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
-                                    </svg>
-                                  </span>
-                                ) : (
-                                  <span
-                                    className="cursor-pointer"
-                                    onClick={
-                                      hasPermissionWorklog(
-                                        "ErrorLog",
-                                        "Delete",
-                                        "WorkLogs"
-                                      ) &&
-                                      hasPermissionWorklog(
-                                        "ErrorLog",
-                                        "Save",
-                                        "WorkLogs"
-                                      )
-                                        ? () =>
-                                            removeErrorLogFieldClientWorklog(
-                                              index
-                                            )
-                                        : undefined
-                                    }
-                                  >
-                                    <svg
-                                      className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                      focusable="false"
-                                      aria-hidden="true"
-                                      viewBox="0 0 24 24"
-                                      data-testid="RemoveIcon"
-                                    >
-                                      <path d="M19 13H5v-2h14v2z"></path>
-                                    </svg>
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </>
+              )}
+            </div>
+            <div className="sticky bottom-0 !h-[9%] bg-whiteSmoke border-b z-30 border-lightSilver flex p-2 justify-end items-center">
+              <div>
+                <Button
+                  variant="outlined"
+                  className="rounded-[4px] !h-[36px] !text-secondary"
+                  onClick={handleCloseClientWorklog}
+                >
+                  <span className="flex items-center justify-center gap-[10px] px-[5px]">
+                    Close
+                  </span>
+                </Button>
+                {isCreatedByClientWorklog &&
+                  !isCompletedTaskClicked &&
+                  clientWorklogFieldsData
+                    .map((field: any) => field.IsChecked)
+                    .includes(true) && (
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary"
+                    >
+                      <span className="flex items-center justify-center gap-[10px] px-[5px]">
+                        {onEdit > 0 ? "Save Task" : "Create Task"}
+                      </span>
+                    </Button>
                   )}
               </div>
-            )}
-          </div>
-          <div className="sticky bottom-0 !h-[9%] bg-whiteSmoke border-b z-30 border-lightSilver flex p-2 justify-end items-center">
-            <div>
-              <Button
-                variant="outlined"
-                className="rounded-[4px] !h-[36px] !text-secondary"
-                onClick={handleCloseClientWorklog}
-              >
-                <span className="flex items-center justify-center gap-[10px] px-[5px]">
-                  Close
-                </span>
-              </Button>
-              {isCreatedByClientWorklog &&
-                !isCompletedTaskClicked &&
-                clientWorklogFieldsData
-                  .map((field: any) => field.IsChecked)
-                  .includes(true) && (
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    className="rounded-[4px] !h-[36px] !mx-6 !bg-secondary"
-                  >
-                    <span className="flex items-center justify-center gap-[10px] px-[5px]">
-                      {onEdit > 0 ? "Save Task" : "Create Task"}
-                    </span>
-                  </Button>
-                )}
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
-    </div>
+
+      {isLoadingClientWorklog ? <OverLay /> : ""}
+    </>
   );
 };
 

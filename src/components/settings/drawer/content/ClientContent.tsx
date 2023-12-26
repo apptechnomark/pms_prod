@@ -156,6 +156,7 @@ const ClientContent = forwardRef<
   const [recurringCall, setRecurringCall] = useState<string>("");
   const [specificProcessStep, setSpecificProcessStep] = useState<string>("");
   const [clientTimeZone, setClientTimeZone] = useState<string>("");
+  const [noOfLogin, setNoOfLogin] = useState<string>("");
 
   const addTaskField = () => {
     setPocFields([
@@ -392,6 +393,7 @@ const ClientContent = forwardRef<
                   ? ""
                   : response.data.ResponseData.ClientTimeZone
               );
+              setNoOfLogin(response.data.ResponseData.NoOfLogins);
             } else {
               const data = response.data.Message;
               if (data === null) {
@@ -912,6 +914,7 @@ const ClientContent = forwardRef<
     setRecurringCall("");
     setSpecificProcessStep("");
     setClientTimeZone("");
+    setNoOfLogin("");
     setIsAdditionalFieldsClicked(false);
     setIsAddClientClicked(true);
   };
@@ -1034,6 +1037,9 @@ const ClientContent = forwardRef<
           ClientTimeZone: getFieldValue(
             isAdditionalFieldsClicked,
             clientTimeZone.trim()
+          ),
+          NoOfLogins: parseInt(
+            getFieldValue(isAdditionalFieldsClicked, noOfLogin.trim())
           ),
         },
         {
@@ -1914,6 +1920,28 @@ const ClientContent = forwardRef<
 
                 <Text
                   label="Client Timezone"
+                  placeholder="Enter Client Timezone"
+                  value={clientTimeZone}
+                  getValue={(e) => setClientTimeZone(e)}
+                  getError={() => {}}
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className="flex flex-row gap-5">
+                <Text
+                  label="No. Of Login"
+                  placeholder="Enter No. Of Login"
+                  type="number"
+                  value={noOfLogin}
+                  getValue={(e) => setNoOfLogin(e)}
+                  getError={() => {}}
+                  autoComplete="off"
+                />
+
+                <Text
+                  className="hidden"
+                  // label="Client Timezone"
                   placeholder="Enter Client Timezone"
                   value={clientTimeZone}
                   getValue={(e) => setClientTimeZone(e)}

@@ -1,9 +1,9 @@
-import { CircularProgress } from "@mui/material";
+import { Spinner } from "next-ts-lib";
 
 const ReportLoader = () => {
   return (
     <div className="h-screen w-full flex justify-center my-[20%]">
-      <CircularProgress />
+      <Spinner />
     </div>
   );
 };

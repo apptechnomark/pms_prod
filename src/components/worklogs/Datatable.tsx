@@ -4,7 +4,6 @@ import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
 import {
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -38,6 +37,7 @@ import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import WorklogsActionBar from "./actionBar/WorklogsActionBar";
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
+import ReportLoader from "../common/ReportLoader";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -1038,7 +1038,7 @@ const Datatable = ({
             title={undefined}
             options={{
               ...worklogs_Options,
-              tableBodyHeight: "68vh",
+              tableBodyHeight: "65vh",
               viewColumns: true,
               selectAllRows: isPopupOpen && selectedRowsCount === 0,
               rowsSelected: selectedRows,
@@ -1098,9 +1098,7 @@ const Datatable = ({
           />
         </ThemeProvider>
       ) : (
-        <div className="h-screen w-full flex justify-center my-[20%]">
-          <CircularProgress />
-        </div>
+        <ReportLoader />
       )}
 
       {/* Timer Stop Dialog */}

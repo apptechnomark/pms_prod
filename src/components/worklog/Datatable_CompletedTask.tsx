@@ -3,7 +3,6 @@ import axios from "axios";
 
 import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
-import { CircularProgress } from "@mui/material";
 import TablePagination from "@mui/material/TablePagination";
 // icons imports
 import { toast } from "react-toastify";
@@ -19,6 +18,7 @@ import {
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import CompletedTaskActionBar from "./actionBar/CompletedTaskActionBar";
+import ReportLoader from "../common/ReportLoader";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -393,9 +393,7 @@ const Datatable_CompletedTask = ({
           />
         </ThemeProvider>
       ) : (
-        <div className="h-screen w-full flex justify-center my-[20%]">
-          <CircularProgress />
-        </div>
+        <ReportLoader />
       )}
 
       {/* Completed Task Action Bar */}

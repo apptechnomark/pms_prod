@@ -70,8 +70,8 @@ import { getFileFromBlob } from "@/utils/downloadFile";
 import { ColorToolTip, getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { callAPI } from "@/utils/API/callAPI";
 import MUIDataTable from "mui-datatables";
-import TablePagination from "@mui/material/TablePagination";
 import { generateCommonBodyRender } from "@/utils/datatable/CommonFunction";
+import OverLay from "../common/OverLay";
 
 const EditDrawer = ({
   onOpen,
@@ -84,6 +84,7 @@ const EditDrawer = ({
 }: any) => {
   const router = useRouter();
   const yearWorklogsDrawerDropdown = getYears();
+  const [isLoadingWorklogs, setIsLoadingWorklogs] = useState(false);
   const [inputTypeReviewWorklogsDrawer, setInputTypeReviewWorklogsDrawer] =
     useState("text");
   const [
@@ -362,6 +363,7 @@ const EditDrawer = ({
       //   onEdit > 0 && getSubTaskDataWorklogs();
       // } else {
       if (!hasSubErrors) {
+        setIsLoadingWorklogs(true);
         const params = {
           workitemId: onEdit,
           subtasks: subTaskSwitchWorklogs
@@ -392,8 +394,10 @@ const EditDrawer = ({
                 Description: "",
               },
             ]);
+            setIsLoadingWorklogs(false);
             getSubTaskDataWorklogs();
           }
+          setIsLoadingWorklogs(false);
         };
         callAPI(url, params, successCallback, "POST");
       }
@@ -506,6 +510,7 @@ const EditDrawer = ({
 
     if (hasPermissionWorklog("Reccuring", "save", "WorkLogs")) {
       if (!hasErrors) {
+        setIsLoadingWorklogs(true);
         const params = {
           WorkitemId: onEdit,
           Type: recurringTime,
@@ -527,8 +532,10 @@ const EditDrawer = ({
           if (ResponseStatus === "Success" && error === false) {
             toast.success(`Recurring Updated successfully.`);
             setDeletedSubTaskWorklogs([]);
+            setIsLoadingWorklogs(false);
             getRecurringDataWorklogs();
           }
+          setIsLoadingWorklogs(false);
         };
         callAPI(url, params, successCallback, "POST");
       }
@@ -916,6 +923,7 @@ const EditDrawer = ({
         newManualDescWorklogsErrors.some((error) => error);
 
       if (!hasManualErrors) {
+        setIsLoadingWorklogs(true);
         const params = {
           workItemId: onEdit,
           timelogs: manualFieldsWorklogs.map(
@@ -944,9 +952,11 @@ const EditDrawer = ({
             setDeletedManualTimeWorklogs([]);
             getEditDataWorklogs();
             getManualDataWorklogs();
+            setIsLoadingWorklogs(false);
           } else {
             getManualDataWorklogs();
             getEditDataWorklogs();
+            setIsLoadingWorklogs(false);
           }
         };
         callAPI(url, params, successCallback, "POST");
@@ -1047,6 +1057,7 @@ const EditDrawer = ({
       //   getReminderDataWorklogs();
       // } else {
       if (!hasErrors) {
+        setIsLoadingWorklogs(true);
         const params = {
           ReminderId: reminderId,
           ReminderType: reminderCheckboxValue,
@@ -1068,7 +1079,9 @@ const EditDrawer = ({
             toast.success(`Reminder Updated successfully.`);
             getReminderDataWorklogs();
             setReminderId(0);
+            setIsLoadingWorklogs(false);
           }
+          setIsLoadingWorklogs(false);
         };
         callAPI(url, params, successCallback, "POST");
       }
@@ -1129,6 +1142,7 @@ const EditDrawer = ({
         checkListNameWorklogs.trim().length > 4 &&
         checkListNameWorklogs.trim().length < 500
       ) {
+        setIsLoadingWorklogs(true);
         const params = {
           workItemId: onEdit,
           category: Category,
@@ -1146,7 +1160,9 @@ const EditDrawer = ({
             setCheckListNameWorklogs("");
             getCheckListDataWorklogs();
             toggleAddChecklistField(index);
+            setIsLoadingWorklogs(false);
           }
+          setIsLoadingWorklogs(false);
         };
         callAPI(url, params, successCallback, "POST");
       }
@@ -1205,6 +1221,7 @@ const EditDrawer = ({
         title: Title,
         isCheck: IsCheck,
       };
+      setIsLoadingWorklogs(true);
       const url = `${process.env.worklog_api_url}/workitem/checklist/savebyworkitem`;
       const successCallback = (
         ResponseData: any,
@@ -1214,7 +1231,9 @@ const EditDrawer = ({
         if (ResponseStatus === "Success" && error === false) {
           toast.success(`CheckList Updated successfully.`);
           getCheckListDataWorklogs();
+          setIsLoadingWorklogs(false);
         }
+        setIsLoadingWorklogs(false);
       };
       callAPI(url, params, successCallback, "POST");
       // }
@@ -1275,6 +1294,7 @@ const EditDrawer = ({
         valueEditWorklogs.trim().length < 501 &&
         !valueEditWorklogsError
       ) {
+        setIsLoadingWorklogs(true);
         const params = {
           workitemId: onEdit,
           CommentId: i.CommentId,
@@ -1307,7 +1327,9 @@ const EditDrawer = ({
             setValueEditWorklogs("");
             getCommentDataWorklogs(1);
             setEditingCommentIndexWorklogs(-1);
+            setIsLoadingWorklogs(false);
           }
+          setIsLoadingWorklogs(false);
         };
         callAPI(url, params, successCallback, "POST");
       }
@@ -1385,6 +1407,7 @@ const EditDrawer = ({
         valueWorklogs.trim().length < 501 &&
         !valueWorklogsError
       ) {
+        setIsLoadingWorklogs(true);
         const params = {
           workitemId: onEdit,
           CommentId: 0,
@@ -1417,7 +1440,9 @@ const EditDrawer = ({
             setValueEditWorklogs("");
             setValueWorklogs("");
             getCommentDataWorklogs(commentSelectWorklogs);
+            setIsLoadingWorklogs(false);
           }
+          setIsLoadingWorklogs(false);
         };
         callAPI(url, params, successCallback, "POST");
       }
@@ -1627,6 +1652,7 @@ const EditDrawer = ({
 
     if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
       if (hasErrorLogErrors === false) {
+        setIsLoadingWorklogs(true);
         const params = {
           WorkItemId: onEdit,
           Errors: errorLogFieldsWorklogs.map(
@@ -1674,10 +1700,13 @@ const EditDrawer = ({
                 );
                 getErrorLogDataWorklogs();
                 onDataFetch();
+                setIsLoadingWorklogs(false);
               }
+              setIsLoadingWorklogs(false);
             };
             callAPI(url, params, successCallback, "POST");
           }
+          setIsLoadingWorklogs(false);
         };
         callAPI(url, params, successCallback, "POST");
       }
@@ -2085,6 +2114,7 @@ const EditDrawer = ({
     };
 
     const saveWorklog = async () => {
+      setIsLoadingWorklogs(true);
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
       try {
@@ -2111,6 +2141,7 @@ const EditDrawer = ({
             onEdit > 0 && getLogsDataWorklogs();
             onEdit === 0 && onClose();
             onEdit === 0 && handleClose();
+            setIsLoadingWorklogs(false);
           } else {
             const data = response.data.Message;
             onEdit > 0 && getEditDataWorklogs();
@@ -2119,6 +2150,7 @@ const EditDrawer = ({
             } else {
               toast.error(data);
             }
+            setIsLoadingWorklogs(false);
           }
         } else {
           const data = response.data.Message;
@@ -2127,6 +2159,7 @@ const EditDrawer = ({
           } else {
             toast.error(data);
           }
+          setIsLoadingWorklogs(false);
         }
       } catch (error: any) {
         if (error.response?.status === 401) {
@@ -2607,6 +2640,7 @@ const EditDrawer = ({
   };
 
   const handleClose = () => {
+    setIsLoadingWorklogs(false);
     setIsIdDisabled(false);
     setEditDataWorklogs([]);
     setIsCreatedByClientWorklogsDrawer(false);
@@ -2802,7 +2836,7 @@ const EditDrawer = ({
         <div className="sticky top-0 !h-[9%] bg-whiteSmoke border-b z-30 border-lightSilver">
           <div className="flex p-[6px] justify-between items-center">
             <div className="flex items-center py-[6.5px] pl-[5px]">
-              {Task.map((task) => task)
+              {Task.map((task: any) => task)
                 .filter((i: any) => i !== false)
                 .map((task: any, index: number) => (
                   <div
@@ -6116,6 +6150,7 @@ const EditDrawer = ({
           </form>
         </div>
       </div>
+      {isLoadingWorklogs ? <OverLay /> : ""}
     </>
   );
 };

@@ -401,10 +401,10 @@ const RatingReportFilter = ({
           )[0]
     );
     setRatingReport_StartDate(
-      ratingreport_savedFilters[index].AppliedFilter.StartDate ?? ""
+      ratingreport_savedFilters[index].AppliedFilter.StartDate ?? null
     );
     setRatingReport_EndDate(
-      ratingreport_savedFilters[index].AppliedFilter.EndDate ?? ""
+      ratingreport_savedFilters[index].AppliedFilter.EndDate ?? null
     );
     setRatingReport_Ratings(
       ratingreport_savedFilters[index].AppliedFilter.Ratings === null

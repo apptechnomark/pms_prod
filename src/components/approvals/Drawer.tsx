@@ -71,6 +71,7 @@ import { ColorToolTip, getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { callAPI } from "@/utils/API/callAPI";
 import { generateCommonBodyRender } from "@/utils/datatable/CommonFunction";
 import MUIDataTable from "mui-datatables";
+import OverLay from "../common/OverLay";
 
 const EditDrawer = ({
   onOpen,
@@ -85,6 +86,7 @@ const EditDrawer = ({
 }: any) => {
   const router = useRouter();
   const yearDropdown = getYears();
+  const [isLoadingWorklog, setIsLoadingWorklog] = useState(false);
   const [inputTypeReview, setInputTypeReview] = useState("text");
   const [inputTypePreperation, setInputTypePreperation] = useState("text");
 
@@ -214,6 +216,7 @@ const EditDrawer = ({
         newManualDescErrors.some((error) => error);
 
       if (!hasManualErrors) {
+        setIsLoadingWorklog(true);
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
         try {
@@ -251,6 +254,7 @@ const EditDrawer = ({
               setDeletedManualTime([]);
               getManualTimeLogForReviewer(onEdit);
               getEditData();
+              setIsLoadingWorklog(false);
             } else {
               const data = response.data.Message;
               if (data === null) {
@@ -258,6 +262,7 @@ const EditDrawer = ({
               } else {
                 toast.error(data);
               }
+              setIsLoadingWorklog(false);
             }
           } else {
             const data = response.data.Message;
@@ -266,6 +271,7 @@ const EditDrawer = ({
             } else {
               toast.error(data);
             }
+            setIsLoadingWorklog(false);
           }
         } catch (error: any) {
           if (error.response?.status === 401) {
@@ -890,6 +896,7 @@ const EditDrawer = ({
     };
 
     const saveWorklog = async () => {
+      setIsLoadingWorklog(true);
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
       try {
@@ -913,6 +920,7 @@ const EditDrawer = ({
             onEdit > 0 && typeOfWork === 3 && getCheckListData();
             onEdit === 0 && onClose();
             onEdit === 0 && handleClose();
+            setIsLoadingWorklog(false);
           } else {
             const data = response.data.Message;
             onEdit > 0 && getEditData();
@@ -921,6 +929,7 @@ const EditDrawer = ({
             } else {
               toast.error(data);
             }
+            setIsLoadingWorklog(false);
           }
         } else {
           const data = response.data.Message;
@@ -929,6 +938,7 @@ const EditDrawer = ({
           } else {
             toast.error(data);
           }
+          setIsLoadingWorklog(false);
         }
       } catch (error: any) {
         if (error.response?.status === 401) {
@@ -1096,6 +1106,7 @@ const EditDrawer = ({
       newSubTaskDescErrors.some((error) => error);
 
     if (!hasSubErrors) {
+      setIsLoadingWorklog(true);
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
       try {
@@ -1135,6 +1146,7 @@ const EditDrawer = ({
               },
             ]);
             getWorklogData();
+            setIsLoadingWorklog(false);
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -1142,6 +1154,7 @@ const EditDrawer = ({
             } else {
               toast.error(data);
             }
+            setIsLoadingWorklog(false);
           }
         } else {
           const data = response.data.Message;
@@ -1150,6 +1163,7 @@ const EditDrawer = ({
           } else {
             toast.error(data);
           }
+          setIsLoadingWorklog(false);
         }
       } catch (error: any) {
         if (error.response?.status === 401) {
@@ -1203,6 +1217,7 @@ const EditDrawer = ({
       checkListName.trim().length > 4 &&
       checkListName.trim().length < 500
     ) {
+      setIsLoadingWorklog(true);
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
       try {
@@ -1228,6 +1243,7 @@ const EditDrawer = ({
             setCheckListName("");
             getCheckListData();
             toggleAddChecklistField(index);
+            setIsLoadingWorklog(false);
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -1235,6 +1251,7 @@ const EditDrawer = ({
             } else {
               toast.error(data);
             }
+            setIsLoadingWorklog(false);
           }
         } else {
           const data = response.data.Message;
@@ -1243,6 +1260,7 @@ const EditDrawer = ({
           } else {
             toast.error(data);
           }
+          setIsLoadingWorklog(false);
         }
       } catch (error: any) {
         if (error.response?.status === 401) {
@@ -1259,18 +1277,7 @@ const EditDrawer = ({
     IsCheck: any,
     Title: any
   ) => {
-    // if (
-    //   editStatus === 4 ||
-    //   status === 7 ||
-    //   status === 8 ||
-    //   status === 9 ||
-    //   status === 13
-    // ) {
-    //   toast.warning(
-    //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-    //   );
-    //   getCheckListData();
-    // } else {
+    setIsLoadingWorklog(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -1294,6 +1301,7 @@ const EditDrawer = ({
         if (response.data.ResponseStatus === "Success") {
           toast.success(`CheckList Updated successfully.`);
           getCheckListData();
+          setIsLoadingWorklog(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -1301,6 +1309,7 @@ const EditDrawer = ({
           } else {
             toast.error(data);
           }
+          setIsLoadingWorklog(false);
         }
       } else {
         const data = response.data.Message;
@@ -1309,6 +1318,7 @@ const EditDrawer = ({
         } else {
           toast.error(data);
         }
+        setIsLoadingWorklog(false);
       }
     } catch (error: any) {
       if (error.response?.status === 401) {
@@ -1316,7 +1326,6 @@ const EditDrawer = ({
         localStorage.clear();
       }
     }
-    // }
   };
 
   // Comments
@@ -1364,6 +1373,7 @@ const EditDrawer = ({
       !valueEditError
     ) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
+        setIsLoadingWorklog(true);
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
         try {
@@ -1404,6 +1414,7 @@ const EditDrawer = ({
               setValueEdit("");
               getCommentData(1);
               setEditingCommentIndex(-1);
+              setIsLoadingWorklog(false);
             } else {
               const data = response.data.Message;
               if (data === null) {
@@ -1411,6 +1422,7 @@ const EditDrawer = ({
               } else {
                 toast.error(data);
               }
+              setIsLoadingWorklog(false);
             }
           } else {
             const data = response.data.Message;
@@ -1419,6 +1431,7 @@ const EditDrawer = ({
             } else {
               toast.error(data);
             }
+            setIsLoadingWorklog(false);
           }
         } catch (error: any) {
           if (error.response?.status === 401) {
@@ -1472,6 +1485,7 @@ const EditDrawer = ({
 
     if (value.trim().length >= 5 && value.trim().length < 501 && !valueError) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
+        setIsLoadingWorklog(true);
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
         try {
@@ -1512,6 +1526,7 @@ const EditDrawer = ({
               setValueEdit("");
               setValue("");
               getCommentData(commentSelect);
+              setIsLoadingWorklog(false);
             } else {
               const data = response.data.Message;
               if (data === null) {
@@ -1519,6 +1534,7 @@ const EditDrawer = ({
               } else {
                 toast.error(data);
               }
+              setIsLoadingWorklog(false);
             }
           } else {
             const data = response.data.Message;
@@ -1527,6 +1543,7 @@ const EditDrawer = ({
             } else {
               toast.error(data);
             }
+            setIsLoadingWorklog(false);
           }
         } catch (error: any) {
           if (error.response?.status === 401) {
@@ -1558,18 +1575,6 @@ const EditDrawer = ({
   const [reminderCheckboxValue, setReminderCheckboxValue] = useState<any>(1);
   const [reminderId, setReminderId] = useState(0);
   const handleSubmitReminder = async () => {
-    // if (
-    //   editStatus === 4 ||
-    //   status === 7 ||
-    //   status === 8 ||
-    //   status === 9 ||
-    //   status === 13
-    // ) {
-    //   toast.warning(
-    //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-    //   );
-    //   getReminderData();
-    // } else {
     const validateField = (value: any) => {
       if (
         value === 0 ||
@@ -1602,6 +1607,7 @@ const EditDrawer = ({
     const hasErrors = Object.values(fieldValidations).some((error) => error);
 
     if (!hasErrors) {
+      setIsLoadingWorklog(true);
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
       try {
@@ -1631,6 +1637,7 @@ const EditDrawer = ({
             toast.success(`Reminder Updated successfully.`);
             getReminderData();
             setReminderId(0);
+            setIsLoadingWorklog(false);
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -1638,6 +1645,7 @@ const EditDrawer = ({
             } else {
               toast.error(data);
             }
+            setIsLoadingWorklog(false);
           }
         } else {
           const data = response.data.Message;
@@ -1646,6 +1654,7 @@ const EditDrawer = ({
           } else {
             toast.error(data);
           }
+          setIsLoadingWorklog(false);
         }
       } catch (error: any) {
         if (error.response?.status === 401) {
@@ -1654,7 +1663,6 @@ const EditDrawer = ({
         }
       }
     }
-    // }
   };
 
   const handleMultiSelect = (e: React.SyntheticEvent, value: any) => {
@@ -2540,6 +2548,7 @@ const EditDrawer = ({
 
     if (!hasErrorLogErrors) {
       if (hasPermissionWorklog("ErrorLog", "Save", "WorkLogs")) {
+        setIsLoadingWorklog(true);
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
         try {
@@ -2583,6 +2592,7 @@ const EditDrawer = ({
               getEditData();
               getErrorLogData();
               onDataFetch();
+              setIsLoadingWorklog(false);
             } else {
               const data = response.data.Message;
               if (data === null) {
@@ -2590,6 +2600,7 @@ const EditDrawer = ({
               } else {
                 toast.error(data);
               }
+              setIsLoadingWorklog(false);
             }
           } else {
             const data = response.data.Message;
@@ -2598,6 +2609,7 @@ const EditDrawer = ({
             } else {
               toast.error(data);
             }
+            setIsLoadingWorklog(false);
           }
         } catch (error: any) {
           if (error.response?.status === 401) {
@@ -2793,6 +2805,7 @@ const EditDrawer = ({
   }, [typeOfWork, clientName]);
 
   const handleClose = () => {
+    setIsLoadingWorklog(false);
     setEditData([]);
     setIsCreatedByClient(false);
     setUserId(0);
@@ -4336,7 +4349,9 @@ const EditDrawer = ({
                                       >
                                         <Mention
                                           data={users}
-                                          style={{ backgroundColor: "#cee4e5" }}
+                                          style={{
+                                            backgroundColor: "#cee4e5",
+                                          }}
                                           trigger="@"
                                         />
                                       </MentionsInput>
@@ -6150,7 +6165,13 @@ const EditDrawer = ({
               <div
                 className="mt-14"
                 id={`${
-                  isManual === true || isManual === null
+                  (isManual === true || isManual === null) &&
+                  isPartiallySubmitted
+                    ? "tabpanel-10"
+                    : (isManual === true || isManual === null) &&
+                      !isPartiallySubmitted
+                    ? "tabpanel-9"
+                    : isManual === false && isPartiallySubmitted
                     ? "tabpanel-9"
                     : "tabpanel-8"
                 }`}
@@ -6242,6 +6263,8 @@ const EditDrawer = ({
           </form>
         </div>
       </div>
+
+      {isLoadingWorklog ? <OverLay /> : ""}
     </>
   );
 };

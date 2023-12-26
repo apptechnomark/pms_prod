@@ -55,7 +55,7 @@ const Assignee = ({
         {
           ClientIds: selectedRowClientId,
           WorktypeId: selectedRowWorkTypeId[0],
-          IsAll: selectedRowClientId.length > 0 ? true : false,
+          IsAll: selectedRowClientId.length > 1 ? true : false,
         },
         {
           headers: {
