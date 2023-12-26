@@ -7,6 +7,7 @@ import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteModal from "@/components/common/DeleteModal";
 import "next-ts-lib/dist/index.css";
 import { GROUP } from "./Constants/Tabname";
+import ReportLoader from "@/components/common/ReportLoader";
 
 function Group({
   onOpen,
@@ -250,9 +251,7 @@ function Group({
     <>
       {canView ? (
         loader ? (
-          <div className="flex items-center justify-center min-h-screen">
-            <Loader />
-          </div>
+          <ReportLoader />
         ) : (
           <div
             className={`${data.length === 0 ? "!h-full" : "!h-[81vh] !w-full"}`}

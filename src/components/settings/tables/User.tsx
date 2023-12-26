@@ -21,6 +21,7 @@ import SwitchModal from "@/components/common/SwitchModal";
 import DrawerOverlay from "../drawer/DrawerOverlay";
 import UserPermissionDrawer from "../drawer/UserPermissionDrawer";
 import { USER } from "./Constants/Tabname";
+import ReportLoader from "@/components/common/ReportLoader";
 
 const User = ({
   onOpen,
@@ -537,9 +538,7 @@ const User = ({
     <>
       {canView ? (
         loader ? (
-          <div className="flex items-center justify-center min-h-screen">
-            <Loader />
-          </div>
+          <ReportLoader />
         ) : (
           <div
             className={`${

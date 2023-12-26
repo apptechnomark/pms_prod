@@ -9,6 +9,7 @@ import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteModal from "@/components/common/DeleteModal";
 import SwitchModal from "@/components/common/SwitchModal";
 import { PROJECT } from "./Constants/Tabname";
+import ReportLoader from "@/components/common/ReportLoader";
 
 const Project = ({
   onOpen,
@@ -394,9 +395,7 @@ const Project = ({
     <>
       {canView ? (
         loader ? (
-          <div className="flex items-center justify-center min-h-screen">
-            <Loader />
-          </div>
+          <ReportLoader />
         ) : (
           <div
             className={`${

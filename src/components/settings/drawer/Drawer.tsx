@@ -15,6 +15,7 @@ import OrganizationContent, {
 import GroupContent, { GroupContentRef } from "./content/GroupContent";
 import DeleteModal from "@/components/common/DeleteModal";
 import axios from "axios";
+import OverLay from "@/components/common/OverLay";
 
 const Drawer = ({
   onOpen,
@@ -41,6 +42,7 @@ const Drawer = ({
   const clientRef = useRef<ClientContentRef>(null);
   const childRefStatus = useRef<StatusContenRef>(null);
   const permissionRef = useRef<PermissionContentRef>(null);
+  const [drawerOverlay, setDrawerOverlay] = useState(false);
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
@@ -159,6 +161,7 @@ const Drawer = ({
             clientData={onEdit && clientData}
             onDataFetch={onDataFetch}
             ref={clientRef}
+            onChangeLoader={(e: any) => setDrawerOverlay(e)}
           />
         )}
         {tab === "Permission" && (
@@ -167,6 +170,7 @@ const Drawer = ({
             onClose={onClose}
             ref={permissionRef}
             getPermissionDropdown={getPermissionDropdown}
+            onChangeLoader={(e: any) => setDrawerOverlay(e)}
           />
         )}
         {tab === "Project" && (
@@ -178,6 +182,7 @@ const Drawer = ({
             onClose={onClose}
             projectData={projectData}
             onValuesChange={handleChildValuesChange}
+            onChangeLoader={(e: any) => setDrawerOverlay(e)}
           />
         )}
         {tab === "Status" && (
@@ -188,6 +193,7 @@ const Drawer = ({
             ref={childRefStatus}
             statusData={onEdit && statusData}
             onDataFetch={onDataFetch}
+            onChangeLoader={(e: any) => setDrawerOverlay(e)}
           />
         )}
         {tab === "User" && (
@@ -198,6 +204,7 @@ const Drawer = ({
             ref={childRef}
             userData={onEdit && userData}
             onUserDataFetch={onUserDataFetch}
+            onChangeLoader={(e: any) => setDrawerOverlay(e)}
           />
         )}
         {tab === "Process" && (
@@ -208,6 +215,7 @@ const Drawer = ({
             ref={childRefProcess}
             onDataFetch={onDataFetch}
             processData={onEdit && processData}
+            onChangeLoader={(e: any) => setDrawerOverlay(e)}
           />
         )}
         {tab === "Organization" && (
@@ -219,6 +227,7 @@ const Drawer = ({
             onDataFetch={onDataFetch}
             ref={childRefOrg}
             getOrgDetailsFunction={getOrgDetailsFunction}
+            onChangeLoader={(e: any) => setDrawerOverlay(e)}
           />
         )}
         {tab === "Group" && (
@@ -230,6 +239,7 @@ const Drawer = ({
             ref={childRefGroup}
             onDataFetch={onDataFetch}
             groupData={onEdit && groupData}
+            onChangeLoader={(e: any) => setDrawerOverlay(e)}
           />
         )}
       </div>
@@ -249,6 +259,7 @@ const Drawer = ({
           </p>
         </DeleteModal>
       )}
+      {drawerOverlay ? <OverLay /> : ""}
     </>
   );
 };

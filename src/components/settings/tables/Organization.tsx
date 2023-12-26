@@ -8,6 +8,7 @@ import TableActionIcon from "@/assets/icons/TableActionIcon";
 import axios from "axios";
 import SwitchModal from "@/components/common/SwitchModal";
 import { ORGANIZATION } from "./Constants/Tabname";
+import ReportLoader from "@/components/common/ReportLoader";
 
 function Organization({
   onOpen,
@@ -271,9 +272,7 @@ function Organization({
   return (
     <>
       {loader ? (
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader />
-        </div>
+        <ReportLoader />
       ) : (
         <div
           className={`${userList.length === 0 ? "h-full" : "h-[81vh] !w-full"}`}

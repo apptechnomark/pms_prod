@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button, Loader, Select, Text, Toast } from "next-ts-lib";
+import { Button, Select, Text, Toast } from "next-ts-lib";
 import React, {
   useState,
   forwardRef,
@@ -25,8 +25,9 @@ const ProcessContent = forwardRef<
     onClose: any;
     processData: any;
     onDataFetch(): any;
+    onChangeLoader: any;
   }
->(({ onEdit, onClose, onDataFetch }, ref) => {
+>(({ onEdit, onClose, onDataFetch, onChangeLoader }, ref) => {
   // For token and org_token
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
@@ -70,8 +71,6 @@ const ProcessContent = forwardRef<
   const [estErrMsg, setEstErrMsg] = useState("");
   const [convertedSec, setConvertedSec] = useState<number>(0);
   const [type, setType] = useState<string>("text");
-  // const [defaultProductive, setDefaultProductive] = useState(false);
-  const [loader, setLoader] = useState(false);
 
   const handleDelete = (ProcessId: any) => {
     setProcessId(ProcessId);
@@ -419,7 +418,7 @@ const ProcessContent = forwardRef<
       returnTypeHasError &&
       estTimeHasError
     ) {
-      setLoader(true);
+      onChangeLoader(true);
       try {
         const prams = {
           ProcessId: onEdit || 0,
@@ -448,14 +447,14 @@ const ProcessContent = forwardRef<
             closeDrawer();
             ProcessDataValue();
             onDataFetch();
-            setLoader(false);
+            onChangeLoader(false);
             Toast.success(
               `${onEdit ? "" : "New"} Process ${
                 onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
-            setLoader(false);
+            onChangeLoader(false);
             const data = response.data.Message;
             if (data === null) {
               Toast.error("Please try again later.");
@@ -465,7 +464,7 @@ const ProcessContent = forwardRef<
           }
         }
       } catch (error) {
-        setLoader(false);
+        onChangeLoader(false);
         console.error(error);
       }
     }
@@ -500,7 +499,7 @@ const ProcessContent = forwardRef<
       returnTypeHasError &&
       estTimeHasError
     ) {
-      setLoader(true);
+      onChangeLoader(true);
       try {
         const prams = {
           ProcessId: onEdit || 0,
@@ -528,14 +527,14 @@ const ProcessContent = forwardRef<
           if (response.data.ResponseStatus === "Success") {
             ProcessDataValue();
             onDataFetch();
-            setLoader(false);
+            onChangeLoader(false);
             Toast.success(
               `${onEdit ? "" : "New"} Process ${
                 onEdit ? "Updated" : "added"
               }  successfully.`
             );
           } else {
-            setLoader(false);
+            onChangeLoader(false);
             const data = response.data.Message;
             if (data === null) {
               Toast.error("Please try again later.");
@@ -545,7 +544,7 @@ const ProcessContent = forwardRef<
           }
         }
       } catch (error) {
-        setLoader(false);
+        onChangeLoader(false);
         console.error(error);
       }
     }
@@ -830,19 +829,13 @@ const ProcessContent = forwardRef<
                 Add More
               </Button>
             )}
-            {loader ? (
-              <span className="-mt-1">
-                <Loader size="sm" />
-              </span>
-            ) : (
-              <Button
-                variant="btn-primary"
-                className="rounded-[4px] !h-[36px] !uppercase"
-                onClick={handleSubmit}
-              >
-                {onEdit ? "Save" : "Create Process"}
-              </Button>
-            )}
+            <Button
+              variant="btn-primary"
+              className="rounded-[4px] !h-[36px] !uppercase"
+              onClick={handleSubmit}
+            >
+              {onEdit ? "Save" : "Create Process"}
+            </Button>
           </>
         </div>
       </form>

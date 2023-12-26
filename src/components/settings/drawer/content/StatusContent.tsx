@@ -1,7 +1,7 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios";
-import { Button, Toast, Text, ColorPicker, Loader } from "next-ts-lib";
+import { Button, Toast, Text, ColorPicker } from "next-ts-lib";
 import React, {
   forwardRef,
   useEffect,
@@ -20,16 +20,15 @@ const StatusContent = forwardRef<
     statusData: any;
     onClose: () => void;
     onDataFetch: any;
+    onChangeLoader: any;
   }
->(({ tab, onClose, onEdit, statusData, onDataFetch }, ref) => {
+>(({ tab, onClose, onEdit, statusData, onDataFetch, onChangeLoader }, ref) => {
   const [statusName, setStatusName] = useState("");
   const [type, setType] = useState("");
   const [colorName, setColorName] = useState("");
   const [statusNameHasError, setStatusNameHasError] = useState(false);
   const [statusNameError, setStatusNameError] = useState(false);
   const [isDefualt, setIsDefualt] = useState(false);
-
-  const [loader, setLoader] = useState(false);
 
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
@@ -121,7 +120,7 @@ const StatusContent = forwardRef<
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     if (statusNameHasError) {
-      setLoader(true);
+      onChangeLoader(true);
       try {
         const response = await axios.post(
           `${process.env.pms_api_url}/status/Save`,
@@ -143,7 +142,7 @@ const StatusContent = forwardRef<
             // calling function to get updated data
             onDataFetch();
             clearStatusData();
-            setLoader(false);
+            onChangeLoader(false);
             onClose();
             Toast.success(
               `${onEdit ? "" : "New"} Status ${
@@ -151,7 +150,7 @@ const StatusContent = forwardRef<
               }  successfully.`
             );
           } else {
-            setLoader(false);
+            onChangeLoader(false);
             const data = response.data.Message;
             if (data === null) {
               Toast.error("Please try again later.");
@@ -160,7 +159,7 @@ const StatusContent = forwardRef<
             }
           }
         } else {
-          setLoader(false);
+          onChangeLoader(false);
           const data = response.data.Message;
           if (data === null) {
             Toast.error("Failed Please try again.");
@@ -169,7 +168,7 @@ const StatusContent = forwardRef<
           }
         }
       } catch (error) {
-        setLoader(false);
+        onChangeLoader(false);
         console.error(error);
       }
     }
@@ -279,20 +278,14 @@ const StatusContent = forwardRef<
               Add More
             </Button>
           )}
-          {loader ? (
-            <span className="-mt-1">
-              <Loader size="sm" />
-            </span>
-          ) : (
-            <Button
-              variant="btn-primary"
-              className="rounded-[4px] !h-[36px] !uppercase"
-              type="submit"
-              onClick={handleSubmit}
-            >
-              {onEdit ? "Save" : "Create Status"}
-            </Button>
-          )}
+          <Button
+            variant="btn-primary"
+            className="rounded-[4px] !h-[36px] !uppercase"
+            type="submit"
+            onClick={handleSubmit}
+          >
+            {onEdit ? "Save" : "Create Status"}
+          </Button>
         </>
       </div>
     </>

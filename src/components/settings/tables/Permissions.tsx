@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { CheckBox, DataTable, Loader, Toast } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
+import ReportLoader from "@/components/common/ReportLoader";
 
 interface Action {
   IsChecked: boolean;
@@ -253,11 +254,7 @@ const Permissions = ({
 
   return (
     <>
-      {canView && loading && (
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader />
-        </div>
-      )}
+      {canView && loading && <ReportLoader />}
 
       {canView ? (
         data.length <= 0 ? (

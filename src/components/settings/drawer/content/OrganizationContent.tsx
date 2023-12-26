@@ -1,7 +1,7 @@
 /* eslint-disable react/display-name */
 // import { getHeaderOptions } from "@/utils/commonFunction";
 import axios from "axios";
-import { Button, Loader, Text, Toast, Typography } from "next-ts-lib";
+import { Button, Text, Toast, Typography } from "next-ts-lib";
 import React, {
   forwardRef,
   useEffect,
@@ -22,10 +22,19 @@ const OrganizationContent = forwardRef<
     onClose: () => void;
     onDataFetch: any;
     getOrgDetailsFunction: any;
+    onChangeLoader: any;
   }
 >(
   (
-    { tab, onEdit, orgData, onClose, onDataFetch, getOrgDetailsFunction },
+    {
+      tab,
+      onEdit,
+      orgData,
+      onClose,
+      onDataFetch,
+      getOrgDetailsFunction,
+      onChangeLoader,
+    },
     ref
   ) => {
     const token = localStorage.getItem("token");
@@ -47,7 +56,6 @@ const OrganizationContent = forwardRef<
     const [organizationNameError, setOrganizationNameError] = useState(false);
     const [organizationNameHasError, setOrganizationNameHasError] =
       useState(false);
-    const [loader, setLoader] = useState(false);
 
     useEffect(() => {
       setClientName("Client");
@@ -137,7 +145,7 @@ const OrganizationContent = forwardRef<
         clientNameError &&
         projectNameError
       ) {
-        setLoader(true);
+        onChangeLoader(true);
         try {
           const headers = {
             "Content-Type": "application/json",
@@ -165,9 +173,9 @@ const OrganizationContent = forwardRef<
             getOrgDetailsFunction();
             onClose();
             onDataFetch();
-            setLoader(false);
+            onChangeLoader(false);
           } else {
-            setLoader(false);
+            onChangeLoader(false);
             const data = response.data.Message;
             if (data === null) {
               Toast.error("Please try again later.");
@@ -176,7 +184,7 @@ const OrganizationContent = forwardRef<
             }
           }
         } catch (error) {
-          setLoader(false);
+          onChangeLoader(false);
           console.error(error);
         }
       }
@@ -363,20 +371,14 @@ const OrganizationContent = forwardRef<
                 Add More
               </Button>
             )}
-            {loader ? (
-              <span className="-mt-1">
-                <Loader size="sm" />
-              </span>
-            ) : (
-              <Button
-                variant="btn-primary"
-                className="rounded-[4px] !h-[36px] !uppercase"
-                type="submit"
-                onClick={handleSubmit}
-              >
-                {onEdit ? "Save" : "Create Organization"}
-              </Button>
-            )}
+            <Button
+              variant="btn-primary"
+              className="rounded-[4px] !h-[36px] !uppercase"
+              type="submit"
+              onClick={handleSubmit}
+            >
+              {onEdit ? "Save" : "Create Organization"}
+            </Button>
           </>
         </div>
       </form>

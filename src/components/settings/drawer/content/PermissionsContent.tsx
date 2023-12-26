@@ -1,11 +1,7 @@
 /* eslint-disable react/display-name */
 import axios from "axios";
-import { Button, Loader, Radio, Text, Toast } from "next-ts-lib";
-import React, {
-  forwardRef,
-  useImperativeHandle,
-  useState,
-} from "react";
+import { Button, Radio, Text, Toast } from "next-ts-lib";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 
 export interface PermissionContentRef {
   clearAllData: () => void;
@@ -17,13 +13,13 @@ const PermissionsContent = forwardRef<
     tab: string;
     onClose: () => void;
     getPermissionDropdown: any;
+    onChangeLoader: any;
   }
->(({ tab, onClose, getPermissionDropdown }, ref) => {
+>(({ tab, onClose, getPermissionDropdown, onChangeLoader }, ref) => {
   const [role, setRole] = useState("");
   const [type, setType] = useState("1");
   const [roleError, setRoleError] = useState(false);
   const [roleHasError, setRoleHasError] = useState(false);
-  const [loader, setLoader] = useState(false);
 
   const clearData = () => {
     setRoleHasError(true);
@@ -43,7 +39,7 @@ const PermissionsContent = forwardRef<
   }));
 
   const saveRole = async () => {
-    setLoader(true);
+    onChangeLoader(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -65,10 +61,10 @@ const PermissionsContent = forwardRef<
         if (response.data.ResponseStatus === "Success") {
           clearAllData();
           getPermissionDropdown();
-          setLoader(false);
+          onChangeLoader(false);
           Toast.success(`Role created successfully.`);
         } else {
-          setLoader(false);
+          onChangeLoader(false);
           const data = response.data.Message;
           if (data === null) {
             Toast.error("Please try again later.");
@@ -77,7 +73,7 @@ const PermissionsContent = forwardRef<
           }
         }
       } else {
-        setLoader(false);
+        onChangeLoader(false);
         const data = response.data.Message;
         if (data === null) {
           Toast.error("Failed Please try again.");
@@ -86,7 +82,7 @@ const PermissionsContent = forwardRef<
         }
       }
     } catch (error) {
-      setLoader(false);
+      onChangeLoader(false);
       console.error(error);
     }
   };
@@ -144,19 +140,13 @@ const PermissionsContent = forwardRef<
         >
           Cancel
         </Button>
-        {loader ? (
-          <span className="-mt-1">
-            <Loader size="sm" />
-          </span>
-        ) : (
-          <Button
-            type="submit"
-            variant="btn-primary"
-            className="rounded-[4px] !h-[36px] !uppercase"
-          >
-            Create {tab === "Permissions" ? "Role" : tab}
-          </Button>
-        )}
+        <Button
+          type="submit"
+          variant="btn-primary"
+          className="rounded-[4px] !h-[36px] !uppercase"
+        >
+          Create {tab === "Permissions" ? "Role" : tab}
+        </Button>
       </div>
     </form>
   );

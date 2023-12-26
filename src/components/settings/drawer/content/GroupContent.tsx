@@ -4,7 +4,7 @@ import { Autocomplete, Checkbox, TextField } from "@mui/material";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import axios from "axios";
-import { Button, Loader, Text, Toast } from "next-ts-lib";
+import { Button, Text, Toast } from "next-ts-lib";
 import React, {
   forwardRef,
   useEffect,
@@ -33,151 +33,87 @@ const GroupContent = forwardRef<
     onDataFetch: any;
     orgData: any;
     groupData: any;
+    onChangeLoader: any;
   }
->(({ tab, orgData, groupData, onEdit, onClose, onDataFetch }, ref) => {
-  const [data, setData] = useState<Options[]>([]);
-  const [groupName, setGroupName] = useState("");
-  const [groupNameHasError, setGroupNameHasError] = useState(false);
-  const [groupNameError, setGroupNameError] = useState(false);
-  const [selectValue, setSelectValue] = useState<any[]>([]);
-  const [selectedOptions, setSelectOptions] = useState<Options[]>([]);
-  const [loader, setLoader] = useState(false);
-  const token = localStorage.getItem("token");
-  const org_token = localStorage.getItem("Org_Token");
+>(
+  (
+    { tab, orgData, groupData, onEdit, onClose, onDataFetch, onChangeLoader },
+    ref
+  ) => {
+    const [data, setData] = useState<Options[]>([]);
+    const [groupName, setGroupName] = useState("");
+    const [groupNameHasError, setGroupNameHasError] = useState(false);
+    const [groupNameError, setGroupNameError] = useState(false);
+    const [selectValue, setSelectValue] = useState<any[]>([]);
+    const [selectedOptions, setSelectOptions] = useState<Options[]>([]);
+    const token = localStorage.getItem("token");
+    const org_token = localStorage.getItem("Org_Token");
 
-  const fetchEditData = async () => {
-    if (onEdit) {
-      try {
-        const response = await axios.post(
-          `${process.env.pms_api_url}/group/getbyid`,
-          { groupId: onEdit || 0 },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: org_token,
-            },
-          }
-        );
+    const fetchEditData = async () => {
+      if (onEdit) {
+        try {
+          const response = await axios.post(
+            `${process.env.pms_api_url}/group/getbyid`,
+            { groupId: onEdit || 0 },
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: org_token,
+              },
+            }
+          );
 
-        if (response.status === 200) {
-          let groupuserIds = response.data.ResponseData.GroupUserIds;
+          if (response.status === 200) {
+            let groupuserIds = response.data.ResponseData.GroupUserIds;
 
-          const filteredOptionsData = data.filter((d) => {
-            return groupuserIds.some((id: number) => {
-              return id === parseInt(d.value);
+            const filteredOptionsData = data.filter((d) => {
+              return groupuserIds.some((id: number) => {
+                return id === parseInt(d.value);
+              });
             });
-          });
 
-          if (response.data.ResponseStatus === "Success") {
-            setGroupName(response.data.ResponseData.Name);
-            setGroupNameError(true);
-            if (!groupuserIds) {
-              groupuserIds = null;
+            if (response.data.ResponseStatus === "Success") {
+              setGroupName(response.data.ResponseData.Name);
+              setGroupNameError(true);
+              if (!groupuserIds) {
+                groupuserIds = null;
+              } else {
+                setSelectOptions(filteredOptionsData);
+                setSelectValue(response.data.ResponseData.GroupUserIds);
+              }
             } else {
-              setSelectOptions(filteredOptionsData);
-              setSelectValue(response.data.ResponseData.GroupUserIds);
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              Toast.error("Please try again later.");
-            } else {
-              Toast.error(data);
+              const data = response.data.Message;
+              if (data === null) {
+                Toast.error("Please try again later.");
+              } else {
+                Toast.error(data);
+              }
             }
           }
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    } else {
-      setGroupName("");
-      setGroupNameError(false);
-      setGroupNameHasError(false);
-      setSelectOptions([]);
-      setSelectValue([]);
-    }
-  };
-
-  useEffect(() => {
-    fetchEditData();
-    getDropdownData();
-    setGroupNameError(false);
-    setGroupNameHasError(false);
-  }, [onEdit]);
-
-  // For drop down fetch data in api
-  const getDropdownData = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.api_url}/user/getdropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: org_token,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            Toast.error("Please try again later.");
-          } else {
-            Toast.error(data);
-          }
+        } catch (error) {
+          console.error(error);
         }
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          Toast.error("Add failed. Please try again.");
-        } else {
-          Toast.error(data);
-        }
+        setGroupName("");
+        setGroupNameError(false);
+        setGroupNameHasError(false);
+        setSelectOptions([]);
+        setSelectValue([]);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // For Error Handling
-  const groupDataValue = async () => {
-    const setHasTrue = () => {
-      setGroupNameError(true);
-      setGroupNameHasError(true);
     };
-    const clearData = () => {
-      setGroupName("");
-      setSelectValue([]);
-      setSelectOptions([]);
+
+    useEffect(() => {
+      fetchEditData();
+      getDropdownData();
       setGroupNameError(false);
       setGroupNameHasError(false);
-    };
-    await setHasTrue();
-    await clearData();
-  };
+    }, [onEdit]);
 
-  useImperativeHandle(ref, () => ({
-    groupDataValue,
-  }));
-
-  // For create Group
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    groupName.trim().length <= 0 && setGroupNameHasError(true);
-    if (groupNameError && groupName !== "" && groupName.trim.length <= 0) {
-      setLoader(true);
+    // For drop down fetch data in api
+    const getDropdownData = async () => {
       try {
-        const prams = {
-          id: onEdit || 0,
-          name: groupName.trim(),
-          groupUserIds: selectValue,
-        };
-        const response = await axios.post(
-          `${process.env.pms_api_url}/group/save`,
-          prams,
+        const response = await axios.get(
+          `${process.env.api_url}/user/getdropdown`,
           {
             headers: {
               Authorization: `bearer ${token}`,
@@ -188,17 +124,8 @@ const GroupContent = forwardRef<
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            onDataFetch();
-            setLoader(false);
-            onClose();
-            groupDataValue();
-            Toast.success(
-              `${onEdit ? "" : "New"} Group ${
-                onEdit ? "Updated" : "added"
-              }  successfully.`
-            );
+            setData(response.data.ResponseData);
           } else {
-            setLoader(false);
             const data = response.data.Message;
             if (data === null) {
               Toast.error("Please try again later.");
@@ -207,154 +134,225 @@ const GroupContent = forwardRef<
             }
           }
         } else {
-          setLoader(false);
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again.");
+            Toast.error("Add failed. Please try again.");
           } else {
             Toast.error(data);
           }
         }
       } catch (error) {
-        setLoader(false);
         console.error(error);
       }
-    }
-  };
+    };
 
-  // AddMore data Submit
-  const addMoreSubmit = async (e: any) => {
-    e.preventDefault();
-    groupName.trim().length <= 0 && setGroupNameHasError(true);
+    // For Error Handling
+    const groupDataValue = async () => {
+      const setHasTrue = () => {
+        setGroupNameError(true);
+        setGroupNameHasError(true);
+      };
+      const clearData = () => {
+        setGroupName("");
+        setSelectValue([]);
+        setSelectOptions([]);
+        setGroupNameError(false);
+        setGroupNameHasError(false);
+      };
+      await setHasTrue();
+      await clearData();
+    };
 
-    if (groupNameError && groupName !== "" && groupName.trim.length <= 0) {
-      try {
-        const prams = {
-          id: onEdit || 0,
-          name: groupName,
-          groupUserIds: selectValue,
-        };
-        const response = await axios.post(
-          `${process.env.pms_api_url}/group/save`,
-          prams,
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: org_token,
-            },
-          }
-        );
+    useImperativeHandle(ref, () => ({
+      groupDataValue,
+    }));
 
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            Toast.success(
-              `${onEdit ? "" : "New"} Group ${
-                onEdit ? "Updated" : "added"
-              }  successfully.`
-            );
-            onDataFetch();
-            groupDataValue();
+    // For create Group
+    const handleSubmit = async (e: any) => {
+      e.preventDefault();
+      groupName.trim().length <= 0 && setGroupNameHasError(true);
+      if (groupNameError && groupName !== "" && groupName.trim.length <= 0) {
+        onChangeLoader(true);
+        try {
+          const prams = {
+            id: onEdit || 0,
+            name: groupName.trim(),
+            groupUserIds: selectValue,
+          };
+          const response = await axios.post(
+            `${process.env.pms_api_url}/group/save`,
+            prams,
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: org_token,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              onDataFetch();
+              onChangeLoader(false);
+              onClose();
+              groupDataValue();
+              Toast.success(
+                `${onEdit ? "" : "New"} Group ${
+                  onEdit ? "Updated" : "added"
+                }  successfully.`
+              );
+            } else {
+              onChangeLoader(false);
+              const data = response.data.Message;
+              if (data === null) {
+                Toast.error("Please try again later.");
+              } else {
+                Toast.error(data);
+              }
+            }
           } else {
+            onChangeLoader(false);
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              Toast.error("Please try again.");
             } else {
               Toast.error(data);
             }
           }
+        } catch (error) {
+          onChangeLoader(false);
+          console.error(error);
         }
-      } catch (error) {
-        console.error(error);
       }
-      setGroupName("");
-      setGroupNameError(false);
-      setGroupNameHasError(false);
-      setSelectValue([]);
-      setSelectOptions([]);
-    }
-  };
+    };
 
-  const handleMultiSelect = (e: React.SyntheticEvent, value: any) => {
-    if (value !== undefined) {
-      const selectedValue = value.map((v: any) => v.value);
-      setSelectOptions(value);
-      setSelectValue(selectedValue);
-    } else {
-      setSelectValue([]);
-    }
-  };
+    // AddMore data Submit
+    const addMoreSubmit = async (e: any) => {
+      e.preventDefault();
+      groupName.trim().length <= 0 && setGroupNameHasError(true);
 
-  return (
-    <>
-      <div className="flex gap-[20px] flex-col p-[20px]">
-        <Text
-          label="Group Name"
-          placeholder="Add group name"
-          validate
-          value={groupName}
-          maxChar={20}
-          hasError={groupNameHasError}
-          getValue={(e) => setGroupName(e)}
-          getError={(e) => setGroupNameError(e)}
-        />
-        <Autocomplete
-          multiple
-          limitTags={2}
-          id="checkboxes-tags-demo"
-          options={data}
-          value={selectedOptions}
-          getOptionLabel={(option) => option.label}
-          getOptionDisabled={(option) => selectValue.includes(option.value)}
-          disableCloseOnSelect
-          onChange={handleMultiSelect}
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox
-                icon={icon}
-                checkedIcon={checkedIcon}
-                style={{ marginRight: 8 }}
-                checked={selectValue.includes(option.value)}
+      if (groupNameError && groupName !== "" && groupName.trim.length <= 0) {
+        try {
+          const prams = {
+            id: onEdit || 0,
+            name: groupName,
+            groupUserIds: selectValue,
+          };
+          const response = await axios.post(
+            `${process.env.pms_api_url}/group/save`,
+            prams,
+            {
+              headers: {
+                Authorization: `bearer ${token}`,
+                org_token: org_token,
+              },
+            }
+          );
+
+          if (response.status === 200) {
+            if (response.data.ResponseStatus === "Success") {
+              Toast.success(
+                `${onEdit ? "" : "New"} Group ${
+                  onEdit ? "Updated" : "added"
+                }  successfully.`
+              );
+              onDataFetch();
+              groupDataValue();
+            } else {
+              const data = response.data.Message;
+              if (data === null) {
+                Toast.error("Please try again later.");
+              } else {
+                Toast.error(data);
+              }
+            }
+          }
+        } catch (error) {
+          console.error(error);
+        }
+        setGroupName("");
+        setGroupNameError(false);
+        setGroupNameHasError(false);
+        setSelectValue([]);
+        setSelectOptions([]);
+      }
+    };
+
+    const handleMultiSelect = (e: React.SyntheticEvent, value: any) => {
+      if (value !== undefined) {
+        const selectedValue = value.map((v: any) => v.value);
+        setSelectOptions(value);
+        setSelectValue(selectedValue);
+      } else {
+        setSelectValue([]);
+      }
+    };
+
+    return (
+      <>
+        <div className="flex gap-[20px] flex-col p-[20px]">
+          <Text
+            label="Group Name"
+            placeholder="Add group name"
+            validate
+            value={groupName}
+            maxChar={20}
+            hasError={groupNameHasError}
+            getValue={(e) => setGroupName(e)}
+            getError={(e) => setGroupNameError(e)}
+          />
+          <Autocomplete
+            multiple
+            limitTags={2}
+            id="checkboxes-tags-demo"
+            options={data}
+            value={selectedOptions}
+            getOptionLabel={(option) => option.label}
+            getOptionDisabled={(option) => selectValue.includes(option.value)}
+            disableCloseOnSelect
+            onChange={handleMultiSelect}
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox
+                  icon={icon}
+                  checkedIcon={checkedIcon}
+                  style={{ marginRight: 8 }}
+                  checked={selectValue.includes(option.value)}
+                />
+                {option.label}
+              </li>
+            )}
+            style={{ width: 500 }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="User"
+                placeholder="Please Select..."
+                variant="standard"
               />
-              {option.label}
-            </li>
-          )}
-          style={{ width: 500 }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="User"
-              placeholder="Please Select..."
-              variant="standard"
-            />
-          )}
-        />
-      </div>
+            )}
+          />
+        </div>
 
-      <div className="flex justify-end fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">
-        <>
-          {onEdit ? (
-            <Button
-              variant="btn-outline-primary"
-              className="rounded-[4px] !h-[36px] !uppercase"
-              onClick={() => onClose()}
-            >
-              Cancel
-            </Button>
-          ) : (
-            <Button
-              variant="btn-outline-primary"
-              className="rounded-[4px] !h-[36px] !uppercase"
-              onClick={addMoreSubmit}
-            >
-              Add More
-            </Button>
-          )}
-
-          {loader ? (
-            <span className="-mt-1">
-              <Loader size="sm" />
-            </span>
-          ) : (
+        <div className="flex justify-end fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">
+          <>
+            {onEdit ? (
+              <Button
+                variant="btn-outline-primary"
+                className="rounded-[4px] !h-[36px] !uppercase"
+                onClick={() => onClose()}
+              >
+                Cancel
+              </Button>
+            ) : (
+              <Button
+                variant="btn-outline-primary"
+                className="rounded-[4px] !h-[36px] !uppercase"
+                onClick={addMoreSubmit}
+              >
+                Add More
+              </Button>
+            )}
             <Button
               variant="btn-primary"
               className="rounded-[4px] !h-[36px] !uppercase"
@@ -363,11 +361,11 @@ const GroupContent = forwardRef<
             >
               {onEdit ? "Save" : "Create Group"}
             </Button>
-          )}
-        </>
-      </div>
-    </>
-  );
-});
+          </>
+        </div>
+      </>
+    );
+  }
+);
 
 export default GroupContent;

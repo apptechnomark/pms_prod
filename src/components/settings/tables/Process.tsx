@@ -7,6 +7,7 @@ import { DataTable, Loader, Toast } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import DeleteModal from "@/components/common/DeleteModal";
 import { PROCESS } from "./Constants/Tabname";
+import ReportLoader from "@/components/common/ReportLoader";
 
 function Process({
   onOpen,
@@ -317,9 +318,7 @@ function Process({
     <>
       {canView ? (
         loader ? (
-          <div className="flex items-center justify-center min-h-screen">
-            <Loader />
-          </div>
+          <ReportLoader />
         ) : (
           <div
             className={`${

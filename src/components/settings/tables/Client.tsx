@@ -13,6 +13,7 @@ import ClientProcessDrawer from "../drawer/ClientProcessDrawer";
 import DrawerOverlay from "../drawer/DrawerOverlay";
 import ClientFieldsDrawer from "../drawer/ClientFieldDrawer";
 import { CLIENT } from "./Constants/Tabname";
+import ReportLoader from "@/components/common/ReportLoader";
 
 function Client({
   onOpen,
@@ -382,9 +383,7 @@ function Client({
     <>
       {canView ? (
         loader ? (
-          <div className="flex items-center justify-center min-h-screen">
-            <Loader />
-          </div>
+          <ReportLoader />
         ) : (
           <div>
             <Toast position="top_center" />

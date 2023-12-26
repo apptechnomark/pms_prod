@@ -5,6 +5,7 @@ import axios from "axios";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteModal from "@/components/common/DeleteModal";
 import { STATUS } from "./Constants/Tabname";
+import ReportLoader from "@/components/common/ReportLoader";
 
 function Status({
   onOpen,
@@ -253,9 +254,7 @@ function Status({
     <>
       {canView ? (
         loader ? (
-          <div className="flex items-center justify-center min-h-screen">
-            <Loader />
-          </div>
+          <ReportLoader />
         ) : (
           <div
             className={`${
