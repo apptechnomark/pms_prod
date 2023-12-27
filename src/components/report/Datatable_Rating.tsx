@@ -94,7 +94,7 @@ const Datatable_Rating = ({
     ) => {
       if (
         ResponseStatus === "Success" &&
-        ResponseData.List.length > 0 &&
+        // ResponseData.List.length > 0 &&
         error === false
       ) {
         onHandleExport(ResponseData.List.length > 0);
