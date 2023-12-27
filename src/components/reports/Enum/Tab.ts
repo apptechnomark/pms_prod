@@ -1,4 +1,3 @@
-// tab numbers
 export const project: number = 1;
 export const user: number = 2;
 export const timesheet: number = 3;

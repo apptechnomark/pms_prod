@@ -9,8 +9,8 @@ const Duplicate = ({
   selectedRowIds,
   handleClearSelection,
   getWorkItemList,
+  getOverLay,
 }: any) => {
-  // Duplicate Task API
   const duplicateWorkItem = async () => {
     const dontDuplicateId = workItemData
       .map((item: any) =>
@@ -32,6 +32,7 @@ const Duplicate = ({
       toast.warning("You can not duplicate task which is created by PABS.");
     }
     if (duplicateId.length > 0) {
+      getOverLay(true);
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
       try {
@@ -53,6 +54,7 @@ const Duplicate = ({
             toast.success("Task has been duplicated successfully");
             handleClearSelection();
             getWorkItemList();
+            getOverLay(false);
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -60,6 +62,7 @@ const Duplicate = ({
             } else {
               toast.error(data);
             }
+            getOverLay(false);
           }
         } else {
           const data = response.data.Message;
@@ -68,6 +71,7 @@ const Duplicate = ({
           } else {
             toast.error(data);
           }
+          getOverLay(false);
         }
       } catch (error) {
         console.error(error);

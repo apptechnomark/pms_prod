@@ -140,7 +140,6 @@ const StatusContent = forwardRef<
         );
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            // calling function to get updated data
             onDataFetch();
             clearStatusData();
             onChangeLoader(false);

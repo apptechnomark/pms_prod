@@ -9,7 +9,6 @@ import axios, { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import { hasToken } from "@/utils/commonFunction";
 import Pabs from "@/assets/icons/Pabs";
-import CustomToastContainer from "@/utils/style/CustomToastContainer";
 import { toast } from "react-toastify";
 
 const Page = () => {
@@ -91,7 +90,6 @@ const Page = () => {
 
   return (
     <div className="flex flex-col justify-center min-h-screen relative">
-      <CustomToastContainer />
       <div className="flex items-center justify-between max-h-screen min-w-full relative">
         <img
           src="https://staging-tms.azurewebsites.net/assets/images/pages/login-v2.svg"

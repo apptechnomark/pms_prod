@@ -19,7 +19,6 @@ import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
 import ImportDialog from "@/components/worklog/worklog_Import/ImportDialog";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-import CustomToastContainer from "@/utils/style/CustomToastContainer";
 
 const Worklog = () => {
   const router = useRouter();
@@ -33,8 +32,6 @@ const Worklog = () => {
   const [hasErrorLog, setHasErrorLog] = useState(false);
   const [currentFilterData, setCurrentFilterData] = useState([]);
   const [errorLog, setErrorLog] = useState(false);
-
-  // Search
   const [isWorklogSearch, setIsWorklogSearch] = useState("");
   const [workTypeData, setWorkTypeData] = useState([]);
   const [isWorklogCompleteSearch, setIsWorklogCompleteSearch] = useState("");
@@ -55,7 +52,6 @@ const Worklog = () => {
     }
   }, [router]);
 
-  // fetching workog data according to search values
   const handleIsWorklogSearch = async (searchValue: any, orgToken: any) => {
     const token = await localStorage.getItem("token");
     try {
@@ -127,7 +123,6 @@ const Worklog = () => {
     fetchOrgToken();
   }, [isWorklogSearch, isWorklogClicked]);
 
-  // fetching workog data according to search values
   const handleIsWorklogCompleteSearch = async (
     searchValue: any,
     orgToken: any
@@ -202,12 +197,10 @@ const Worklog = () => {
     fetchOrgToken();
   }, [isWorklogCompleteSearch, isCompletedTaskClicked]);
 
-  // For Closing Filter Modal
   const closeFilterModal = () => {
     setIsFilterOpen(false);
   };
 
-  // To Toggle Drawer
   const handleDrawerOpen = () => {
     setOpenDrawer(true);
   };
@@ -221,25 +214,21 @@ const Worklog = () => {
     setHasErrorLog(false);
   };
 
-  // For refreshing data in Datatable from drawer
   const handleDataFetch = (getData: () => void) => {
     setDataFunction(() => getData);
   };
 
-  // To Toggle Drawer for Edit
   const handleEdit = (rowData: any) => {
     setHasEdit(rowData);
     setOpenDrawer(true);
   };
 
-  // To Toggle Drawer for Comments
   const handleSetComments = (rowData: any, selectedId: number) => {
     setHasComment(true);
     setOpenDrawer(rowData);
     setHasEdit(selectedId);
   };
 
-  // To Toggle Drawer for ErrorLog
   const handleSetErrorLog = (rowData: any, selectedId: number) => {
     setHasErrorLog(true);
     setOpenDrawer(rowData);
@@ -425,8 +414,6 @@ const Worklog = () => {
         onOpen={isImportOpen}
         onClose={() => setIsImportOpen(false)}
       />
-
-      <CustomToastContainer />
     </Wrapper>
   );
 };

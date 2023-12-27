@@ -4,10 +4,7 @@ import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
 import TablePagination from "@mui/material/TablePagination";
 import { toast } from "react-toastify";
-// icons imports
 import RecurringIcon from "@/assets/icons/worklogs/RecurringIcon";
-
-// Internal Component imports
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,
@@ -17,9 +14,8 @@ import {
   handlePageChangeWithFilter,
   handleChangeRowsPerPageWithFilter,
 } from "@/utils/datatable/CommonFunction";
-import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { getMuiTheme, ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
-import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
 import WorklogsActionBar from "./actionBar/WorklogsActionBar";
 import ReportLoader from "../common/ReportLoader";
@@ -153,7 +149,6 @@ const UnassigneeDatatable = ({
     }
   }, []);
 
-  // WorkItemList API
   const getWorkItemList = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -255,7 +250,6 @@ const UnassigneeDatatable = ({
     );
   };
 
-  // Table Columns
   const columnConfig = [
     {
       name: "WorkitemId",
@@ -493,7 +487,6 @@ const UnassigneeDatatable = ({
     return generateConditionalColumn(col, 9);
   });
 
-  // props for actionbar
   const propsForActionBar = {
     selectedRowsCount,
     selectedRows,

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// material imports
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -26,7 +25,6 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
   onClose,
   currentFilterData,
 }) => {
-  // Dropdown Data
   const [clientDropdownData, setClientDropdownData] = useState([]);
   const [typeOfWorkDropdownData, setTypeOfWorkDropdownData] = useState([]);
 
@@ -46,7 +44,6 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
     currentFilterData(initialFilter);
   };
 
-  // Check if any field is selected
   useEffect(() => {
     const isAnyFieldSelected = clientName !== 0 || typeOfWork !== 0;
 

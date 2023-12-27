@@ -13,6 +13,7 @@ const Status = ({
   selectedRowsCount,
   getWorkItemList,
   handleClearSelection,
+  getOverLay,
 }: any) => {
   const [allStatus, setAllStatus] = useState<any | any[]>([]);
 
@@ -36,7 +37,6 @@ const Status = ({
     handleCloseStatus();
   };
 
-  // API for status dropdown in Filter Popup
   const getAllStatus = async () => {
     let isRework: any = [];
     let isNotRework: any = [];
@@ -71,7 +71,6 @@ const Status = ({
       );
   };
 
-  // API for update status
   const updateStatus = async (id: number[], statusId: number) => {
     let isRework: any = [];
     let isNotRework: any = [];
@@ -84,68 +83,16 @@ const Status = ({
         }
       }
     });
-    // let hasTime: any = [];
-    // let hasNoTime: any = [];
-    // if (statusId === 58) {
-    //   workItemData.map((i: any) => {
-    //     if (id.includes(i.WorkitemId)) {
-    //       if (i.ActualTimeSec > 0) {
-    //         hasTime.push(i.WorkitemId);
-    //       } else {
-    //         hasNoTime.push(i.WorkitemId);
-    //       }
-    //     }
-    //   });
-    // } else {
-    //   id.map((i: any) => hasTime.push(i));
-    // }
+
     try {
+      getOverLay(true);
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
 
-      // const isInvalidStatus = selectedRowStatusId.some((status: number) =>
-      //   [7, 8, 9, 13].includes(status)
-      // );
-
-      // const hasRunningTasks = workItemData.some((item: any) =>
-      //   id.includes(item.WorkitemId)
-      //     ? item.TimelogId !== null
-      //       ? true
-      //       : false
-      //     : false
-      // );
-
-      // if (selectedRowsCount === 1 && isInvalidStatus) {
-      //   toast.warning(
-      //     "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      //   );
-      // } else if (selectedRowsCount > 1 && isInvalidStatus) {
-      //   toast.warning(
-      //     "Cannot change status for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      //   );
-      // } else
-      // if (hasRunningTasks) {
-      //   toast.warning("Cannot change status for running task.");
-      // }
-      // if (hasNoTime.length > 0) {
-      //   toast.warning("Cannot change status for the task with no Time.");
-      // }
-      // if (hasTime.length > 0) {
       const response = await axios.post(
         `${process.env.worklog_api_url}/workitem/UpdateStatus`,
         {
           workitemIds: isNotRework.length > 0 ? isNotRework : isRework,
-          // workItemData
-          //   .map((item: any) =>
-          //     id.includes(item.WorkitemId)
-          //       ? item.TimelogId === null &&
-          //         ![7, 8, 9, 13].includes(item.StatusId)
-          //         ? item.WorkitemId
-          //         : false
-          //       : undefined
-          //   )
-          //   .filter((i: any) => i !== undefined)
-          //   .filter((i: any) => i !== false),
           statusId: statusId,
           SecondManagerReviewId: null,
         },
@@ -164,25 +111,26 @@ const Status = ({
           handleClearSelection();
           isNotRework = [];
           isRework = [];
-          // hasNoTime = [];
-          // hasTime = [];
           getWorkItemList();
+          getOverLay(false);
         } else if (response.data.ResponseStatus === "Warning" && !!data) {
           toast.warning(data);
           handleClearSelection();
           isNotRework = [];
           isRework = [];
           getWorkItemList();
+          getOverLay(false);
         } else {
           toast.error(data || "Please try again later.");
           handleClearSelection();
           getWorkItemList();
+          getOverLay(false);
         }
       } else {
         const data = response.data.Message;
         toast.error(data || "Please try again later.");
+        getOverLay(false);
       }
-      // }
     } catch (error) {
       console.error(error);
     }
@@ -195,7 +143,6 @@ const Status = ({
           <DetectorStatus />
         </span>
       </ColorToolTip>
-      {/* Status Popover */}
       <Popover
         id={idStatus}
         open={openStatus}

@@ -18,7 +18,6 @@ import { useRouter } from "next/navigation";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-import CustomToastContainer from "@/utils/style/CustomToastContainer";
 
 const task_InitialFilter = {
   pageNo: 1,
@@ -60,8 +59,6 @@ const Report = () => {
   const [isRatingClicked, setIsRatingClicked] = useState(false);
   const [currentFilterData, setCurrentFilterData] = useState<any>([]);
   const [isExporting, setIsExporting] = useState<boolean>(false);
-
-  // Search
   const [isTaskSearch, setIsTaskSearch] = useState("");
   const [taskData, setTaskData] = useState([]);
   const [isRatingSearch, setIsRatingSearch] = useState("");
@@ -81,7 +78,6 @@ const Report = () => {
     }
   }, [router]);
 
-  // fetching workog data according to search values
   const handleIsTaskSearch = async (searchValue: any, orgToken: any) => {
     const token = await localStorage.getItem("token");
     try {
@@ -150,7 +146,6 @@ const Report = () => {
     fetchOrgToken();
   }, [isTaskSearch, isTaskClicked]);
 
-  // fetching workog data according to search values
   const handleIsRatingSearch = async (searchValue: any, orgToken: any) => {
     const token = await localStorage.getItem("token");
     try {
@@ -219,7 +214,6 @@ const Report = () => {
     fetchOrgToken();
   }, [isRatingSearch, isRatingClicked]);
 
-  // For Closing Filter Modal
   const closeFilterModal = () => {
     setIsFilterOpen(false);
   };
@@ -455,8 +449,6 @@ const Report = () => {
           currentFilterData={getIdFromFilterDialog}
         />
       )}
-
-      <CustomToastContainer />
     </Wrapper>
   );
 };

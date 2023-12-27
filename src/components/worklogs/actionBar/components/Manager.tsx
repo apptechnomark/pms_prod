@@ -7,7 +7,7 @@ import { getManagerDropdownData } from "@/utils/commonDropdownApiCall";
 import ManagerIcon from "@/assets/icons/worklogs/ManagerIcon";
 import SearchIcon from "@/assets/icons/SearchIcon";
 
-const Manager = ({ selectedRowIds, getWorkItemList }: any) => {
+const Manager = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
   const [managerSearchQuery, setManagerSearchQuery] = useState("");
   const [managerDropdownData, setManagerDropdownData] = useState([]);
 
@@ -43,8 +43,8 @@ const Manager = ({ selectedRowIds, getWorkItemList }: any) => {
     setManagerDropdownData(await getManagerDropdownData());
   };
 
-  // API for update Manager
   const updateManager = async (id: number[], manager: number) => {
+    getOverLay(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -65,8 +65,8 @@ const Manager = ({ selectedRowIds, getWorkItemList }: any) => {
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Manager has been updated successfully.");
-          // handleClearSelection();
           getWorkItemList();
+          getOverLay(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -74,6 +74,7 @@ const Manager = ({ selectedRowIds, getWorkItemList }: any) => {
           } else {
             toast.error(data);
           }
+          getOverLay(false);
         }
       } else {
         const data = response.data.Message;
@@ -82,6 +83,7 @@ const Manager = ({ selectedRowIds, getWorkItemList }: any) => {
         } else {
           toast.error(data);
         }
+        getOverLay(false);
       }
     } catch (error) {
       console.error(error);

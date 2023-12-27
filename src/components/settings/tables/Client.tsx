@@ -4,9 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { DataTable, Switch } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
-// Import Common Components
 import DeleteModal from "@/components/common/DeleteModal";
-// Import Icons
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import SwitchModal from "@/components/common/SwitchModal";
 import ClientProcessDrawer from "../drawer/ClientProcessDrawer";
@@ -14,7 +12,6 @@ import DrawerOverlay from "../drawer/DrawerOverlay";
 import ClientFieldsDrawer from "../drawer/ClientFieldDrawer";
 import { CLIENT } from "./Constants/Tabname";
 import ReportLoader from "@/components/common/ReportLoader";
-import CustomToastContainer from "@/utils/style/CustomToastContainer";
 import { toast } from "react-toastify";
 
 function Client({
@@ -86,7 +83,6 @@ function Client({
     setOpenFieldsDrawer(false);
   };
 
-  // for showing value according to search
   useEffect(() => {
     if (onSearchClientData) {
       setData(onSearchClientData);
@@ -95,7 +91,6 @@ function Client({
     }
   }, [onSearchClientData]);
 
-  // for getting all data
   const getData = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -150,7 +145,6 @@ function Client({
     }
   };
 
-  // for deleting row
   const handleDeleteRow = async () => {
     if (selectedRowId) {
       const token = await localStorage.getItem("token");
@@ -197,7 +191,6 @@ function Client({
     }
   };
 
-  // for toggle (Active/InActive) Client
   const handleToggleClient = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -272,7 +265,6 @@ function Client({
       }
     };
 
-    // Table Action Modal
     useEffect(() => {
       window.addEventListener("click", handleOutsideClick);
       return () => {
@@ -326,7 +318,6 @@ function Client({
     );
   };
 
-  // Setting Table Data
   const table_Data = data.map(
     (d: any) =>
       new Object({
@@ -345,12 +336,10 @@ function Client({
       })
   );
 
-  // For Closing Delete Modal
   const closeModal = () => {
     setIsDeleteOpen(false);
   };
 
-  // Getting Clicked Action Value
   const handleActionValue = async (actionId: string, id: any) => {
     setSelectedRowId(id);
     if (actionId.toLowerCase() === "edit") {
@@ -388,7 +377,6 @@ function Client({
           <ReportLoader />
         ) : (
           <div>
-            <CustomToastContainer />
             {data.length > 0 && (
               <div className="h-[81vh]">
                 <DataTable columns={headers} data={table_Data} sticky />

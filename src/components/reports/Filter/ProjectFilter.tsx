@@ -11,10 +11,7 @@ import {
   DialogTitle,
   FormControl,
   InputBase,
-  InputLabel,
-  MenuItem,
   Popover,
-  Select,
   TextField,
   Tooltip,
 } from "@mui/material";
@@ -612,7 +609,6 @@ const ProjectFilter = ({
                     onChange={(e: any, data: any) => {
                       setProject_BillingType(data);
                     }}
-                    // disabled={project_clientName.length > 1}
                     value={project_billingType}
                     renderInput={(params: any) => (
                       <TextField

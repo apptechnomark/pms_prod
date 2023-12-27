@@ -52,7 +52,6 @@ const Datatable_Overdue: React.FC<OverdueProps> = ({
     },
   });
 
-  // Resizing the table according to the fileds
   useEffect(() => {
     const handleResize = () => {
       const screenWidth = window.innerWidth;

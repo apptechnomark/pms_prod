@@ -71,7 +71,6 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
       }
     };
 
-    // Fetch data when component mounts
     getData();
   }, [
     onSelectedProjectIds,

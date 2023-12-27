@@ -31,55 +31,42 @@ const Priority = ({
   const openPriority = Boolean(anchorElPriority);
   const idPriority = openPriority ? "simple-popover" : undefined;
 
-  // actions for priority popup
   const handleOptionPriority = (id: any) => {
     updatePriority(selectedRowIds, id);
     handleClosePriority();
   };
 
-  // Update Priority API
   const updatePriority = async (id: number[], priorityId: number) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 
     try {
-      // const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
-      //   [7, 8, 9, 13].includes(statusId)
-      // );
-
-      // if (selectedRowsCount >= 1 && isInvalidStatus) {
-      //   toast.warning(
-      //     "Cannot change Priority for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      //   );
-      // } else {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/UpdatePriority`,
-          {
-            workitemIds: id,
-            priority: priorityId,
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/UpdatePriority`,
+        {
+          workitemIds: id,
+          priority: priorityId,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
+        }
+      );
 
-        if (response.status === 200) {
-          const data = response.data.Message;
-          if (response.data.ResponseStatus === "Success") {
-            toast.success("Priority has been updated successfully.");
-            // handleClearSelection();
-            getWorkItemList();
-          } else {
-            toast.error(data || "Please try again later.");
-          }
+      if (response.status === 200) {
+        const data = response.data.Message;
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Priority has been updated successfully.");
+          getWorkItemList();
         } else {
-          const data = response.data.Message;
           toast.error(data || "Please try again later.");
         }
-      // }
+      } else {
+        const data = response.data.Message;
+        toast.error(data || "Please try again later.");
+      }
     } catch (error) {
       console.error(error);
     }

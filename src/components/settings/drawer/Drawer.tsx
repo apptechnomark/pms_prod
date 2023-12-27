@@ -132,7 +132,6 @@ const Drawer = ({
     childValue1: React.SetStateAction<number | null>,
     childValue2: boolean | ((prevState: boolean) => boolean)
   ) => {
-    // Update parent component state with values received from the child
     setSelectedRowId(childValue1);
     setIsDeleteOpen(childValue2);
   };

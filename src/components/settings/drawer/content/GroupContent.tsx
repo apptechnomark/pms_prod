@@ -110,7 +110,6 @@ const GroupContent = forwardRef<
       setGroupNameHasError(false);
     }, [onEdit]);
 
-    // For drop down fetch data in api
     const getDropdownData = async () => {
       try {
         const response = await axios.get(
@@ -147,7 +146,6 @@ const GroupContent = forwardRef<
       }
     };
 
-    // For Error Handling
     const groupDataValue = async () => {
       const setHasTrue = () => {
         setGroupNameError(true);
@@ -168,7 +166,6 @@ const GroupContent = forwardRef<
       groupDataValue,
     }));
 
-    // For create Group
     const handleSubmit = async (e: any) => {
       e.preventDefault();
       groupName.trim().length <= 0 && setGroupNameHasError(true);
@@ -227,7 +224,6 @@ const GroupContent = forwardRef<
       }
     };
 
-    // AddMore data Submit
     const addMoreSubmit = async (e: any) => {
       e.preventDefault();
       groupName.trim().length <= 0 && setGroupNameHasError(true);

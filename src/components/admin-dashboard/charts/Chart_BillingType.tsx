@@ -4,10 +4,8 @@ import { toast } from "react-toastify";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 
-// Import the Highcharts modules you need (e.g., variable-pie)
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
 
-// Initialize the variable pie chart module
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
@@ -25,7 +23,6 @@ const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
   const [data, setData] = useState<any | any[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
 
-  // API for Dashboard Summary
   const getBillingTypeData = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -80,7 +77,6 @@ const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
     getBillingTypeData();
   }, [onSelectedWorkType]);
 
-  // Define the chart options
   const chartOptions = {
     chart: {
       type: "variablepie",

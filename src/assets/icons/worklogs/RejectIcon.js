@@ -12,7 +12,6 @@ const RejectIcon = () => {
       >
         <mask
           id="mask0_3538_276524"
-        //   style="mask-type:alpha"
           maskUnits="userSpaceOnUse"
           x="0"
           y="0"

@@ -38,7 +38,6 @@ const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
     callAPI(url, arg1, successCallBack, "post");
   };
 
-  // functions for handling pagination
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number

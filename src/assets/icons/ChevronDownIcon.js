@@ -12,7 +12,6 @@ function ChevronDownIcon() {
       >
         <mask
           id="mask0_2301_11282"
-        //   style="mask-type:alpha"
           maskUnits="userSpaceOnUse"
           x="0"
           y="0"

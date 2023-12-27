@@ -190,7 +190,6 @@ export const generateCustomeTaskIdwithErrorLogs = (
   );
 };
 
-// functions for handling pagination
 export const handleChangePage = (
   event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   newPage: number,

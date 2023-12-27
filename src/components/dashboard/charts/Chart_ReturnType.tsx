@@ -3,11 +3,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-
-// Import the Highcharts modules you need (e.g., variable-pie)
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
 
-// Initialize the variable pie chart module
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
@@ -66,14 +63,11 @@ const Chart_ReturnType: React.FC<ReturnTypeProps> = ({
       }
     };
 
-    // Fetch data when component mounts
     getData();
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
-  // Define the drilldown data
   const drilldownData = data;
 
-  // Define the chart options
   const chartOptions = {
     chart: {
       type: "pie",
@@ -97,7 +91,6 @@ const Chart_ReturnType: React.FC<ReturnTypeProps> = ({
               const selectedPointData = {
                 name: (event.point && event.point.name) || "",
               };
-              // sending data to Parent component (page.tsx)
               sendData(true, selectedPointData.name);
             },
           },

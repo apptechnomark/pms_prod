@@ -42,12 +42,10 @@ function Status({
 
     getStatusList();
   }, []);
-  // For Closing Modal
   const closeModal = () => {
     setIsDeleteOpen(false);
   };
 
-  // for showing value according to search
   useEffect(() => {
     if (onSearchStatusData) {
       setStatusList(onSearchStatusData);
@@ -127,15 +125,11 @@ function Status({
       };
     }, []);
 
-    // Match a action and open a drawer
     const handleActions = (actionType: string, actionId: any) => {
       setSelectedRowId(actionId);
       if (actionType.toLowerCase() === "edit") {
         onEdit(actionId);
       }
-      // if (actionType.toLowerCase() === "delete") {
-      //   setIsDeleteOpen(true);
-      // }
     };
 
     const actionPermissions = actions.filter(
@@ -210,7 +204,6 @@ function Status({
       })
   );
 
-  // For Delete a data in Data table
   const handleDeleteRow = async () => {
     const token = await localStorage.getItem("token");
     try {

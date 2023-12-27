@@ -12,7 +12,6 @@ function NotificationIcon() {
       >
         <mask
           id="mask0_6987_88501"
-          // style="mask-type:alpha"
           maskUnits="userSpaceOnUse"
           x="6"
           y="6"

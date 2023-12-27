@@ -323,7 +323,6 @@ const Drawer = ({
           setIsLoadingClientWorklog(false);
         };
         callAPI(url, params, successCallback, "POST");
-        // }
       }
     } else {
       toast.error("User don't have permission to Update Sub-Task.");
@@ -939,20 +938,7 @@ const Drawer = ({
 
     if (!hasErrors && !hasSubErrors) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
-        // if (
-        //   (onEdit > 0 && editStatusClientWorklog === 4) ||
-        //   (onEdit > 0 && editStatusClientWorklog === 7) ||
-        //   (onEdit > 0 && editStatusClientWorklog === 8) ||
-        //   (onEdit > 0 && editStatusClientWorklog === 9) ||
-        //   (onEdit > 0 && editStatusClientWorklog === 13)
-        // ) {
-        //   toast.warning(
-        //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-        //   );
-        //   onEdit > 0 && getEditDataClientWorklog();
-        // } else {
         saveWorklog();
-        // }
       } else {
         toast.error("User don't have permission to Update Task.");
         onEdit > 0 && getEditDataClientWorklog();
@@ -960,7 +946,6 @@ const Drawer = ({
     }
   };
 
-  // getData
   const getEditDataClientWorklog = async () => {
     const params = {
       WorkitemId: onEdit,

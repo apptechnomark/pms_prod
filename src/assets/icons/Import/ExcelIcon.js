@@ -13,7 +13,6 @@ function ExcelIcon() {
         <g clipPath="url(#clip0_5506_828782)">
           <mask
             id="mask0_5506_828782"
-            // style="mask-type:luminance"
             maskUnits="userSpaceOnUse"
             x="0"
             y="0"

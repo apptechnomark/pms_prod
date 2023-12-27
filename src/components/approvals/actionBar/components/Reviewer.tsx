@@ -14,6 +14,7 @@ const Reviewer = ({
   selectedRowsCount,
   handleClearSelection,
   getReviewList,
+  getOverLay,
 }: any) => {
   const [searchQueryRW, setSearchQueryRW] = useState("");
   const [reviewer, setReviewer] = useState<any | any[]>([]);
@@ -46,7 +47,6 @@ const Reviewer = ({
     handleCloseReviewer();
   };
 
-  // API for get Assignee with all conditions
   const getReviwer = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -82,49 +82,42 @@ const Reviewer = ({
     }
   };
 
-  // API for update Assignee
   const updateReviewer = async (id: number[], reviewerId: number) => {
+    getOverLay(true);
     try {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
 
-      // const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
-      //   [7, 8, 9, 13].includes(statusId)
-      // );
-
-      // if (selectedRowsCount >= 1 && isInvalidStatus) {
-      //   toast.warning(
-      //     "Cannot change Reviewer for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      //   );
-      // } else {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/UpdateReviewer`,
-          {
-            workitemIds: id,
-            ReviewerId: reviewerId,
+      const response = await axios.post(
+        `${process.env.worklog_api_url}/workitem/UpdateReviewer`,
+        {
+          workitemIds: id,
+          ReviewerId: reviewerId,
+        },
+        {
+          headers: {
+            Authorization: `bearer ${token}`,
+            org_token: `${Org_Token}`,
           },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          const data = response.data.Message;
-          if (response.data.ResponseStatus === "Success") {
-            toast.success("Reviewer has been updated successfully.");
-            handleClearSelection();
-            getReviewList();
-          } else {
-            toast.error(data || "Please try again after some time.");
-          }
-        } else {
-          const data = response.data.Message;
-          toast.error(data || "Please try again after some time.");
         }
-      // }
+      );
+
+      if (response.status === 200) {
+        const data = response.data.Message;
+        if (response.data.ResponseStatus === "Success") {
+          toast.success("Reviewer has been updated successfully.");
+          handleClearSelection();
+          getReviewList();
+          getOverLay(false);
+        } else {
+          toast.error(data || "Please try again after some time.");
+          getOverLay(false);
+        }
+      } else {
+        const data = response.data.Message;
+        toast.error(data || "Please try again after some time.");
+        getOverLay(false);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -133,10 +126,7 @@ const Reviewer = ({
   return (
     <div>
       <ColorToolTip title="Reviewer" arrow>
-        <span
-          aria-describedby={idReviewer}
-          onClick={handleClickReviewer}
-        >
+        <span aria-describedby={idReviewer} onClick={handleClickReviewer}>
           <EditUserIcon />
         </span>
       </ColorToolTip>

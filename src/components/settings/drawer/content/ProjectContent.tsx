@@ -156,9 +156,6 @@ const ProjectContent = forwardRef<
         setProjectHasError(false);
         setSubProject("");
         setTextFieldOpen(false);
-        // setAddProjectName("");
-        // setAddProjectNameError(false);
-        // setAddProjectNameHasError(false);
         setSubProjectId(null);
       }
       setDataTrue();
@@ -219,7 +216,6 @@ const ProjectContent = forwardRef<
     const setDataTrue = () => {
       setClientHasError(true);
       setProjectHasError(true);
-      // setAddProjectNameHasError(true);
     };
 
     const clearAllFields = () => {
@@ -398,8 +394,6 @@ const ProjectContent = forwardRef<
             getValue={(e) => {
               setClient(e);
               e > 0 && setClientHasError(false);
-              // setProjectValue(0);
-              // setProjectHasError(false);
             }}
             getError={(e) => setClientError(e)}
           />

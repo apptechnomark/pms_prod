@@ -39,7 +39,6 @@ import RatingReport from "@/components/reports/tables/RatingReport";
 import RatingReportFilter from "@/components/reports/Filter/RatingReportFilter";
 import AuditFilter from "@/components/reports/Filter/AuditFilter";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-import CustomToastContainer from "@/utils/style/CustomToastContainer";
 import LogReport from "@/components/reports/tables/LogReport";
 import LogReportFilter from "@/components/reports/Filter/LogReportFilter";
 
@@ -148,11 +147,6 @@ const Page = () => {
           hasPermissionWorklog(tab.label, "view", "report") ? tab : false
         )
       );
-      // setMoreTabs(
-      //   secondaryTabs.map((tab: any) =>
-      //     hasPermissionWorklog(tab.label, "view", "report") ? tab : false
-      //   )
-      // );
       setActiveTab(
         primaryTabs
           .map((tab: any) =>
@@ -553,8 +547,6 @@ const Page = () => {
           onDialogClose={handleFilter}
         />
       )}
-
-      <CustomToastContainer />
     </Wrapper>
   );
 };

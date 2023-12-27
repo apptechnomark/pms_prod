@@ -11,6 +11,7 @@ const Client = ({
   selectedRowIds,
   handleClearSelection,
   getWorkItemList,
+  getOverLay,
 }: any) => {
   const [clientSearchQuery, setClientSearchQuery] = useState("");
   const [clientDropdownData, setClientDropdownData] = useState([]);
@@ -43,16 +44,15 @@ const Client = ({
     handleCloseClient();
   };
 
-  // client Dropdown API
   const getClientData = async () => {
     setClientDropdownData(await getClientDropdownData());
   };
 
-  // API for update Client
   const updateClient = async (id: number[], clientId: number) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
+      getOverLay(true);
       const response = await axios.post(
         `${process.env.worklog_api_url}/workitem/bulkupdateworkitemclient`,
         {
@@ -72,6 +72,7 @@ const Client = ({
           toast.success("Client has been updated successfully.");
           handleClearSelection();
           getWorkItemList();
+          getOverLay(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -79,6 +80,7 @@ const Client = ({
           } else {
             toast.error(data);
           }
+          getOverLay(false);
         }
       } else {
         const data = response.data.Message;
@@ -87,6 +89,7 @@ const Client = ({
         } else {
           toast.error(data);
         }
+        getOverLay(false);
       }
     } catch (error) {
       console.error(error);

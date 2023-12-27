@@ -12,7 +12,6 @@ const Btn_ExitFullScreen = () => {
       >
         <mask
           id="mask0_1636_68263"
-        //   style="mask-type:alpha"
           maskUnits="userSpaceOnUse"
           x="0"
           y="0"

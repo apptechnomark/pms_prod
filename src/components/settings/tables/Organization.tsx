@@ -9,7 +9,6 @@ import axios from "axios";
 import SwitchModal from "@/components/common/SwitchModal";
 import { ORGANIZATION } from "./Constants/Tabname";
 import ReportLoader from "@/components/common/ReportLoader";
-import CustomToastContainer from "@/utils/style/CustomToastContainer";
 import { toast } from "react-toastify";
 
 function Organization({
@@ -185,7 +184,6 @@ function Organization({
     getOrganizationList();
   }, [token]);
 
-  // for showing value according to search
   useEffect(() => {
     if (onSearchOrgData) {
       setUserList(onSearchOrgData);
@@ -279,7 +277,6 @@ function Organization({
         <div
           className={`${userList.length === 0 ? "h-full" : "h-[81vh] !w-full"}`}
         >
-          <CustomToastContainer />
           {tableData.length > 0 ? (
             <DataTable columns={columns} data={tableData} sticky />
           ) : (

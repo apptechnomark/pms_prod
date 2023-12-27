@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { Switch, DataTable } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
-// Import Common Components
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteModal from "@/components/common/DeleteModal";
 import SwitchModal from "@/components/common/SwitchModal";
@@ -31,8 +30,6 @@ const Project = ({
     { header: "Status", accessor: "IsActive", sortable: false },
   ];
 
-  // const defaultVisibleHeaders = headers.slice(0, 5);
-  // const [visibleHeaders, setVisibleHeaders] = useState(defaultVisibleHeaders);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isOpenSwitchModal, setIsOpenSwitchModal] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
@@ -41,26 +38,10 @@ const Project = ({
   const [data, setData] = useState([]);
   const [loader, setLoader] = useState(true);
 
-  const handleHeaderToggle = (header: any) => {
-    const headerObj = headers.find((h) => h.header === header);
-    if (!headerObj) return;
-
-    // if (visibleHeaders.some((h) => h.header === header)) {
-    //   setVisibleHeaders(visibleHeaders.filter((h) => h.header !== header));
-    // } else {
-    //   setVisibleHeaders([...visibleHeaders, headerObj]);
-    // }
-  };
-
   const columns = [
     ...headers,
     {
       header:
-        // <ColumnFilterDropdown
-        //   headers={headers.map((h) => h.header)}
-        //   visibleHeaders={visibleHeaders.map((h) => h.header)}
-        //   handleHeaderToggle={handleHeaderToggle}
-        // />
         "Actions",
       accessor: "actions",
       sortable: false,
@@ -244,7 +225,6 @@ const Project = ({
                         />
                       </span>
                     ),
-                    // IsActive: <Switch checked={i.IsActive} />,
                     actions: (
                       <span className="mr-[137px]">
                         <Actions
@@ -321,7 +301,6 @@ const Project = ({
     }
   };
 
-  // for showing value according to search
   useEffect(() => {
     if (onSearchProjectData) {
       setData(onSearchProjectData);
@@ -345,7 +324,6 @@ const Project = ({
     setIsDeleteOpen(false);
   };
 
-  // For deleting row
   const handleDeleteRow = async () => {
     if (selectedRowId) {
       const token = await localStorage.getItem("token");

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import {
@@ -49,7 +48,6 @@ const Dialog_TaskStatusInfo: React.FC<TaskStatusInfoDialogProps> = ({
     setClickedStatusName("");
   };
 
-  //   function to extract values from label/type/name
   function getValueByLabelOrType(labelOrType: any): number {
     const status = allStatus.find(
       (status: Status) =>
@@ -68,7 +66,6 @@ const Dialog_TaskStatusInfo: React.FC<TaskStatusInfoDialogProps> = ({
     setStatus(statusValue);
   }, [clickedStatusName, onSelectedStatusName]);
 
-  // API for status dropdown list
   const getAllStatus = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");

@@ -571,17 +571,6 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
         },
       },
     },
-    // {
-    //   name: "RejectedHours",
-    //   options: {
-    //     filter: true,
-    //     sort: true,
-    //     customHeadLabelRender: () => generateCustomHeaderName("Rejected Hours"),
-    //     customBodyRender: (value: any) => {
-    //       return generateInitialTimer(value);
-    //     },
-    //   },
-    // },
     {
       name: "TotalStandardTime",
       options: {

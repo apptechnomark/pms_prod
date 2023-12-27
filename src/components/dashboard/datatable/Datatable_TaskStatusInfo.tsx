@@ -69,7 +69,6 @@ const Datatable_TaskStatusInfo: React.FC<TaskStatusInfoProps> = ({
       }
     };
 
-    // Fetch data when component mounts
     getData();
   }, [
     onSelectedProjectIds,

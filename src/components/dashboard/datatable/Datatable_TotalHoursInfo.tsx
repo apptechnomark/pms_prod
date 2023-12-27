@@ -30,7 +30,6 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
 
-  // API Call
   useEffect(() => {
     const getData = async () => {
       const token = await localStorage.getItem("token");
@@ -70,14 +69,11 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
       }
     };
 
-    // Fetch data when component mounts
     getData();
   }, [onSelectedProjectIds, onSelectedWorkType, page, rowsPerPage]);
 
-  // extracting data
   const tableData = [];
 
-  // Add ClientDetail as the first row
   if (clientDetails) {
     tableData.push({
       ProjectName: <span className="font-extrabold">Project List</span>,
@@ -93,7 +89,6 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
     });
   }
 
-  // Add ClientProjectDetails as subsequent rows
   if (clientProjectDetails && clientProjectDetails.length > 0) {
     clientProjectDetails.forEach((project: any) => {
       tableData.push({
@@ -110,7 +105,6 @@ const Datatable_TotalHoursInfo: React.FC<TotalHoursInfoProps> = ({
     });
   }
 
-  // Table Columns
   const columnNames = [
     "ProjectName",
     "TaskName",

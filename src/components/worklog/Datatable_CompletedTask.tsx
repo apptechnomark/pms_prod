@@ -4,7 +4,6 @@ import axios from "axios";
 import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
 import TablePagination from "@mui/material/TablePagination";
-// icons imports
 import { toast } from "react-toastify";
 import {
   generateCustomHeaderName,
@@ -118,7 +117,6 @@ const Datatable_CompletedTask = ({
     setIsPopupOpen(false);
   };
 
-  // for showing value according to search
   useEffect(() => {
     if (onSearchWorkTypeData) {
       setWorkItemData(onSearchWorkTypeData);
@@ -148,7 +146,6 @@ const Datatable_CompletedTask = ({
     }
   }, []);
 
-  // WorkItemList API
   const getWorkItemList = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -195,7 +192,6 @@ const Datatable_CompletedTask = ({
   };
 
   useEffect(() => {
-    // refreshing data from Drawer side
     const fetchData = async () => {
       await getWorkItemList();
       onDataFetch(() => fetchData());
@@ -204,7 +200,6 @@ const Datatable_CompletedTask = ({
     getWorkItemList();
   }, []);
 
-  // Table Columns
   const columns = [
     {
       name: "WorkitemId",

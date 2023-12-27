@@ -299,7 +299,6 @@ const EditDrawer = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           const data = await response.data.ResponseData;
-          // setManualDataLength(data.length);
           setManualSwitch(data.length <= 0 ? false : true);
           setManualSubmitDisable(
             data
@@ -665,7 +664,6 @@ const EditDrawer = ({
   const [manager, setManager] = useState<any>(0);
   const [managerErr, setManagerErr] = useState(false);
   const [status, setStatus] = useState<any>(0);
-  const [editStatus, setEditStatus] = useState<any>(0);
   const [statusErr, setStatusErr] = useState(false);
   const [description, setDescription] = useState<string>("");
   const [priority, setPriority] = useState<string | number>(0);
@@ -691,20 +689,20 @@ const EditDrawer = ({
   const [checklistWorkpaper, setChecklistWorkpaper] = useState<any>(0);
   const [checklistWorkpaperErr, setChecklistWorkpaperErr] = useState(false);
 
+  const validateField = (value: any) => {
+    if (
+      value === 0 ||
+      value === "" ||
+      value === null ||
+      (Array.isArray(value) && value.length === 0)
+    ) {
+      return true;
+    }
+    return false;
+  };
+
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
-
-    const validateField = (value: any) => {
-      if (
-        value === 0 ||
-        value === "" ||
-        value === null ||
-        (Array.isArray(value) && value.length === 0)
-      ) {
-        return true;
-      }
-      return false;
-    };
 
     const fieldValidations = {
       clientName: validateField(clientName),
@@ -770,8 +768,6 @@ const EditDrawer = ({
         quantity.toString().includes(".")
     );
 
-    const hasErrors = Object.values(fieldValidations).some((error) => error);
-
     const fieldValidationsEdit = {
       clientName: validateField(clientName),
       typeOfWork: validateField(typeOfWork),
@@ -793,26 +789,6 @@ const EditDrawer = ({
     const hasEditErrors = Object.values(fieldValidationsEdit).some(
       (error) => error
     );
-
-    // Sub-Task
-    let hasSubErrors = false;
-    const newTaskErrors = subTaskFields.map(
-      (field) =>
-        (onEdit === 0 && subTaskSwitch && field.Title.trim().length < 5) ||
-        (onEdit === 0 && subTaskSwitch && field.Title.trim().length > 500)
-    );
-    subTaskSwitch && setTaskNameErr(newTaskErrors);
-    const newSubTaskDescErrors = subTaskFields.map(
-      (field) =>
-        (onEdit === 0 &&
-          subTaskSwitch &&
-          field.Description.trim().length < 5) ||
-        (onEdit === 0 && subTaskSwitch && field.Description.trim().length > 500)
-    );
-    subTaskSwitch && setSubTaskDescriptionErr(newSubTaskDescErrors);
-    hasSubErrors =
-      newTaskErrors.some((error) => error) ||
-      newSubTaskDescErrors.some((error) => error);
 
     const data = {
       WorkItemId: onEdit > 0 ? onEdit : 0,
@@ -851,48 +827,10 @@ const EditDrawer = ({
           : checklistWorkpaper === 2
           ? false
           : null,
-      ManualTimeList:
-        onEdit > 0
-          ? null
-          : manualSwitch
-          ? manualFields.map(
-              (i: any) =>
-                new Object({
-                  Date: i.inputDate,
-                  startTime:
-                    dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.startTime,
-                  endTime:
-                    dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.endTime,
-                  comment: i.manualDesc,
-                })
-            )
-          : null,
-      SubTaskList:
-        onEdit > 0
-          ? null
-          : subTaskSwitch
-          ? subTaskFields.map(
-              (i: any) =>
-                new Object({
-                  SubtaskId: i.SubtaskId,
-                  Title: i.Title.trim(),
-                  Description: i.Description.trim(),
-                })
-            )
-          : null,
+      ManualTimeList: null,
+      SubTaskList: null,
       RecurringObj: null,
-      ReminderObj:
-        onEdit > 0
-          ? null
-          : reminderSwitch
-          ? {
-              Type: reminderCheckboxValue,
-              IsActive: true,
-              ReminderDate: reminderDate.length > 0 ? reminderDate : null,
-              ReminderTime: reminderTime,
-              ReminderUserList: reminderNotification.map((i: any) => i.value),
-            }
-          : null,
+      ReminderObj: null,
     };
 
     const saveWorklog = async () => {
@@ -948,52 +886,8 @@ const EditDrawer = ({
       }
     };
 
-    // if (
-    //   (onEdit > 0 && editStatus === 4) ||
-    //   (onEdit > 0 && editStatus === 5) ||
-    //   (onEdit > 0 && status === 7) ||
-    //   (onEdit > 0 && status === 8) ||
-    //   (onEdit > 0 && status === 9) ||
-    //   (onEdit > 0 && status === 13)
-    // ) {
-    //   toast.warning(
-    //     "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-    //   );
-    //   getEditData();
-    // } else
     if (
       onEdit > 0 &&
-      // editStatus !== 4 &&
-      // editStatus !== 5 &&
-      // status !== 7 &&
-      // status !== 8 &&
-      // status !== 9 &&
-      // status !== 13 &&
-      typeOfWork !== 3 &&
-      !hasEditErrors &&
-      clientTaskName.trim().length > 3 &&
-      clientTaskName.trim().length < 50 &&
-      !dueDateErr &&
-      quantity > 0 &&
-      quantity < 10000 &&
-      !quantityErr &&
-      !quantity.toString().includes(".")
-    ) {
-      if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
-        saveWorklog();
-      } else {
-        toast.error("User don't have permission to Update Task.");
-        getEditData();
-      }
-    } else if (
-      onEdit > 0 &&
-      // editStatus !== 4 &&
-      // editStatus !== 5 &&
-      // status !== 7 &&
-      // status !== 8 &&
-      // status !== 9 &&
-      // status !== 13 &&
-      typeOfWork === 3 &&
       !hasEditErrors &&
       clientTaskName.trim().length > 3 &&
       clientTaskName.trim().length < 50 &&
@@ -1075,19 +969,6 @@ const EditDrawer = ({
   };
 
   const handleSubmitSubTask = async () => {
-    // if (
-    //   editStatus === 4 ||
-    //   editStatus === 5 ||
-    //   status === 7 ||
-    //   status === 8 ||
-    //   status === 9 ||
-    //   status === 13
-    // ) {
-    //   toast.warning(
-    //     "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-    //   );
-    //   getWorklogData();
-    // } else {
     let hasSubErrors = false;
     const newTaskErrors = subTaskFields.map(
       (field) =>
@@ -1172,11 +1053,9 @@ const EditDrawer = ({
         }
       }
     }
-    // }
   };
 
   // Checklist
-  const [addChecklistField, setAddChecklistField] = useState(false);
   const [checkListName, setCheckListName] = useState("");
   const [checkListNameError, setCheckListNameError] = useState(false);
   const [checkListData, setCheckListData] = useState([]);
@@ -1196,18 +1075,6 @@ const EditDrawer = ({
   };
 
   const handleSaveCheckListName = async (Category: any, index: number) => {
-    // if (
-    //   editStatus === 4 ||
-    //   status === 7 ||
-    //   status === 8 ||
-    //   status === 9 ||
-    //   status === 13
-    // ) {
-    //   toast.warning(
-    //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-    //   );
-    //   getCheckListData();
-    // } else {
     setCheckListNameError(
       checkListName.trim().length < 5 || checkListName.trim().length > 500
     );
@@ -1269,7 +1136,6 @@ const EditDrawer = ({
         }
       }
     }
-    // }
   };
 
   const handleChangeChecklist = async (
@@ -1575,18 +1441,6 @@ const EditDrawer = ({
   const [reminderCheckboxValue, setReminderCheckboxValue] = useState<any>(1);
   const [reminderId, setReminderId] = useState(0);
   const handleSubmitReminder = async () => {
-    const validateField = (value: any) => {
-      if (
-        value === 0 ||
-        value === "" ||
-        value === null ||
-        (Array.isArray(value) && value.length === 0)
-      ) {
-        return true;
-      }
-      return false;
-    };
-
     const fieldValidations = {
       reminderTime: reminderSwitch && validateField(reminderTime),
       reminderNotification:
@@ -2199,7 +2053,6 @@ const EditDrawer = ({
           setClientTaskName(data.TaskName === null ? "" : data.TaskName);
           setStatus(data.StatusId);
           setAllInfoDate(data.AllInfoDate === null ? "" : data.AllInfoDate);
-          setEditStatus(data.StatusId);
           !data.ErrorlogSignedOffPending
             ? setStatusDropdownDataUse(
                 statusDropdownData.filter(
@@ -2209,7 +2062,6 @@ const EditDrawer = ({
                     item.Type === "Submitted" ||
                     item.Type === "Accept" ||
                     item.Type === "AcceptWithNotes" ||
-                    // item.Type === "SecondManagerReview" ||
                     item.Type === "OnHoldFromClient" ||
                     item.Type === "WithDraw" ||
                     item.Type === "WithdrawnbyClient" ||
@@ -2223,36 +2075,12 @@ const EditDrawer = ({
                     item.Type === "ReworkSubmitted" ||
                     item.Type === "ReworkAccept" ||
                     item.Type === "ReworkAcceptWithNotes" ||
-                    // item.Type === "SecondManagerReview" ||
                     item.Type === "OnHoldFromClient" ||
                     item.Type === "WithDraw" ||
                     item.Type === "WithdrawnbyClient" ||
                     item.value == data.StatusId
                 )
               );
-          // const filterStatusDropdown = (
-          //   statusId: number,
-          //   isManual: boolean
-          // ) => {
-          //   const filteredData = statusDropdownData
-          //     .map((i: any) =>
-          //       (i.Type === "OnHoldFromClient" ||
-          //         i.Type === "WithDraw" ||
-          //         i.value === statusId) &&
-          //       (!isManual || i.Type === "Stop")
-          //         ? i
-          //         : ""
-          //     )
-          //     .filter((i: any) => i !== "");
-
-          //   setStatusDropdownDataUse(filteredData);
-          // };
-
-          // if (data.StatusId === 2) {
-          //   filterStatusDropdown(data.StatusId, data.IsManual === true);
-          // } else {
-          //   filterStatusDropdown(data.StatusId, false);
-          // }
           setPriority(data.Priority);
           setQuantity(data.Quantity);
           setDescription(data.Description === null ? "" : data.Description);
@@ -2703,44 +2531,6 @@ const EditDrawer = ({
     }
   };
 
-  // useEffect(() => {
-  //   const getData = async () => {
-  //     const statusData = await getStatusDropdownData();
-  //     statusData.length === 0 &&
-  //       (await setStatusDropdownData(
-  //         statusData
-  //         // .filter((i: any) => i.Type !== "SignedOff")
-  //       ));
-  //     await setCCDropdownData(await getCCDropdownData());
-  //   };
-  //   getData();
-  // }, []);
-
-  // useEffect(() => {
-  //   const getData = async () => {
-  //     const statusData = await getStatusDropdownData();
-  //     onOpen &&
-  //       statusDropdownData.length === 0 &&
-  //       (await setStatusDropdownData(
-  //         statusData.filter(
-  //           (i: any) =>
-  //             // i.Type !== "OnHoldFromClient" &&
-  //             // i.Type !== "Accept" &&
-  //             // i.Type !== "AcceptWithNotes" &&
-  //             // i.Type !== "ReworkInReview" &&
-  //             // i.Type !== "ReworkAccept" &&
-  //             // i.Type !== "ReworkAcceptWithNotes" &&
-  //             // i.Type !== "SecondManagerReview" &&
-  //             i.Type !== "SignedOff"
-  //         )
-  //       ));
-  //     onOpen &&
-  //       statusDropdownData.length === 0 &&
-  //       (await setCCDropdownData(await getCCDropdownData()));
-  //   };
-  //   getData();
-  // }, [onEdit, onOpen, statusDropdownData]);
-
   useEffect(() => {
     const getData = async () => {
       getUserDetails();
@@ -2823,7 +2613,6 @@ const EditDrawer = ({
     setSubProcessErr(false);
     setManager(0);
     setManagerErr(false);
-    setEditStatus(0);
     setStatus(0);
     setStatusErr(false);
     setDescription("");
@@ -2875,7 +2664,6 @@ const EditDrawer = ({
     setSubTaskDescriptionErr([false]);
 
     // Checklist
-    setAddChecklistField(false);
     setCheckListName("");
     setCheckListNameError(false);
     setCheckListData([]);
@@ -3237,19 +3025,7 @@ const EditDrawer = ({
                             ? statusDropdownData
                             : statusDropdownDataUse
                         }
-                        // disabled={
-                        //   onEdit === 0 ||
-                        //   status === 7 ||
-                        //   status === 8 ||
-                        //   status === 9
-                        // }
                         value={
-                          // onEdit === 0 && manualSwitch
-                          //   ? statusDropdownData.find(
-                          //       (i: any) => i.value === status
-                          //     ) || null
-                          //   : onEdit === 0
-                          //   ?
                           onEdit === 0
                             ? statusDropdownData.find(
                                 (i: any) => i.value === status
@@ -3257,9 +3033,6 @@ const EditDrawer = ({
                             : statusDropdownDataUse.find(
                                 (i: any) => i.value === status
                               ) || null
-                          // : statusDropdownDataUse.find(
-                          //     (i: any) => i.value === status
-                          //   ) || null
                         }
                         onChange={(e, value: any) => {
                           value && setStatus(value.value);
@@ -4017,7 +3790,7 @@ const EditDrawer = ({
                 {subTaskDrawer && (
                   <div className="mt-3 pl-6">
                     {subTaskFields.map((field, index) => (
-                      <div className="w-[100%] flex" key={index}>
+                      <div className="w-[100%] flex" key={field.SubtaskId}>
                         <TextField
                           label={
                             <span>
@@ -4802,8 +4575,8 @@ const EditDrawer = ({
                 {manualTimeDrawer && (
                   <>
                     <div className="-mt-2 pl-6">
-                      {manualFields.map((field, index) => (
-                        <div key={index}>
+                      {manualFields.map((field) => (
+                        <div key={field.Id}>
                           <div
                             className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]`}
                           >
@@ -4979,21 +4752,6 @@ const EditDrawer = ({
                             IsApproved: false,
                           },
                         ]);
-                        // e.target.checked === true
-                        //   ? setStatus(
-                        //       statusDropdownData
-                        //         .map((i: any) =>
-                        //           i.Type === "InProgress" ? i.value : undefined
-                        //         )
-                        //         .filter((i: any) => i !== undefined)[0]
-                        //     )
-                        //   : setStatus(
-                        //       statusDropdownData
-                        //         .map((i: any) =>
-                        //           i.Type === "NotStarted" ? i.value : undefined
-                        //         )
-                        //         .filter((i: any) => i !== undefined)[0]
-                        //     );
                       }}
                     />
                     <span
@@ -5010,7 +4768,7 @@ const EditDrawer = ({
                   <>
                     <div className="-mt-2 pl-6">
                       {reviewermanualFields.map((field, index) => (
-                        <div key={index} className="flex items-center">
+                        <div key={field.Id} className="flex items-center">
                           <div
                             className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
                               inputDateErrors[index] ? "datepickerError" : ""
@@ -6193,7 +5951,10 @@ const EditDrawer = ({
                 {logsWorklogsDrawer &&
                   logsDataWorklogs.length > 0 &&
                   logsDataWorklogs.map((i: any, index: number) => (
-                    <div className="mt-5 pl-[70px] text-sm">
+                    <div
+                      className="mt-5 pl-[70px] text-sm"
+                      key={i.UpdatedBy + Math.random()}
+                    >
                       <div className="flex gap-3 mt-4">
                         <b className="mt-2">{index + 1}</b>
                         <div className="flex flex-col items-start">
@@ -6216,7 +5977,6 @@ const EditDrawer = ({
                               title={undefined}
                               options={{
                                 responsive: "standard",
-                                // tableBodyHeight: "73vh",
                                 viewColumns: false,
                                 filter: false,
                                 print: false,

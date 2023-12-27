@@ -29,7 +29,6 @@ const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
 
-  // API for Project Status list
   const getProjectStatusData = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -42,7 +41,6 @@ const Datatable_ProjectStatus: React.FC<ProjectStatusProps> = ({
           SortColumn: null,
           IsDesc: true,
           WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-          //   GlobalSearch: value,
           ProjectId: null,
           Key: onCurrSelectedProjectStatus
             ? onCurrSelectedProjectStatus

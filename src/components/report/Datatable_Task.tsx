@@ -44,7 +44,6 @@ const Datatable_Task = ({
     initialReportTaskFilter
   );
 
-  // functions for handling pagination
   const handleChangePageReportTask = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
@@ -69,7 +68,6 @@ const Datatable_Task = ({
     });
   };
 
-  // for showing value according to search
   useEffect(() => {
     if (onSearchData) {
       setAllReportTaskFields({
@@ -81,7 +79,6 @@ const Datatable_Task = ({
     }
   }, [onSearchData]);
 
-  // TaskList API
   const getReportTaskList = async () => {
     setAllReportTaskFields({
       ...allReportTaskFields,

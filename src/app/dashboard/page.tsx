@@ -3,8 +3,6 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
-// MUI Imports
 import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
 import {
@@ -19,8 +17,6 @@ import {
   Select,
 } from "@mui/material";
 import { toast } from "react-toastify";
-
-// Icons
 import TotalTaskCreated from "@/assets/icons/dashboard_Client/TotalTaskCreated";
 import InProgressWork from "@/assets/icons/dashboard_Client/InProgressWork";
 import PendingTask from "@/assets/icons/dashboard_Client/PendingTask";
@@ -31,8 +27,6 @@ import ArrowDown from "@/assets/icons/dashboard_Client/ArrowDown";
 import ArrowUp from "@/assets/icons/dashboard_Client/ArrowUp";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import Btn_FullScreen from "@/assets/icons/dashboard_Client/Btn_FullScreen";
-
-// Internal components
 import Dialog_TaskList from "@/components/dashboard/dialog/Dialog_TaskList";
 import Datatable_Overdue from "@/components/dashboard/datatable/Datatable_Overdue";
 import Datatable_OnHold from "@/components/dashboard/datatable/Datatable_OnHold";
@@ -47,7 +41,6 @@ import { useRouter } from "next/navigation";
 import Dialog_OverallProjectSummary from "@/components/dashboard/dialog/Dialog_OverallProjectSummary";
 import Dialog_SummaryList from "@/components/dashboard/dialog/Dialog_SummaryList";
 import Dialog_ReturnTypeData from "@/components/dashboard/dialog/Dialog_ReturnTypeData";
-import CustomToastContainer from "@/utils/style/CustomToastContainer";
 
 const Page = () => {
   const router = useRouter();
@@ -96,7 +89,6 @@ const Page = () => {
   const openProjects = Boolean(anchorElProjects);
   const idProjects = openProjects ? "simple-popover" : undefined;
 
-  // handling project ids and name
   const handleOptionProjects = (id: any, name: any) => {
     setCurrentProjectId([id]);
     setCurrentProjectName(name);
@@ -114,7 +106,6 @@ const Page = () => {
       )
     : projects;
 
-  // handling "All projects"
   const handleSelectAllProject = () => {
     setCurrentProjectId([]);
     setCurrentProjectName("All Projects");
@@ -122,7 +113,6 @@ const Page = () => {
     handleCloseProjects();
   };
 
-  // getting value from Overall Project Completion chart
   const handleValueFromOverallProject = (
     isDialogOpen: boolean,
     selectedPointData: string
@@ -131,7 +121,6 @@ const Page = () => {
     setClickedProjectStatusName(selectedPointData);
   };
 
-  // getting value from Return Type chart
   const handleValueFromReturnType = (
     isDialogOpen: boolean,
     selectedPointData: number
@@ -140,7 +129,6 @@ const Page = () => {
     setClickedReturnTypeValue(selectedPointData);
   };
 
-  // getting value from Total hours chart
   const handleValueFromTotalHours = (
     isDialogOpen: boolean,
     selectedPointData: string
@@ -149,7 +137,6 @@ const Page = () => {
     setClickedWorkTypeName(selectedPointData);
   };
 
-  // getting value from Task Status chart
   const handleValueFromTaskStatus = (
     isDialogOpen: boolean,
     selectedPointData: string
@@ -158,7 +145,6 @@ const Page = () => {
     setClickedStatusName(selectedPointData);
   };
 
-  // getting value from Priority chart
   const handleValueFromPriority = (
     isDialogOpen: boolean,
     selectedPointData: string
@@ -313,14 +299,12 @@ const Page = () => {
     getProjectSummary();
   }, [currentProjectId, workType]);
 
-  // Change workType when select individual project
   useEffect(() => {
     if (!isAllProject) {
       setWorkType(0);
     }
   }, [isAllProject]);
 
-  // Summary Status Icons mapping
   const statusIconMapping: any = {
     "Total Task Created": <TotalTaskCreated />,
     "Pending Task": <PendingTask />,
@@ -689,8 +673,6 @@ const Page = () => {
             clickedReturnTypeValue === "Individual Return" ? 1 : 2
           }
         />
-
-        <CustomToastContainer />
       </div>
     </Wrapper>
   );

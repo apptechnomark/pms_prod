@@ -13,14 +13,12 @@ import {
 } from "@mui/material";
 import TablePagination from "@mui/material/TablePagination";
 import { toast } from "react-toastify";
-// icons imports
 import PlayButton from "@/assets/icons/worklogs/PlayButton";
 import PlayPause from "@/assets/icons/worklogs/PlayPause";
 import PauseButton from "@/assets/icons/worklogs/PauseButton";
 import StopButton from "@/assets/icons/worklogs/StopButton";
 import RestartButton from "@/assets/icons/worklogs/RestartButton";
 import RecurringIcon from "@/assets/icons/worklogs/RecurringIcon";
-// Internal Component imports
 import { toHoursAndMinutes, toSeconds } from "@/utils/timerFunctions";
 import {
   generateCustomHeaderName,
@@ -32,9 +30,8 @@ import {
   handleChangeRowsPerPageWithFilter,
   generateCustomeTaskIdwithErrorLogs,
 } from "@/utils/datatable/CommonFunction";
-import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { getMuiTheme, ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
-import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import WorklogsActionBar from "./actionBar/WorklogsActionBar";
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
 import ReportLoader from "../common/ReportLoader";
@@ -76,6 +73,7 @@ const Datatable = ({
   onComment,
   searchValue,
   isUnassigneeClicked,
+  onChangeLoader,
 }: any) => {
   const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
     useState(false);
@@ -104,7 +102,6 @@ const Datatable = ({
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
   const [tableDataCount, setTableDataCount] = useState(0);
 
-  // States for Time
   const [isRunning, setRunning] = useState<number>(-1);
   const [workitemTimeId, setWorkitemTimeId] = useState<number>(-1);
   const [stopTimerDialog, setStopTimerDialog] = useState<boolean>(false);
@@ -208,17 +205,9 @@ const Datatable = ({
       workItemData.filter((data: any) => data.TimelogId > 0).length > 0
         ? workItemData.filter((data: any) => data.TimelogId > 0)[0].TimelogId
         : -1
-      // workItemData.filter(
-      //   (data: any) => data.TimelogId !== 0 || data.TimelogId !== null
-      // ).length > 0
-      //   ? workItemData.filter(
-      //       (data: any) => data.TimelogId !== 0 || data.TimelogId !== null
-      //     )[0].TimelogId
-      //   : -1
     );
   }, [workItemData]);
 
-  // Timer API
   const handleTimer = async (
     state: number,
     selectedRowId: number,
@@ -355,7 +344,6 @@ const Datatable = ({
     getWorkItemList();
   }, [currentFilterData, searchValue]);
 
-  // API for filter list
   const getFilterList = async (filterId: number) => {
     if (filterId === 0) {
       setFilteredOject(initialFilter);
@@ -381,7 +369,6 @@ const Datatable = ({
           if (response.data.ResponseStatus === "Success") {
             const responseData = response.data.ResponseData;
 
-            // Filter the data based on the given filterId
             const filteredData = responseData.filter(
               (filter: any) => filter.FilterId === filterId
             );
@@ -464,7 +451,6 @@ const Datatable = ({
     }
   };
 
-  // WorkItemList API
   const getWorkItemList = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -483,6 +469,7 @@ const Datatable = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          onChangeLoader(response.data.ResponseData.TotalTime);
           onHandleExport(
             response.data.ResponseData.List.length > 0 ? true : false
           );
@@ -514,7 +501,6 @@ const Datatable = ({
   };
 
   useEffect(() => {
-    // refreshing data from Drawer side
     const fetchData = async () => {
       await getWorkItemList();
       onDataFetch(() => fetchData());
@@ -784,7 +770,6 @@ const Datatable = ({
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 7 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 9 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 6 &&
-                  // tableMeta.rowData[tableMeta.rowData.length - 3] !== 10 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 8 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 4 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 11 &&
@@ -867,7 +852,6 @@ const Datatable = ({
                           setRunning(
                             tableMeta.rowData[tableMeta.rowData.length - 1]
                           );
-                          // setRowId(tableMeta.rowIndex);
                           setStopTimerDialog(true);
                           value > estimatedTimeInSeconds
                             ? setIsTimeExceed(true)
@@ -1020,7 +1004,6 @@ const Datatable = ({
     (data: any) => data.WorkitemId === isRunning
   );
 
-  // props for actionbar
   const propsForActionBar = {
     selectedRowsCount,
     selectedRows,
@@ -1207,7 +1190,10 @@ const Datatable = ({
       </Dialog>
 
       {/* Action Bar */}
-      <WorklogsActionBar {...propsForActionBar} />
+      <WorklogsActionBar
+        {...propsForActionBar}
+        getOverLay={(e: any) => setIsLoadingWorklogsDatatable(e)}
+      />
       {isLoadingWorklogsDatatable ? <OverLay /> : ""}
     </div>
   );

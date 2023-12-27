@@ -78,7 +78,6 @@ export default function ImageUploader({ getData, isDisable, className }: any) {
             type="file"
             accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
             ref={fileInputRef}
-            // multiple
             className="input-field hidden"
             onChange={handleImageChange}
           />
@@ -94,7 +93,6 @@ export default function ImageUploader({ getData, isDisable, className }: any) {
               type="file"
               accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
               ref={fileInputRef}
-              // multiple
               className="input-field hidden"
               onChange={handleImageChange}
             />

@@ -16,6 +16,7 @@ const Assignee = ({
   selectedRowsCount,
   getWorkItemList,
   handleClearSelection,
+  getOverLay,
 }: any) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [assignee, setAssignee] = useState<any | any[]>([]);
@@ -47,7 +48,6 @@ const Assignee = ({
     handleCloseAssignee();
   };
 
-  // API for get Assignee with all conditions
   useEffect(() => {
     if (
       selectedRowClientId.length > 0 &&
@@ -98,20 +98,14 @@ const Assignee = ({
         }
       };
 
-      // calling function
       getAssignee();
     }
   }, [selectedRowClientId, selectedRowWorkTypeId]);
 
-  // API for update Assignee
   const updateAssignee = async (id: number[], assigneeId: number) => {
     try {
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
-
-      // const isInvalidStatus = selectedRowStatusId.some((statusId: any) =>
-      //   [7, 8, 9, 13].includes(statusId)
-      // );
 
       const isRunning = workItemData
         .map((item: any) =>
@@ -128,16 +122,10 @@ const Assignee = ({
             : false
         )
         .filter((j: any) => j !== false);
-      // console.log(isRunning, isNotRunning);
-
-      // if (selectedRowsCount >= 1 && isInvalidStatus) {
-      //   toast.warning(
-      //     "Cannot change Assignee for 'Accept', 'Accept with Notes', or 'Signed-off' tasks."
-      //   );
-      // } else
       if (isRunning.length > 0) {
         toast.warning("Cannot change Assignee for Running tasks.");
       } else if (isNotRunning.length > 0) {
+        getOverLay(true);
         const response = await axios.post(
           `${process.env.worklog_api_url}/workitem/UpdateAssignee`,
           {
@@ -158,12 +146,15 @@ const Assignee = ({
             toast.success("Assignee has been updated successfully.");
             handleClearSelection();
             getWorkItemList();
+            getOverLay(false);
           } else {
             toast.error(data || "Please try again later.");
+            getOverLay(false);
           }
         } else {
           const data = response.data.Message;
           toast.error(data || "Please try again later.");
+          getOverLay(false);
         }
       }
     } catch (error) {

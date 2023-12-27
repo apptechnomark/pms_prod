@@ -3,7 +3,6 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import DrawerOverlay from "../settings/drawer/DrawerOverlay";
-import CustomToastContainer from "@/utils/style/CustomToastContainer";
 
 interface WrapperProps {
   children: ReactNode;
@@ -49,7 +48,6 @@ const Wrapper = ({ children, className = "" }: WrapperProps): JSX.Element => {
 
   return (
     <div className="lg:flex !h-[200px]">
-      <CustomToastContainer />
       <Sidebar
         setOpen={isOpen}
         setSetting={isCollapsed}

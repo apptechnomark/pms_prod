@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// material imports
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -463,7 +462,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
         if (response.data.ResponseStatus === "Success") {
           const responseData = response.data.ResponseData;
 
-          // Filter the data based on the given filterId
           const filteredData = responseData.filter(
             (filter: any) => filter.FilterId === filterId
           );
@@ -492,7 +490,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     }
   };
 
-  // Check if any field is selected
   useEffect(() => {
     const isAnyFieldSelected =
       clientName !== 0 ||
@@ -520,12 +517,10 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     ReviewStatus,
   ]);
 
-  // Fetch filter list based on the current filter ID
   useEffect(() => {
     getFilterList(onCurrentFilterId);
   }, [onCurrentFilterId]);
 
-  // Set state values based on applied filter data
   useEffect(() => {
     if (appliedFilterData.length > 0) {
       const appliedFilter = appliedFilterData[0].AppliedFilter;

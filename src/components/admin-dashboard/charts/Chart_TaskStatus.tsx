@@ -16,7 +16,6 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
 }) => {
   const [data, setData] = useState<any[]>([]);
 
-  // API for Dashboard Summary
   const getTaskStatusData = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");

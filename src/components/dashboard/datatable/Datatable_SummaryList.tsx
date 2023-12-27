@@ -30,7 +30,6 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
 
-  // API for Project Status list
   const getSummaryData = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");

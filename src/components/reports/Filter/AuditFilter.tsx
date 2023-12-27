@@ -139,10 +139,6 @@ const AuditFilter = ({
 
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
-    const startdate =
-      startDate.toString().trim().length <= 0 ?? getFormattedDate(startDate);
-    const enddate =
-      endDate.toString().trim().length <= 0 ?? getFormattedDate(endDate);
 
     try {
       const response = await axios.post(

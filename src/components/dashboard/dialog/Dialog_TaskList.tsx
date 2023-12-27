@@ -1,8 +1,6 @@
 import React from "react";
-// material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
-// Internal Components
 import Datatable_FullScreen from "@/components/dashboard/datatable/Datatable_FullScreen";
 
 interface TaskListDialogProps {

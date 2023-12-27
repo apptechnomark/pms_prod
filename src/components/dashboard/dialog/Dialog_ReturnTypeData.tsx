@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import {
@@ -10,7 +9,6 @@ import {
   Select,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
-// Internal Components
 import Datatable_ReturnTypeData from "../datatable/Datatable_ReturnTypeData";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 

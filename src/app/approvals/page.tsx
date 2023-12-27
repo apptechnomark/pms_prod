@@ -2,14 +2,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-
 import Datatable from "@/components/approvals/Datatable";
 import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
-// Icons
 import ExportIcon from "@/assets/icons/ExportIcon";
 import FilterIcon from "@/assets/icons/FilterIcon";
-// Material Import
 import { InputBase } from "@mui/material";
 import Drawer from "@/components/approvals/Drawer";
 import { toast } from "react-toastify";
@@ -21,7 +18,6 @@ import Loading from "@/assets/icons/reports/Loading";
 import axios from "axios";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-import CustomToastContainer from "@/utils/style/CustomToastContainer";
 
 const exportBody = {
   pageNo: 1,
@@ -41,6 +37,7 @@ const exportBody = {
 
 const Page = () => {
   const router = useRouter();
+  const [timeValue, setTimeValue] = useState(null);
   const [activeTab, setActiveTab] = useState<number>(1);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEditId, setHasEditId] = useState(0);
@@ -74,7 +71,6 @@ const Page = () => {
     }
   }, [router]);
 
-  // To Toggle Drawer
   const handleDrawerOpen = () => {
     setOpenDrawer(true);
   };
@@ -89,7 +85,6 @@ const Page = () => {
     setGlobalSearchValue("");
   };
 
-  // To Toggle Drawer for Edit
   const handleEdit = (rowId: any, Id: any, iconIndex?: number) => {
     setIconIndex(iconIndex !== undefined ? iconIndex : 0);
     setHasEditId(rowId);
@@ -97,26 +92,22 @@ const Page = () => {
     setHasId(Id);
   };
 
-  // For refreshing data in Datatable from drawer
   const handleDataFetch = (getData: () => void) => {
     setDataFunction(() => getData);
   };
 
-  // To Toggle Drawer for Comments
   const handleSetComments = (rowData: any, selectedId: number) => {
     setHasComment(true);
     setOpenDrawer(rowData);
     setHasEditId(selectedId);
   };
 
-  // To Toggle Drawer for Error
   const handleSetError = (rowData: any, selectedId: number) => {
     setHasError(true);
     setOpenDrawer(rowData);
     setHasEditId(selectedId);
   };
 
-  // To Toggle Drawer for Error
   const handleSetManual = (rowData: any, selectedId: number) => {
     setHasManual(true);
     setOpenDrawer(rowData);
@@ -198,6 +189,11 @@ const Page = () => {
             </span>
           </div>
           <div className="flex gap-[20px] items-center">
+            {activeTab === 1 && (
+              <span className="text-secondary font-light">
+                Total time: {timeValue}
+              </span>
+            )}
             <div className="relative">
               <InputBase
                 className="pl-1 pr-7 border-b border-b-lightSilver w-52"
@@ -244,6 +240,7 @@ const Page = () => {
           onErrorLog={handleSetError}
           onManualTime={handleSetManual}
           onHandleExport={handleCanExport}
+          onChangeLoader={(e: any) => setTimeValue(e)}
         />
 
         <Drawer
@@ -265,8 +262,6 @@ const Page = () => {
           onDataFetch={() => {}}
           currentFilterData={getIdFromFilterDialog}
         />
-
-        <CustomToastContainer />
       </div>
     </Wrapper>
   );

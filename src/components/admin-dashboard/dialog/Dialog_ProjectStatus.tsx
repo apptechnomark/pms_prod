@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import {
@@ -44,7 +43,6 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
     setProjectStatus("");
   };
 
-  // API for Project Status
   const getProjectStatusList = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");

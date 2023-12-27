@@ -14,14 +14,11 @@ const IdleTimer = ({ timeout = 600000, onIdle }: any) => {
       resetTimer();
     };
 
-    // Initial setup
     resetTimer();
 
-    // Event listeners
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("keydown", handleMouseMove);
 
-    // Cleanup
     return () => {
       clearTimeout(timer);
       window.removeEventListener("mousemove", handleMouseMove);

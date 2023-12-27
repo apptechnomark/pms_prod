@@ -12,7 +12,6 @@ function ImportIcon() {
       >
         <mask
           id="mask0_1102_206964"
-          // style="mask-type:alpha"
           maskUnits="userSpaceOnUse"
           x="0"
           y="0"

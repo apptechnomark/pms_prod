@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import {
@@ -42,7 +41,6 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
     setSummaryName("");
   };
 
-  // API for Dashboard Summary list
   const getProjectSummary = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");

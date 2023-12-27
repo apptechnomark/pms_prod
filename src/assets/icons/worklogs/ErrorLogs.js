@@ -12,7 +12,6 @@ const ErrorLogs = () => {
       >
         <mask
           id="mask0_3538_277758"
-          // style="mask-type:alpha"
           maskUnits="userSpaceOnUse"
           x="0"
           y="0"

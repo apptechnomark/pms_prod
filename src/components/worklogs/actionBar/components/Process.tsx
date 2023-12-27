@@ -11,6 +11,7 @@ const Process = ({
   selectedRowIds,
   handleClearSelection,
   getWorkItemList,
+  getOverLay,
 }: any) => {
   const [processSearchQuery, setprocessSearchQuery] = useState("");
 
@@ -41,8 +42,8 @@ const Process = ({
     handleCloseProcess();
   };
 
-  // API for update Process
   const updateProcess = async (id: number[], processId: number) => {
+    getOverLay(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -65,6 +66,7 @@ const Process = ({
           toast.success("Process has been updated successfully.");
           handleClearSelection();
           getWorkItemList();
+          getOverLay(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -72,6 +74,7 @@ const Process = ({
           } else {
             toast.error(data);
           }
+          getOverLay(false);
         }
       } else {
         const data = response.data.Message;
@@ -80,6 +83,7 @@ const Process = ({
         } else {
           toast.error(data);
         }
+        getOverLay(false);
       }
     } catch (error) {
       console.error(error);

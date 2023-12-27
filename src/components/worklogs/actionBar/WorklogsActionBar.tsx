@@ -44,12 +44,12 @@ const WorklogsActionBar = ({
   workItemData,
   getWorkItemList,
   isUnassigneeClicked,
+  getOverLay,
 }: any) => {
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [processDropdownData, setProcessDropdownData] = useState([]);
   const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
 
-  // API for process Data
   const getProcessData = async (ids: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -219,12 +219,10 @@ const WorklogsActionBar = ({
     }
   }, [selectedRowClientId]);
 
-  // Function for checking that All vlaues in the arrar are same or not
   function areAllValuesSame(arr: any[]) {
     return arr.every((value, index, array) => value === array[0]);
   }
 
-  // function to fetch the only assignee which has logged in from the all data
   const handleAssigneeForSubmission = (arr: any[], userId: string | null) => {
     const workItemIds: number[] = [];
     const selctedWorkItemStatusIds: number[] = [];
@@ -238,7 +236,6 @@ const WorklogsActionBar = ({
     return { workItemIds, selctedWorkItemStatusIds };
   };
 
-  // Submit WorkItem API
   const submitWorkItem = async () => {
     const userId = localStorage.getItem("UserId");
     const { workItemIds, selctedWorkItemStatusIds } =
@@ -249,19 +246,10 @@ const WorklogsActionBar = ({
       return;
     }
 
-    // const hasInProgressOrStopStatus = selctedWorkItemStatusIds.includes(4);
-
-    // if (!hasInProgressOrStopStatus) {
-    //   toast.warning(
-    //     "Tasks can only be submitted if they are currently in the 'Preparation Completed' status."
-    //   );
-    //   return;
-    // }
-
     if (workItemIds.length < selectedRowsCount) {
       toast.warning("Only Assignee can submit the task.");
     }
-
+    getOverLay(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -281,37 +269,32 @@ const WorklogsActionBar = ({
       if (response.status === 200) {
         const data = response.data.Message;
         if (response.data.ResponseStatus === "Success") {
-          // if (
-          //   (selectedRowStatusName.length > 0 &&
-          //     selectedRowStatusName.includes("In Progress")) ||
-          //   selectedRowStatusId.includes(2)
-          // ) {
-          //   toast.success("Task has been Partially Submitted.");
-          // } else {
-          // toast.success("The task has been successfully submitted.");
-          // }
           toast.success("The task has been successfully submitted.");
           handleClearSelection();
           getWorkItemList();
-        } else if (response.data.ResponseStatus === "Warning" && !!data) {
+          getOverLay(false);
+        } else if (response.data.ResponseStatus === "Warning" && data) {
           toast.warning(data);
           handleClearSelection();
           getWorkItemList();
+          getOverLay(false);
         } else {
-          if (!!data) {
+          if (data) {
             toast.error(data);
           } else {
             toast.error("Please try again later.");
           }
+          getOverLay(false);
           handleClearSelection();
         }
       } else {
         const data = response.data.Message;
-        if (!!data) {
+        if (data) {
           toast.error("Please try again later.");
         } else {
           toast.error(data);
         }
+        getOverLay(false);
       }
     } catch (error) {
       console.error(error);
@@ -330,7 +313,6 @@ const WorklogsActionBar = ({
     </span>
   );
 
-  // All props to pass in action Bar components
   const propsForActionBar = {
     onEdit,
     onRecurring,
@@ -354,11 +336,12 @@ const WorklogsActionBar = ({
     Component,
     propsForActionBar,
     className,
+    getOverLay,
   }: any) => (
     <span
       className={`pl-2 pr-2 cursor-pointer border-l-[1.5px] border-gray-300 ${className}`}
     >
-      <Component {...propsForActionBar} />
+      <Component {...propsForActionBar} getOverLay={getOverLay} />
     </span>
   );
 
@@ -368,12 +351,13 @@ const WorklogsActionBar = ({
     Component,
     propsForActionBar,
     additionalBorderClass = "",
+    getOverLay,
   }: any) =>
     condition ? (
       <span
         className={`pl-2 pr-2 cursor-pointer border-l-[1.5px] border-gray-300 ${additionalBorderClass} ${className}`}
       >
-        <Component {...propsForActionBar} />
+        <Component {...propsForActionBar} getOverLay={getOverLay} />
       </span>
     ) : null;
 
@@ -384,10 +368,6 @@ const WorklogsActionBar = ({
           condition={
             hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
             selectedRowsCount === 1
-            // &&
-            // !selectedRowStatusId.some((statusId: number) =>
-            //   [4, 7, 8, 9, 13].includes(statusId)
-            // )
           }
           className="text-slatyGrey"
           Component={Edit}
@@ -401,6 +381,7 @@ const WorklogsActionBar = ({
           }
           Component={Delete}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
 
         <ConditionalComponentWithoutConditions
@@ -411,6 +392,7 @@ const WorklogsActionBar = ({
             selectedRowsCount: selectedRowsCount,
             getData: getWorkItemList,
           }}
+          getOverLay={getOverLay}
         />
 
         <ConditionalComponent
@@ -420,17 +402,20 @@ const WorklogsActionBar = ({
           }
           Component={Assignee}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
 
         <ConditionalComponentWithoutConditions
           Component={Status}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
 
         <ConditionalComponent
           condition={!isUnassigneeClicked}
           Component={Duplicate}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
 
         <ConditionalComponent
@@ -476,6 +461,7 @@ const WorklogsActionBar = ({
           }
           Component={Client}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
 
         <ConditionalComponent
@@ -510,6 +496,7 @@ const WorklogsActionBar = ({
           }
           Component={Project}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
 
         <ConditionalComponent
@@ -543,6 +530,7 @@ const WorklogsActionBar = ({
           }
           Component={Process}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
 
         <ConditionalComponent
@@ -590,6 +578,7 @@ const WorklogsActionBar = ({
           }
           Component={SubProcess}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
 
         <ConditionalComponent
@@ -614,6 +603,7 @@ const WorklogsActionBar = ({
           }
           Component={ReturnYear}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
 
         <ConditionalComponent
@@ -638,6 +628,7 @@ const WorklogsActionBar = ({
           }
           Component={Manager}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
 
         <ConditionalComponent
@@ -662,6 +653,7 @@ const WorklogsActionBar = ({
           }
           Component={DateReceived}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
 
         <SubmitButton />

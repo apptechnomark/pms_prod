@@ -21,23 +21,11 @@ import {
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-
-//custom component
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
-
-// filter type
 import { FilterType } from "../types/ReportsFilterType";
-
-// filter type enum
 import { user } from "../Enum/Filtertype";
-
-//filter body for user
 import { userLogs_InitialFilter } from "@/utils/reports/getFilters";
-
-//dropdown api
 import { getDeptData, getUserData } from "./api/getDropDownData";
-
-//icons
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
 import { getFormattedDate } from "@/utils/timerFunctions";
@@ -218,7 +206,6 @@ const UserLogsFilter = ({
     const isAnyFieldSelected =
       userlogs_userNames.length > 0 ||
       userlogs_dept !== null ||
-      // userlogs_dateFilter !== null ||
       userlogs_dateFilter !== "" ||
       userlogs_isloggedIn !== 0;
 

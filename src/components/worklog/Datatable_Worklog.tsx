@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
 import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
 import TablePagination from "@mui/material/TablePagination";
-// icons imports
 import { toast } from "react-toastify";
 import {
   handlePageChangeWithFilter,
@@ -66,7 +64,6 @@ const Datatable_Worklog = ({
   );
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
 
-  // for showing value according to search
   useEffect(() => {
     if (onSearchWorkTypeData) {
       setWorkItemData(onSearchWorkTypeData);
@@ -150,7 +147,6 @@ const Datatable_Worklog = ({
     }
   }, [onCloseDrawer]);
 
-  // WorkItemList API
   const getWorkItemList = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");

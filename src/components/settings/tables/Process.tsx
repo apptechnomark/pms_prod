@@ -56,7 +56,6 @@ function Process({
     getAll();
   }, []);
 
-  // GetAll Data in api
   const getAll = async () => {
     try {
       const prams = {
@@ -104,7 +103,6 @@ function Process({
     }
   };
 
-  // for showing value according to search
   useEffect(() => {
     if (onSearchProcessData) {
       setData(onSearchProcessData);
@@ -269,7 +267,6 @@ function Process({
     };
   });
 
-  // For Closing Modal
   const closeModal = () => {
     setIsDeleteOpen(false);
   };

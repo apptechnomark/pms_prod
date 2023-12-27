@@ -29,11 +29,11 @@ const DashboardItems = ({ pathname, isCollapsed }: any) => {
   return (
     <>
       {sidebarItems?.length > 0 &&
-        sidebarItems.map((item: any, index: number) => {
+        sidebarItems.map((item: any) => {
           if (item && item.href) {
             return (
               <Link
-                key={index}
+                key={item.href}
                 href={item.href}
                 className={`mb-[15px] flex items-center pl-[27px] border-l-[4px] hover:bg-[#F6F6F6] hover:border-[#0592C6] ${
                   pathname === `${item.href}`

@@ -51,7 +51,6 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
     },
   });
 
-  // Resizing the table according to the fileds
   useEffect(() => {
     const handleResize = () => {
       const screenWidth = window.innerWidth;

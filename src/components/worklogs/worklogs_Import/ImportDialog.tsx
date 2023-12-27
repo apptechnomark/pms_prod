@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-
-// material imports
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -11,13 +9,9 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { TextareaAutosize } from "@mui/base/TextareaAutosize";
 import { FormControl, FormHelperText } from "@mui/material";
 import MUIDataTable from "mui-datatables";
-
-// Icons Imports
 import ExcelIcon from "@/assets/icons/Import/ExcelIcon";
 import FileIcon from "@/assets/icons/Import/FileIcon";
 import Download from "@/assets/icons/Import/Download";
-
-// Internal components
 import {
   Table_Options,
   Table_Columns,
@@ -61,7 +55,6 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     setSelectedFile(null);
   };
 
-  //   function to set selected Tasks from table
   const handleRowSelect = (
     currentRowsSelected: any,
     allRowsSelected: any,
@@ -81,7 +74,6 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     setselectedtasks(tasks);
   };
 
-  //   converting importText to Array of Object
   const convertToArrayOfObjects = (data: string) => {
     let dataArray;
     if (data.includes("\n")) {
@@ -95,7 +87,6 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     return dataArray;
   };
 
-  //  adding data into table
   const handleProcessData = () => {
     if (importText.trim() === "") {
       setError("Please enter import fields");
@@ -107,12 +98,10 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     setImportFields(convertToArrayOfObjects(importText));
   };
 
-  // Adding file
   const handleFileChange = (event: any) => {
     setSelectedFile(event.target.files[0]);
   };
 
-  //  Calling Import API
   const handleApplyImport = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -156,7 +145,6 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     }
   };
 
-  //  Calling Import Excel API
   const handleApplyImportExcel = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -241,7 +229,6 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
     }
   }, [selectedFile]);
 
-  // function for downloading sample API
   const handleDownloadSampleFile = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");

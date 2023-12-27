@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// material imports
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -47,7 +46,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   currentFilterData,
   isCompletedTaskClicked,
 }) => {
-  // Dropdown Data
   const [projectDropdownData, setProjectDropdownData] = useState([]);
   const [statusDropdownWorklogData, setStatusDropdownWorklogData] = useState(
     []
@@ -94,7 +92,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     currentFilterData(initialFilter);
   };
 
-  // Check if any field is selected
   useEffect(() => {
     const isAnyFieldSelected =
       project !== 0 ||

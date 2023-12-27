@@ -11,10 +11,7 @@ import {
   DialogTitle,
   FormControl,
   InputBase,
-  InputLabel,
-  MenuItem,
   Popover,
-  Select,
   TextField,
   Tooltip,
 } from "@mui/material";
@@ -155,7 +152,6 @@ const CustomReportFilter = ({
     setFilterName("");
     onDialogClose(false);
     setDefaultFilter(false);
-    // resetting filter fields
     setClientName([]);
     setClients([]);
     setProjectName(null);
@@ -383,10 +379,7 @@ const CustomReportFilter = ({
       setProjectDropdown(
         await getProjectDropdownData(clientName.length > 0 ? clientName[0] : 0)
       );
-      setProcessDropdown(
-        // await getProcessDropdownData(clientName.length > 0 ? clientName[0] : 0)
-        await getAllProcessDropdownData()
-      );
+      setProcessDropdown(await getAllProcessDropdownData());
 
       setSubProcessDropdown(
         await getSubProcessDropdownData(

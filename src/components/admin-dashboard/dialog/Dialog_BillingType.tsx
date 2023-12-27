@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import {
@@ -48,7 +47,6 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
     setSearchValue("");
   };
 
-  //   function to extract values from label/type/name
   function getValueByLabelOrType(labelOrType: any): number {
     const billingType = allBillingType.find(
       (billingType: Status) =>
@@ -72,7 +70,6 @@ const Dialog_BillingType: React.FC<BillingTypeDialogProps> = ({
     setSearchValue("");
   };
 
-  // API for billingType dropdown list
   const getAllStatus = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");

@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-
-import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { Card } from "@mui/material";
-// icons imports
 import Minus from "@/assets/icons/worklogs/Minus";
 import Rating_Star from "@/assets/icons/worklog_Client/Rating_Star";
-import { toast } from "react-toastify";
 import Comments from "@/assets/icons/worklogs/Comments";
 import ErrorLogs from "@/assets/icons/worklogs/ErrorLogs";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
@@ -26,7 +21,6 @@ const CompletedTaskActionBar = ({
   onDataFetch,
 }: any) => {
   const [isRatingOpen, setIsRatingOpen] = useState(false);
-  const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const handleKeyDown = (event: any) => {
@@ -44,74 +38,6 @@ const CompletedTaskActionBar = ({
   const closeRatingDialog = () => {
     setIsRatingOpen(false);
     getWorkItemList();
-  };
-
-  // For Closing Delete Modal
-  const closeDeleteModal = () => {
-    setIsDeleteOpen(false);
-  };
-
-  // Delete WorkItem API
-  const deleteWorkItem = async () => {
-    const warningStatusIds = [3, 4, 5, 6, 7, 8, 9, 10, 11];
-    let shouldWarn;
-
-    shouldWarn = selectedRowStatusId
-      .map((id: number) => {
-        if (!warningStatusIds.includes(id)) {
-          return id;
-        }
-        return undefined;
-      })
-      .filter((id: number) => id !== undefined);
-
-    if (selectedRowIds.length > 0) {
-      if (
-        (shouldWarn.includes(1) && selectedRowIds.length > 1) ||
-        (shouldWarn.includes(2) && selectedRowIds.length > 1)
-      ) {
-        toast.warning(
-          "Only tasks in 'In Progress' or 'Not Started' status will be deleted.123"
-        );
-      }
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/deleteworkitem`,
-          {
-            workitemIds: selectedRowIds,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (
-          response.status === 200 &&
-          response.data.ResponseStatus === "Success"
-        ) {
-          toast.success("Task has been deleted successfully.");
-          handleClearSelection();
-          getWorkItemList();
-          shouldWarn.splice(0, shouldWarn.length);
-        } else {
-          const data = response.data.Message || "An error occurred.";
-          toast.error(data);
-        }
-      } catch (error) {
-        console.error(error);
-        toast.error("An error occurred while deleting the task.");
-      }
-    } else if (shouldWarn.includes[1] || shouldWarn.includes[2]) {
-      toast.warning(
-        "Only tasks in 'In Progress' or 'Not Started' status will be deleted."
-      );
-    }
   };
 
   return (
@@ -170,18 +96,6 @@ const CompletedTaskActionBar = ({
           </Card>
         </div>
       )}
-
-      {/* Delete Dialog Box */}
-      <DeleteDialog
-        isOpen={isDeleteOpen}
-        onClose={closeDeleteModal}
-        onActionClick={deleteWorkItem}
-        Title={"Delete Process"}
-        firstContent={"Are you sure you want to delete Task?"}
-        secondContent={
-          "If you delete task, you will permanently loose task and task related data."
-        }
-      />
 
       <RatingDialog
         onOpen={isRatingOpen}

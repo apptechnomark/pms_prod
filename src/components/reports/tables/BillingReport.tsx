@@ -180,7 +180,6 @@ const BillingReport = ({
     }
   };
 
-  // functions for handling pagination
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
@@ -215,7 +214,6 @@ const BillingReport = ({
         );
 
         if (existingIndex !== -1) {
-          // If workItemId exists, update btcValue
           return prevData.map((obj: any, index: number) =>
             index === existingIndex
               ? {
@@ -227,7 +225,6 @@ const BillingReport = ({
               : obj
           );
         } else {
-          // If workItemId doesn't exist, add a new object
           return [
             ...prevData,
             {

@@ -30,7 +30,6 @@ const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
 
-  // API for task status list
   const getTaskStatusData = async (value: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");

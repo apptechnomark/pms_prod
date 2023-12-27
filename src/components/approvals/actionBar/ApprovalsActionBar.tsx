@@ -19,6 +19,35 @@ import {
   Comments,
 } from "@/components/common/actionBar/components/ActionBarComponents";
 
+const ConditionalComponentWithoutConditions = ({
+  Component,
+  propsForActionBar,
+  className,
+  getOverLay,
+}: any) => (
+  <span
+    className={`pl-2 pr-2 cursor-pointer border-l-[1.5px] border-gray-300 ${className}`}
+  >
+    <Component {...propsForActionBar} getOverLay={getOverLay} />
+  </span>
+);
+
+const ConditionalComponent = ({
+  condition,
+  className,
+  Component,
+  propsForActionBar,
+  additionalBorderClass = "",
+  getOverLay,
+}: any) =>
+  condition ? (
+    <span
+      className={`pl-2 pr-2 cursor-pointer border-l-[1.5px] border-gray-300 ${additionalBorderClass} ${className}`}
+    >
+      <Component {...propsForActionBar} getOverLay={getOverLay} />
+    </span>
+  ) : null;
+
 const ApprovalsActionBar = ({
   selectedRowsCount,
   selectedRowStatusId,
@@ -35,6 +64,7 @@ const ApprovalsActionBar = ({
   getReviewList,
   getInitialPagePerRows,
   handleClearSelection,
+  getOverLay,
 }: any) => {
   const isReviewer = reviewList
     .filter(
@@ -52,8 +82,8 @@ const ApprovalsActionBar = ({
     )
     .map((i: any) => i.WorkitemId);
 
-  // Accept WorkItem or Accept with Note API
   const acceptWorkitem = async (note: string, id: number[]) => {
+    getOverLay(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -78,10 +108,12 @@ const ApprovalsActionBar = ({
           handleClearSelection();
           getReviewList();
           getInitialPagePerRows();
+          getOverLay(false);
         } else if (response.data.ResponseStatus === "Warning" && !!data) {
           toast.warning(data);
           handleClearSelection();
           getReviewList();
+          getOverLay(false);
         } else {
           if (data === null) {
             toast.error("Please try again later.");
@@ -89,6 +121,7 @@ const ApprovalsActionBar = ({
             toast.error(data);
           }
           handleClearSelection();
+          getOverLay(false);
         }
       } else {
         const data = response.data.Message;
@@ -97,6 +130,7 @@ const ApprovalsActionBar = ({
         } else {
           toast.error(data);
         }
+        getOverLay(false);
       }
     } catch (error) {
       console.error(error);
@@ -121,44 +155,13 @@ const ApprovalsActionBar = ({
     settingSelectedId,
   };
 
-  const ConditionalComponentWithoutConditions = ({
-    Component,
-    propsForActionBar,
-    className,
-  }: any) => (
-    <span
-      className={`pl-2 pr-2 cursor-pointer border-l-[1.5px] border-gray-300 ${className}`}
-    >
-      <Component {...propsForActionBar} />
-    </span>
-  );
-
-  const ConditionalComponent = ({
-    condition,
-    className,
-    Component,
-    propsForActionBar,
-    additionalBorderClass = "",
-  }: any) =>
-    condition ? (
-      <span
-        className={`pl-2 pr-2 cursor-pointer border-l-[1.5px] border-gray-300 ${additionalBorderClass} ${className}`}
-      >
-        <Component {...propsForActionBar} />
-      </span>
-    ) : null;
-
-    return (
+  return (
     <div>
       <CustomActionBar {...propsForActionBar}>
         <ConditionalComponent
           condition={
             hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
             selectedRowsCount === 1
-            // &&
-            // !selectedRowStatusId.some((statusId: number) =>
-            //   [4, 7, 8, 9, 13].includes(statusId)
-            // )
           }
           className="text-slatyGrey"
           Component={Edit}
@@ -196,19 +199,23 @@ const ApprovalsActionBar = ({
             selectedRowsCount: selectedRowsCount,
             getData: getReviewList,
           }}
+          getOverLay={getOverLay}
         />
 
         <ConditionalComponentWithoutConditions
           Component={Status}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
         <ConditionalComponentWithoutConditions
           Component={Assignee}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
         <ConditionalComponentWithoutConditions
           Component={Reviewer}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
 
         <ConditionalComponent
@@ -248,6 +255,7 @@ const ApprovalsActionBar = ({
           className=""
           Component={EditTime}
           propsForActionBar={propsForActionBar}
+          getOverLay={getOverLay}
         />
       </CustomActionBar>
     </div>

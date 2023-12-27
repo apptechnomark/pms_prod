@@ -9,7 +9,7 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { isWeekend } from "@/utils/commonFunction";
 import DateIcon from "@/assets/icons/worklogs/DateIcon";
 
-const DateReceived = ({ getWorkItemList, selectedRowIds }: any) => {
+const DateReceived = ({ getWorkItemList, selectedRowIds, getOverLay }: any) => {
   const [anchorElDateReceived, setAnchorElDateReceived] =
     React.useState<HTMLButtonElement | null>(null);
 
@@ -26,7 +26,6 @@ const DateReceived = ({ getWorkItemList, selectedRowIds }: any) => {
   const openDateReceived = Boolean(anchorElDateReceived);
   const idDateReceived = openDateReceived ? "simple-popover" : undefined;
 
-  // API for update date
   const updateDate = async (id: number[], date: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -38,6 +37,7 @@ const DateReceived = ({ getWorkItemList, selectedRowIds }: any) => {
       nextDate = dayjs(date).add(2, "day").toDate();
     }
     try {
+      getOverLay(true);
       const response = await axios.post(
         `${process.env.worklog_api_url}/workitem/bulkupdateworkitemreceiverdate`,
         {
@@ -58,6 +58,7 @@ const DateReceived = ({ getWorkItemList, selectedRowIds }: any) => {
           toast.success("Reciever Date has been updated successfully.");
           handleCloseDateReceived();
           getWorkItemList();
+          getOverLay(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -65,6 +66,7 @@ const DateReceived = ({ getWorkItemList, selectedRowIds }: any) => {
           } else {
             toast.error(data);
           }
+          getOverLay(false);
         }
       } else {
         const data = response.data.Message;
@@ -73,6 +75,7 @@ const DateReceived = ({ getWorkItemList, selectedRowIds }: any) => {
         } else {
           toast.error(data);
         }
+        getOverLay(false);
       }
     } catch (error) {
       console.error(error);

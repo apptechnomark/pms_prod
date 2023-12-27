@@ -12,7 +12,6 @@ const AcceptNote = () => {
       >
         <mask
           id="mask0_3538_277200"
-          // style="mask-type:alpha"
           maskUnits="userSpaceOnUse"
           x="0"
           y="0"

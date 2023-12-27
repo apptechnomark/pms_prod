@@ -6,7 +6,7 @@ import ReturnYearIcon from "@/assets/icons/worklogs/ReturnYearIcon";
 import { getYears } from "@/utils/commonFunction";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 
-const ReturnYear = ({ selectedRowIds, getWorkItemList }: any) => {
+const ReturnYear = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
   const yearDropdown = getYears();
 
   const [anchorElReturnYear, setAnchorElReturnYear] =
@@ -30,8 +30,8 @@ const ReturnYear = ({ selectedRowIds, getWorkItemList }: any) => {
     handleCloseReturnYear();
   };
 
-  // API for update Return Year
   const updateReturnYear = async (id: number[], retunYear: number) => {
+    getOverLay(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -52,8 +52,8 @@ const ReturnYear = ({ selectedRowIds, getWorkItemList }: any) => {
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Return Year has been updated successfully.");
-          // handleClearSelection();
           getWorkItemList();
+          getOverLay(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -61,6 +61,7 @@ const ReturnYear = ({ selectedRowIds, getWorkItemList }: any) => {
           } else {
             toast.error(data);
           }
+          getOverLay(false);
         }
       } else {
         const data = response.data.Message;
@@ -69,6 +70,7 @@ const ReturnYear = ({ selectedRowIds, getWorkItemList }: any) => {
         } else {
           toast.error(data);
         }
+        getOverLay(false);
       }
     } catch (error) {
       console.error(error);

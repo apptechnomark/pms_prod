@@ -136,7 +136,6 @@ const Page = () => {
     window.location.reload();
   };
 
-  // setting getData function got from child (client) component
   const handleDataFetch = (getData: () => void) => {
     setGetDataFunction(() => getData);
   };
@@ -153,12 +152,10 @@ const Page = () => {
     hasNoToken(router);
   }, [router]);
 
-  //handle export on data length
   const handleCanExport = (arg1: boolean) => {
     setCanExport(arg1);
   };
 
-  // To Toggle Drawer
   const handleDrawerOpen = () => {
     setOpenDrawer(true);
   };
@@ -168,7 +165,6 @@ const Page = () => {
     setHasEditId("");
   };
 
-  // To Toggle Drawer for Edit
   const handleEdit = (rowId: string) => {
     setHasEditId(rowId);
     setOpenDrawer(true);
@@ -179,36 +175,29 @@ const Page = () => {
       const clickedTab = dropdownTabs[index];
       const lastVisibleTab = visibleTabs[visibleTabs.length - 1];
 
-      // Check if the clicked tab is already visible, then return
       if (visibleTabs.some((tab) => tab.id === tabId)) {
-        setTab(tabId); // Update the tab state
+        setTab(tabId);
         setSelectedTabIndex(index);
         return;
       }
 
-      // Find the index of the clicked tab in the dropdownTabs array
       const clickedTabIndexInDropdown = dropdownTabs.findIndex(
         (tab) => tab.id === tabId
       );
 
-      // Update the state to swap the tabs
       const updatedVisibleTabs = [...visibleTabs];
       const updatedDropdownTabs = [...dropdownTabs];
 
-      // Replace the last visible tab with the clicked tab
       updatedVisibleTabs[visibleTabs.length - 1] = clickedTab;
 
-      // If the clicked tab is already in the dropdown, replace it with the last visible tab
       if (clickedTabIndexInDropdown !== -1) {
         updatedDropdownTabs[clickedTabIndexInDropdown] = lastVisibleTab;
 
-        // Find the new index of the selected tab in the visible tabs
         const newSelectedTabIndex = updatedVisibleTabs.findIndex(
           (tab) => tab.id === tabId
         );
         setSelectedTabIndex(newSelectedTabIndex);
       } else {
-        // If the clicked tab is not in the dropdown, add the last visible tab to the beginning of the dropdown
         updatedDropdownTabs.unshift(lastVisibleTab);
         setSelectedTabIndex(visibleTabs.length + clickedTabIndexInDropdown);
       }
@@ -528,7 +517,6 @@ const Page = () => {
     }
   }, []);
 
-  // fetching client data according to search values
   const handleClientSearch = async (searchValue: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -574,7 +562,6 @@ const Page = () => {
     }
   };
 
-  // fetching Project data according to search values
   const handleProjectSearch = async (searchValue: any) => {
     const token = await localStorage.getItem("token");
     const org_Token = await localStorage.getItem("Org_Token");
@@ -624,7 +611,6 @@ const Page = () => {
     }
   };
 
-  // fetching User data according to search values
   const handleUserSearch = async (searchValue: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -674,7 +660,6 @@ const Page = () => {
     }
   };
 
-  // fetching Process data according to search values
   const handleProcessSearch = async (searchValue: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -716,7 +701,6 @@ const Page = () => {
     }
   };
 
-  // fetching Group data according to search values
   const handleGroupSearch = async (searchValue: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -758,7 +742,6 @@ const Page = () => {
     }
   };
 
-  // fetching Status data according to search values
   const handleStatusSearch = async (searchValue: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -797,7 +780,6 @@ const Page = () => {
     }
   };
 
-  // fetching Organization data according to search values
   const handleOrganizationSearch = async (searchValue: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -834,7 +816,6 @@ const Page = () => {
     }
   };
 
-  // Search function for all tabs
   useEffect(() => {
     const handleSearch = (
       value: string,
@@ -891,7 +872,6 @@ const Page = () => {
     orgSearchValue,
   ]);
 
-  // API for exporting User Data
   const exportData = async (
     endpoint: string,
     filename: string,
@@ -910,6 +890,7 @@ const Page = () => {
           GlobalSearch: searchValue,
           SortColumn: null,
           IsDesc: false,
+          IsDownload: true,
           PageNo: 1,
           PageSize: 50000,
         },

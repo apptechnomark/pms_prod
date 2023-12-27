@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// material imports
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -27,6 +26,7 @@ interface EditModalProps {
   onClearSelection?: any;
   onSelectWorkItemId: number;
   onSelectedSubmissionId: number;
+  getOverLay: any;
 }
 
 const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
@@ -48,6 +48,7 @@ const EditDialog: React.FC<EditModalProps> = ({
   onReviewerDataFetch,
   onClearSelection,
   onSelectedSubmissionId,
+  getOverLay,
 }) => {
   const [estTime, setEstTime] = useState<any>(0);
   const [totalTime, setTotalTime] = useState<any>(0);
@@ -62,7 +63,6 @@ const EditDialog: React.FC<EditModalProps> = ({
     onReviewerDataFetch();
   };
 
-  // for formatting edit time
   const handleEditTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let newValue = event.target.value;
     newValue = newValue.replace(/\D/g, "");
@@ -98,7 +98,6 @@ const EditDialog: React.FC<EditModalProps> = ({
       }
     }
 
-    // Convert formattedValue to seconds
     let totalSeconds = 0;
 
     if (formattedValue) {
@@ -112,7 +111,6 @@ const EditDialog: React.FC<EditModalProps> = ({
     setEditTime(formattedValue);
   };
 
-  // converting seconds into HH:MM:SS
   function formatTime(seconds: any) {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -123,7 +121,6 @@ const EditDialog: React.FC<EditModalProps> = ({
       .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
   }
 
-  // API for get Edit time contents
   useEffect(() => {
     if (onSelectedSubmissionId > 0 && onSelectedSubmissionId !== null) {
       const getDataForManualTime = async () => {
@@ -174,17 +171,16 @@ const EditDialog: React.FC<EditModalProps> = ({
         }
       };
 
-      // calling api function
       getDataForManualTime();
     }
   }, [onSelectedSubmissionId]);
 
-  // API for update manager time
   const updateManualTime = async () => {
     const [hours, minutes, seconds] = editTime.split(":");
     const convertedEditTime =
       parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
 
+    getOverLay(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -209,6 +205,7 @@ const EditDialog: React.FC<EditModalProps> = ({
           onClose();
           onClearSelection();
           onReviewerDataFetch();
+          getOverLay(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -216,6 +213,7 @@ const EditDialog: React.FC<EditModalProps> = ({
           } else {
             toast.error(data);
           }
+          getOverLay(false);
         }
       } else {
         const data = response.data.Message;
@@ -224,13 +222,13 @@ const EditDialog: React.FC<EditModalProps> = ({
         } else {
           toast.error(data);
         }
+        getOverLay(false);
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  // for disable button when nothing changed
   const hasEditTimeChanged = () => {
     return editTime !== initialEditTime;
   };

@@ -30,7 +30,6 @@ const Datatable_BillingType: React.FC<BillingTypeProps> = ({
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
 
-  // API for billing type list
   const getBillingTypeData = async (value: any) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");

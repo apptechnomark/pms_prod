@@ -32,12 +32,10 @@ const ClientProcessDrawer = ({
     {}
   );
   const [selectAllChecked, setSelectAllChecked] = useState<boolean>(false);
-  // handling select-all checkbox
   const checkAllCheked = Object.values(thisclientProcess).every(
     (value) => value === true
   );
 
-  // Making all checkbox true
   const handleSelectAll = () => {
     const updatedClientProcess: any = { ...thisclientProcess };
     const updatedRowsData = [...selectedRowsData];
@@ -67,14 +65,12 @@ const ClientProcessDrawer = ({
         }
       });
     } else {
-      // Clear the selected rows data
       updatedRowsData.length = 0;
     }
 
     setSelectedRowsData(updatedRowsData);
   };
 
-  // converting minutes to HH:MM
   function secondsToHHMMSS(seconds: any) {
     const hours = Math.floor(seconds / 3600);
     const remainingSeconds = seconds % 3600;
@@ -174,7 +170,6 @@ const ClientProcessDrawer = ({
       return false;
     }
 
-    // Define a function to convert time strings to seconds
     const timeStringToSeconds = (timeString: string) => {
       if (
         !timeString ||
@@ -388,7 +383,6 @@ const ClientProcessDrawer = ({
     }));
   };
 
-  // Setting Table Data
   const table_Data = clientProcessData.map(
     (d: any) =>
       new Object({

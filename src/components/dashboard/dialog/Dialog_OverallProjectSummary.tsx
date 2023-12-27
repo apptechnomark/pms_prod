@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import {
@@ -40,7 +39,6 @@ const Dialog_OverallProjectSummary: React.FC<
     setTaskStatusName("");
   };
 
-  // API for Project Status
   const getTaskStatusList = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");

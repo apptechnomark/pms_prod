@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { toast } from "react-toastify";
 import { Avatar, InputBase, List, Popover } from "@mui/material";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
@@ -16,6 +16,7 @@ const Status = ({
   getReviewList,
   selectedRowClientId,
   selectedRowWorkTypeId,
+  getOverLay,
 }: any) => {
   const [allStatus, setAllStatus] = useState<any | any[]>([]);
   const [openDrawer, setOpenDrawer] = useState(false);
@@ -75,7 +76,6 @@ const Status = ({
     handleCloseStatus();
   };
 
-  // API for status dropdown in Filter Popup
   const getAllStatus = async () => {
     let isRework: any = [];
     let isNotRework: any = [];
@@ -109,7 +109,6 @@ const Status = ({
       );
   };
 
-  // API for get Assignee with all conditions
   const getReviwer = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -149,7 +148,6 @@ const Status = ({
     }
   };
 
-  // API for update status
   const updateStatus = async (statusId: number, secondReviewerId: any) => {
     let isRework: any = [];
     let isNotRework: any = [];
@@ -163,6 +161,7 @@ const Status = ({
       }
     });
     try {
+      getOverLay(true);
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
       const response = await axios.post(
@@ -188,20 +187,24 @@ const Status = ({
           isRework = [];
           handleClearSelection();
           getReviewList();
+          getOverLay(false);
         } else if (response.data.ResponseStatus === "Warning" && !!data) {
           toast.warning(data);
           handleClearSelection();
           isNotRework = [];
           isRework = [];
           getReviewList();
+          getOverLay(false);
         } else {
           toast.error(data || "Please try again later.");
           handleClearSelection();
           getReviewList();
+          getOverLay(false);
         }
       } else {
         const data = response.data.Message;
         toast.error(data || "Please try again later.");
+        getOverLay(false);
       }
     } catch (error) {
       console.error(error);

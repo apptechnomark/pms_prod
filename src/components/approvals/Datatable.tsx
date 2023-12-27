@@ -30,8 +30,7 @@ import {
   handleChangeRowsPerPageWithFilter,
 } from "@/utils/datatable/CommonFunction";
 import { approvals_Dt_Options } from "@/utils/datatable/TableOptions";
-import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { ColorToolTip, getMuiTheme } from "@/utils/datatable/CommonStyle";
 import ApprovalsActionBar from "./actionBar/ApprovalsActionBar";
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
 import ReportLoader from "../common/ReportLoader";
@@ -68,6 +67,7 @@ const Datatable = ({
   onManualTime,
   onHandleExport,
   searchValue,
+  onChangeLoader,
 }: any) => {
   const [isLoadingApprovalsDatatable, setIsLoadingApprovalsDatatable] =
     useState(false);
@@ -75,7 +75,6 @@ const Datatable = ({
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [isEditOpen, setisEditOpen] = useState<boolean>(false);
   const [selectedRowIds, setSelectedRowIds] = useState<number[]>([]);
   const [selectedWorkItemIds, setSelectedWorkItemIds] = useState<
     number[] | any
@@ -110,17 +109,11 @@ const Datatable = ({
   }, [reviewList]);
 
   useEffect(() => {
-    if (
-      onCloseDrawer === false ||
-      !onCloseDrawer ||
-      isEditOpen === false ||
-      !isEditOpen
-    ) {
+    if (onCloseDrawer === false || !onCloseDrawer) {
       setRowsPerPage(10);
     }
-  }, [onCloseDrawer, isEditOpen]);
+  }, [onCloseDrawer]);
 
-  // Review List API
   const getReviewList = async () => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
@@ -132,7 +125,6 @@ const Datatable = ({
         `,
         {
           ...filteredObject,
-          // StatusId: activeTab === 1 ? filteredObject.StatusId :,
           dueDate: activeTab === 1 ? null : filteredObject.dueDate,
           startDate: activeTab === 1 ? null : filteredObject.startDate,
           endDate: activeTab === 1 ? null : filteredObject.endDate,
@@ -147,6 +139,7 @@ const Datatable = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          onChangeLoader(response.data.ResponseData.TotalTime);
           onHandleExport(response.data.ResponseData.List > 0 ? true : false);
           setLoaded(true);
           setReviewList(response.data.ResponseData.List);
@@ -276,7 +269,6 @@ const Datatable = ({
     handleClearSelection();
   };
 
-  // converting seconds into HH:MM:SS
   function formatTime(seconds: any) {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -433,7 +425,6 @@ const Datatable = ({
     );
   }, [reviewList]);
 
-  // Applying filter data
   useEffect(() => {
     setFilteredOject({
       ...filteredObject,
@@ -443,13 +434,11 @@ const Datatable = ({
     getReviewList();
   }, [currentFilterData, searchValue, activeTab]);
 
-  // calling reviewList on first time
   useEffect(() => {
     getReviewList();
   }, [filteredObject]);
 
   useEffect(() => {
-    // refreshing data from Drawer side
     const fetchData = async () => {
       await getReviewList();
       onDataFetch(() => fetchData());
@@ -466,7 +455,6 @@ const Datatable = ({
     return <div>{bodyValue === true ? "Yes" : "No"}</div>;
   };
 
-  // Table columns
   const columnConfig = [
     {
       name: "WorkitemId",
@@ -746,7 +734,6 @@ const Datatable = ({
                   )}
                 {reviewList[tableMeta.rowIndex].ReviewerId ==
                   localStorage.getItem("UserId") &&
-                  // hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs") &&
                   tableMeta.rowData[tableMeta.rowData.length - 4] !== false && (
                     <ColorToolTip
                       title="Reviewer Manual Time"
@@ -965,7 +952,10 @@ const Datatable = ({
       </Dialog>
 
       {/* Approval's Action Bar */}
-      <ApprovalsActionBar {...propsForActionBar} />
+      <ApprovalsActionBar
+        {...propsForActionBar}
+        getOverLay={(e: any) => setIsLoadingApprovalsDatatable(e)}
+      />
       {isLoadingApprovalsDatatable ? <OverLay /> : ""}
     </div>
   );

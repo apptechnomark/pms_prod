@@ -1,5 +1,4 @@
 /* eslint-disable react/display-name */
-// import { getHeaderOptions } from "@/utils/commonFunction";
 import axios from "axios";
 import { Button, Text, Typography } from "next-ts-lib";
 import React, {

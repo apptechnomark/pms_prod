@@ -19,7 +19,6 @@ import React, {
 import axios from "axios";
 import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
 import dayjs from "dayjs";
-import OverLay from "@/components/common/OverLay";
 import { toast } from "react-toastify";
 
 export interface ClientContentRef {
@@ -68,7 +67,6 @@ const ClientContent = forwardRef<
     const [isAuditOpen, setIsAuditOpen] = useState(false);
     const [isTaxOpen, setIsTaxOpen] = useState(false);
 
-    // Getting WorkType's Data
     const [workTypeData, setWorkTypeData] = useState<any>([]);
 
     const [accBillingType, setAccBillingType] = useState(0);
@@ -120,7 +118,6 @@ const ClientContent = forwardRef<
     const workTypeAuditData: any[] = [];
     const workTypeTaxData: any[] = [];
 
-    // Additional Field's State
     const [addMoreClicked, setAddMoreClicked] = useState(false);
     const [isAddClientClicked, setIsAddClientClicked] = useState(true);
     const [isAdditionalFieldsClicked, setIsAdditionalFieldsClicked] =
@@ -936,7 +933,6 @@ const ClientContent = forwardRef<
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
 
-      // common functon for adding additional field's data
       const getFieldValue = (condition: any, value: any) => {
         return condition && value.trim() !== "" ? value.trim() : null;
       };
@@ -1120,7 +1116,6 @@ const ClientContent = forwardRef<
       clearAllData,
     }));
 
-    // Getting WorkTypes
     useEffect(() => {
       if (onOpen) {
         getBillingTypes();
@@ -1254,7 +1249,7 @@ const ClientContent = forwardRef<
               Additional Fields
             </label>
           </span>
-          <div className="flex gap-[20px] flex-col px-[20px] pb-[40px] max-h-[73.5vh] overflow-y-auto">
+          <div className="flex gap-[20px] flex-col px-[20px] pb-[50px] max-h-[73.5vh] overflow-y-auto">
             {isAddClientClicked && (
               <>
                 <Text
@@ -1972,7 +1967,6 @@ const ClientContent = forwardRef<
 
                   <Text
                     className="hidden"
-                    // label="Client Timezone"
                     placeholder="Enter Client Timezone"
                     value={clientTimeZone}
                     getValue={(e) => setClientTimeZone(e)}

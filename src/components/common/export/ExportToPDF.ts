@@ -7,14 +7,13 @@ export const exportToPDF = (props: any): void => {
 
   const doc = new jsPDF();
   const tableData: any[][] = filteredData.map((item: any) =>
-    headers.map((header: any) => item[header.field]) // Access the field property
+    headers.map((header: any) => item[header.field])
   );
-  
-  // Create an array of header texts
+
   const headerTexts: string[] = headers.map((header: any) => header.heading);
 
   (doc as any).autoTable({
-    head: [headerTexts], // Use headerTexts instead of [headers]
+    head: [headerTexts],
     body: tableData,
   });
   doc.save("table.pdf");

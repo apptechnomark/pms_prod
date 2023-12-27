@@ -8,6 +8,7 @@ const EditTime = ({
   id,
   getReviewList,
   handleClearSelection,
+  getOverLay,
 }: any) => {
   const [isEditOpen, setisEditOpen] = useState<boolean>(false);
 
@@ -18,9 +19,7 @@ const EditTime = ({
   return (
     <div>
       <ColorToolTip title="Edit Time" arrow>
-        <span
-          onClick={() => setisEditOpen(true)}
-        >
+        <span onClick={() => setisEditOpen(true)}>
           <EditTimeIcon />
         </span>
       </ColorToolTip>
@@ -33,6 +32,7 @@ const EditTime = ({
         onSelectedSubmissionId={id}
         onReviewerDataFetch={getReviewList}
         onClearSelection={handleClearSelection}
+        getOverLay={getOverLay}
       />
     </div>
   );

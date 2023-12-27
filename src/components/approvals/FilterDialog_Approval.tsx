@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// material imports
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -230,7 +229,6 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     clientName > 0 && getAllData(clientName);
   }, [clientName]);
 
-  // Check if any field is selected
   useEffect(() => {
     const isAnyFieldSelected: any =
       clientName !== 0 ||

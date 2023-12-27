@@ -11,7 +11,6 @@ interface TotalHoursProps {
   sendData: any;
 }
 
-// Initialize the variable pie chart module
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
@@ -65,7 +64,6 @@ const Chart_TotalHours: React.FC<TotalHoursProps> = ({
     getData();
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
-  // Define the chart options
   const chartOptions = {
     chart: {
       type: "variablepie",

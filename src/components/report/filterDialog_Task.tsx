@@ -39,15 +39,31 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
   currentFilterData,
 }) => {
   const [anyTaskFieldSelected, setAnyTaskFieldSelected] = useState<any>(false);
-  const [currSelectedTaskFields, setCurrSelectedTaskFileds] = useState<any | any[]>([]);
-  const [projectFilterTaskDropdownData, setProjectFilterTaskDropdownData] = useState([]);
-  const [typeOfWorkFilterTask, setTypeOfWorkFilterTask] = useState<null | number>(0);
-  const [typeOfWorkFilterTaskDropdownData, setTypeOfWorkFilterTaskDropdownData] = useState([]);
-  const [dueDateFilterTask, setDueDateFilterTask] = useState<null | string>(null);
-  const [startDateFilterTask, setStartDateFilterTask] = useState<null | string>(null);
-  const [endDateFilterTask, setEndDateFilterTask] = useState<null | string>(null);
+  const [currSelectedTaskFields, setCurrSelectedTaskFileds] = useState<
+    any | any[]
+  >([]);
+  const [projectFilterTaskDropdownData, setProjectFilterTaskDropdownData] =
+    useState([]);
+  const [typeOfWorkFilterTask, setTypeOfWorkFilterTask] = useState<
+    null | number
+  >(0);
+  const [
+    typeOfWorkFilterTaskDropdownData,
+    setTypeOfWorkFilterTaskDropdownData,
+  ] = useState([]);
+  const [dueDateFilterTask, setDueDateFilterTask] = useState<null | string>(
+    null
+  );
+  const [startDateFilterTask, setStartDateFilterTask] = useState<null | string>(
+    null
+  );
+  const [endDateFilterTask, setEndDateFilterTask] = useState<null | string>(
+    null
+  );
   const [projectFilterTask, setProjectFilterTask] = useState<null | number>(0);
-  const [priorityFilterTask, setPriorityFilterTask] = useState<null | number>(0);
+  const [priorityFilterTask, setPriorityFilterTask] = useState<null | number>(
+    0
+  );
 
   const handleTaskClose = () => {
     handleTaskResetAll();
@@ -64,7 +80,6 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
     currentFilterData(initialTaskFilter);
   };
 
-  // Check if any field is selected
   useEffect(() => {
     const isAnyTaskFieldSelected =
       projectFilterTask !== 0 ||
@@ -75,34 +90,55 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
       endDateFilterTask !== null;
 
     setAnyTaskFieldSelected(isAnyTaskFieldSelected);
-  }, [projectFilterTask, typeOfWorkFilterTask, priorityFilterTask, dueDateFilterTask, startDateFilterTask, endDateFilterTask]);
+  }, [
+    projectFilterTask,
+    typeOfWorkFilterTask,
+    priorityFilterTask,
+    dueDateFilterTask,
+    startDateFilterTask,
+    endDateFilterTask,
+  ]);
 
   useEffect(() => {
     const selectedFields = {
-      ProjectIdsForFilter: projectFilterTask === 0 ? [] : [projectFilterTask] || null,
+      ProjectIdsForFilter:
+        projectFilterTask === 0 ? [] : [projectFilterTask] || null,
       WorkType: typeOfWorkFilterTask || null,
       Priority: priorityFilterTask || null,
       DueDate:
         dueDateFilterTask !== null
-          ? new Date(new Date(dueDateFilterTask).getTime() + 24 * 60 * 60 * 1000)
+          ? new Date(
+              new Date(dueDateFilterTask).getTime() + 24 * 60 * 60 * 1000
+            )
               .toISOString()
               .split("T")[0]
           : null,
       StartDate:
         startDateFilterTask !== null
-          ? new Date(new Date(startDateFilterTask).getTime() + 24 * 60 * 60 * 1000)
+          ? new Date(
+              new Date(startDateFilterTask).getTime() + 24 * 60 * 60 * 1000
+            )
               .toISOString()
               .split("T")[0]
           : null,
       EndDate:
         endDateFilterTask !== null
-          ? new Date(new Date(endDateFilterTask).getTime() + 24 * 60 * 60 * 1000)
+          ? new Date(
+              new Date(endDateFilterTask).getTime() + 24 * 60 * 60 * 1000
+            )
               .toISOString()
               .split("T")[0]
           : null,
     };
     setCurrSelectedTaskFileds(selectedFields);
-  }, [projectFilterTask, typeOfWorkFilterTask, priorityFilterTask, dueDateFilterTask, startDateFilterTask, endDateFilterTask]);
+  }, [
+    projectFilterTask,
+    typeOfWorkFilterTask,
+    priorityFilterTask,
+    dueDateFilterTask,
+    startDateFilterTask,
+    endDateFilterTask,
+  ]);
 
   const sendTaskFilterToPage = () => {
     currentFilterData(currSelectedTaskFields);
@@ -224,11 +260,13 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
                   value={projectFilterTask === 0 ? "" : projectFilterTask}
                   onChange={(e: any) => setProjectFilterTask(e.target.value)}
                 >
-                  {projectFilterTaskDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
+                  {projectFilterTaskDropdownData.map(
+                    (i: any, index: number) => (
+                      <MenuItem value={i.value} key={i.value}>
+                        {i.label}
+                      </MenuItem>
+                    )
+                  )}
                 </Select>
               </FormControl>
 
@@ -240,11 +278,13 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
                   value={typeOfWorkFilterTask === 0 ? "" : typeOfWorkFilterTask}
                   onChange={(e: any) => setTypeOfWorkFilterTask(e.target.value)}
                 >
-                  {typeOfWorkFilterTaskDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
+                  {typeOfWorkFilterTaskDropdownData.map(
+                    (i: any, index: number) => (
+                      <MenuItem value={i.value} key={i.value}>
+                        {i.label}
+                      </MenuItem>
+                    )
+                  )}
                 </Select>
               </FormControl>
 
@@ -289,8 +329,14 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
                     label="From"
                     shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
-                    value={startDateFilterTask === null ? null : dayjs(startDateFilterTask)}
-                    onChange={(newDate: any) => setStartDateFilterTask(newDate.$d)}
+                    value={
+                      startDateFilterTask === null
+                        ? null
+                        : dayjs(startDateFilterTask)
+                    }
+                    onChange={(newDate: any) =>
+                      setStartDateFilterTask(newDate.$d)
+                    }
                     slotProps={{
                       textField: {
                         readOnly: true,
@@ -306,8 +352,14 @@ const FilterDialog_Task: React.FC<FilterModalProps> = ({
                     label="To"
                     shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
-                    value={endDateFilterTask === null ? null : dayjs(endDateFilterTask)}
-                    onChange={(newDate: any) => setEndDateFilterTask(newDate.$d)}
+                    value={
+                      endDateFilterTask === null
+                        ? null
+                        : dayjs(endDateFilterTask)
+                    }
+                    onChange={(newDate: any) =>
+                      setEndDateFilterTask(newDate.$d)
+                    }
                     slotProps={{
                       textField: {
                         readOnly: true,

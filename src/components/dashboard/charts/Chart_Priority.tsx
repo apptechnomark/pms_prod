@@ -4,10 +4,8 @@ import { toast } from "react-toastify";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 
-// Import the Highcharts modules
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
 
-// Initialize the variable pie chart module
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
 }
@@ -26,7 +24,6 @@ const Chart_Priority: React.FC<PriorityProps> = ({
   const [data, setData] = useState<any | any[]>([]);
   const [totalCount, setTotalCount] = useState<any | number>(0);
 
-  // API call
   useEffect(() => {
     const getData = async () => {
       const token = await localStorage.getItem("token");
@@ -74,11 +71,9 @@ const Chart_Priority: React.FC<PriorityProps> = ({
       }
     };
 
-    // Fetch data when component mounts
     getData();
   }, [onSelectedProjectIds, onSelectedWorkType]);
 
-  // Define the chart options
   const chartOptions = {
     chart: {
       type: "variablepie",
@@ -108,7 +103,6 @@ const Chart_Priority: React.FC<PriorityProps> = ({
               const selectedPointData = {
                 name: (event.point && event.point.name) || "",
               };
-              // sending data to Parent component (page.tsx)
               sendData(true, selectedPointData.name);
             },
           },

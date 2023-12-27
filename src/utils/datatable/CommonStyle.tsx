@@ -17,7 +17,6 @@ export const ColorToolTip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
-// function for styling Datatable
 export const getMuiTheme = () =>
   createTheme({
     components: {

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import {
@@ -10,7 +9,6 @@ import {
   Select,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
-// Internal Components
 import Datatable_PriorityInfo from "../datatable/Datatable_PriorityInfo";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 
@@ -60,7 +58,6 @@ const Dialog_PriorityInfo: React.FC<DialogProps> = ({
     setClickedPriorityName("");
   };
 
-  //   function to extract values from label/type/name
   function getValueByLabelOrType(labelOrType: any): number {
     const priority = priority_Data.find(
       (priority: Priority) =>

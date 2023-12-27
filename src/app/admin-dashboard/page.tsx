@@ -43,12 +43,10 @@ import {
   handlePageChangeWithFilter,
 } from "@/utils/datatable/CommonFunction";
 import { adminDashboardReportCols } from "@/utils/datatable/columns/AdminDatatableColumns";
-import { getMuiTheme } from "@/utils/datatable/CommonStyle";
+import { getMuiTheme, ColorToolTip } from "@/utils/datatable/CommonStyle";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import { dashboardReport_Options } from "@/utils/datatable/TableOptions";
-import { ColorToolTip } from "@/utils/datatable/CommonStyle";
-import CustomToastContainer from "@/utils/style/CustomToastContainer";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -99,7 +97,6 @@ const Page = () => {
     }
   }, [router]);
 
-  // getting value from Total hours chart
   const handleValueFromBillingType = (
     isDialogOpen: boolean,
     selectedPointData: string
@@ -108,7 +105,6 @@ const Page = () => {
     setClickedBillingTypeName(selectedPointData);
   };
 
-  // getting value from Task Status chart
   const handleValueFromTaskStatus = (
     isDialogOpen: boolean,
     selectedPointData: string
@@ -117,7 +113,6 @@ const Page = () => {
     setClickedStatusName(selectedPointData);
   };
 
-  // getting value from Priority chart
   const handleValueFromProjectStatus = (
     isDialogOpen: boolean,
     selectedPointData: string
@@ -175,7 +170,6 @@ const Page = () => {
     }
   };
 
-  // API for Report data
   useEffect(() => {
     const getData = async () => {
       setClientDropdownData(await getClientDropdownData());
@@ -226,7 +220,6 @@ const Page = () => {
     }
   };
 
-  // API for Dashboard Summary
   useEffect(() => {
     getProjectSummary();
   }, []);
@@ -603,8 +596,6 @@ const Page = () => {
             />
           </ThemeProvider>
         )}
-
-        <CustomToastContainer />
       </div>
     </Wrapper>
   );

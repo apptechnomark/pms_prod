@@ -10,6 +10,7 @@ const Project = ({
   selectedRowIds,
   getWorkItemList,
   projectDropdownData,
+  getOverLay,
 }: any) => {
   const [projectSearchQuery, setprojectSearchQuery] = useState("");
 
@@ -40,11 +41,11 @@ const Project = ({
     handleCloseProject();
   };
 
-  // API for update Process
   const updateProject = async (id: number[], processId: number) => {
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
+      getOverLay(true);
       const response = await axios.post(
         `${process.env.worklog_api_url}/workitem/bulkupdateworkitemproject`,
         {
@@ -62,8 +63,8 @@ const Project = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Project has been updated successfully.");
-          // handleClearSelection();
           getWorkItemList();
+          getOverLay(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -71,6 +72,7 @@ const Project = ({
           } else {
             toast.error(data);
           }
+          getOverLay(false);
         }
       } else {
         const data = response.data.Message;
@@ -79,6 +81,7 @@ const Project = ({
         } else {
           toast.error(data);
         }
+        getOverLay(false);
       }
     } catch (error) {
       console.error(error);

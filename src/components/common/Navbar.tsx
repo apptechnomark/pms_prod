@@ -148,7 +148,7 @@ const Navbar = (props: NavbarPropsType) => {
           ProcessModuleName,
           SubProcessModuleName,
         } = filteredOrganization[0];
-        if (!!props.onHandleModuleNames) {
+        if (props.onHandleModuleNames) {
           props.onHandleModuleNames(
             ClientModuleName,
             ProjectModuleName,
@@ -168,7 +168,7 @@ const Navbar = (props: NavbarPropsType) => {
 
   const fetchData = async () => {
     await getUserDetails();
-    if (!!props.onUserDetailsFetch) {
+    if (props.onUserDetailsFetch) {
       props.onUserDetailsFetch(() => fetchData());
     }
   };

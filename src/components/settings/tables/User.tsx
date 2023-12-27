@@ -4,7 +4,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarGroup, DataTable, Switch, Tooltip } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
-// Import Common Components
 import ColumnFilterDropdown from "@/components/common/ColumnFilterDropdown";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteModal from "@/components/common/DeleteModal";
@@ -457,7 +456,6 @@ const User = ({
     getData();
   }, []);
 
-  // for showing value according to search
   useEffect(() => {
     if (onSearchUserData) {
       setData(onSearchUserData);
@@ -466,12 +464,10 @@ const User = ({
     }
   }, [onSearchUserData]);
 
-  // For Closing Modal
   const closeModal = () => {
     setIsDeleteOpen(false);
   };
 
-  // For deleting row
   const handleDeleteRow = async () => {
     if (selectedRowId) {
       const token = await localStorage.getItem("token");

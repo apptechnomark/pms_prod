@@ -29,7 +29,6 @@ const ProcessContent = forwardRef<
     onChangeLoader: any;
   }
 >(({ onEdit, onClose, onDataFetch, onChangeLoader }, ref) => {
-  // For token and org_token
   const token = localStorage.getItem("token");
   const org_token = localStorage.getItem("Org_Token");
   const [data, setData] = useState([]);
@@ -113,7 +112,6 @@ const ProcessContent = forwardRef<
       }
     }
 
-    // Convert formattedValue to seconds
     let totalSeconds = 0;
 
     if (formattedValue) {
@@ -191,7 +189,6 @@ const ProcessContent = forwardRef<
     return `${hoursStr}:${minsStr}:${secsStr}`;
   }
 
-  // onEdit fetch data with id
   const fetchEditData = async () => {
     if (onEdit) {
       try {
@@ -243,7 +240,6 @@ const ProcessContent = forwardRef<
     }
   };
 
-  // Get dropdown data from api
   const getDropdownData = async () => {
     try {
       const response = await axios.get(
@@ -305,7 +301,6 @@ const ProcessContent = forwardRef<
               }  successfully.`
             );
             await onDataFetch();
-            // getDropdownData();
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -338,8 +333,6 @@ const ProcessContent = forwardRef<
           if (response.data.ResponseStatus === "Success") {
             await onDataFetch();
             getDropdownData();
-            // ProcessDataValue();
-            // onDataFetch();
             toast.success(
               `${onEdit ? "" : "New"} Process ${
                 onEdit ? "Updated" : "added"

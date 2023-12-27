@@ -10,6 +10,7 @@ const SubProcess = ({
   subProcessDropdownData,
   selectedRowIds,
   getWorkItemList,
+  getOverLay,
 }: any) => {
   const [subProcessSearchQuery, setSubProcessSearchQuery] = useState("");
 
@@ -42,8 +43,8 @@ const SubProcess = ({
     handleCloseSubProcess();
   };
 
-  // API for update SubProcess
   const updateSubProcess = async (id: number[], processId: number) => {
+    getOverLay(true);
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
@@ -64,8 +65,8 @@ const SubProcess = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           toast.success("Sub-Process has been updated successfully.");
-          // handleClearSelection();
           getWorkItemList();
+          getOverLay(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -73,6 +74,7 @@ const SubProcess = ({
           } else {
             toast.error(data);
           }
+          getOverLay(false);
         }
       } else {
         const data = response.data.Message;
@@ -81,6 +83,7 @@ const SubProcess = ({
         } else {
           toast.error(data);
         }
+        getOverLay(false);
       }
     } catch (error) {
       console.error(error);

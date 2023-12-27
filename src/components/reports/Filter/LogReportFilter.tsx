@@ -11,10 +11,7 @@ import {
   DialogTitle,
   FormControl,
   InputBase,
-  InputLabel,
-  MenuItem,
   Popover,
-  Select,
   TextField,
   Tooltip,
 } from "@mui/material";
@@ -23,7 +20,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { FilterType } from "../types/ReportsFilterType";
-import { logReport, project } from "../Enum/Filtertype";
+import { logReport } from "../Enum/Filtertype";
 import { logReport_InitialFilter } from "@/utils/reports/getFilters";
 import { getProjectData } from "./api/getDropDownData";
 import SearchIcon from "@/assets/icons/SearchIcon";
@@ -570,7 +567,6 @@ const LogReportFilter = ({
                         )
                     )}
                     getOptionLabel={(option: any) => option.label}
-                    // disableCloseOnSelect
                     onChange={(e: any, data: any) => {
                       setLogReport_Clients(data);
                       setLogReport_ClientName(data.map((d: any) => d.value));

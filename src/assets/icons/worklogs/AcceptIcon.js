@@ -12,7 +12,6 @@ const AcceptIcon = () => {
       >
         <mask
           id="mask0_3538_276495"
-        //   style="mask-type:alpha"
           maskUnits="userSpaceOnUse"
           x="0"
           y="0"

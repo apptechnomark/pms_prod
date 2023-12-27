@@ -58,7 +58,6 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
       }
     };
 
-    // Fetch data when component mounts
     getData();
   }, [onSelectedProjectIds, onSelectedWorkType]);
 

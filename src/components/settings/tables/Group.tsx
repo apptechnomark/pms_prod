@@ -8,7 +8,6 @@ import DeleteModal from "@/components/common/DeleteModal";
 import "next-ts-lib/dist/index.css";
 import { GROUP } from "./Constants/Tabname";
 import ReportLoader from "@/components/common/ReportLoader";
-import CustomToastContainer from "@/utils/style/CustomToastContainer";
 import { toast } from "react-toastify";
 
 function Group({
@@ -37,7 +36,6 @@ function Group({
     { header: "Action", accessor: "action", sortable: false },
   ];
 
-  // setting getData function for sending in parent component
   useEffect(() => {
     const fetchData = async () => {
       await getAll();
@@ -49,7 +47,6 @@ function Group({
     getAll();
   }, []);
 
-  // for showing value according to search
   useEffect(() => {
     if (onSearchGroupData) {
       setData(onSearchGroupData);
@@ -58,7 +55,6 @@ function Group({
     }
   }, [onSearchGroupData]);
 
-  // For show all data in Data Table
   const getAll = async () => {
     try {
       const prams = {
@@ -107,12 +103,10 @@ function Group({
     }
   };
 
-  // For Closing Modal
   const closeModal = () => {
     setIsDeleteOpen(false);
   };
 
-  // For Delete a data in Data table
   const handleDeleteRow = async () => {
     const token = await localStorage.getItem("token");
     try {
@@ -174,7 +168,6 @@ function Group({
       };
     }, []);
 
-    // Match a action and open a drawer
     const handleActions = (actionType: string, actionId: any) => {
       setSelectedRowId(actionId);
       if (actionType.toLowerCase() === "edit") {
@@ -231,7 +224,6 @@ function Group({
     );
   };
 
-  // For Data_table map the all api data
   const groupData = data?.map(
     (e: any) =>
       new Object({
@@ -258,8 +250,6 @@ function Group({
           <div
             className={`${data.length === 0 ? "!h-full" : "!h-[81vh] !w-full"}`}
           >
-            <CustomToastContainer />
-
             {data.length > 0 && (
               <DataTable columns={headers} data={groupData} sticky />
             )}

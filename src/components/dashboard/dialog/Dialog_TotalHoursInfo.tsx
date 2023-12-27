@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// material imports
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import {
@@ -35,7 +34,6 @@ const Dialog_TotalHoursInfo: React.FC<TotalHoursInfoDialogProps> = ({
   const [workType, setWorkType] = useState<number | any>(0);
   const [clickedWorkTypeName, setClickedWorkTypeName] = useState<string>("");
 
-  // function to extract values from label/type/name
   function getValueByLabelOrType(labelOrType: any): number {
     const workType = onWorkTypeData.find(
       (workType: WorkType) => workType.label === labelOrType

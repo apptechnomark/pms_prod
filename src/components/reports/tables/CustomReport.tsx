@@ -40,7 +40,6 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     callAPI(url, arg1, successCallback, "post");
   };
 
-  // functions for handling pagination
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number

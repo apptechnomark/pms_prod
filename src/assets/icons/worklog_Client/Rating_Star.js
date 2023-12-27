@@ -12,7 +12,6 @@ const Rating_Star = () => {
       >
         <mask
           id="mask0_5070_368296"
-        //   style="mask-type:alpha"
           maskUnits="userSpaceOnUse"
           x="-8"
           y="-8"

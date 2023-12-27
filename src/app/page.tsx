@@ -1,7 +1,6 @@
 "use client";
 
 import { handleLogoutUtil, hasPermissionWorklog } from "@/utils/commonFunction";
-import CustomToastContainer from "@/utils/style/CustomToastContainer";
 import axios from "axios";
 import { Spinner } from "next-ts-lib";
 import { useRouter } from "next/navigation";
@@ -143,7 +142,6 @@ const Home = () => {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <Spinner size="40px" />
-      <CustomToastContainer />
     </div>
   );
 };

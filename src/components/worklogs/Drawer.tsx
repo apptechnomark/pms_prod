@@ -349,19 +349,6 @@ const EditDrawer = ({
       newSubTaskDescErrors.some((error) => error);
 
     if (hasPermissionWorklog("Task/SubTask", "save", "WorkLogs")) {
-      // if (
-      //   editStatusWorklogs === 4 ||
-      //   editStatusWorklogs === 5 ||
-      //   statusWorklogs === 7 ||
-      //   statusWorklogs === 8 ||
-      //   statusWorklogs === 9 ||
-      //   statusWorklogs === 13
-      // ) {
-      //   toast.warning(
-      //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-      //   );
-      //   onEdit > 0 && getSubTaskDataWorklogs();
-      // } else {
       if (!hasSubErrors) {
         setIsLoadingWorklogs(true);
         const params = {
@@ -401,7 +388,6 @@ const EditDrawer = ({
         };
         callAPI(url, params, successCallback, "POST");
       }
-      // }
     } else {
       toast.error("User don't have permission to Update Sub-Task.");
       getSubTaskDataWorklogs();
@@ -452,15 +438,13 @@ const EditDrawer = ({
         setRecurringStartDate(ResponseData.StartDate);
         setRecurringEndDate(ResponseData.EndDate);
         setRecurringTime(ResponseData.Type);
-        ResponseData.Type === 2
-          ? setSelectedDays(ResponseData.Triggers)
-          : ResponseData.Type === 3
-          ? setRecurringMonth(
-              ResponseData.Triggers.map((trigger: any) =>
-                months.find((month) => month.value === trigger)
-              ).filter(Boolean)
-            )
-          : [];
+        ResponseData.Type === 2 && setSelectedDays(ResponseData.Triggers);
+        ResponseData.Type === 3 &&
+          setRecurringMonth(
+            ResponseData.Triggers.map((trigger: any) =>
+              months.find((month) => month.value === trigger)
+            ).filter(Boolean)
+          );
       } else {
         setRecurringSwitch(false);
         setRecurringStartDate("");
@@ -1044,18 +1028,6 @@ const EditDrawer = ({
     const hasErrors = Object.values(fieldValidations).some((error) => error);
 
     if (hasPermissionWorklog("Reminder", "save", "WorkLogs")) {
-      // if (
-      //   editStatusWorklogs === 4 ||
-      //   statusWorklogs === 7 ||
-      //   statusWorklogs === 8 ||
-      //   statusWorklogs === 9 ||
-      //   statusWorklogs === 13
-      // ) {
-      //   toast.warning(
-      //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-      //   );
-      //   getReminderDataWorklogs();
-      // } else {
       if (!hasErrors) {
         setIsLoadingWorklogs(true);
         const params = {
@@ -1085,7 +1057,6 @@ const EditDrawer = ({
         };
         callAPI(url, params, successCallback, "POST");
       }
-      // }
     } else {
       toast.error("User don't have permission to Update Recurring.");
       setDeletedSubTaskWorklogs([]);
@@ -1120,18 +1091,6 @@ const EditDrawer = ({
     index: number
   ) => {
     if (hasPermissionWorklog("CheckList", "save", "WorkLogs")) {
-      // if (
-      //   editStatusWorklogs === 4 ||
-      //   statusWorklogs === 7 ||
-      //   statusWorklogs === 8 ||
-      //   statusWorklogs === 9 ||
-      //   statusWorklogs === 13
-      // ) {
-      //   toast.warning(
-      //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-      //   );
-      //   getCheckListDataWorklogs();
-      // } else {
       setCheckListNameWorklogsError(
         checkListNameWorklogs.trim().length < 5 ||
           checkListNameWorklogs.trim().length > 500
@@ -1166,7 +1125,6 @@ const EditDrawer = ({
         };
         callAPI(url, params, successCallback, "POST");
       }
-      // }
     } else {
       toast.error("User don't have permission to Add Checklist.");
       getCheckListDataWorklogs();
@@ -1203,18 +1161,6 @@ const EditDrawer = ({
     Title: any
   ) => {
     if (hasPermissionWorklog("CheckList", "save", "WorkLogs")) {
-      // if (
-      //   editStatusWorklogs === 4 ||
-      //   statusWorklogs === 7 ||
-      //   statusWorklogs === 8 ||
-      //   statusWorklogs === 9 ||
-      //   statusWorklogs === 13
-      // ) {
-      //   toast.warning(
-      //     "Cannot change task for status 'Stop', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-      //   );
-      //   getCheckListDataWorklogs();
-      // } else {
       const params = {
         workItemId: onEdit,
         category: Category,
@@ -1236,7 +1182,6 @@ const EditDrawer = ({
         setIsLoadingWorklogs(false);
       };
       callAPI(url, params, successCallback, "POST");
-      // }
     } else {
       toast.error("User don't have permission to Add Checklist.");
       getCheckListDataWorklogs();
@@ -2209,27 +2154,8 @@ const EditDrawer = ({
       }
     }
 
-    // if (
-    //   (onEdit > 0 && editStatusWorklogs === 4) ||
-    //   (onEdit > 0 && editStatusWorklogs === 5) ||
-    //   (onEdit > 0 && statusWorklogs === 7) ||
-    //   (onEdit > 0 && statusWorklogs === 8) ||
-    //   (onEdit > 0 && statusWorklogs === 9) ||
-    //   (onEdit > 0 && statusWorklogs === 13)
-    // ) {
-    //   toast.warning(
-    //     "Cannot change task for status 'Stop', 'ErrorLog', 'Accept', 'Reject', 'Accept with Notes' or 'Signed-off'."
-    //   );
-    //   getEditDataWorklogs();
-    // } else
     if (
       onEdit > 0 &&
-      // editStatusWorklogs !== 4 &&
-      // editStatusWorklogs !== 5 &&
-      // statusWorklogs !== 7 &&
-      // statusWorklogs !== 8 &&
-      // statusWorklogs !== 9 &&
-      // statusWorklogs !== 13 &&
       typeOfWorkWorklogs !== 3 &&
       !hasEditErrors &&
       clientTaskNameWorklogs.trim().length > 3 &&
@@ -2247,12 +2173,6 @@ const EditDrawer = ({
       }
     } else if (
       onEdit > 0 &&
-      // editStatusWorklogs !== 4 &&
-      // editStatusWorklogs !== 5 &&
-      // statusWorklogs !== 7 &&
-      // statusWorklogs !== 8 &&
-      // statusWorklogs !== 9 &&
-      // statusWorklogs !== 13 &&
       typeOfWorkWorklogs === 3 &&
       !hasEditErrors &&
       clientTaskNameWorklogs.trim().length > 3 &&
@@ -2315,7 +2235,6 @@ const EditDrawer = ({
         setAllInfoDateWorklogs(
           ResponseData.AllInfoDate === null ? "" : ResponseData.AllInfoDate
         );
-        // ResponseData.StatusId === 2
         !ResponseData.ErrorlogSignedOffPending
           ? setStatusWorklogsDropdownDataUse(
               statusWorklogsDropdownData.filter(
@@ -2344,30 +2263,6 @@ const EditDrawer = ({
                   item.value === ResponseData.StatusId
               )
             );
-        // ResponseData.StatusId === 2 && ResponseData.IsManual === true
-        //   ? setStatusWorklogsDropdownDataUse(
-        //       statusWorklogsDropdownData
-        //         .map((i: any) =>
-        //           i.Type === "OnHoldFromClient" ||
-        //           i.Type === "WithDraw" ||
-        //           i.Type === "Stop" ||
-        //           i.value === ResponseData.StatusId
-        //             ? i
-        //             : ""
-        //         )
-        //         .filter((i: any) => i !== "")
-        //     )
-        //   : setStatusWorklogsDropdownDataUse(
-        //       statusWorklogsDropdownData
-        //         .map((i: any) =>
-        //           i.Type === "OnHoldFromClient" ||
-        //           i.Type === "WithDraw" ||
-        //           i.value === ResponseData.StatusId
-        //             ? i
-        //             : ""
-        //         )
-        //         .filter((i: any) => i !== "")
-        //     );
         setPriorityWorklogs(
           ResponseData.Priority === null ? 0 : ResponseData.Priority
         );
@@ -2429,15 +2324,6 @@ const EditDrawer = ({
       assigneeWorklogsDropdownData.length > 0 &&
       getReminderDataWorklogs();
   }, [assigneeWorklogsDropdownData]);
-
-  // GEtDropdownData
-  // useEffect(() => {
-  //   const getData = async () => {
-  //     await setStatusWorklogsDropdownData(await getStatusDropdownData());
-  //     await setCCDropdownDataWorklogs(await getCCDropdownData());
-  //   };
-  //   getData();
-  // }, []);
 
   useEffect(() => {
     const getData = async () => {
@@ -2586,7 +2472,7 @@ const EditDrawer = ({
       reviewerData.length > 0 &&
         onEdit === 0 &&
         setReviewerWorklogs(reviwerId === false ? 0 : reviwerId);
-      typeOfWorkWorklogs === 3 && setReturnYearWorklogs(2023);
+      typeOfWorkWorklogs === 3 && onEdit === 0 && setReturnYearWorklogs(2023);
     };
 
     typeOfWorkWorklogs !== 0 && getData();
@@ -3063,35 +2949,11 @@ const EditDrawer = ({
                     <Grid item xs={3} className="pt-4">
                       <Autocomplete
                         id="combo-box-demo"
-                        options={
-                          // onEdit === 0
-                          //   ? statusWorklogsDropdownData
-                          //   :
-                          statusWorklogsDropdownDataUse
-                        }
-                        // disabled={
-                        //   onEdit === 0 ||
-                        //   statusWorklogs === 7 ||
-                        //   statusWorklogs === 8 ||
-                        //   statusWorklogs === 9
-                        // }
+                        options={statusWorklogsDropdownDataUse}
                         value={
-                          // onEdit === 0 && manualSwitchWorklogs
-                          //   ? statusWorklogsDropdownData.find(
-                          //       (i: any) => i.value === statusWorklogs
-                          //     ) || null
-                          //   :
-                          // onEdit === 0
-                          //   ? statusWorklogsDropdownData.find(
-                          //       (i: any) => i.value === statusWorklogs
-                          //     ) || null
-                          //   :
                           statusWorklogsDropdownDataUse.find(
                             (i: any) => i.value === statusWorklogs
                           ) || null
-                          // : statusWorklogsDropdownDataUse.find(
-                          //     (i: any) => i.value === statusWorklogs
-                          //   ) || null
                         }
                         disabled={isIdDisabled}
                         onChange={(e, value: any) => {
@@ -4495,7 +4357,7 @@ const EditDrawer = ({
                                     commentAttachmentWorklogs
                                   )
                                 }
-                                isDisable={false || isUnassigneeClicked}
+                                isDisable={isUnassigneeClicked}
                               />
                             </div>
                           </div>
@@ -4908,21 +4770,6 @@ const EditDrawer = ({
                             IsApproved: false,
                           },
                         ]);
-                        // e.target.checked === true
-                        //   ? setStatusWorklogs(
-                        //       statusWorklogsDropdownData
-                        //         .map((i: any) =>
-                        //           i.Type === "InProgress" ? i.value : undefined
-                        //         )
-                        //         .filter((i: any) => i !== undefined)[0]
-                        //     )
-                        //   : setStatusWorklogs(
-                        //       statusWorklogsDropdownData
-                        //         .map((i: any) =>
-                        //           i.Type === "NotStarted" ? i.value : undefined
-                        //         )
-                        //         .filter((i: any) => i !== undefined)[0]
-                        //     );
                       }}
                     />
                     <span
@@ -5934,10 +5781,6 @@ const EditDrawer = ({
                                   <FormControlLabel
                                     className="ml-2 mt-5"
                                     disabled={
-                                      // editStatusWorklogs === 4 ||
-                                      // statusWorklogs === 7 ||
-                                      // statusWorklogs === 9 ||
-                                      // statusWorklogs === 8 ||
                                       i.DisableErrorLog ||
                                       isIdDisabled ||
                                       isUnassigneeClicked
@@ -6103,7 +5946,6 @@ const EditDrawer = ({
                               title={undefined}
                               options={{
                                 responsive: "standard",
-                                // tableBodyHeight: "73vh",
                                 viewColumns: false,
                                 filter: false,
                                 print: false,

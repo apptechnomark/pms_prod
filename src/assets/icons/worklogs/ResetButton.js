@@ -12,7 +12,6 @@ const ResetButton = () => {
       >
         <mask
           id="mask0_4247_345680"
-          // style="mask-type:alpha"
           maskUnits="userSpaceOnUse"
           x="0"
           y="0"

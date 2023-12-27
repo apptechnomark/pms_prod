@@ -38,14 +38,28 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
   onClose,
   currentFilterData,
 }) => {
-  const [anyRatingFieldSelected, setAnyRatingFieldSelected] = useState<any>(false);
-  const [currSelectedRatingFields, setCurrSelectedRatingFileds] = useState<any | any[]>([]);
-  const [projectFilterRatingDropdownData, setProjectFilterRatingDropdownData] = useState([]);
-  const [returnTypeFilterRating, setReturnTypeFilterRating] = useState<null | number>(0);
-  const [startDateFilterRating, setStartDateFilterRating] = useState<null | string>(null);
-  const [endDateFilterRating, setEndDateFilterRating] = useState<null | string>(null);
-  const [projectFilterRating, setProjectFilterRating] = useState<null | number>(0);
-  const [ratingsFilterRating, setRatingsFilterRating] = useState<null | number>(0);
+  const [anyRatingFieldSelected, setAnyRatingFieldSelected] =
+    useState<any>(false);
+  const [currSelectedRatingFields, setCurrSelectedRatingFileds] = useState<
+    any | any[]
+  >([]);
+  const [projectFilterRatingDropdownData, setProjectFilterRatingDropdownData] =
+    useState([]);
+  const [returnTypeFilterRating, setReturnTypeFilterRating] = useState<
+    null | number
+  >(0);
+  const [startDateFilterRating, setStartDateFilterRating] = useState<
+    null | string
+  >(null);
+  const [endDateFilterRating, setEndDateFilterRating] = useState<null | string>(
+    null
+  );
+  const [projectFilterRating, setProjectFilterRating] = useState<null | number>(
+    0
+  );
+  const [ratingsFilterRating, setRatingsFilterRating] = useState<null | number>(
+    0
+  );
 
   const handleRatingClose = () => {
     handleRatingResetAll();
@@ -61,7 +75,6 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
     currentFilterData(initialRatingFilter);
   };
 
-  // Check if any field is selected
   useEffect(() => {
     const isAnyRatingFieldSelected =
       projectFilterRating !== 0 ||
@@ -71,7 +84,13 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
       endDateFilterRating !== null;
 
     setAnyRatingFieldSelected(isAnyRatingFieldSelected);
-  }, [projectFilterRating, returnTypeFilterRating, ratingsFilterRating, startDateFilterRating, endDateFilterRating]);
+  }, [
+    projectFilterRating,
+    returnTypeFilterRating,
+    ratingsFilterRating,
+    startDateFilterRating,
+    endDateFilterRating,
+  ]);
 
   useEffect(() => {
     const selectedFields = {
@@ -80,19 +99,29 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
       Ratings: ratingsFilterRating || null,
       StartDate:
         startDateFilterRating !== null
-          ? new Date(new Date(startDateFilterRating).getTime() + 24 * 60 * 60 * 1000)
+          ? new Date(
+              new Date(startDateFilterRating).getTime() + 24 * 60 * 60 * 1000
+            )
               .toISOString()
               .split("T")[0]
           : null,
       EndDate:
         endDateFilterRating !== null
-          ? new Date(new Date(endDateFilterRating).getTime() + 24 * 60 * 60 * 1000)
+          ? new Date(
+              new Date(endDateFilterRating).getTime() + 24 * 60 * 60 * 1000
+            )
               .toISOString()
               .split("T")[0]
           : null,
     };
     setCurrSelectedRatingFileds(selectedFields);
-  }, [projectFilterRating, returnTypeFilterRating, ratingsFilterRating, startDateFilterRating, endDateFilterRating]);
+  }, [
+    projectFilterRating,
+    returnTypeFilterRating,
+    ratingsFilterRating,
+    startDateFilterRating,
+    endDateFilterRating,
+  ]);
 
   const sendFilterToPage = () => {
     currentFilterData(currSelectedRatingFields);
@@ -171,11 +200,13 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
                   value={projectFilterRating === 0 ? "" : projectFilterRating}
                   onChange={(e: any) => setProjectFilterRating(e.target.value)}
                 >
-                  {projectFilterRatingDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={i.value}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
+                  {projectFilterRatingDropdownData.map(
+                    (i: any, index: number) => (
+                      <MenuItem value={i.value} key={i.value}>
+                        {i.label}
+                      </MenuItem>
+                    )
+                  )}
                 </Select>
               </FormControl>
 
@@ -184,8 +215,12 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
                 <Select
                   labelId="workTypes-label"
                   id="workTypes-select"
-                  value={returnTypeFilterRating === 0 ? "" : returnTypeFilterRating}
-                  onChange={(e: any) => setReturnTypeFilterRating(e.target.value)}
+                  value={
+                    returnTypeFilterRating === 0 ? "" : returnTypeFilterRating
+                  }
+                  onChange={(e: any) =>
+                    setReturnTypeFilterRating(e.target.value)
+                  }
                 >
                   <MenuItem value={1}>Individual Return</MenuItem>
                   <MenuItem value={2}>Business Return</MenuItem>
@@ -198,8 +233,14 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
                     label="From"
                     shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
-                    value={startDateFilterRating === null ? null : dayjs(startDateFilterRating)}
-                    onChange={(newDate: any) => setStartDateFilterRating(newDate.$d)}
+                    value={
+                      startDateFilterRating === null
+                        ? null
+                        : dayjs(startDateFilterRating)
+                    }
+                    onChange={(newDate: any) =>
+                      setStartDateFilterRating(newDate.$d)
+                    }
                     slotProps={{
                       textField: {
                         readOnly: true,
@@ -216,8 +257,14 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
                     label="To"
                     shouldDisableDate={isWeekend}
                     maxDate={dayjs(Date.now())}
-                    value={endDateFilterRating === null ? null : dayjs(endDateFilterRating)}
-                    onChange={(newDate: any) => setEndDateFilterRating(newDate.$d)}
+                    value={
+                      endDateFilterRating === null
+                        ? null
+                        : dayjs(endDateFilterRating)
+                    }
+                    onChange={(newDate: any) =>
+                      setEndDateFilterRating(newDate.$d)
+                    }
                     slotProps={{
                       textField: {
                         readOnly: true,
