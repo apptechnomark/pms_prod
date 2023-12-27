@@ -7,7 +7,6 @@ import {
   Tel,
   Text,
   Email,
-  Toast,
   Textarea,
   Datepicker,
 } from "next-ts-lib";
@@ -21,6 +20,7 @@ import axios from "axios";
 import ChevronDownIcon from "@/assets/icons/ChevronDownIcon";
 import dayjs from "dayjs";
 import OverLay from "@/components/common/OverLay";
+import { toast } from "react-toastify";
 
 export interface ClientContentRef {
   clearAllData: () => void;
@@ -406,17 +406,17 @@ const ClientContent = forwardRef<
               } else {
                 const data = response.data.Message;
                 if (data === null) {
-                  Toast.error("Please try again later.");
+                  toast.error("Please try again later.");
                 } else {
-                  Toast.error(data);
+                  toast.error(data);
                 }
               }
             } else {
               const data = response.data.Message;
               if (data === null) {
-                Toast.error("Failed Please try again.");
+                toast.error("Failed Please try again.");
               } else {
-                Toast.error(data);
+                toast.error(data);
               }
             }
           } catch (error) {
@@ -807,7 +807,7 @@ const ClientContent = forwardRef<
         !audit &&
         !tax
       ) {
-        Toast.error("Please Select at least one work type.");
+        toast.error("Please Select at least one work type.");
       }
     };
 
@@ -1072,7 +1072,7 @@ const ClientContent = forwardRef<
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            Toast.success(
+            toast.success(
               `Client ${onEdit ? "Updated" : "created"} successfully.`
             );
             setErrorTrue();
@@ -1087,9 +1087,9 @@ const ClientContent = forwardRef<
             onClose();
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } else {
@@ -1097,9 +1097,9 @@ const ClientContent = forwardRef<
           onClose();
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Failed Please try again.");
+            toast.error("Failed Please try again.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } catch (error: any) {
@@ -1150,9 +1150,9 @@ const ClientContent = forwardRef<
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Failed Please try again.");
+            toast.error("Failed Please try again.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } catch (error) {
@@ -1181,9 +1181,9 @@ const ClientContent = forwardRef<
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Failed Please try again.");
+            toast.error("Failed Please try again.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } catch (error) {
@@ -1212,9 +1212,9 @@ const ClientContent = forwardRef<
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Failed Please try again.");
+            toast.error("Failed Please try again.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } catch (error) {
@@ -1952,13 +1952,22 @@ const ClientContent = forwardRef<
 
                 <div className="flex flex-row gap-5">
                   <Text
+                    className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    type="number"
                     label="No. Of Login"
                     placeholder="Enter No. Of Login"
-                    type="number"
                     value={noOfLogin}
                     getValue={(e) => setNoOfLogin(e)}
                     getError={() => {}}
                     autoComplete="off"
+                    noText
+                    onWheel={(e) => e.currentTarget.blur()}
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                        e.preventDefault();
+                        e.currentTarget.blur();
+                      }
+                    }}
                   />
 
                   <Text

@@ -2,10 +2,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button, Typography, Toast, Email, Loader } from "next-ts-lib";
+import { Button, Typography, Email, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
 import Pabs from "@/assets/icons/Pabs";
+import { toast } from "react-toastify";
 
 const ForgetPassword = () => {
   const router = useRouter();
@@ -29,18 +30,18 @@ const ForgetPassword = () => {
           );
           if (response.status === 200) {
             if (response.data.ResponseStatus === "Success") {
-              Toast.success("Please check your email.");
+              toast.success("Please check your email.");
               router.push(`/forgot-confirm/?email=${forgetValue}`);
             } else {
-              Toast.error("Please try again.");
+              toast.error("Please try again.");
               setClicked(false);
             }
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again after sometime.");
+              toast.error("Please try again after sometime.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
             setClicked(false);
           }

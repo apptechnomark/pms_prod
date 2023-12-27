@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Close, Toast } from "next-ts-lib";
+import { Close } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import ClientContent, { ClientContentRef } from "./content/ClientContent";
 import PermissionsContent, {
@@ -16,6 +16,7 @@ import GroupContent, { GroupContentRef } from "./content/GroupContent";
 import DeleteModal from "@/components/common/DeleteModal";
 import axios from "axios";
 import OverLay from "@/components/common/OverLay";
+import { toast } from "react-toastify";
 
 const Drawer = ({
   onOpen,
@@ -97,23 +98,23 @@ const Drawer = ({
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            Toast.success("Project has been deleted successfully!");
+            toast.success("Project has been deleted successfully!");
             onClose();
             onDataFetch();
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again.");
+            toast.error("Please try again.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } catch (error) {

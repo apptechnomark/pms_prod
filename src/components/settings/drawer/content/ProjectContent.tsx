@@ -1,12 +1,13 @@
 /* eslint-disable react/display-name */
 import axios from "axios";
-import { Button, Select, Text, Toast } from "next-ts-lib";
+import { Button, Select, Text } from "next-ts-lib";
 import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
   useState,
 } from "react";
+import { toast } from "react-toastify";
 
 export interface ProjectContentRef {
   clearAllData: () => void;
@@ -75,17 +76,17 @@ const ProjectContent = forwardRef<
             } else {
               const data = response.data.Message;
               if (data === null) {
-                Toast.error("Please try again later.");
+                toast.error("Please try again later.");
               } else {
-                Toast.error(data);
+                toast.error(data);
               }
             }
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again.");
+              toast.error("Please try again.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } catch (error) {
@@ -127,17 +128,17 @@ const ProjectContent = forwardRef<
               } else {
                 const data = response.data.Message;
                 if (data === null) {
-                  Toast.error("Please try again later.");
+                  toast.error("Please try again later.");
                 } else {
-                  Toast.error(data);
+                  toast.error(data);
                 }
               }
             } else {
               const data = response.data.Message;
               if (data === null) {
-                Toast.error("Please try again.");
+                toast.error("Please try again.");
               } else {
-                Toast.error(data);
+                toast.error(data);
               }
             }
           } catch (error) {
@@ -193,17 +194,17 @@ const ProjectContent = forwardRef<
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again.");
+            toast.error("Please try again.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } catch (error) {
@@ -278,7 +279,7 @@ const ProjectContent = forwardRef<
 
           if (response.status === 200) {
             if (response.data.ResponseStatus === "Success") {
-              Toast.success(
+              toast.success(
                 `Project ${onEdit ? "Updated" : "created"} successfully.`
               );
               await setDataTrue();
@@ -292,18 +293,18 @@ const ProjectContent = forwardRef<
               onChangeLoader(false);
               const data = response.data.Message;
               if (data === null) {
-                Toast.error("Please try again later.");
+                toast.error("Please try again later.");
               } else {
-                Toast.error(data);
+                toast.error(data);
               }
             }
           } else {
             onChangeLoader(false);
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again.");
+              toast.error("Please try again.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } catch (error) {
@@ -340,7 +341,7 @@ const ProjectContent = forwardRef<
 
           if (response.status === 200) {
             if (response.data.ResponseStatus === "Success") {
-              Toast.success(
+              toast.success(
                 `Project ${
                   projectValue === 0 ||
                   projectValue === null ||
@@ -354,17 +355,17 @@ const ProjectContent = forwardRef<
             } else {
               const data = response.data.Message;
               if (data === null) {
-                Toast.error("Please try again later.");
+                toast.error("Please try again later.");
               } else {
-                Toast.error(data);
+                toast.error(data);
               }
             }
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again.");
+              toast.error("Please try again.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } catch (error) {

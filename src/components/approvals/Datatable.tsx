@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-
 import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
 import {
@@ -11,13 +10,9 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { toast } from "react-toastify";
-import { hasPermissionWorklog } from "@/utils/commonFunction";
 import TablePagination from "@mui/material/TablePagination";
 import axios from "axios";
-// icons imports
 import PlayButton from "@/assets/icons/worklogs/PlayButton";
-
-// Internal component Imports
 import { toHoursAndMinutes } from "@/utils/timerFunctions";
 import PlayPause from "@/assets/icons/worklogs/PlayPause";
 import PauseButton from "@/assets/icons/worklogs/PauseButton";
@@ -39,8 +34,8 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import ApprovalsActionBar from "./actionBar/ApprovalsActionBar";
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
-import CustomActionBar from "../common/actionBar/CustomActionBar";
-import { Spinner } from "next-ts-lib";
+import ReportLoader from "../common/ReportLoader";
+import OverLay from "../common/OverLay";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -74,6 +69,8 @@ const Datatable = ({
   onHandleExport,
   searchValue,
 }: any) => {
+  const [isLoadingApprovalsDatatable, setIsLoadingApprovalsDatatable] =
+    useState(false);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -300,6 +297,7 @@ const Datatable = ({
     const Org_Token = await localStorage.getItem("Org_Token");
 
     try {
+      setIsLoadingApprovalsDatatable(true);
       const response = await axios.post(
         `${process.env.worklog_api_url}/workitem/approval/saveworkitemreviewertimestamp`,
         {
@@ -325,6 +323,7 @@ const Datatable = ({
           );
           setRunning((prev) => (workitemId !== prev ? workitemId : -1));
           getReviewList();
+          setIsLoadingApprovalsDatatable(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -332,6 +331,7 @@ const Datatable = ({
           } else {
             toast.error(data);
           }
+          setIsLoadingApprovalsDatatable(false);
         }
       } else {
         const data = response.data.Message;
@@ -340,6 +340,7 @@ const Datatable = ({
         } else {
           toast.error(data);
         }
+        setIsLoadingApprovalsDatatable(false);
       }
     } catch (error) {
       console.error(error);
@@ -351,6 +352,7 @@ const Datatable = ({
     const Org_Token = await localStorage.getItem("Org_Token");
 
     try {
+      setIsLoadingApprovalsDatatable(true);
       const response = await axios.post(
         `${process.env.worklog_api_url}/workitem/approval/getreviewerworkitemsync`,
         {
@@ -377,6 +379,7 @@ const Datatable = ({
               }
             })
           );
+          setIsLoadingApprovalsDatatable(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -384,6 +387,7 @@ const Datatable = ({
           } else {
             toast.error(data);
           }
+          setIsLoadingApprovalsDatatable(false);
         }
       } else {
         const data = response.data.Message;
@@ -392,6 +396,7 @@ const Datatable = ({
         } else {
           toast.error(data);
         }
+        setIsLoadingApprovalsDatatable(false);
       }
     } catch (error) {
       console.error(error);
@@ -918,9 +923,7 @@ const Datatable = ({
           />
         </ThemeProvider>
       ) : (
-        <div className="h-screen w-full flex justify-center my-[20%]">
-          <Spinner />
-        </div>
+        <ReportLoader />
       )}
 
       <Dialog open={stopReviewTimer}>
@@ -963,6 +966,7 @@ const Datatable = ({
 
       {/* Approval's Action Bar */}
       <ApprovalsActionBar {...propsForActionBar} />
+      {isLoadingApprovalsDatatable ? <OverLay /> : ""}
     </div>
   );
 };

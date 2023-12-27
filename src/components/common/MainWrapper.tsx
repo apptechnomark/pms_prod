@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { Toast } from "next-ts-lib";
+import CustomToastContainer from "@/utils/style/CustomToastContainer";
 import "next-ts-lib/dist/index.css";
 import React from "react";
 
 const MainWrapper = ({ children }: any) => {
   return (
     <>
-      <Toast position="top_center" />
+      <CustomToastContainer />
       {children}
     </>
   );

@@ -4,13 +4,14 @@ import { Autocomplete, Checkbox, TextField } from "@mui/material";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import axios from "axios";
-import { Button, Text, Toast } from "next-ts-lib";
+import { Button, Text } from "next-ts-lib";
 import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
   useState,
 } from "react";
+import { toast } from "react-toastify";
 
 export interface GroupContentRef {
   groupDataValue: () => void;
@@ -84,9 +85,9 @@ const GroupContent = forwardRef<
             } else {
               const data = response.data.Message;
               if (data === null) {
-                Toast.error("Please try again later.");
+                toast.error("Please try again later.");
               } else {
-                Toast.error(data);
+                toast.error(data);
               }
             }
           }
@@ -128,17 +129,17 @@ const GroupContent = forwardRef<
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Add failed. Please try again.");
+            toast.error("Add failed. Please try again.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } catch (error) {
@@ -196,7 +197,7 @@ const GroupContent = forwardRef<
               onChangeLoader(false);
               onClose();
               groupDataValue();
-              Toast.success(
+              toast.success(
                 `${onEdit ? "" : "New"} Group ${
                   onEdit ? "Updated" : "added"
                 }  successfully.`
@@ -205,18 +206,18 @@ const GroupContent = forwardRef<
               onChangeLoader(false);
               const data = response.data.Message;
               if (data === null) {
-                Toast.error("Please try again later.");
+                toast.error("Please try again later.");
               } else {
-                Toast.error(data);
+                toast.error(data);
               }
             }
           } else {
             onChangeLoader(false);
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again.");
+              toast.error("Please try again.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } catch (error) {
@@ -251,7 +252,7 @@ const GroupContent = forwardRef<
 
           if (response.status === 200) {
             if (response.data.ResponseStatus === "Success") {
-              Toast.success(
+              toast.success(
                 `${onEdit ? "" : "New"} Group ${
                   onEdit ? "Updated" : "added"
                 }  successfully.`
@@ -261,9 +262,9 @@ const GroupContent = forwardRef<
             } else {
               const data = response.data.Message;
               if (data === null) {
-                Toast.error("Please try again later.");
+                toast.error("Please try again later.");
               } else {
-                Toast.error(data);
+                toast.error(data);
               }
             }
           }

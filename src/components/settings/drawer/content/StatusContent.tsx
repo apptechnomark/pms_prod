@@ -1,13 +1,14 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios";
-import { Button, Toast, Text, ColorPicker } from "next-ts-lib";
+import { Button, Text, ColorPicker } from "next-ts-lib";
 import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
   useState,
 } from "react";
+import { toast } from "react-toastify";
 
 export interface StatusContenRef {
   clearStatusData: () => void;
@@ -59,17 +60,17 @@ const StatusContent = forwardRef<
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again.");
+            toast.error("Please try again.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } catch (error) {
@@ -144,7 +145,7 @@ const StatusContent = forwardRef<
             clearStatusData();
             onChangeLoader(false);
             onClose();
-            Toast.success(
+            toast.success(
               `${onEdit ? "" : "New"} Status ${
                 onEdit ? "Updated" : "added"
               }  successfully.`
@@ -153,18 +154,18 @@ const StatusContent = forwardRef<
             onChangeLoader(false);
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } else {
           onChangeLoader(false);
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Failed Please try again.");
+            toast.error("Failed Please try again.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } catch (error) {
@@ -201,7 +202,7 @@ const StatusContent = forwardRef<
           if (response.data.ResponseStatus === "Success") {
             onDataFetch();
             clearStatusData();
-            Toast.success(
+            toast.success(
               `${onEdit ? "" : "New"} Status ${
                 onEdit ? "Updated" : "added"
               }  successfully.`
@@ -209,17 +210,17 @@ const StatusContent = forwardRef<
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Failed Please try again.");
+            toast.error("Failed Please try again.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } catch (error) {

@@ -2,10 +2,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { CheckBox, DataTable, Loader, Toast } from "next-ts-lib";
+import { CheckBox, DataTable } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
 import ReportLoader from "@/components/common/ReportLoader";
+import { toast } from "react-toastify";
 
 interface Action {
   IsChecked: boolean;
@@ -228,17 +229,17 @@ const Permissions = ({
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again.");
+          toast.error("Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {

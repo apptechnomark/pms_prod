@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Toast, DataTable, AvatarGroup, Avatar, Loader } from "next-ts-lib";
+import { DataTable, AvatarGroup, Avatar } from "next-ts-lib";
 import axios from "axios";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import DeleteModal from "@/components/common/DeleteModal";
 import "next-ts-lib/dist/index.css";
 import { GROUP } from "./Constants/Tabname";
 import ReportLoader from "@/components/common/ReportLoader";
+import CustomToastContainer from "@/utils/style/CustomToastContainer";
+import { toast } from "react-toastify";
 
 function Group({
   onOpen,
@@ -93,9 +95,9 @@ function Group({
           const data = response.data.Message;
           setLoader(false);
           if (data === null) {
-            Toast.error("Error", "Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error("Error", data);
+            toast.error(data);
           }
         }
       }
@@ -129,22 +131,22 @@ function Group({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          Toast.success("Group has been deleted successfully!");
+          toast.success("Group has been deleted successfully!");
           getAll();
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error("Error", data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again.");
+          toast.error("Please try again.");
         } else {
-          Toast.error("Error", data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -256,7 +258,7 @@ function Group({
           <div
             className={`${data.length === 0 ? "!h-full" : "!h-[81vh] !w-full"}`}
           >
-            <Toast position="top_center" />
+            <CustomToastContainer />
 
             {data.length > 0 && (
               <DataTable columns={headers} data={groupData} sticky />

@@ -31,17 +31,17 @@ const Star = ({ data, getUserDetails }) => {
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again.");
+          toast.error("Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {

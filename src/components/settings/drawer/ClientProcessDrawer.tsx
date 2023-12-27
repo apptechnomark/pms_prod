@@ -1,18 +1,12 @@
 import EditIcon from "@/assets/icons/EditIcon";
 import SaveIcon from "@/assets/icons/SaveIcon";
 import axios from "axios";
-import {
-  Button,
-  CheckBox,
-  Close,
-  DataTable,
-  Text,
-  Toast,
-  Tooltip,
-} from "next-ts-lib";
+import { Button, CheckBox, Close, DataTable, Text, Tooltip } from "next-ts-lib";
 import React, { useEffect, useState } from "react";
 import Select from "@mui/material/Select";
 import { MenuItem } from "@mui/material";
+import { toast } from "react-toastify";
+import OverLay from "@/components/common/OverLay";
 
 const ClientProcessDrawer = ({
   onOpen,
@@ -20,6 +14,7 @@ const ClientProcessDrawer = ({
   selectedRowId,
   onDataFetch,
 }: any) => {
+  const [isLoadingClientProcess, setIsLoadingClientProcess] = useState(false);
   const [clientProcessData, setClientProcessData] = useState([]);
   const [thisclientProcess, setThisClientProcess] = useState([]);
   const [stndrdTime, setStndrdTime] = useState<any>([]);
@@ -175,7 +170,7 @@ const ClientProcessDrawer = ({
 
   const handleSubmit = () => {
     if (selectedRowsData.length === 0) {
-      Toast.error("Please select a Process.");
+      toast.error("Please select a Process.");
       return false;
     }
 
@@ -212,6 +207,7 @@ const ClientProcessDrawer = ({
     const Org_Token = await localStorage.getItem("Org_Token");
 
     try {
+      setIsLoadingClientProcess(true);
       const response = await axios.post(
         `${process.env.pms_api_url}/client/SaveClientProcess`,
         {
@@ -228,26 +224,29 @@ const ClientProcessDrawer = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          Toast.success("Process updated successfully.");
+          toast.success("Process updated successfully.");
           handleClose();
           onDataFetch();
+          setIsLoadingClientProcess(false);
         } else {
           handleClose();
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
+          setIsLoadingClientProcess(false);
         }
       } else {
         handleClose();
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Failed Please try again.");
+          toast.error("Failed Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
+        setIsLoadingClientProcess(false);
       }
     } catch (error) {
       console.error(error);
@@ -292,17 +291,17 @@ const ClientProcessDrawer = ({
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Failed Please try again.");
+          toast.error("Failed Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -478,46 +477,51 @@ const ClientProcessDrawer = ({
   );
 
   return (
-    <div
-      className={`fixed right-0 top-0 z-30 h-screen overflow-y-auto w-[80vw] border border-lightSilver bg-pureWhite transform  ${
-        onOpen ? "translate-x-0" : "translate-x-full"
-      } transition-transform duration-300 ease-in-out`}
-    >
-      <div className="flex p-[20px] justify-between items-center bg-whiteSmoke border-b border-lightSilver">
-        <span className="text-pureBlack text-lg font-medium">Edit Process</span>
-        <span onClick={handleClose}>
-          <Close variant="medium" />
-        </span>
-      </div>
-
-      {table_Data.length > 0 && (
-        <div className="px-2 py-2 h-[81vh] max-h-[78.5vh] overflow-y-auto">
-          <DataTable columns={headers} data={table_Data} />
+    <>
+      <div
+        className={`fixed right-0 top-0 z-30 h-screen overflow-y-auto w-[80vw] border border-lightSilver bg-pureWhite transform  ${
+          onOpen ? "translate-x-0" : "translate-x-full"
+        } transition-transform duration-300 ease-in-out`}
+      >
+        <div className="flex p-[20px] justify-between items-center bg-whiteSmoke border-b border-lightSilver">
+          <span className="text-pureBlack text-lg font-medium">
+            Edit Process
+          </span>
+          <span onClick={handleClose}>
+            <Close variant="medium" />
+          </span>
         </div>
-      )}
 
-      <div className="flex justify-end fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">
-        <Button
-          onClick={handleClose}
-          variant="btn-outline-primary"
-          className="rounded-[4px] !h-[36px] uppercase"
-        >
-          Cancel
-        </Button>
+        {table_Data.length > 0 && (
+          <div className="px-2 py-2 h-[81vh] max-h-[78.5vh] overflow-y-auto">
+            <DataTable columns={headers} data={table_Data} />
+          </div>
+        )}
 
-        <Button
-          type="submit"
-          variant="btn-primary"
-          className="rounded-[4px] !h-[36px] uppercase"
-          onClick={() => {
-            handleSubmit();
-          }}
-          disabled={selectedRowsData.length === 0}
-        >
-          Update Process
-        </Button>
+        <div className="flex justify-end fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">
+          <Button
+            onClick={handleClose}
+            variant="btn-outline-primary"
+            className="rounded-[4px] !h-[36px] uppercase"
+          >
+            Cancel
+          </Button>
+
+          <Button
+            type="submit"
+            variant="btn-primary"
+            className="rounded-[4px] !h-[36px] uppercase"
+            onClick={() => {
+              handleSubmit();
+            }}
+            disabled={selectedRowsData.length === 0}
+          >
+            Update Process
+          </Button>
+        </div>
       </div>
-    </div>
+      {isLoadingClientProcess ? <OverLay /> : ""}
+    </>
   );
 };
 

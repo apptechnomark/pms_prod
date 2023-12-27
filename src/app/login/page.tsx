@@ -2,13 +2,15 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import Link from "next/link";
-import { Button, Password, Toast, Loader, Email } from "next-ts-lib";
+import { Button, Password, Loader, Email } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import { hasToken } from "@/utils/commonFunction";
 import Pabs from "@/assets/icons/Pabs";
+import CustomToastContainer from "@/utils/style/CustomToastContainer";
+import { toast } from "react-toastify";
 
 const Page = () => {
   const router = useRouter();
@@ -34,13 +36,13 @@ const Page = () => {
 
   const showErrorToast = (message: string) => {
     const errorMessage = message || "Login failed. Please try again.";
-    Toast.error(errorMessage);
+    toast.error(errorMessage);
   };
 
   const handleSuccessfulLogin = (response: AxiosResponse<any, any>) => {
     const { ResponseStatus, ResponseData } = response.data;
     if (ResponseStatus === "Success") {
-      Toast.success("You are successfully logged in.");
+      toast.success("You are successfully logged in.");
       setEmail("");
       setPassword("");
       setEmailHasError(false);
@@ -50,7 +52,7 @@ const Page = () => {
     } else {
       setClicked(false);
       const errorMessage = response.data.Message || "Data does not match.";
-      Toast.error(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -89,7 +91,7 @@ const Page = () => {
 
   return (
     <div className="flex flex-col justify-center min-h-screen relative">
-      <Toast position="top_right" />
+      <CustomToastContainer />
       <div className="flex items-center justify-between max-h-screen min-w-full relative">
         <img
           src="https://staging-tms.azurewebsites.net/assets/images/pages/login-v2.svg"

@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Button, Select, Text, Toast } from "next-ts-lib";
+import { Button, Select, Text } from "next-ts-lib";
 import React, {
   useState,
   forwardRef,
@@ -12,6 +12,7 @@ import PlusIcon from "@/assets/icons/PlusIcon";
 import MinusIcon from "@/assets/icons/MinusIcon";
 import axios from "axios";
 import DeleteModal from "@/components/common/DeleteModal";
+import { toast } from "react-toastify";
 
 export interface ProcessContentRef {
   ProcessDataValue: () => void;
@@ -230,9 +231,9 @@ const ProcessContent = forwardRef<
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         }
@@ -261,17 +262,17 @@ const ProcessContent = forwardRef<
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Add failed. Please try again.");
+          toast.error("Add failed. Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -298,7 +299,7 @@ const ProcessContent = forwardRef<
         );
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            Toast.success(
+            toast.success(
               `${editing ? "" : "New"} Process ${
                 editing ? "Updated" : "added"
               }  successfully.`
@@ -308,9 +309,9 @@ const ProcessContent = forwardRef<
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
           getDropdownData();
@@ -339,7 +340,7 @@ const ProcessContent = forwardRef<
             getDropdownData();
             // ProcessDataValue();
             // onDataFetch();
-            Toast.success(
+            toast.success(
               `${onEdit ? "" : "New"} Process ${
                 onEdit ? "Updated" : "added"
               }  successfully.`
@@ -347,9 +348,9 @@ const ProcessContent = forwardRef<
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
           getDropdownData();
@@ -448,7 +449,7 @@ const ProcessContent = forwardRef<
             ProcessDataValue();
             onDataFetch();
             onChangeLoader(false);
-            Toast.success(
+            toast.success(
               `${onEdit ? "" : "New"} Process ${
                 onEdit ? "Updated" : "added"
               }  successfully.`
@@ -457,9 +458,9 @@ const ProcessContent = forwardRef<
             onChangeLoader(false);
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         }
@@ -528,7 +529,7 @@ const ProcessContent = forwardRef<
             ProcessDataValue();
             onDataFetch();
             onChangeLoader(false);
-            Toast.success(
+            toast.success(
               `${onEdit ? "" : "New"} Process ${
                 onEdit ? "Updated" : "added"
               }  successfully.`
@@ -537,9 +538,9 @@ const ProcessContent = forwardRef<
             onChangeLoader(false);
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         }
@@ -580,13 +581,13 @@ const ProcessContent = forwardRef<
           ProcessDataValue();
           onDataFetch();
           setIsDeleteOpen(false);
-          Toast.success("Process has been deleted successfully!");
+          toast.success("Process has been deleted successfully!");
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
         getDropdownData();

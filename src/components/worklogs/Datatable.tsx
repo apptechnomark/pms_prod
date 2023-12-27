@@ -38,6 +38,7 @@ import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import WorklogsActionBar from "./actionBar/WorklogsActionBar";
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
 import ReportLoader from "../common/ReportLoader";
+import OverLay from "../common/OverLay";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -76,6 +77,8 @@ const Datatable = ({
   searchValue,
   isUnassigneeClicked,
 }: any) => {
+  const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
+    useState(false);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -230,6 +233,7 @@ const Datatable = ({
     }
 
     try {
+      setIsLoadingWorklogsDatatable(true);
       const response = await axios.post(
         `${process.env.worklog_api_url}/workitem/saveworkitemtimestamp`,
         {
@@ -257,6 +261,7 @@ const Datatable = ({
           );
           setRunning((prev) => (selectedRowId !== prev ? selectedRowId : -1));
           getWorkItemList();
+          setIsLoadingWorklogsDatatable(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -264,6 +269,7 @@ const Datatable = ({
           } else {
             toast.error(data);
           }
+          setIsLoadingWorklogsDatatable(false);
         }
       } else {
         const data = response.data.Message;
@@ -272,6 +278,7 @@ const Datatable = ({
         } else {
           toast.error(data);
         }
+        setIsLoadingWorklogsDatatable(false);
       }
     } catch (error) {
       console.error(error);
@@ -283,6 +290,7 @@ const Datatable = ({
     const Org_Token = await localStorage.getItem("Org_Token");
 
     try {
+      setIsLoadingWorklogsDatatable(true);
       const response = await axios.post(
         `${process.env.worklog_api_url}/workitem/getworkitemsync`,
         {
@@ -310,8 +318,10 @@ const Datatable = ({
                 }
               })
             );
+            setIsLoadingWorklogsDatatable(false);
           } else {
             getWorkItemList();
+            setIsLoadingWorklogsDatatable(false);
           }
         } else {
           const data = response.data.Message;
@@ -320,6 +330,7 @@ const Datatable = ({
           } else {
             toast.error(data);
           }
+          setIsLoadingWorklogsDatatable(false);
         }
       } else {
         const data = response.data.Message;
@@ -328,6 +339,7 @@ const Datatable = ({
         } else {
           toast.error(data);
         }
+        setIsLoadingWorklogsDatatable(false);
       }
     } catch (error) {
       console.error(error);
@@ -1196,6 +1208,7 @@ const Datatable = ({
 
       {/* Action Bar */}
       <WorklogsActionBar {...propsForActionBar} />
+      {isLoadingWorklogsDatatable ? <OverLay /> : ""}
     </div>
   );
 };

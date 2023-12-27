@@ -2,13 +2,15 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Switch, DataTable, Toast, Loader } from "next-ts-lib";
+import { Switch, DataTable } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
 import axios from "axios";
 import SwitchModal from "@/components/common/SwitchModal";
 import { ORGANIZATION } from "./Constants/Tabname";
 import ReportLoader from "@/components/common/ReportLoader";
+import CustomToastContainer from "@/utils/style/CustomToastContainer";
+import { toast } from "react-toastify";
 
 function Organization({
   onOpen,
@@ -72,21 +74,21 @@ function Organization({
           getOrgDetailsFunction();
           getOrganizationList();
           onSearchClear(ORGANIZATION);
-          Toast.success("Organization Updated Successfully.");
+          toast.success("Organization Updated Successfully.");
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again.");
+          toast.error("Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -213,17 +215,17 @@ function Organization({
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again later.");
+          toast.error("Please try again later.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -257,9 +259,9 @@ function Organization({
           setLoader(false);
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       }
@@ -277,7 +279,7 @@ function Organization({
         <div
           className={`${userList.length === 0 ? "h-full" : "h-[81vh] !w-full"}`}
         >
-          <Toast position="top_center" />
+          <CustomToastContainer />
           {tableData.length > 0 ? (
             <DataTable columns={columns} data={tableData} sticky />
           ) : (

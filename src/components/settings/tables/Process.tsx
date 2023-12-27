@@ -3,11 +3,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import TableActionIcon from "@/assets/icons/TableActionIcon";
-import { DataTable, Loader, Toast } from "next-ts-lib";
+import { DataTable } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import DeleteModal from "@/components/common/DeleteModal";
 import { PROCESS } from "./Constants/Tabname";
 import ReportLoader from "@/components/common/ReportLoader";
+import { toast } from "react-toastify";
 
 function Process({
   onOpen,
@@ -91,9 +92,9 @@ function Process({
           setLoader(false);
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Error", "Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error("Error", data);
+            toast.error(data);
           }
         }
       }
@@ -290,22 +291,22 @@ function Process({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          Toast.success("Process has been deleted successfully!");
+          toast.success("Process has been deleted successfully!");
           getAll();
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error("Error", data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again.");
+          toast.error("Please try again.");
         } else {
-          Toast.error("Error", data);
+          toast.error(data);
         }
       }
     } catch (error) {

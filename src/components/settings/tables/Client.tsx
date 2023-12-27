@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { Toast, DataTable, Switch, Loader } from "next-ts-lib";
+import { DataTable, Switch } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 // Import Common Components
 import DeleteModal from "@/components/common/DeleteModal";
@@ -14,6 +14,8 @@ import DrawerOverlay from "../drawer/DrawerOverlay";
 import ClientFieldsDrawer from "../drawer/ClientFieldDrawer";
 import { CLIENT } from "./Constants/Tabname";
 import ReportLoader from "@/components/common/ReportLoader";
+import CustomToastContainer from "@/utils/style/CustomToastContainer";
+import { toast } from "react-toastify";
 
 function Client({
   onOpen,
@@ -128,18 +130,18 @@ function Client({
           setLoader(false);
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         setLoader(false);
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Login failed. Please try again.");
+          toast.error("Login failed. Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -169,22 +171,22 @@ function Client({
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            Toast.success("Client has been deleted successfully!");
+            toast.success("Client has been deleted successfully!");
             getData();
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again.");
+            toast.error("Please try again.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } catch (error) {
@@ -217,22 +219,22 @@ function Client({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           setIsOpenSwitchModal(false);
-          Toast.success("Status Updated Successfully.");
+          toast.success("Status Updated Successfully.");
           getData();
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again.");
+          toast.error("Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -386,7 +388,7 @@ function Client({
           <ReportLoader />
         ) : (
           <div>
-            <Toast position="top_center" />
+            <CustomToastContainer />
             {data.length > 0 && (
               <div className="h-[81vh]">
                 <DataTable columns={headers} data={table_Data} sticky />

@@ -2,7 +2,7 @@
 "use client";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Button, Select, Text, Toast, Tooltip, Loader } from "next-ts-lib";
+import { Button, Select, Text, Tooltip, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
@@ -31,6 +31,7 @@ import {
   STATUS,
   USER,
 } from "@/components/settings/tables/Constants/Tabname";
+import { toast } from "react-toastify";
 
 type Tabs = { id: string; label: string; canView: boolean };
 
@@ -238,17 +239,17 @@ const Page = () => {
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again.");
+          toast.error("Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -266,7 +267,7 @@ const Page = () => {
       saveData();
       setPermissionExpanded(false);
     } else {
-      Toast.error("Please try again after sometime.");
+      toast.error("Please try again after sometime.");
     }
   };
 
@@ -290,21 +291,21 @@ const Page = () => {
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          Toast.success("Data saved successfully.");
+          toast.success("Data saved successfully.");
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again.");
+          toast.error("Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -338,21 +339,21 @@ const Page = () => {
           if (response.status === 200) {
             if (response.data.ResponseStatus === "Success") {
               getPermissionDropdown();
-              Toast.success(`Role saved successfully.`);
+              toast.success(`Role saved successfully.`);
             } else {
               const data = response.data.Message;
               if (data === null) {
-                Toast.error("Please try again later.");
+                toast.error("Please try again later.");
               } else {
-                Toast.error(data);
+                toast.error(data);
               }
             }
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Failed Please try again.");
+              toast.error("Failed Please try again.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } catch (error) {
@@ -383,21 +384,21 @@ const Page = () => {
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           getPermissionDropdown();
-          Toast.success(`Role has been deleted successfully!`);
+          toast.success(`Role has been deleted successfully!`);
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Failed Please try again.");
+          toast.error("Failed Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -555,17 +556,17 @@ const Page = () => {
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Login failed. Please try again.");
+          toast.error("Login failed. Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -605,17 +606,17 @@ const Page = () => {
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again.");
+          toast.error("Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -655,17 +656,17 @@ const Page = () => {
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again.");
+          toast.error("Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -704,9 +705,9 @@ const Page = () => {
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Error", "Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error("Error", data);
+            toast.error(data);
           }
         }
       }
@@ -746,9 +747,9 @@ const Page = () => {
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Error", "Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error("Error", data);
+            toast.error(data);
           }
         }
       }
@@ -786,9 +787,9 @@ const Page = () => {
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Error", "Please try again later.");
+          toast.error("Please try again later.");
         } else {
-          Toast.error("Error", data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -822,9 +823,9 @@ const Page = () => {
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       }
@@ -933,15 +934,15 @@ const Page = () => {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-        Toast.success("Data exported successfully.");
+        toast.success("Data exported successfully.");
         setIsExporting(false);
       } else {
         setIsExporting(false);
-        Toast.error("Please try again later.");
+        toast.error("Please try again later.");
       }
     } catch (error) {
       setIsExporting(false);
-      Toast.error("Error exporting data.");
+      toast.error("Error exporting data.");
     }
   };
 

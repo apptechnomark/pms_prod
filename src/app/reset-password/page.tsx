@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
-import { Button, Typography, Password, Toast, Loader } from "next-ts-lib";
+import { Button, Typography, Password, Loader } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import Footer from "@/components/common/Footer";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import Pabs from "@/assets/icons/Pabs";
+import { toast } from "react-toastify";
 
 const Page = () => {
   const getToken = useSearchParams();
@@ -53,16 +54,16 @@ const Page = () => {
           const { ResponseStatus, Message } = response.data;
           if (ResponseStatus === "Success") {
             setClicked(false);
-            Toast.success("Password set successfully.");
+            toast.success("Password set successfully.");
             router.push(`/login`);
           } else {
             setClicked(false);
-            Toast.error(Message || "Please try again.");
+            toast.error(Message || "Please try again.");
           }
         } else {
           setClicked(false);
           const data = response.data.Message;
-          Toast.error(data || "Please try again after some time.");
+          toast.error(data || "Please try again after some time.");
         }
       } catch (error) {
         setClicked(false);

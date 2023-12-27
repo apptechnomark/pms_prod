@@ -2,15 +2,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Avatar,
-  AvatarGroup,
-  DataTable,
-  Loader,
-  Switch,
-  Toast,
-  Tooltip,
-} from "next-ts-lib";
+import { Avatar, AvatarGroup, DataTable, Switch, Tooltip } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 // Import Common Components
 import ColumnFilterDropdown from "@/components/common/ColumnFilterDropdown";
@@ -22,6 +14,7 @@ import DrawerOverlay from "../drawer/DrawerOverlay";
 import UserPermissionDrawer from "../drawer/UserPermissionDrawer";
 import { USER } from "./Constants/Tabname";
 import ReportLoader from "@/components/common/ReportLoader";
+import { toast } from "react-toastify";
 
 const User = ({
   onOpen,
@@ -168,22 +161,22 @@ const User = ({
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
           setIsOpenSwitchModal(false);
-          Toast.success("Status Updated Successfully.");
+          toast.success("Status Updated Successfully.");
           getData();
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again.");
+          toast.error("Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -220,22 +213,22 @@ const User = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
-          Toast.success("Resend Link sent Successfully.");
+          toast.success("Resend Link sent Successfully.");
           getData();
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again.");
+          toast.error("Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -440,18 +433,18 @@ const User = ({
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         setLoader(false);
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Please try again.");
+          toast.error("Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -499,22 +492,22 @@ const User = ({
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            Toast.success("User has been deleted successfully!");
+            toast.success("User has been deleted successfully!");
             getData();
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again.");
+            toast.error("Please try again.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } catch (error) {

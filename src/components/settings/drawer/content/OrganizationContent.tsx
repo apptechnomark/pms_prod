@@ -1,13 +1,14 @@
 /* eslint-disable react/display-name */
 // import { getHeaderOptions } from "@/utils/commonFunction";
 import axios from "axios";
-import { Button, Text, Toast, Typography } from "next-ts-lib";
+import { Button, Text, Typography } from "next-ts-lib";
 import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
   useState,
 } from "react";
+import { toast } from "react-toastify";
 
 export interface OrganizationContentRef {
   clearOrganizationData: () => void;
@@ -166,7 +167,7 @@ const OrganizationContent = forwardRef<
           );
           if (response.data.ResponseStatus === "Success") {
             setResponseData(response.data.ResponseData);
-            Toast.success(
+            toast.success(
               `Organization ${onEdit ? "Updated" : "created"}  successfully!`
             );
             clearOrganizationData();
@@ -178,9 +179,9 @@ const OrganizationContent = forwardRef<
             onChangeLoader(false);
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } catch (error) {
@@ -226,7 +227,7 @@ const OrganizationContent = forwardRef<
           );
           if (response.data.ResponseStatus === "Success") {
             setResponseData(response.data.ResponseData);
-            Toast.success(
+            toast.success(
               `Organization ${onEdit ? "Updated" : "created"}  successfully!`
             );
             clearOrganizationData();
@@ -235,9 +236,9 @@ const OrganizationContent = forwardRef<
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } catch (error) {

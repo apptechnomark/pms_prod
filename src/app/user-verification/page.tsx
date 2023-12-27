@@ -2,11 +2,12 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Button, Loader, Password, Toast } from "next-ts-lib";
+import { Button, Loader, Password } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
 import Footer from "@/components/common/Footer";
 import Pabs from "@/assets/icons/Pabs";
+import { toast } from "react-toastify";
 
 const Page = () => {
   const router = useRouter();
@@ -50,13 +51,13 @@ const Page = () => {
           setMessage(false);
           const data = response.data.Message;
           if (data === null && response.data.ErrorData.ErrorCode === "1003") {
-            Toast.error("Invalid link.");
+            toast.error("Invalid link.");
             router.push("/login");
           } else if (
             data === null &&
             response.data.ErrorData.ErrorCode === "1004"
           ) {
-            Toast.error("Link has been Expired.");
+            toast.error("Link has been Expired.");
             router.push("/login");
           } else {
             router.push("/login");
@@ -66,7 +67,7 @@ const Page = () => {
       } else {
         setShowPass(true);
         setMessage(true);
-        Toast.error("Please try again.");
+        toast.error("Please try again.");
       }
     } catch (error) {
       setMessage(true);
@@ -123,16 +124,16 @@ const Page = () => {
             setPasswordHasError(false);
             setCPasswordHasError(false);
             setClicked(false);
-            Toast.success("Password set successfully.");
+            toast.success("Password set successfully.");
             router.push(`/login`);
           } else {
             setClicked(false);
-            Toast.error(Message || "Please try again.");
+            toast.error(Message || "Please try again.");
           }
         } else {
           setClicked(false);
           const data = response.data.Message;
-          Toast.error(data || "Please try again after some time.");
+          toast.error(data || "Please try again after some time.");
         }
       } catch (error) {
         setClicked(false);

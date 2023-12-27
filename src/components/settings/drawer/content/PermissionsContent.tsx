@@ -1,7 +1,8 @@
 /* eslint-disable react/display-name */
 import axios from "axios";
-import { Button, Radio, Text, Toast } from "next-ts-lib";
+import { Button, Radio, Text } from "next-ts-lib";
 import React, { forwardRef, useImperativeHandle, useState } from "react";
+import { toast } from "react-toastify";
 
 export interface PermissionContentRef {
   clearAllData: () => void;
@@ -62,23 +63,23 @@ const PermissionsContent = forwardRef<
           clearAllData();
           getPermissionDropdown();
           onChangeLoader(false);
-          Toast.success(`Role created successfully.`);
+          toast.success(`Role created successfully.`);
         } else {
           onChangeLoader(false);
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         onChangeLoader(false);
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Failed Please try again.");
+          toast.error("Failed Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {

@@ -8,7 +8,6 @@ import {
   Tel,
   Text,
   Email,
-  Toast,
 } from "next-ts-lib";
 import React, {
   forwardRef,
@@ -16,6 +15,7 @@ import React, {
   useImperativeHandle,
   useState,
 } from "react";
+import { toast } from "react-toastify";
 
 export interface UserContentRef {
   clearAllData: () => void;
@@ -162,17 +162,17 @@ const UserContent = forwardRef<
               } else {
                 const data = response.data.Message;
                 if (data === null) {
-                  Toast.error("Please try again later.");
+                  toast.error("Please try again later.");
                 } else {
-                  Toast.error(data);
+                  toast.error(data);
                 }
               }
             } else {
               const data = response.data.Message;
               if (data === null) {
-                Toast.error("Login failed. Please try again.");
+                toast.error("Login failed. Please try again.");
               } else {
-                Toast.error(data);
+                toast.error(data);
               }
             }
           } catch (error) {
@@ -245,17 +245,17 @@ const UserContent = forwardRef<
             } else {
               const data = response.data.Message;
               if (data === null) {
-                Toast.error("Please try again later.");
+                toast.error("Please try again later.");
               } else {
-                Toast.error(data);
+                toast.error(data);
               }
             }
           } else {
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again.");
+              toast.error("Please try again.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } catch (error) {
@@ -336,7 +336,7 @@ const UserContent = forwardRef<
 
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
-            Toast.success(
+            toast.success(
               `User ${onEdit ? "Updated" : "created"} successfully.`
             );
             await onUserDataFetch();
@@ -350,18 +350,18 @@ const UserContent = forwardRef<
             onChangeLoader(false);
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } else {
           onChangeLoader(false);
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Failed Please try again.");
+            toast.error("Failed Please try again.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } catch (error) {
@@ -439,25 +439,25 @@ const UserContent = forwardRef<
             {
               !addMoreClicked && onClose();
             }
-            Toast.success(
+            toast.success(
               `User ${onEdit ? "Updated" : "created"} successfully.`
             );
           } else {
             onChangeLoader(false);
             const data = response.data.Message;
             if (data === null) {
-              Toast.error("Please try again later.");
+              toast.error("Please try again later.");
             } else {
-              Toast.error(data);
+              toast.error(data);
             }
           }
         } else {
           onChangeLoader(false);
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Failed Please try again.");
+            toast.error("Failed Please try again.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } catch (error) {

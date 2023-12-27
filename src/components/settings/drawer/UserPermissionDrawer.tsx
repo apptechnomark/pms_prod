@@ -1,6 +1,8 @@
+import OverLay from "@/components/common/OverLay";
 import axios from "axios";
-import { Button, CheckBox, Close, DataTable, Toast } from "next-ts-lib";
+import { Button, CheckBox, Close, DataTable } from "next-ts-lib";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 const UserPermissionDrawer = ({
   onOpen,
@@ -9,6 +11,7 @@ const UserPermissionDrawer = ({
   roleId,
   onDataFetch,
 }: any) => {
+  const [isLoadingUserPermission, setIsLoadingUserPermission] = useState(false);
   const [data, setData] = useState<any>([]);
 
   const getData = async () => {
@@ -35,17 +38,17 @@ const UserPermissionDrawer = ({
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Login failed. Please try again.");
+          toast.error("Login failed. Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
       }
     } catch (error) {
@@ -91,6 +94,7 @@ const UserPermissionDrawer = ({
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
     try {
+      setIsLoadingUserPermission(true);
       const response = await axios.post(
         `${process.env.pms_api_url}/Role/SaveUserPermission`,
         {
@@ -109,21 +113,24 @@ const UserPermissionDrawer = ({
 
       if (response.status === 200) {
         if (response.data.ResponseStatus === "Success") {
+          setIsLoadingUserPermission(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
-            Toast.error("Please try again later.");
+            toast.error("Please try again later.");
           } else {
-            Toast.error(data);
+            toast.error(data);
           }
+          setIsLoadingUserPermission(false);
         }
       } else {
         const data = response.data.Message;
         if (data === null) {
-          Toast.error("Failed Please try again.");
+          toast.error("Failed Please try again.");
         } else {
-          Toast.error(data);
+          toast.error(data);
         }
+        setIsLoadingUserPermission(false);
       }
     } catch (error) {
       console.error(error);
@@ -273,39 +280,42 @@ const UserPermissionDrawer = ({
   };
 
   return (
-    <div
-      className={`fixed right-0 top-0 z-30 h-screen overflow-y-auto w-[80vw] border border-lightSilver bg-pureWhite transform  ${
-        onOpen ? "translate-x-0" : "translate-x-full"
-      } transition-transform duration-300 ease-in-out`}
-    >
-      <div className="flex p-[20px] justify-between items-center bg-whiteSmoke border-b border-lightSilver">
-        <span className="text-pureBlack text-lg font-medium">
-          Edit Permission
-        </span>
-        <span onClick={handleClose}>
-          <Close variant="medium" />
-        </span>
+    <>
+      <div
+        className={`fixed right-0 top-0 z-30 h-screen overflow-y-auto w-[80vw] border border-lightSilver bg-pureWhite transform  ${
+          onOpen ? "translate-x-0" : "translate-x-full"
+        } transition-transform duration-300 ease-in-out`}
+      >
+        <div className="flex p-[20px] justify-between items-center bg-whiteSmoke border-b border-lightSilver">
+          <span className="text-pureBlack text-lg font-medium">
+            Edit Permission
+          </span>
+          <span onClick={handleClose}>
+            <Close variant="medium" />
+          </span>
+        </div>
+        <div className="max-h-[75%] overflow-y-auto">
+          {data.length > 0 && (
+            <DataTable
+              noHeader
+              expandable
+              columns={generateColumns(data)}
+              data={tableData}
+            />
+          )}
+        </div>
+        <div className="flex justify-end fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">
+          <Button
+            onClick={handleClose}
+            variant="btn-outline-primary"
+            className="rounded-[4px] !h-[36px] uppercase"
+          >
+            Cancel
+          </Button>
+        </div>
       </div>
-      <div className="max-h-[75%] overflow-y-auto">
-        {data.length > 0 && (
-          <DataTable
-            noHeader
-            expandable
-            columns={generateColumns(data)}
-            data={tableData}
-          />
-        )}
-      </div>
-      <div className="flex justify-end fixed w-full bottom-0 gap-[20px] px-[20px] py-[15px] bg-pureWhite border-t border-lightSilver">
-        <Button
-          onClick={handleClose}
-          variant="btn-outline-primary"
-          className="rounded-[4px] !h-[36px] uppercase"
-        >
-          Cancel
-        </Button>
-      </div>
-    </div>
+      {isLoadingUserPermission ? <OverLay /> : ""}
+    </>
   );
 };
 
