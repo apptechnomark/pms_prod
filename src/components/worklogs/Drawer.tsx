@@ -1059,7 +1059,6 @@ const EditDrawer = ({
       }
     } else {
       toast.error("User don't have permission to Update Recurring.");
-      setDeletedSubTaskWorklogs([]);
       getRecurringDataWorklogs();
     }
   };
@@ -1155,7 +1154,7 @@ const EditDrawer = ({
     callAPI(url, params, successCallback, "POST");
   };
 
-  const handleChangeChecklist = async (
+  const handleChangeChecklistWorklogs = async (
     Category: any,
     IsCheck: any,
     Title: any
@@ -1280,6 +1279,7 @@ const EditDrawer = ({
       }
     } else {
       toast.error("User don't have permission to Update Task.");
+      setCommentSelectWorklogs(1);
       getCommentDataWorklogs(1);
     }
   };
@@ -1332,6 +1332,8 @@ const EditDrawer = ({
         error === false
       ) {
         setCommentDataWorklogs(ResponseData);
+      } else {
+        setCommentDataWorklogs([]);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -1393,6 +1395,7 @@ const EditDrawer = ({
       }
     } else {
       toast.error("User don't have permission to Update Task.");
+      setCommentSelectWorklogs(1);
       getCommentDataWorklogs(1);
     }
   };
@@ -3853,10 +3856,19 @@ const EditDrawer = ({
                           sx={{ mx: 0.75, maxWidth: 300, mt: 0 }}
                         />
                         {index === 0
-                          ? !isIdDisabled && (
+                          ? !isIdDisabled &&
+                            subTaskSwitchWorklogs && (
                               <span
                                 className="cursor-pointer"
-                                onClick={addTaskFieldWorklogs}
+                                onClick={
+                                  hasPermissionWorklog(
+                                    "Task/SubTask",
+                                    "Save",
+                                    "WorkLogs"
+                                  )
+                                    ? () => addTaskFieldWorklogs()
+                                    : undefined
+                                }
                               >
                                 <svg
                                   className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
@@ -3869,7 +3881,8 @@ const EditDrawer = ({
                                 </svg>
                               </span>
                             )
-                          : !isIdDisabled && (
+                          : !isIdDisabled &&
+                            subTaskSwitchWorklogs && (
                               <span
                                 className="cursor-pointer"
                                 onClick={
@@ -3956,7 +3969,7 @@ const EditDrawer = ({
                                           "save",
                                           "WorkLogs"
                                         ) &&
-                                        handleChangeChecklist(
+                                        handleChangeChecklistWorklogs(
                                           i.Category,
                                           e.target.checked,
                                           j.Title
