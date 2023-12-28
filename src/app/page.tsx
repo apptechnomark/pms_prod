@@ -1,8 +1,8 @@
 "use client";
 
+import ReportLoader from "@/components/common/ReportLoader";
 import { handleLogoutUtil, hasPermissionWorklog } from "@/utils/commonFunction";
 import axios from "axios";
-import { Spinner } from "next-ts-lib";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
@@ -141,7 +141,7 @@ const Home = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <Spinner size="40px" />
+      <ReportLoader />
     </div>
   );
 };

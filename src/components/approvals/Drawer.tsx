@@ -86,41 +86,210 @@ const EditDrawer = ({
 }: any) => {
   const router = useRouter();
   const yearDropdown = getYears();
+  const [userId, setUserId] = useState(0);
   const [isLoadingWorklog, setIsLoadingWorklog] = useState(false);
   const [inputTypeReview, setInputTypeReview] = useState("text");
   const [inputTypePreperation, setInputTypePreperation] = useState("text");
-
-  const [taskDrawer, setTaskDrawer] = useState(true);
-  const [subTaskDrawer, setSubTaskDrawer] = useState(true);
-  const [recurringDrawer, setRecurringDrawer] = useState(true);
-  const [manualTimeDrawer, setManualTimeDrawer] = useState(true);
-  const [reminderDrawer, setReminderDrawer] = useState(true);
-  const [checkListDrawer, setCheckListDrawer] = useState(true);
-  const [commentsDrawer, setCommentsDrawer] = useState(true);
-  const [reasonDrawer, setReasonDrawer] = useState(true);
-  const [reviewerErrDrawer, setReviewerErrDrawer] = useState(true);
   const [editData, setEditData] = useState<any>([]);
   const [isCreatedByClient, setIsCreatedByClient] = useState(false);
-
-  // Dropdowns
-  const [clientDropdownData, setClientDropdownData] = useState([]);
-  const [workTypeDropdownData, setWorkTypeDropdownData] = useState([]);
-  const [projectDropdownData, setProjectDropdownData] = useState([]);
-  const [processDropdownData, setProcessDropdownData] = useState([]);
-  const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
-  const [statusDropdownData, setStatusDropdownData] = useState<any>([]);
-  const [statusDropdownDataUse, setStatusDropdownDataUse] = useState<any>([]);
-  const [assigneeDropdownData, setAssigneeDropdownData] = useState<any>([]);
-  const [reviewerDropdownData, setReviewerDropdownData] = useState([]);
-  const [cCDropdownData, setCCDropdownData] = useState<any>([]);
-  const [managerDropdownData, setManagerDropdownData] = useState<any>([]);
-
-  const [selectedDays, setSelectedDays] = useState<any>([]);
   const [isManual, setIsManual] = useState(null);
-  const [manualSwitch, setManualSwitch] = useState(false);
-  const [manualSubmitDisable, setManualSubmitDisable] = useState(true);
   const [isPartiallySubmitted, setIsPartiallySubmitted] =
     useState<boolean>(false);
+
+  const toggleColor = (index: any) => {
+    if (selectedDays.includes(index)) {
+      setSelectedDays(
+        selectedDays.filter((dayIndex: any) => dayIndex !== index)
+      );
+    } else {
+      setSelectedDays([...selectedDays, index]);
+    }
+  };
+
+  let Task = [
+    hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "Task",
+    hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "Sub-Task",
+    hasPermissionWorklog("CheckList", "View", "WorkLogs") && "Checklist",
+    hasPermissionWorklog("Comment", "View", "WorkLogs") && "Comments",
+    hasPermissionWorklog("Reccuring", "View", "WorkLogs") && "Recurring",
+    (isManual === true || isManual === null) && "Manual Time",
+    isPartiallySubmitted && "Reviewer Manual Time",
+    hasPermissionWorklog("Reminder", "View", "WorkLogs") && "Reminder",
+    hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && "Error Logs",
+    "Reviewer's Note",
+    "Logs",
+  ];
+
+  useEffect(() => {
+    scrollToPanel(
+      (isManual === null || isManual === true) && isPartiallySubmitted
+        ? 8
+        : isManual === null || isManual === true
+        ? 7
+        : isPartiallySubmitted
+        ? 7
+        : 0
+    );
+    if (hasIconIndex > 0) {
+      setIsPartiallySubmitted(true);
+      scrollToPanel(isManual === null || isManual === true ? 6 : 5);
+    }
+    onComment === true ? scrollToPanel(3) : scrollToPanel(0);
+    onErrorLog === true
+      ? scrollToPanel(
+          isManual === null || isManual === true
+            ? 8
+            : isPartiallySubmitted
+            ? 8
+            : 7
+        )
+      : scrollToPanel(0);
+    onManualTime === true
+      ? scrollToPanel(isManual === null || isManual === true ? 6 : 5)
+      : scrollToPanel(0);
+  }, [onEdit, onComment, onErrorLog, onManualTime]);
+
+  const handleTabClick = (index: number) => {
+    scrollToPanel(index);
+  };
+
+  const scrollToPanel = (index: number) => {
+    const panel = document.getElementById(`tabpanel-${index}`);
+    if (panel) {
+      panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleMultiSelect = (e: React.SyntheticEvent, value: any) => {
+    if (value !== undefined) {
+      setReminderNotification(value);
+    } else {
+      setReminderNotification([]);
+    }
+  };
+
+  const handleMultiSelectMonth = (e: React.SyntheticEvent, value: any) => {
+    if (value !== undefined) {
+      setRecurringMonth(value);
+    } else {
+      setRecurringMonth([]);
+    }
+  };
+
+  const validateField = (value: any) => {
+    if (
+      value === 0 ||
+      value === "" ||
+      value === null ||
+      (Array.isArray(value) && value.length === 0)
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  // Task
+  const [taskApprovalsDrawer, setTaskApprovalsDrawer] = useState(true);
+  const [clientApprovalsDropdownData, setClientApprovalsDropdownData] =
+    useState([]);
+  const [clientNameApprovals, setClientNameApprovals] = useState<any>(0);
+  const [clientNameApprovalsErr, setClientNameApprovalsErr] = useState(false);
+  const [workTypeApprovalsDropdownData, setWorkTypeApprovalsDropdownData] =
+    useState([]);
+  const [typeOfWorkApprovals, setTypeOfWorkApprovals] = useState<
+    string | number
+  >(0);
+  const [typeOfWorkApprovalsErr, setTypeOfWorkApprovalsErr] = useState(false);
+  const [projectApprovalsDropdownData, setProjectApprovalsDropdownData] =
+    useState([]);
+  const [projectNameApprovals, setProjectNameApprovals] = useState<any>(0);
+  const [projectNameApprovalsErr, setProjectNameApprovalsErr] = useState(false);
+  const [processApprovalsDropdownData, setProcessApprovalsDropdownData] =
+    useState([]);
+  const [processNameApprovals, setProcessNameApprovals] = useState<any>(0);
+  const [processNameApprovalsErr, setProcessNameApprovalsErr] = useState(false);
+  const [subProcessApprovalsDropdownData, setSubProcessApprovalsDropdownData] =
+    useState([]);
+  const [subProcessApprovals, setSubProcessApprovals] = useState<any>(0);
+  const [subProcessApprovalsErr, setSubProcessApprovalsErr] = useState(false);
+  const [statusApprovalsDropdownData, setStatusApprovalsDropdownData] =
+    useState<any>([]);
+  const [statusApprovalsDropdownDataUse, setStatusApprovalsDropdownDataUse] =
+    useState<any>([]);
+  const [statusApprovals, setStatusApprovals] = useState<any>(0);
+  const [statusApprovalsErr, setStatusApprovalsErr] = useState(false);
+  const [assigneeApprovalsDropdownData, setAssigneeApprovalsDropdownData] =
+    useState<any>([]);
+  const [assigneeApprovals, setAssigneeApprovals] = useState<any>([]);
+  const [assigneeApprovalsErr, setAssigneeApprovalsErr] = useState(false);
+  const [reviewerApprovalsDropdownData, setReviewerApprovalsDropdownData] =
+    useState([]);
+  const [reviewerApprovals, setReviewerApprovals] = useState<any>([]);
+  const [reviewerApprovalsErr, setReviewerApprovalsErr] = useState(false);
+  const [managerApprovalsDropdownData, setManagerApprovalsDropdownData] =
+    useState<any>([]);
+  const [managerApprovals, setManagerApprovals] = useState<any>(0);
+  const [managerApprovalsErr, setManagerApprovalsErr] = useState(false);
+  const [clientTaskNameApprovals, setClientTaskNameApprovals] =
+    useState<string>("");
+  const [clientTaskNameApprovalsErr, setClientTaskNameApprovalsErr] =
+    useState(false);
+  const [descriptionApprovals, setDescriptionApprovals] = useState<string>("");
+  const [priorityApprovals, setPriorityApprovals] = useState<string | number>(
+    0
+  );
+  const [quantityApprovals, setQuantityApprovals] = useState<any>(1);
+  const [quantityApprovalsErr, setQuantityApprovalsErr] = useState(false);
+  const [receiverDateApprovals, setReceiverDateApprovals] = useState<any>("");
+  const [receiverDateApprovalsErr, setReceiverDateApprovalsErr] =
+    useState(false);
+  const [dueDateApprovals, setDueDateApprovals] = useState<any>("");
+  const [allInfoDateApprovals, setAllInfoDateApprovals] = useState<any>("");
+  const [dateOfReviewApprovals, setDateOfReviewApprovals] =
+    useState<string>("");
+  const [dateOfPreperationApprovals, setDateOfPreperationApprovals] =
+    useState<string>("");
+  const [assigneeDisableApprovals, setAssigneeDisableApprovals] =
+    useState<any>(true);
+  const [estTimeDataApprovals, setEstTimeDataApprovals] = useState([]);
+  const [returnYearApprovals, setReturnYearApprovals] = useState<
+    string | number
+  >(0);
+  const [returnYearApprovalsErr, setReturnYearApprovalsErr] = useState(false);
+  const [noOfPagesApprovals, setNoOfPagesApprovals] = useState<any>(0);
+  const [checklistWorkpaperApprovals, setChecklistWorkpaperApprovals] =
+    useState<any>(0);
+  const [checklistWorkpaperApprovalsErr, setChecklistWorkpaperApprovalsErr] =
+    useState(false);
+
+  // Sub-Task
+  const [subTaskDrawer, setSubTaskDrawer] = useState(true);
+
+  // Recurring
+  const [recurringDrawer, setRecurringDrawer] = useState(true);
+
+  // ManualTime
+  const [manualTimeDrawer, setManualTimeDrawer] = useState(true);
+
+  // Reminder
+  const [reminderDrawer, setReminderDrawer] = useState(true);
+
+  // Checklist
+  const [checkListDrawer, setCheckListDrawer] = useState(true);
+
+  // Comments
+  const [commentsDrawer, setCommentsDrawer] = useState(true);
+  const [cCDropdownData, setCCDropdownData] = useState<any>([]);
+
+  // Reviewer's Note
+  const [reasonDrawer, setReasonDrawer] = useState(true);
+
+  // ErrorLogs
+  const [reviewerErrDrawer, setReviewerErrDrawer] = useState(true);
+
+  const [selectedDays, setSelectedDays] = useState<any>([]);
+  const [manualSwitch, setManualSwitch] = useState(false);
+  const [manualSubmitDisable, setManualSubmitDisable] = useState(true);
   const [inputDateErrors, setInputDateErrors] = useState([false]);
   const [startTimeErrors, setStartTimeErrors] = useState([false]);
   const [endTimeErrors, setEndTimeErrors] = useState([false]);
@@ -163,7 +332,7 @@ const EditDrawer = ({
 
   const saveReviewerManualTimelog = async () => {
     const local: any = await localStorage.getItem("UserId");
-    if (reviewer === parseInt(local)) {
+    if (reviewerApprovals === parseInt(local)) {
       let hasManualErrors = false;
       const newInputDateErrors = reviewermanualFields.map(
         (field) => manualSwitch && field.inputDate === ""
@@ -234,7 +403,8 @@ const EditDrawer = ({
                       i.startTime,
                     endTime:
                       dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.endTime,
-                    assigneeId: i.AssigneeId === 0 ? assignee : i.AssigneeId,
+                    assigneeId:
+                      i.AssigneeId === 0 ? assigneeApprovals : i.AssigneeId,
                     comment: i.manualDesc,
                   })
               ),
@@ -584,141 +754,26 @@ const EditDrawer = ({
     );
   };
 
-  const toggleColor = (index: any) => {
-    if (selectedDays.includes(index)) {
-      setSelectedDays(
-        selectedDays.filter((dayIndex: any) => dayIndex !== index)
-      );
-    } else {
-      setSelectedDays([...selectedDays, index]);
-    }
-  };
-
-  let Task = [
-    hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "Task",
-    hasPermissionWorklog("Task/SubTask", "View", "WorkLogs") && "Sub-Task",
-    hasPermissionWorklog("CheckList", "View", "WorkLogs") && "Checklist",
-    hasPermissionWorklog("Comment", "View", "WorkLogs") && "Comments",
-    hasPermissionWorklog("Reccuring", "View", "WorkLogs") && "Recurring",
-    (isManual === true || isManual === null) && "Manual Time",
-    isPartiallySubmitted && "Reviewer Manual Time",
-    hasPermissionWorklog("Reminder", "View", "WorkLogs") && "Reminder",
-    hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && "Error Logs",
-    "Reviewer's Note",
-    "Logs",
-  ];
-
-  useEffect(() => {
-    scrollToPanel(
-      (isManual === null || isManual === true) && isPartiallySubmitted
-        ? 8
-        : isManual === null || isManual === true
-        ? 7
-        : isPartiallySubmitted
-        ? 7
-        : 0
-    );
-    if (hasIconIndex > 0) {
-      setIsPartiallySubmitted(true);
-      scrollToPanel(isManual === null || isManual === true ? 6 : 5);
-    }
-    onComment === true ? scrollToPanel(3) : scrollToPanel(0);
-    onErrorLog === true
-      ? scrollToPanel(
-          isManual === null || isManual === true
-            ? 8
-            : isPartiallySubmitted
-            ? 8
-            : 7
-        )
-      : scrollToPanel(0);
-    onManualTime === true
-      ? scrollToPanel(isManual === null || isManual === true ? 6 : 5)
-      : scrollToPanel(0);
-  }, [onEdit, onComment, onErrorLog, onManualTime]);
-
-  const handleTabClick = (index: number) => {
-    scrollToPanel(index);
-  };
-
-  const scrollToPanel = (index: number) => {
-    const panel = document.getElementById(`tabpanel-${index}`);
-    if (panel) {
-      panel.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
-
-  // Task
-  const [clientName, setClientName] = useState<any>(0);
-  const [clientNameErr, setClientNameErr] = useState(false);
-  const [typeOfWork, setTypeOfWork] = useState<string | number>(0);
-  const [typeOfWorkErr, setTypeOfWorkErr] = useState(false);
-  const [projectName, setProjectName] = useState<any>(0);
-  const [projectNameErr, setProjectNameErr] = useState(false);
-  const [clientTaskName, setClientTaskName] = useState<string>("");
-  const [clientTaskNameErr, setClientTaskNameErr] = useState(false);
-  const [processName, setProcessName] = useState<any>(0);
-  const [processNameErr, setProcessNameErr] = useState(false);
-  const [subProcess, setSubProcess] = useState<any>(0);
-  const [subProcessErr, setSubProcessErr] = useState(false);
-  const [manager, setManager] = useState<any>(0);
-  const [managerErr, setManagerErr] = useState(false);
-  const [status, setStatus] = useState<any>(0);
-  const [statusErr, setStatusErr] = useState(false);
-  const [description, setDescription] = useState<string>("");
-  const [priority, setPriority] = useState<string | number>(0);
-  const [quantity, setQuantity] = useState<any>(1);
-  const [quantityErr, setQuantityErr] = useState(false);
-  const [receiverDate, setReceiverDate] = useState<any>("");
-  const [receiverDateErr, setReceiverDateErr] = useState(false);
-  const [dueDate, setDueDate] = useState<any>("");
-  const [dueDateErr, setDueDateErr] = useState(false);
-  const [allInfoDate, setAllInfoDate] = useState<any>("");
-  const [assignee, setAssignee] = useState<any>([]);
-  const [assigneeErr, setAssigneeErr] = useState(false);
-  const [reviewer, setReviewer] = useState<any>([]);
-  const [reviewerErr, setReviewerErr] = useState(false);
-  const [dateOfReview, setDateOfReview] = useState<string>("");
-  const [dateOfPreperation, setDateOfPreperation] = useState<string>("");
-  const [assigneeDisable, setAssigneeDisable] = useState<any>(true);
-  const [estTimeData, setEstTimeData] = useState([]);
-  const [userId, setUserId] = useState(0);
-  const [returnYear, setReturnYear] = useState<string | number>(0);
-  const [returnYearErr, setReturnYearErr] = useState(false);
-  const [noOfPages, setNoOfPages] = useState<any>(0);
-  const [checklistWorkpaper, setChecklistWorkpaper] = useState<any>(0);
-  const [checklistWorkpaperErr, setChecklistWorkpaperErr] = useState(false);
-
-  const validateField = (value: any) => {
-    if (
-      value === 0 ||
-      value === "" ||
-      value === null ||
-      (Array.isArray(value) && value.length === 0)
-    ) {
-      return true;
-    }
-    return false;
-  };
-
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
     const fieldValidations = {
-      clientName: validateField(clientName),
-      typeOfWork: validateField(typeOfWork),
-      projectName: validateField(projectName),
-      processName: validateField(processName),
-      subProcess: validateField(subProcess),
-      clientTaskName: validateField(clientTaskName),
-      quantity: validateField(quantity),
-      receiverDate: validateField(receiverDate),
-      dueDate: validateField(dueDate),
-      assignee: assigneeDisable && validateField(assignee),
-      reviewer: validateField(reviewer),
-      manager: validateField(manager),
-      returnYear: typeOfWork === 3 && validateField(returnYear),
-      checklistWorkpaper: typeOfWork === 3 && validateField(checklistWorkpaper),
+      clientName: validateField(clientNameApprovals),
+      typeOfWork: validateField(typeOfWorkApprovals),
+      projectName: validateField(projectNameApprovals),
+      processName: validateField(processNameApprovals),
+      subProcess: validateField(subProcessApprovals),
+      clientTaskName: validateField(clientTaskNameApprovals),
+      quantity: validateField(quantityApprovals),
+      receiverDate: validateField(receiverDateApprovals),
+      dueDate: validateField(dueDateApprovals),
+      assignee: assigneeDisableApprovals && validateField(assigneeApprovals),
+      reviewer: validateField(reviewerApprovals),
+      manager: validateField(managerApprovals),
+      returnYear:
+        typeOfWorkApprovals === 3 && validateField(returnYearApprovals),
+      checklistWorkpaper:
+        typeOfWorkApprovals === 3 && validateField(checklistWorkpaperApprovals),
       reminderTime: reminderSwitch && validateField(reminderTime),
       reminderNotification:
         reminderSwitch && validateField(reminderNotification),
@@ -728,21 +783,22 @@ const EditDrawer = ({
         validateField(reminderDate),
     };
 
-    setClientNameErr(fieldValidations.clientName);
-    setTypeOfWorkErr(fieldValidations.typeOfWork);
-    setProjectNameErr(fieldValidations.projectName);
-    setProcessNameErr(fieldValidations.processName);
-    setSubProcessErr(fieldValidations.subProcess);
-    setClientTaskNameErr(fieldValidations.clientTaskName);
-    setQuantityErr(fieldValidations.quantity);
-    setReceiverDateErr(fieldValidations.receiverDate);
-    setDueDateErr(fieldValidations.dueDate);
-    assigneeDisable && setAssigneeErr(fieldValidations.assignee);
-    setReviewerErr(fieldValidations.reviewer);
-    setManagerErr(fieldValidations.manager);
-    typeOfWork === 3 && setReturnYearErr(fieldValidations.returnYear);
-    typeOfWork === 3 &&
-      setChecklistWorkpaperErr(fieldValidations.checklistWorkpaper);
+    setClientNameApprovalsErr(fieldValidations.clientName);
+    setTypeOfWorkApprovalsErr(fieldValidations.typeOfWork);
+    setProjectNameApprovalsErr(fieldValidations.projectName);
+    setProcessNameApprovalsErr(fieldValidations.processName);
+    setSubProcessApprovalsErr(fieldValidations.subProcess);
+    setClientTaskNameApprovalsErr(fieldValidations.clientTaskName);
+    setQuantityApprovalsErr(fieldValidations.quantity);
+    setReceiverDateApprovalsErr(fieldValidations.receiverDate);
+    assigneeDisableApprovals &&
+      setAssigneeApprovalsErr(fieldValidations.assignee);
+    setReviewerApprovalsErr(fieldValidations.reviewer);
+    setManagerApprovalsErr(fieldValidations.manager);
+    typeOfWorkApprovals === 3 &&
+      setReturnYearApprovalsErr(fieldValidations.returnYear);
+    typeOfWorkApprovals === 3 &&
+      setChecklistWorkpaperApprovalsErr(fieldValidations.checklistWorkpaper);
     onEdit === 0 &&
       reminderSwitch &&
       setReminderTimeErr(fieldValidations.reminderTime);
@@ -755,35 +811,35 @@ const EditDrawer = ({
       setReminderDateErr(fieldValidations.reminderDate);
 
     onEdit === 0 &&
-      receiverDate.length > 0 &&
-      dueDate.length > 0 &&
-      setDueDateErr(dayjs(receiverDate) > dayjs(dueDate));
-    setClientTaskNameErr(
-      clientTaskName.trim().length < 4 || clientTaskName.trim().length > 50
-    );
-    setQuantityErr(
-      quantity.length <= 0 ||
-        quantity.length > 4 ||
-        quantity <= 0 ||
-        quantity.toString().includes(".")
+      receiverDateApprovals.length > 0 &&
+      setClientTaskNameApprovalsErr(
+        clientTaskNameApprovals.trim().length < 4 ||
+          clientTaskNameApprovals.trim().length > 50
+      );
+    setQuantityApprovalsErr(
+      quantityApprovals.length <= 0 ||
+        quantityApprovals.length > 4 ||
+        quantityApprovals <= 0 ||
+        quantityApprovals.toString().includes(".")
     );
 
     const fieldValidationsEdit = {
-      clientName: validateField(clientName),
-      typeOfWork: validateField(typeOfWork),
-      projectName: validateField(projectName),
-      processName: validateField(processName),
-      subProcess: validateField(subProcess),
-      clientTaskName: validateField(clientTaskName),
-      status: validateField(status),
-      quantity: validateField(quantity),
-      receiverDate: validateField(receiverDate),
-      dueDate: validateField(dueDate),
-      assignee: validateField(assignee),
-      reviewer: validateField(reviewer),
-      manager: validateField(manager),
-      returnYear: typeOfWork === 3 && validateField(returnYear),
-      checklistWorkpaper: typeOfWork === 3 && validateField(checklistWorkpaper),
+      clientName: validateField(clientNameApprovals),
+      typeOfWork: validateField(typeOfWorkApprovals),
+      projectName: validateField(projectNameApprovals),
+      processName: validateField(processNameApprovals),
+      subProcess: validateField(subProcessApprovals),
+      clientTaskName: validateField(clientTaskNameApprovals),
+      status: validateField(statusApprovals),
+      quantity: validateField(quantityApprovals),
+      receiverDate: validateField(receiverDateApprovals),
+      assignee: validateField(assigneeApprovals),
+      reviewer: validateField(reviewerApprovals),
+      manager: validateField(managerApprovals),
+      returnYear:
+        typeOfWorkApprovals === 3 && validateField(returnYearApprovals),
+      checklistWorkpaper:
+        typeOfWorkApprovals === 3 && validateField(checklistWorkpaperApprovals),
     };
 
     const hasEditErrors = Object.values(fieldValidationsEdit).some(
@@ -792,39 +848,39 @@ const EditDrawer = ({
 
     const data = {
       WorkItemId: onEdit > 0 ? onEdit : 0,
-      ClientId: clientName,
-      WorkTypeId: typeOfWork,
-      taskName: clientTaskName,
-      ProjectId: projectName === 0 ? null : projectName,
-      ProcessId: processName === 0 ? null : processName,
-      SubProcessId: subProcess === 0 ? null : subProcess,
-      StatusId: status,
-      Priority: priority === 0 ? 0 : priority,
-      Quantity: quantity,
+      ClientId: clientNameApprovals,
+      WorkTypeId: typeOfWorkApprovals,
+      taskName: clientTaskNameApprovals,
+      ProjectId: projectNameApprovals === 0 ? null : projectNameApprovals,
+      ProcessId: processNameApprovals === 0 ? null : processNameApprovals,
+      SubProcessId: subProcessApprovals === 0 ? null : subProcessApprovals,
+      StatusId: statusApprovals,
+      Priority: priorityApprovals === 0 ? 0 : priorityApprovals,
+      Quantity: quantityApprovals,
       Description:
-        description.toString().length <= 0
+        descriptionApprovals.toString().length <= 0
           ? null
-          : description.toString().trim(),
-      ReceiverDate: dayjs(receiverDate).format("YYYY/MM/DD"),
-      DueDate: dayjs(dueDate).format("YYYY/MM/DD"),
-      allInfoDate: allInfoDate === "" ? null : allInfoDate,
-      AssignedId: assignee,
-      ReviewerId: reviewer,
-      managerId: manager,
+          : descriptionApprovals.toString().trim(),
+      ReceiverDate: dayjs(receiverDateApprovals).format("YYYY/MM/DD"),
+      DueDate: dayjs(dueDateApprovals).format("YYYY/MM/DD"),
+      allInfoDate: allInfoDateApprovals === "" ? null : allInfoDateApprovals,
+      AssignedId: assigneeApprovals,
+      ReviewerId: reviewerApprovals,
+      managerId: managerApprovals,
       TaxReturnType: null,
       TaxCustomFields:
-        typeOfWork !== 3
+        typeOfWorkApprovals !== 3
           ? null
           : {
-              ReturnYear: returnYear,
+              ReturnYear: returnYearApprovals,
               Complexity: null,
               CountYear: null,
-              NoOfPages: noOfPages,
+              NoOfPages: noOfPagesApprovals,
             },
       checklistWorkpaper:
-        checklistWorkpaper === 1
+        checklistWorkpaperApprovals === 1
           ? true
-          : checklistWorkpaper === 2
+          : checklistWorkpaperApprovals === 2
           ? false
           : null,
       ManualTimeList: null,
@@ -855,7 +911,7 @@ const EditDrawer = ({
               `Worklog ${onEdit > 0 ? "Updated" : "created"} successfully.`
             );
             onEdit > 0 && getEditData();
-            onEdit > 0 && typeOfWork === 3 && getCheckListData();
+            onEdit > 0 && typeOfWorkApprovals === 3 && getCheckListData();
             onEdit === 0 && onClose();
             onEdit === 0 && handleClose();
             setIsLoadingWorklog(false);
@@ -889,13 +945,12 @@ const EditDrawer = ({
     if (
       onEdit > 0 &&
       !hasEditErrors &&
-      clientTaskName.trim().length > 3 &&
-      clientTaskName.trim().length < 50 &&
-      !dueDateErr &&
-      quantity > 0 &&
-      quantity < 10000 &&
-      !quantityErr &&
-      !quantity.toString().includes(".")
+      clientTaskNameApprovals.trim().length > 3 &&
+      clientTaskNameApprovals.trim().length < 50 &&
+      quantityApprovals > 0 &&
+      quantityApprovals < 10000 &&
+      !quantityApprovalsErr &&
+      !quantityApprovals.toString().includes(".")
     ) {
       if (hasPermissionWorklog("Task/SubTask", "Save", "WorkLogs")) {
         saveWorklog();
@@ -1519,22 +1574,6 @@ const EditDrawer = ({
     }
   };
 
-  const handleMultiSelect = (e: React.SyntheticEvent, value: any) => {
-    if (value !== undefined) {
-      setReminderNotification(value);
-    } else {
-      setReminderNotification([]);
-    }
-  };
-
-  const handleMultiSelectMonth = (e: React.SyntheticEvent, value: any) => {
-    if (value !== undefined) {
-      setRecurringMonth(value);
-    } else {
-      setRecurringMonth([]);
-    }
-  };
-
   // OnEdit get data
   const getWorklogData = async () => {
     const token = await localStorage.getItem("token");
@@ -1755,7 +1794,7 @@ const EditDrawer = ({
           setReminderTime(data.ReminderTime);
           setReminderNotification(
             data.ReminderUserIds.map((reminderUserId: any) =>
-              assigneeDropdownData.find(
+              assigneeApprovalsDropdownData.find(
                 (assignee: { value: any }) => assignee.value === reminderUserId
               )
             ).filter(Boolean)
@@ -2023,121 +2062,105 @@ const EditDrawer = ({
   };
 
   const getEditData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/getbyid`,
-        {
-          WorkitemId: onEdit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          const data = await response.data.ResponseData;
-          setEditData(data);
-          setIsCreatedByClient(data.IsCreatedByClient);
-          setIsManual(data.IsManual);
-          setClientName(data.ClientId);
-          setTypeOfWork(data.WorkTypeId);
-          setProjectName(data.ProjectId);
-          setProcessName(data.ProcessId);
-          setSubProcess(data.SubProcessId);
-          setClientTaskName(data.TaskName === null ? "" : data.TaskName);
-          setStatus(data.StatusId);
-          setAllInfoDate(data.AllInfoDate === null ? "" : data.AllInfoDate);
-          !data.ErrorlogSignedOffPending
-            ? setStatusDropdownDataUse(
-                statusDropdownData.filter(
-                  (item: any) =>
-                    item.Type === "Rework" ||
-                    item.Type === "InReview" ||
-                    item.Type === "Submitted" ||
-                    item.Type === "Accept" ||
-                    item.Type === "AcceptWithNotes" ||
-                    item.Type === "OnHoldFromClient" ||
-                    item.Type === "WithDraw" ||
-                    item.Type === "WithdrawnbyClient" ||
-                    item.value == data.StatusId
-                )
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/getbyid`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setEditData(ResponseData);
+        setIsCreatedByClient(ResponseData.IsCreatedByClient);
+        setIsManual(ResponseData.IsManual);
+        setClientNameApprovals(ResponseData.ClientId);
+        setTypeOfWorkApprovals(ResponseData.WorkTypeId);
+        setProjectNameApprovals(ResponseData.ProjectId);
+        setProcessNameApprovals(ResponseData.ProcessId);
+        setSubProcessApprovals(ResponseData.SubProcessId);
+        setClientTaskNameApprovals(
+          ResponseData.TaskName === null ? "" : ResponseData.TaskName
+        );
+        setStatusApprovals(ResponseData.StatusId);
+        setAllInfoDateApprovals(
+          ResponseData.AllInfoDate === null ? "" : ResponseData.AllInfoDate
+        );
+        !ResponseData.ErrorlogSignedOffPending
+          ? setStatusApprovalsDropdownDataUse(
+              statusApprovalsDropdownData.filter(
+                (item: any) =>
+                  item.Type === "Rework" ||
+                  item.Type === "InReview" ||
+                  item.Type === "Submitted" ||
+                  item.Type === "Accept" ||
+                  item.Type === "AcceptWithNotes" ||
+                  item.Type === "OnHoldFromClient" ||
+                  item.Type === "WithDraw" ||
+                  item.Type === "WithdrawnbyClient" ||
+                  item.value == ResponseData.StatusId
               )
-            : setStatusDropdownDataUse(
-                statusDropdownData.filter(
-                  (item: any) =>
-                    item.Type === "Rework In Review" ||
-                    item.Type === "ReworkSubmitted" ||
-                    item.Type === "ReworkAccept" ||
-                    item.Type === "ReworkAcceptWithNotes" ||
-                    item.Type === "OnHoldFromClient" ||
-                    item.Type === "WithDraw" ||
-                    item.Type === "WithdrawnbyClient" ||
-                    item.value == data.StatusId
-                )
-              );
-          setPriority(data.Priority);
-          setQuantity(data.Quantity);
-          setDescription(data.Description === null ? "" : data.Description);
-          setReceiverDate(data.ReceiverDate);
-          setDueDate(data.DueDate);
-          setDateOfReview(data.ReviewerDate);
-          setDateOfPreperation(data.PreparationDate);
-          setAssignee(data.AssignedId);
-          setReviewer(data.ReviewerId);
-          setManager(data.ManagerId === null ? 0 : data.ManagerId);
-          setReturnYear(
-            data.TypeOfReturnId === 0 ? null : data.TaxCustomFields.ReturnYear
-          );
-          setNoOfPages(
-            data.TypeOfReturnId === 0 ? null : data.TaxCustomFields.NoOfPages
-          );
-          setChecklistWorkpaper(
-            data.ChecklistWorkpaper === true
-              ? 1
-              : data.ChecklistWorkpaper === false
-              ? 2
-              : 0
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+            )
+          : setStatusApprovalsDropdownDataUse(
+              statusApprovalsDropdownData.filter(
+                (item: any) =>
+                  item.Type === "Rework In Review" ||
+                  item.Type === "ReworkSubmitted" ||
+                  item.Type === "ReworkAccept" ||
+                  item.Type === "ReworkAcceptWithNotes" ||
+                  item.Type === "OnHoldFromClient" ||
+                  item.Type === "WithDraw" ||
+                  item.Type === "WithdrawnbyClient" ||
+                  item.value == ResponseData.StatusId
+              )
+            );
+        setPriorityApprovals(ResponseData.Priority);
+        setQuantityApprovals(ResponseData.Quantity);
+        setDescriptionApprovals(
+          ResponseData.Description === null ? "" : ResponseData.Description
+        );
+        setReceiverDateApprovals(ResponseData.ReceiverDate);
+        setDueDateApprovals(ResponseData.DueDate);
+        setDateOfReviewApprovals(ResponseData.ReviewerDate);
+        setDateOfPreperationApprovals(ResponseData.PreparationDate);
+        setAssigneeApprovals(ResponseData.AssignedId);
+        setReviewerApprovals(ResponseData.ReviewerId);
+        setManagerApprovals(
+          ResponseData.ManagerId === null ? 0 : ResponseData.ManagerId
+        );
+        setReturnYearApprovals(
+          ResponseData.TypeOfReturnId === 0
+            ? null
+            : ResponseData.TaxCustomFields.ReturnYear
+        );
+        setNoOfPagesApprovals(
+          ResponseData.TypeOfReturnId === 0
+            ? null
+            : ResponseData.TaxCustomFields.NoOfPages
+        );
+        setChecklistWorkpaperApprovals(
+          ResponseData.ChecklistWorkpaper === true
+            ? 1
+            : ResponseData.ChecklistWorkpaper === false
+            ? 2
+            : 0
+        );
       }
-    } catch (error: any) {
-      if (error.response && error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
     const getData = async () => {
       const statusData = await getStatusDropdownData();
 
-      await setStatusDropdownData(statusData);
+      await setStatusApprovalsDropdownData(statusData);
       await setCCDropdownData(await getCCDropdownData());
     };
 
-    onOpen && statusDropdownData.length === 0 && getData();
-    if (onEdit > 0 && statusDropdownData.length > 0) {
+    onOpen && statusApprovalsDropdownData.length === 0 && getData();
+    if (onEdit > 0 && statusApprovalsDropdownData.length > 0) {
       getEditData();
       getWorklogData();
       getRecurringData();
@@ -2148,11 +2171,11 @@ const EditDrawer = ({
       getReviewerNoteData();
       getLogsDataWorklogs();
     }
-  }, [onEdit, statusDropdownData]);
+  }, [onEdit, statusApprovalsDropdownData]);
 
   useEffect(() => {
-    onEdit > 0 && assigneeDropdownData.length > 0 && getErrorLogData();
-  }, [assigneeDropdownData]);
+    onEdit > 0 && assigneeApprovalsDropdownData.length > 0 && getErrorLogData();
+  }, [assigneeApprovalsDropdownData]);
 
   // Error Logs
   const [errorLogFields, setErrorLogFields] = useState([
@@ -2520,7 +2543,9 @@ const EditDrawer = ({
         { headers: headers }
       );
       if (response.status === 200) {
-        setAssigneeDisable(response.data.ResponseData.IsHaveManageAssignee);
+        setAssigneeDisableApprovals(
+          response.data.ResponseData.IsHaveManageAssignee
+        );
         setUserId(response.data.ResponseData.UserId);
       }
     } catch (error: any) {
@@ -2534,110 +2559,129 @@ const EditDrawer = ({
   useEffect(() => {
     const getData = async () => {
       getUserDetails();
-      setClientDropdownData(await getClientDropdownData());
-      setManagerDropdownData(await getManagerDropdownData());
-      clientName > 0 &&
-        setWorkTypeDropdownData(await getTypeOfWorkDropdownData(clientName));
-      clientName > 0 &&
-        setProjectDropdownData(await getProjectDropdownData(clientName));
+      setClientApprovalsDropdownData(await getClientDropdownData());
+      setManagerApprovalsDropdownData(await getManagerDropdownData());
+      clientNameApprovals > 0 &&
+        setWorkTypeApprovalsDropdownData(
+          await getTypeOfWorkDropdownData(clientNameApprovals)
+        );
+      clientNameApprovals > 0 &&
+        setProjectApprovalsDropdownData(
+          await getProjectDropdownData(clientNameApprovals)
+        );
       const processData: any =
-        clientName > 0 && (await getProcessDropdownData(clientName));
-      setProcessDropdownData(
+        clientNameApprovals > 0 &&
+        (await getProcessDropdownData(clientNameApprovals));
+      setProcessApprovalsDropdownData(
         processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
       );
     };
 
     onOpen && getData();
-  }, [clientName, onOpen]);
+  }, [clientNameApprovals, onOpen]);
 
   useEffect(() => {
     const getData = async () => {
       onEdit > 0 &&
         setCommentUserData(
           await getCommentUserDropdownData({
-            ClientId: clientName,
+            ClientId: clientNameApprovals,
             GetClientUser: commentSelect === 2 ? true : false,
           })
         );
     };
 
     onOpen && getData();
-  }, [clientName, commentSelect]);
+  }, [clientNameApprovals, commentSelect]);
 
   useEffect(() => {
     const getData = async () => {
       const data: any =
-        processName !== 0 &&
-        (await getSubProcessDropdownData(clientName, processName));
-      data.length > 0 && setEstTimeData(data);
+        processNameApprovals !== 0 &&
+        (await getSubProcessDropdownData(
+          clientNameApprovals,
+          processNameApprovals
+        ));
+      data.length > 0 && setEstTimeDataApprovals(data);
       data.length > 0 &&
-        setSubProcessDropdownData(
+        setSubProcessApprovalsDropdownData(
           data.map((i: any) => new Object({ label: i.Name, value: i.Id }))
         );
     };
 
     getData();
-  }, [processName]);
+  }, [processNameApprovals]);
 
   useEffect(() => {
     const getData = async () => {
       const assigneeData = await getAssigneeDropdownData(
-        clientName,
-        typeOfWork
+        clientNameApprovals,
+        typeOfWorkApprovals
       );
-      assigneeData.length > 0 && setAssigneeDropdownData(assigneeData);
-      setReviewerDropdownData(
-        await getReviewerDropdownData(clientName, typeOfWork)
+      assigneeData.length > 0 && setAssigneeApprovalsDropdownData(assigneeData);
+      setReviewerApprovalsDropdownData(
+        await getReviewerDropdownData(clientNameApprovals, typeOfWorkApprovals)
       );
     };
 
-    typeOfWork !== 0 && getData();
-  }, [typeOfWork, clientName]);
+    typeOfWorkApprovals !== 0 && getData();
+  }, [typeOfWorkApprovals, clientNameApprovals]);
 
   const handleClose = () => {
+    // Common
     setIsLoadingWorklog(false);
     setEditData([]);
     setIsCreatedByClient(false);
     setUserId(0);
-    setClientName(0);
-    setClientNameErr(false);
-    setTypeOfWork(0);
-    setTypeOfWorkErr(false);
-    setProjectName(0);
-    setProjectNameErr(false);
-    setClientTaskName("");
-    setClientTaskNameErr(false);
-    setProcessName(0);
-    setProcessNameErr(false);
-    setSubProcess(0);
-    setSubProcessErr(false);
-    setManager(0);
-    setManagerErr(false);
-    setStatus(0);
-    setStatusErr(false);
-    setDescription("");
-    setPriority(0);
-    setQuantity(1);
-    setQuantityErr(false);
-    setReceiverDate("");
-    setReceiverDateErr(false);
-    setDueDate("");
-    setDueDateErr(false);
-    setAllInfoDate("");
-    setAssignee(0);
-    setAssigneeErr(false);
-    setAssigneeDisable(true);
-    setReviewer(0);
-    setReviewerErr(false);
-    setDateOfReview("");
-    setDateOfPreperation("");
-    setAssigneeDisable(true);
-    setEstTimeData([]);
-    setReturnYear(0);
-    setReturnYearErr(false);
-    setNoOfPages(0);
-    setChecklistWorkpaper(0);
-    setChecklistWorkpaperErr(false);
+    scrollToPanel(0);
+    onDataFetch();
+
+    // Task
+    setClientApprovalsDropdownData([]);
+    setClientNameApprovals(0);
+    setClientNameApprovalsErr(false);
+    setWorkTypeApprovalsDropdownData([]);
+    setTypeOfWorkApprovals(0);
+    setTypeOfWorkApprovalsErr(false);
+    setProjectApprovalsDropdownData([]);
+    setProjectNameApprovals(0);
+    setProjectNameApprovalsErr(false);
+    setClientTaskNameApprovals("");
+    setClientTaskNameApprovalsErr(false);
+    setProcessApprovalsDropdownData([]);
+    setProcessNameApprovals(0);
+    setProcessNameApprovalsErr(false);
+    setSubProcessApprovalsDropdownData([]);
+    setSubProcessApprovals(0);
+    setSubProcessApprovalsErr(false);
+    setManagerApprovals(0);
+    setManagerApprovalsErr(false);
+    setStatusApprovalsDropdownDataUse([]);
+    setStatusApprovals(0);
+    setStatusApprovalsErr(false);
+    setDescriptionApprovals("");
+    setPriorityApprovals(0);
+    setQuantityApprovals(1);
+    setQuantityApprovalsErr(false);
+    setReceiverDateApprovals("");
+    setReceiverDateApprovalsErr(false);
+    setDueDateApprovals("");
+    setAllInfoDateApprovals("");
+    setAssigneeApprovalsDropdownData([]);
+    setAssigneeApprovals(0);
+    setAssigneeApprovalsErr(false);
+    setAssigneeDisableApprovals(true);
+    setReviewerApprovalsDropdownData([]);
+    setReviewerApprovals(0);
+    setReviewerApprovalsErr(false);
+    setDateOfReviewApprovals("");
+    setDateOfPreperationApprovals("");
+    setEstTimeDataApprovals([]);
+    setReturnYearApprovals(0);
+    setReturnYearApprovalsErr(false);
+    setNoOfPagesApprovals(0);
+    setChecklistWorkpaperApprovals(0);
+    setChecklistWorkpaperApprovalsErr(false);
 
     // Sub-Task
     setSubTaskSwitch(false);
@@ -2773,22 +2817,8 @@ const EditDrawer = ({
     setRemarkErr([false]);
     setDeletedErrorLog([]);
 
-    // Dropdown
-    setClientDropdownData([]);
-    setWorkTypeDropdownData([]);
-    setProjectDropdownData([]);
-    setProcessDropdownData([]);
-    setSubProcessDropdownData([]);
-    setStatusDropdownDataUse([]);
-    setAssigneeDropdownData([]);
-    setReviewerDropdownData([]);
-
     // Logs
     setLogsDateWorklogs([]);
-
-    // Others
-    scrollToPanel(0);
-    onDataFetch();
 
     if (typeof window !== "undefined") {
       const pathname = window.location.href.includes("id=");
@@ -2849,49 +2879,55 @@ const EditDrawer = ({
                     )}
                     <span
                       className={`cursor-pointer ${
-                        taskDrawer ? "rotate-180" : ""
+                        taskApprovalsDrawer ? "rotate-180" : ""
                       }`}
-                      onClick={() => setTaskDrawer(!taskDrawer)}
+                      onClick={() =>
+                        setTaskApprovalsDrawer(!taskApprovalsDrawer)
+                      }
                     >
                       <ChevronDownIcon />
                     </span>
                   </div>
                 </div>
-                {taskDrawer && (
+                {taskApprovalsDrawer && (
                   <Grid container className="px-8">
                     <Grid item xs={3} className="pt-4">
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={clientDropdownData}
+                        options={clientApprovalsDropdownData}
                         value={
-                          clientDropdownData.find(
-                            (i: any) => i.value === clientName
+                          clientApprovalsDropdownData.find(
+                            (i: any) => i.value === clientNameApprovals
                           ) || null
                         }
                         onChange={(e, value: any) => {
-                          value && setClientName(value.value);
-                          setTypeOfWorkErr(false);
-                          setProjectName(0);
-                          setProjectNameErr(false);
-                          setProcessName(0);
-                          setProcessNameErr(false);
-                          setSubProcess(0);
-                          setSubProcessErr(false);
-                          setDescription("");
-                          setManager(0);
-                          setManagerErr(false);
-                          setPriority(0);
-                          setQuantity(1);
-                          setQuantityErr(false);
-                          setReceiverDate("");
-                          setReceiverDateErr(false);
-                          setDueDate("");
-                          setDueDateErr(false);
-                          assigneeDisable && setAssignee(0);
-                          assigneeDisable && setAssigneeErr(false);
-                          setReviewer(0);
-                          setReviewerErr(false);
+                          value && setClientNameApprovals(value.value);
+                          setTypeOfWorkApprovals(0);
+                          setTypeOfWorkApprovalsErr(false);
+                          setProjectNameApprovals(0);
+                          setProjectNameApprovalsErr(false);
+                          setProcessNameApprovals(0);
+                          setProcessNameApprovalsErr(false);
+                          setSubProcessApprovals(0);
+                          setSubProcessApprovalsErr(false);
+                          setDescriptionApprovals("");
+                          setManagerApprovals(0);
+                          setManagerApprovalsErr(false);
+                          setPriorityApprovals(0);
+                          setQuantityApprovals(1);
+                          setQuantityApprovalsErr(false);
+                          setReceiverDateApprovals("");
+                          setReceiverDateApprovalsErr(false);
+                          setDueDateApprovals("");
+                          assigneeDisableApprovals && setAssigneeApprovals(0);
+                          assigneeDisableApprovals &&
+                            setAssigneeApprovalsErr(false);
+                          setReviewerApprovals(0);
+                          setReviewerApprovalsErr(false);
+                          setReturnYearApprovals(0);
+                          setNoOfPagesApprovals(0);
+                          setChecklistWorkpaperApprovals(0);
                         }}
                         disabled={isCreatedByClient && editData.ClientId > 0}
                         sx={{ mx: 0.75, width: 300 }}
@@ -2905,14 +2941,16 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={clientNameErr}
+                            error={clientNameApprovalsErr}
                             onBlur={(e) => {
-                              if (clientName > 0) {
-                                setClientNameErr(false);
+                              if (clientNameApprovals > 0) {
+                                setClientNameApprovalsErr(false);
                               }
                             }}
                             helperText={
-                              clientNameErr ? "This is a required field." : ""
+                              clientNameApprovalsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
@@ -2922,7 +2960,7 @@ const EditDrawer = ({
                       <FormControl
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -0.3 }}
-                        error={typeOfWorkErr}
+                        error={typeOfWorkApprovalsErr}
                         disabled={isCreatedByClient && editData.WorkTypeId > 0}
                       >
                         <InputLabel id="demo-simple-select-standard-label">
@@ -2932,47 +2970,35 @@ const EditDrawer = ({
                         <Select
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
-                          value={typeOfWork === 0 ? "" : typeOfWork}
+                          value={
+                            typeOfWorkApprovals === 0 ? "" : typeOfWorkApprovals
+                          }
                           onChange={(e) => {
-                            setProjectName(0);
-                            setProjectNameErr(false);
-                            setProcessName(0);
-                            setProcessNameErr(false);
-                            setSubProcess(0);
-                            setSubProcessErr(false);
-                            setDescription("");
-                            setManager(0);
-                            setManagerErr(false);
-                            setPriority(0);
-                            setQuantity(1);
-                            setQuantityErr(false);
-                            setReceiverDate("");
-                            setReceiverDateErr(false);
-                            setDueDate("");
-                            setDueDateErr(false);
-                            assigneeDisable && setAssignee(0);
-                            assigneeDisable && setAssigneeErr(false);
-                            setReviewer(0);
-                            setReviewerErr(false);
-                            setTypeOfWork(e.target.value);
-                            setDateOfReview("");
-                            setDateOfPreperation("");
-                            setReturnYear(0);
-                            setNoOfPages(0);
+                            assigneeDisableApprovals && setAssigneeApprovals(0);
+                            assigneeDisableApprovals &&
+                              setAssigneeApprovalsErr(false);
+                            setReviewerApprovals(0);
+                            setReviewerApprovalsErr(false);
+                            setTypeOfWorkApprovals(e.target.value);
+                            setReturnYearApprovals(0);
+                            setNoOfPagesApprovals(0);
+                            setChecklistWorkpaperApprovals(0);
                           }}
                           onBlur={(e: any) => {
                             if (e.target.value > 0) {
-                              setTypeOfWorkErr(false);
+                              setTypeOfWorkApprovalsErr(false);
                             }
                           }}
                         >
-                          {workTypeDropdownData.map((i: any, index: number) => (
-                            <MenuItem value={i.value} key={index}>
-                              {i.label}
-                            </MenuItem>
-                          ))}
+                          {workTypeApprovalsDropdownData.map(
+                            (i: any, index: number) => (
+                              <MenuItem value={i.value} key={index}>
+                                {i.label}
+                              </MenuItem>
+                            )
+                          )}
                         </Select>
-                        {typeOfWorkErr && (
+                        {typeOfWorkApprovalsErr && (
                           <FormHelperText>
                             This is a required field.
                           </FormHelperText>
@@ -2983,15 +3009,15 @@ const EditDrawer = ({
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={projectDropdownData}
+                        options={projectApprovalsDropdownData}
                         value={
-                          projectDropdownData.find(
-                            (i: any) => i.value === projectName
+                          projectApprovalsDropdownData.find(
+                            (i: any) => i.value === projectNameApprovals
                           ) || null
                         }
                         disabled={isCreatedByClient && editData.ProjectId > 0}
                         onChange={(e, value: any) => {
-                          value && setProjectName(value.value);
+                          value && setProjectNameApprovals(value.value);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3004,14 +3030,16 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={projectNameErr}
+                            error={projectNameApprovalsErr}
                             onBlur={(e) => {
-                              if (projectName > 0) {
-                                setProjectNameErr(false);
+                              if (projectNameApprovals > 0) {
+                                setProjectNameApprovalsErr(false);
                               }
                             }}
                             helperText={
-                              projectNameErr ? "This is a required field." : ""
+                              projectNameApprovalsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
@@ -3022,20 +3050,20 @@ const EditDrawer = ({
                         id="combo-box-demo"
                         options={
                           onEdit === 0
-                            ? statusDropdownData
-                            : statusDropdownDataUse
+                            ? statusApprovalsDropdownData
+                            : statusApprovalsDropdownDataUse
                         }
                         value={
                           onEdit === 0
-                            ? statusDropdownData.find(
-                                (i: any) => i.value === status
+                            ? statusApprovalsDropdownData.find(
+                                (i: any) => i.value === statusApprovals
                               ) || null
-                            : statusDropdownDataUse.find(
-                                (i: any) => i.value === status
+                            : statusApprovalsDropdownDataUse.find(
+                                (i: any) => i.value === statusApprovals
                               ) || null
                         }
                         onChange={(e, value: any) => {
-                          value && setStatus(value.value);
+                          value && setStatusApprovals(value.value);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3048,14 +3076,16 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={statusErr}
+                            error={statusApprovalsErr}
                             onBlur={(e) => {
-                              if (subProcess > 0) {
-                                setStatusErr(false);
+                              if (subProcessApprovals > 0) {
+                                setStatusApprovalsErr(false);
                               }
                             }}
                             helperText={
-                              statusErr ? "This is a required field." : ""
+                              statusApprovalsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
@@ -3065,16 +3095,16 @@ const EditDrawer = ({
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={processDropdownData}
+                        options={processApprovalsDropdownData}
                         value={
-                          processDropdownData.find(
-                            (i: any) => i.value === processName
+                          processApprovalsDropdownData.find(
+                            (i: any) => i.value === processNameApprovals
                           ) || null
                         }
                         disabled={isCreatedByClient && editData.ProcessId > 0}
                         onChange={(e, value: any) => {
-                          value && setProcessName(value.value);
-                          value && setSubProcess(0);
+                          value && setProcessNameApprovals(value.value);
+                          value && setSubProcessApprovals(0);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3087,14 +3117,16 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={processNameErr}
+                            error={processNameApprovalsErr}
                             onBlur={(e) => {
-                              if (processName > 0) {
-                                setProcessNameErr(false);
+                              if (processNameApprovals > 0) {
+                                setProcessNameApprovalsErr(false);
                               }
                             }}
                             helperText={
-                              processNameErr ? "This is a required field." : ""
+                              processNameApprovalsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
@@ -3104,17 +3136,17 @@ const EditDrawer = ({
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={subProcessDropdownData}
+                        options={subProcessApprovalsDropdownData}
                         value={
-                          subProcessDropdownData.find(
-                            (i: any) => i.value === subProcess
+                          subProcessApprovalsDropdownData.find(
+                            (i: any) => i.value === subProcessApprovals
                           ) || null
                         }
                         disabled={
                           isCreatedByClient && editData.SubProcessId > 0
                         }
                         onChange={(e, value: any) => {
-                          value && setSubProcess(value.value);
+                          value && setSubProcessApprovals(value.value);
                         }}
                         sx={{ mx: 0.75, width: 300 }}
                         renderInput={(params) => (
@@ -3127,14 +3159,16 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={subProcessErr}
+                            error={subProcessApprovalsErr}
                             onBlur={(e) => {
-                              if (subProcess > 0) {
-                                setSubProcessErr(false);
+                              if (subProcessApprovals > 0) {
+                                setSubProcessApprovalsErr(false);
                               }
                             }}
                             helperText={
-                              subProcessErr ? "This is a required field." : ""
+                              subProcessApprovalsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
@@ -3151,35 +3185,35 @@ const EditDrawer = ({
                         fullWidth
                         className="pt-1"
                         value={
-                          clientTaskName?.trim().length <= 0
+                          clientTaskNameApprovals?.trim().length <= 0
                             ? ""
-                            : clientTaskName
+                            : clientTaskNameApprovals
                         }
                         onChange={(e) => {
-                          setClientTaskName(e.target.value);
-                          setClientTaskNameErr(false);
+                          setClientTaskNameApprovals(e.target.value);
+                          setClientTaskNameApprovalsErr(false);
                         }}
                         onBlur={(e: any) => {
                           if (e.target.value.trim().length > 4) {
-                            setClientTaskNameErr(false);
+                            setClientTaskNameApprovalsErr(false);
                           }
                           if (
                             e.target.value.trim().length > 4 &&
                             e.target.value.trim().length < 50
                           ) {
-                            setClientTaskNameErr(false);
+                            setClientTaskNameApprovalsErr(false);
                           }
                         }}
-                        error={clientTaskNameErr}
+                        error={clientTaskNameApprovalsErr}
                         helperText={
-                          clientTaskNameErr &&
-                          clientTaskName?.trim().length > 0 &&
-                          clientTaskName?.trim().length < 4
+                          clientTaskNameApprovalsErr &&
+                          clientTaskNameApprovals?.trim().length > 0 &&
+                          clientTaskNameApprovals?.trim().length < 4
                             ? "Minimum 4 characters required."
-                            : clientTaskNameErr &&
-                              clientTaskName?.trim().length > 50
+                            : clientTaskNameApprovalsErr &&
+                              clientTaskNameApprovals?.trim().length > 50
                             ? "Maximum 50 characters allowed."
-                            : clientTaskNameErr
+                            : clientTaskNameApprovalsErr
                             ? "This is a required field."
                             : ""
                         }
@@ -3194,9 +3228,13 @@ const EditDrawer = ({
                         fullWidth
                         className="pt-1"
                         value={
-                          description?.trim().length <= 0 ? "" : description
+                          descriptionApprovals?.trim().length <= 0
+                            ? ""
+                            : descriptionApprovals
                         }
-                        onChange={(e) => setDescription(e.target.value)}
+                        onChange={(e) =>
+                          setDescriptionApprovals(e.target.value)
+                        }
                         margin="normal"
                         variant="standard"
                         sx={{ mx: 0.75, width: 300, mt: -0.5 }}
@@ -3213,8 +3251,10 @@ const EditDrawer = ({
                         <Select
                           labelId="demo-simple-select-standard-label"
                           id="demo-simple-select-standard"
-                          value={priority === 0 ? "" : priority}
-                          onChange={(e) => setPriority(e.target.value)}
+                          value={
+                            priorityApprovals === 0 ? "" : priorityApprovals
+                          }
+                          onChange={(e) => setPriorityApprovals(e.target.value)}
                         >
                           <MenuItem value={1}>High</MenuItem>
                           <MenuItem value={2}>Medium</MenuItem>
@@ -3228,8 +3268,8 @@ const EditDrawer = ({
                         disabled
                         fullWidth
                         value={
-                          subProcess > 0
-                            ? (estTimeData as any[])
+                          subProcessApprovals > 0
+                            ? (estTimeDataApprovals as any[])
                                 .map((i) => {
                                   const hours = Math.floor(
                                     i.EstimatedHour / 3600
@@ -3247,7 +3287,7 @@ const EditDrawer = ({
                                   const formattedSeconds = remainingSeconds
                                     .toString()
                                     .padStart(2, "0");
-                                  return subProcess === i.Id
+                                  return subProcessApprovals === i.Id
                                     ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
                                     : null;
                                 })
@@ -3278,10 +3318,10 @@ const EditDrawer = ({
                         }
                         type="number"
                         fullWidth
-                        value={quantity}
+                        value={quantityApprovals}
                         onChange={(e) => {
-                          setQuantity(e.target.value);
-                          setQuantityErr(false);
+                          setQuantityApprovals(e.target.value);
+                          setQuantityApprovalsErr(false);
                         }}
                         onBlur={(e: any) => {
                           if (
@@ -3289,18 +3329,20 @@ const EditDrawer = ({
                             e.target.value.trim().length < 5 &&
                             !e.target.value.trim().includes(".")
                           ) {
-                            setQuantityErr(false);
+                            setQuantityApprovalsErr(false);
                           }
                         }}
-                        error={quantityErr}
+                        error={quantityApprovalsErr}
                         helperText={
-                          quantityErr && quantity.toString().includes(".")
+                          quantityApprovalsErr &&
+                          quantityApprovals.toString().includes(".")
                             ? "Only intiger value allowed."
-                            : quantityErr && quantity === ""
+                            : quantityApprovalsErr && quantityApprovals === ""
                             ? "This is a required field."
-                            : quantityErr && quantity <= 0
+                            : quantityApprovalsErr && quantityApprovals <= 0
                             ? "Enter valid number."
-                            : quantityErr && quantity.length > 4
+                            : quantityApprovalsErr &&
+                              quantityApprovals.length > 4
                             ? "Maximum 4 numbers allowed."
                             : ""
                         }
@@ -3314,17 +3356,19 @@ const EditDrawer = ({
                         label="Standard Time"
                         fullWidth
                         value={
-                          subProcess > 0
-                            ? (estTimeData as any[])
+                          subProcessApprovals > 0
+                            ? (estTimeDataApprovals as any[])
                                 .map((i) => {
                                   const hours = Math.floor(
-                                    (i.EstimatedHour * quantity) / 3600
+                                    (i.EstimatedHour * quantityApprovals) / 3600
                                   );
                                   const minutes = Math.floor(
-                                    ((i.EstimatedHour * quantity) % 3600) / 60
+                                    ((i.EstimatedHour * quantityApprovals) %
+                                      3600) /
+                                      60
                                   );
                                   const remainingSeconds =
-                                    (i.EstimatedHour * quantity) % 60;
+                                    (i.EstimatedHour * quantityApprovals) % 60;
                                   const formattedHours = hours
                                     .toString()
                                     .padStart(2, "0");
@@ -3334,7 +3378,7 @@ const EditDrawer = ({
                                   const formattedSeconds = remainingSeconds
                                     .toString()
                                     .padStart(2, "0");
-                                  return subProcess === i.Id
+                                  return subProcessApprovals === i.Id
                                     ? `${formattedHours}:${formattedMinutes}:${formattedSeconds}`
                                     : null;
                                 })
@@ -3347,14 +3391,14 @@ const EditDrawer = ({
                         sx={{
                           mx: 0.75,
                           maxWidth: 300,
-                          mt: typeOfWork === 3 ? -0.9 : -0.8,
+                          mt: typeOfWorkApprovals === 3 ? -0.9 : -0.8,
                         }}
                       />
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <div
                         className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                          receiverDateErr ? "datepickerError" : ""
+                          receiverDateApprovalsErr ? "datepickerError" : ""
                         }`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -3367,15 +3411,17 @@ const EditDrawer = ({
                                 </span>
                               </span>
                             }
-                            onError={() => setReceiverDateErr(false)}
+                            onError={() => setReceiverDateApprovalsErr(false)}
                             value={
-                              receiverDate === "" ? null : dayjs(receiverDate)
+                              receiverDateApprovals === ""
+                                ? null
+                                : dayjs(receiverDateApprovals)
                             }
                             shouldDisableDate={isWeekend}
                             maxDate={dayjs(Date.now())}
                             onChange={(newDate: any) => {
-                              setReceiverDate(newDate.$d);
-                              setReceiverDateErr(false);
+                              setReceiverDateApprovals(newDate.$d);
+                              setReceiverDateApprovalsErr(false);
                               const selectedDate = dayjs(newDate.$d);
                               let nextDate: any = selectedDate;
                               if (
@@ -3388,11 +3434,11 @@ const EditDrawer = ({
                                   .add(2, "day")
                                   .toDate();
                               }
-                              setDueDate(nextDate);
+                              setDueDateApprovals(nextDate);
                             }}
                             slotProps={{
                               textField: {
-                                helperText: receiverDateErr
+                                helperText: receiverDateApprovalsErr
                                   ? "This is a required field."
                                   : "",
                                 readOnly: true,
@@ -3403,11 +3449,7 @@ const EditDrawer = ({
                       </div>
                     </Grid>
                     <Grid item xs={3} className="pt-4">
-                      <div
-                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                          dueDateErr ? "datepickerError" : ""
-                        }`}
-                      >
+                      <div className="inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]">
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
                             label={
@@ -3418,21 +3460,17 @@ const EditDrawer = ({
                                 </span>
                               </span>
                             }
-                            onError={() => setDueDateErr(false)}
-                            value={dueDate === "" ? null : dayjs(dueDate)}
+                            value={
+                              dueDateApprovals === ""
+                                ? null
+                                : dayjs(dueDateApprovals)
+                            }
                             disabled
                             onChange={(newDate: any) => {
-                              setDueDate(newDate.$d);
-                              setDueDateErr(false);
+                              setDueDateApprovals(newDate.$d);
                             }}
                             slotProps={{
                               textField: {
-                                helperText:
-                                  dueDateErr && dueDate < receiverDate
-                                    ? "Due Date must be grater than Received Date"
-                                    : dueDateErr
-                                    ? "This is a required field."
-                                    : "",
                                 readOnly: true,
                               } as Record<string, any>,
                             }}
@@ -3443,17 +3481,19 @@ const EditDrawer = ({
                     <Grid item xs={3} className="pt-4">
                       <div
                         className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                          receiverDateErr ? "datepickerError" : ""
+                          receiverDateApprovalsErr ? "datepickerError" : ""
                         }`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
                             label="All Info Date"
                             value={
-                              allInfoDate === "" ? null : dayjs(allInfoDate)
+                              allInfoDateApprovals === ""
+                                ? null
+                                : dayjs(allInfoDateApprovals)
                             }
                             onChange={(newDate: any) =>
-                              setAllInfoDate(newDate.$d)
+                              setAllInfoDateApprovals(newDate.$d)
                             }
                           />
                         </LocalizationProvider>
@@ -3463,15 +3503,15 @@ const EditDrawer = ({
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={assigneeDropdownData}
-                        disabled={!assigneeDisable}
+                        options={assigneeApprovalsDropdownData}
+                        disabled={!assigneeDisableApprovals}
                         value={
-                          assigneeDropdownData.find(
-                            (i: any) => i.value === assignee
+                          assigneeApprovalsDropdownData.find(
+                            (i: any) => i.value === assigneeApprovals
                           ) || null
                         }
                         onChange={(e, value: any) => {
-                          value && setAssignee(value.value);
+                          value && setAssigneeApprovals(value.value);
                         }}
                         sx={{ width: 300, mt: -1, mx: 0.75 }}
                         renderInput={(params) => (
@@ -3484,14 +3524,16 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={assigneeErr}
+                            error={assigneeApprovalsErr}
                             onBlur={(e) => {
-                              if (assignee > 0) {
-                                setAssigneeErr(false);
+                              if (assigneeApprovals > 0) {
+                                setAssigneeApprovalsErr(false);
                               }
                             }}
                             helperText={
-                              assigneeErr ? "This is a required field." : ""
+                              assigneeApprovalsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
@@ -3500,23 +3542,25 @@ const EditDrawer = ({
                     <Grid
                       item
                       xs={3}
-                      className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                      className={`${
+                        typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
+                      }`}
                     >
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={reviewerDropdownData}
+                        options={reviewerApprovalsDropdownData}
                         value={
-                          reviewerDropdownData.find(
-                            (i: any) => i.value === reviewer
+                          reviewerApprovalsDropdownData.find(
+                            (i: any) => i.value === reviewerApprovals
                           ) || null
                         }
                         onChange={(e, value: any) => {
-                          value && setReviewer(value.value);
+                          value && setReviewerApprovals(value.value);
                         }}
                         sx={{
                           width: 300,
-                          mt: typeOfWork === 3 ? 0.2 : -1,
+                          mt: typeOfWorkApprovals === 3 ? 0.2 : -1,
                           mx: 0.75,
                         }}
                         renderInput={(params) => (
@@ -3529,14 +3573,16 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={reviewerErr}
+                            error={reviewerApprovalsErr}
                             onBlur={(e) => {
-                              if (reviewer > 0) {
-                                setReviewerErr(false);
+                              if (reviewerApprovals > 0) {
+                                setReviewerApprovalsErr(false);
                               }
                             }}
                             helperText={
-                              reviewerErr ? "This is a required field." : ""
+                              reviewerApprovalsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
@@ -3545,23 +3591,25 @@ const EditDrawer = ({
                     <Grid
                       item
                       xs={3}
-                      className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                      className={`${
+                        typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
+                      }`}
                     >
                       <Autocomplete
                         disablePortal
                         id="combo-box-demo"
-                        options={managerDropdownData}
+                        options={managerApprovalsDropdownData}
                         value={
-                          managerDropdownData.find(
-                            (i: any) => i.value === manager
+                          managerApprovalsDropdownData.find(
+                            (i: any) => i.value === managerApprovals
                           ) || null
                         }
                         onChange={(e, value: any) => {
-                          value && setManager(value.value);
+                          value && setManagerApprovals(value.value);
                         }}
                         sx={{
                           width: 300,
-                          mt: typeOfWork === 3 ? 0.2 : -1,
+                          mt: typeOfWorkApprovals === 3 ? 0.2 : -1,
                           mx: 0.75,
                         }}
                         renderInput={(params) => (
@@ -3574,26 +3622,28 @@ const EditDrawer = ({
                                 <span className="text-defaultRed">&nbsp;*</span>
                               </span>
                             }
-                            error={managerErr}
+                            error={managerApprovalsErr}
                             onBlur={(e) => {
-                              if (manager > 0) {
-                                setManagerErr(false);
+                              if (managerApprovals > 0) {
+                                setManagerApprovalsErr(false);
                               }
                             }}
                             helperText={
-                              managerErr ? "This is a required field." : ""
+                              managerApprovalsErr
+                                ? "This is a required field."
+                                : ""
                             }
                           />
                         )}
                       />
                     </Grid>
-                    {typeOfWork === 3 && (
+                    {typeOfWorkApprovals === 3 && (
                       <>
                         <Grid item xs={3} className="pt-4">
                           <FormControl
                             variant="standard"
                             sx={{ width: 300, mt: -0.3, mx: 0.75 }}
-                            error={returnYearErr}
+                            error={returnYearApprovalsErr}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Return Year
@@ -3602,11 +3652,17 @@ const EditDrawer = ({
                             <Select
                               labelId="demo-simple-select-standard-label"
                               id="demo-simple-select-standard"
-                              value={returnYear === 0 ? "" : returnYear}
-                              onChange={(e) => setReturnYear(e.target.value)}
+                              value={
+                                returnYearApprovals === 0
+                                  ? ""
+                                  : returnYearApprovals
+                              }
+                              onChange={(e) =>
+                                setReturnYearApprovals(e.target.value)
+                              }
                               onBlur={(e: any) => {
                                 if (e.target.value > 0) {
-                                  setReturnYearErr(false);
+                                  setReturnYearApprovalsErr(false);
                                 }
                               }}
                             >
@@ -3616,7 +3672,7 @@ const EditDrawer = ({
                                 </MenuItem>
                               ))}
                             </Select>
-                            {returnYearErr && (
+                            {returnYearApprovalsErr && (
                               <FormHelperText>
                                 This is a required field.
                               </FormHelperText>
@@ -3628,8 +3684,12 @@ const EditDrawer = ({
                             label="No of Pages"
                             type="number"
                             fullWidth
-                            value={noOfPages === 0 ? "" : noOfPages}
-                            onChange={(e) => setNoOfPages(e.target.value)}
+                            value={
+                              noOfPagesApprovals === 0 ? "" : noOfPagesApprovals
+                            }
+                            onChange={(e) =>
+                              setNoOfPagesApprovals(e.target.value)
+                            }
                             margin="normal"
                             variant="standard"
                             sx={{ width: 300, mt: 0, mx: 0.75 }}
@@ -3639,7 +3699,7 @@ const EditDrawer = ({
                           <FormControl
                             variant="standard"
                             sx={{ width: 300, mt: -0.8, mx: 0.75 }}
-                            error={checklistWorkpaperErr}
+                            error={checklistWorkpaperApprovalsErr}
                           >
                             <InputLabel id="demo-simple-select-standard-label">
                               Checklist/Workpaper
@@ -3649,23 +3709,23 @@ const EditDrawer = ({
                               labelId="demo-simple-select-standard-label"
                               id="demo-simple-select-standard"
                               value={
-                                checklistWorkpaper === 0
+                                checklistWorkpaperApprovals === 0
                                   ? ""
-                                  : checklistWorkpaper
+                                  : checklistWorkpaperApprovals
                               }
                               onChange={(e) =>
-                                setChecklistWorkpaper(e.target.value)
+                                setChecklistWorkpaperApprovals(e.target.value)
                               }
                               onBlur={(e: any) => {
                                 if (e.target.value > 0) {
-                                  setChecklistWorkpaperErr(false);
+                                  setChecklistWorkpaperApprovalsErr(false);
                                 }
                               }}
                             >
                               <MenuItem value={1}>Yes</MenuItem>
                               <MenuItem value={2}>No</MenuItem>
                             </Select>
-                            {checklistWorkpaperErr && (
+                            {checklistWorkpaperApprovalsErr && (
                               <FormHelperText>
                                 This is a required field.
                               </FormHelperText>
@@ -3679,16 +3739,18 @@ const EditDrawer = ({
                         <Grid
                           item
                           xs={3}
-                          className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                          className={`${
+                            typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
+                          }`}
                         >
                           <TextField
                             label="Date of Preperation"
                             type={inputTypePreperation}
                             disabled
                             fullWidth
-                            value={dateOfPreperation}
+                            value={dateOfPreperationApprovals}
                             onChange={(e) =>
-                              setDateOfPreperation(e.target.value)
+                              setDateOfPreperationApprovals(e.target.value)
                             }
                             onFocus={() => setInputTypePreperation("date")}
                             onBlur={(e: any) => {
@@ -3698,7 +3760,7 @@ const EditDrawer = ({
                             variant="standard"
                             sx={{
                               width: 300,
-                              mt: typeOfWork === 3 ? -0.4 : -1,
+                              mt: typeOfWorkApprovals === 3 ? -0.4 : -1,
                               mx: 0.75,
                             }}
                           />
@@ -3706,15 +3768,19 @@ const EditDrawer = ({
                         <Grid
                           item
                           xs={3}
-                          className={`${typeOfWork === 3 ? "pt-4" : "pt-5"}`}
+                          className={`${
+                            typeOfWorkApprovals === 3 ? "pt-4" : "pt-5"
+                          }`}
                         >
                           <TextField
                             label="Date of Review"
                             disabled
                             type={inputTypeReview}
                             fullWidth
-                            value={dateOfReview}
-                            onChange={(e) => setDateOfReview(e.target.value)}
+                            value={dateOfReviewApprovals}
+                            onChange={(e) =>
+                              setDateOfReviewApprovals(e.target.value)
+                            }
                             onFocus={() => setInputTypeReview("date")}
                             onBlur={(e: any) => {
                               setInputTypeReview("text");
@@ -3723,7 +3789,7 @@ const EditDrawer = ({
                             variant="standard"
                             sx={{
                               width: 300,
-                              mt: typeOfWork === 3 ? -0.4 : -1,
+                              mt: typeOfWorkApprovals === 3 ? -0.4 : -1,
                               mx: 0.75,
                             }}
                           />
@@ -4206,9 +4272,10 @@ const EditDrawer = ({
                                   <span className="hidden"></span>
                                   <div className="flex items-start">
                                     {extractText(i.Message).map((i: any) => {
-                                      const assignee = assigneeDropdownData.map(
-                                        (j: any) => j.label
-                                      );
+                                      const assignee =
+                                        assigneeApprovalsDropdownData.map(
+                                          (j: any) => j.label
+                                        );
                                       return assignee.includes(i) ? (
                                         <span
                                           className="text-secondary"
@@ -5274,8 +5341,8 @@ const EditDrawer = ({
                         id="checkboxes-tags-demo"
                         disabled={!reminderSwitch}
                         options={
-                          Array.isArray(assigneeDropdownData)
-                            ? assigneeDropdownData
+                          Array.isArray(assigneeApprovalsDropdownData)
+                            ? assigneeApprovalsDropdownData
                             : []
                         }
                         value={

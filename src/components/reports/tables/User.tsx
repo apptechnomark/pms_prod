@@ -29,6 +29,10 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [userRowsPerPage, setUserRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
+    setUserFields({
+      ...userFields,
+      loaded: false,
+    });
     const url = `${process.env.report_api_url}/report/user`;
 
     const successCallBack = (data: any, error: any) => {

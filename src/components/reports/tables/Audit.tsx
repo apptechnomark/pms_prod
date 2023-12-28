@@ -19,6 +19,10 @@ const Audit = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [auditRowsPerPage, setAuditRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
+    setAuditFields({
+      ...auditFields,
+      loaded: false,
+    });
     const url = `${process.env.report_api_url}/report/audit`;
 
     const successCallback = (

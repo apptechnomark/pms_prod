@@ -92,11 +92,7 @@ const Datatable_Rating = ({
       error: any,
       ResponseStatus: any
     ) => {
-      if (
-        ResponseStatus === "Success" &&
-        // ResponseData.List.length > 0 &&
-        error === false
-      ) {
+      if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0);
         setAllReportRatingFields({
           ...allReportRatingFields,

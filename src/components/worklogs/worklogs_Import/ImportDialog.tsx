@@ -17,6 +17,7 @@ import {
   Table_Columns,
 } from "@/utils/worklog/importTableOprions";
 import { TransitionDown } from "@/utils/style/DialogTransition";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface ImportDialogProp {
   onOpen: boolean;
@@ -103,46 +104,22 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
   };
 
   const handleApplyImport = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/import`,
-        {
-          TaskNameList: selectedTasks,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Task has been imported successfully.");
-          onDataFetch();
-          handleClose();
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      TaskNameList: selectedTasks,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/import`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Task has been imported successfully.");
+        onDataFetch();
+        handleClose();
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleApplyImportExcel = async () => {

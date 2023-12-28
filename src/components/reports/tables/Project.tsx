@@ -24,6 +24,10 @@ const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [projectRowsPerPage, setProjectRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
+    setProjectFields({
+      ...projectFields,
+      loaded: false,
+    });
     const url = `${process.env.report_api_url}/report/project`;
 
     const successCallback = (data: any, error: any) => {

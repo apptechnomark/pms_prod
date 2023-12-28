@@ -19,6 +19,10 @@ const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [userRowsPerPage, setUserRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
+    setUserlogFields({
+      ...userlogFields,
+      loaded: false,
+    });
     const url = `${process.env.report_api_url}/report/userLog`;
 
     const successCallBack = (data: any, error: any) => {

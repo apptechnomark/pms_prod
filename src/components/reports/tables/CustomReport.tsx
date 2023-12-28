@@ -13,9 +13,11 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { TablePagination, ThemeProvider } from "@mui/material";
 import { haveSameData } from "@/utils/reports/commonFunctions";
 import { customreport_InitialFilter } from "@/utils/reports/getFilters";
+import ReportLoader from "@/components/common/ReportLoader";
 
 const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [customReportFields, setCustomReportFields] = useState({
+    loaded: true,
     data: [],
     dataCount: 0,
   });
@@ -25,6 +27,10 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     useState<number>(10);
 
   const getData = async (arg1: any) => {
+    setCustomReportFields({
+      ...customReportFields,
+      loaded: false,
+    });
     const url = `${process.env.report_api_url}/report/custom`;
 
     const successCallback = (data: any, error: any) => {
@@ -32,6 +38,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         onHandleExport(data.List.length > 0);
         setCustomReportFields({
           ...customReportFields,
+          loaded: true,
           data: data.List,
           dataCount: data.TotalCount,
         });
@@ -460,7 +467,7 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
     },
   ];
 
-  return (
+  return customReportFields.loaded ? (
     <ThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         columns={columns}
@@ -493,6 +500,8 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </ThemeProvider>
+  ) : (
+    <ReportLoader />
   );
 };
 

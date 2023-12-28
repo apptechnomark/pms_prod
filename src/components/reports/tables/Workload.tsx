@@ -35,6 +35,10 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
   });
 
   const getData = async (arg1: any) => {
+    setWorkloadFields({
+      ...workloadFields,
+      loaded: false,
+    });
     const url = `${process.env.report_api_url}/report/workLoad`;
 
     const successCallBack = (data: any, error: any) => {

@@ -19,6 +19,10 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [ratingRowsPerPage, setRatingRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
+    setRatingReportFields({
+      ...ratingReportFields,
+      loaded: false,
+    });
     const url = `${process.env.report_api_url}/report/admin/rating`;
 
     const successCallback = (data: any, error: any) => {

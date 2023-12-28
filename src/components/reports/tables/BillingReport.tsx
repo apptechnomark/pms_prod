@@ -105,6 +105,10 @@ const BillingReport = ({
   const [billingRowsPerPage, setBillingRowsPerPage] = useState<any>(10);
 
   const getData = async (arg1: any) => {
+    setBillingReportFields({
+      ...billingReportFields,
+      loaded: false,
+    });
     const url = `${process.env.report_api_url}/report/billing`;
 
     const successCallback = (

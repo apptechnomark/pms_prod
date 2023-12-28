@@ -93,7 +93,6 @@ const Datatable_Task = ({
     ) => {
       if (
         ResponseStatus === "Success" &&
-        // ResponseData.List.length > 0 &&
         error === false
       ) {
         onHandleExport(ResponseData.List.length > 0);

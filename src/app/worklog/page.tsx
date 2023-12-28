@@ -413,6 +413,7 @@ const Worklog = () => {
       <ImportDialog
         onOpen={isImportOpen}
         onClose={() => setIsImportOpen(false)}
+        onDataFetch={dataFunction}
       />
     </Wrapper>
   );

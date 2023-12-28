@@ -19,6 +19,10 @@ const LogReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [logReportRowsPerPage, setLogReportRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
+    setLogReportFields({
+      ...logReportFields,
+      loaded: false,
+    });
     const url = `${process.env.report_api_url}/report/auditlog`;
 
     const successCallback = (data: any, error: any) => {

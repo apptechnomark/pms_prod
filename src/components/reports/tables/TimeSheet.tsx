@@ -422,6 +422,10 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
   const [timesheetRowsPerPage, setTimesheetRowsPerPage] = useState<number>(10);
 
   const getData = async (arg1: any) => {
+    setTimesheetFields({
+      ...timesheetFields,
+      loaded: false,
+    });
     const url = `${process.env.report_api_url}/report/timesheet`;
 
     const successCallback = (data: any, error: any) => {
