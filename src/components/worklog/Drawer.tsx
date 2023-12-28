@@ -377,7 +377,7 @@ const Drawer = ({
     setMentionClientWorklog(
       e
         .split("(")
-        .map((i: any) => {
+        .map((i: any, index: number) => {
           if (i.includes(")")) {
             return parseInt(i.split(")")[0]);
           }
@@ -1201,7 +1201,7 @@ const Drawer = ({
                 .filter((i: any) => i !== false)
                 .map((task: any, index: number) => (
                   <div
-                    key={task + Math.random()}
+                    key={index}
                     className={`my-2 px-3 text-[14px] ${
                       index !== Task.length - 1 &&
                       "border-r border-r-lightSilver"
@@ -1285,8 +1285,8 @@ const Drawer = ({
                                 }}
                               >
                                 {typeOfWorkClientWorklogDropdownData.map(
-                                  (i: any) => (
-                                    <MenuItem value={i.value} key={i.value}>
+                                  (i: any, index: number) => (
+                                    <MenuItem value={i.value} key={index}>
                                       {i.label}
                                     </MenuItem>
                                   )
@@ -1626,8 +1626,8 @@ const Drawer = ({
                                     setReturnYearClientWorklog(e.target.value)
                                   }
                                 >
-                                  {yearDropdown.map((i: any) => (
-                                    <MenuItem value={i.value} key={i.value}>
+                                  {yearDropdown.map((i: any, index: number) => (
+                                    <MenuItem value={i.value} key={index}>
                                       {i.label}
                                     </MenuItem>
                                   ))}
@@ -1704,10 +1704,7 @@ const Drawer = ({
                     <>
                       <div className="mt-3 pl-6">
                         {subTaskClientWorklogFields.map((field, index) => (
-                          <div
-                            className="w-[100%] flex"
-                            key={field.Title + Math.random()}
-                          >
+                          <div className="w-[100%] flex" key={index}>
                             <TextField
                               label={
                                 <span>
@@ -1891,10 +1888,7 @@ const Drawer = ({
                         commentDataClientWorklog.length > 0 &&
                         commentDataClientWorklog.map(
                           (i: any, index: number) => (
-                            <div
-                              className="flex gap-4"
-                              key={i.UserName + Math.random()}
-                            >
+                            <div className="flex gap-4" key={index}>
                               {i.UserName.length > 0 ? (
                                 <Avatar>
                                   {i.UserName.split(" ")
@@ -2045,7 +2039,7 @@ const Drawer = ({
                                             return assignee.includes(i) ? (
                                               <span
                                                 className="text-secondary"
-                                                key={i + Math.random()}
+                                                key={index}
                                               >
                                                 &nbsp; {i} &nbsp;
                                               </span>
@@ -2262,10 +2256,7 @@ const Drawer = ({
                         <div className="mt-3 pl-6">
                           {errorLogClientWorklogFields.map(
                             (field: any, index: any) => (
-                              <div
-                                className="w-[100%] mt-4"
-                                key={field.SubmitedBy + Math.random()}
-                              >
+                              <div className="w-[100%] mt-4" key={index}>
                                 {field.SubmitedBy.length > 0 && (
                                   <div className="ml-1 mt-8 mb-3">
                                     <span className="font-bold">

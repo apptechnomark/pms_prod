@@ -302,14 +302,14 @@ const User = ({
               <div className="absolute top-1 right-0 py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-40">
                   {actionPermissions.map(
-                    (action: any) =>
+                    (action: any, index: any) =>
                       ((action.toLowerCase() === "edit" && canEdit) ||
                         (action.toLowerCase() === "permissions" &&
                           canPermission) ||
                         (action.toLowerCase() === "delete" && canDelete) ||
                         action.toLowerCase() === "resend invite") && (
                         <li
-                          key={action + Math.random()}
+                          key={index}
                           onClick={() =>
                             handleActionValue(
                               action,
@@ -370,8 +370,8 @@ const User = ({
         GroupNames: (
           <div className="flex">
             <AvatarGroup show={3}>
-              {i.GroupNames?.map((i: any) => (
-                <Avatar key={i + Math.random()} name={i}></Avatar>
+              {i.GroupNames?.map((i: any, index: any) => (
+                <Avatar key={index} name={i}></Avatar>
               ))}
             </AvatarGroup>
           </div>

@@ -151,11 +151,11 @@ function Status({
               <div className="absolute top-1 right-0 py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-40">
                   {actionPermissions.map(
-                    (action: any) =>
+                    (action: any, index: any) =>
                       ((action.toLowerCase() === "edit" && canEdit) ||
                         (action.toLowerCase() === "delete" && canDelete)) && (
                         <li
-                          key={action + Math.random()}
+                          key={index}
                           onClick={() => {
                             handleActions(action, id);
                           }}

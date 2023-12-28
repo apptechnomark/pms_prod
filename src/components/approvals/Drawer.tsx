@@ -2553,7 +2553,7 @@ const EditDrawer = ({
                 .filter((i: any) => i !== false)
                 .map((task: any, index: number) => (
                   <div
-                    key={task + Math.random()}
+                    key={index}
                     className={`my-2 px-3 text-[14px] ${
                       index !== Task.length - 1 &&
                       "border-r border-r-lightSilver"
@@ -2697,11 +2697,13 @@ const EditDrawer = ({
                             }
                           }}
                         >
-                          {workTypeApprovalsDropdownData.map((i: any) => (
-                            <MenuItem value={i.value} key={i.value}>
-                              {i.label}
-                            </MenuItem>
-                          ))}
+                          {workTypeApprovalsDropdownData.map(
+                            (i: any, index: number) => (
+                              <MenuItem value={i.value} key={index}>
+                                {i.label}
+                              </MenuItem>
+                            )
+                          )}
                         </Select>
                         {typeOfWorkApprovalsErr && (
                           <FormHelperText>
@@ -3371,8 +3373,8 @@ const EditDrawer = ({
                                 }
                               }}
                             >
-                              {yearDropdown.map((i: any) => (
-                                <MenuItem value={i.value} key={i.value}>
+                              {yearDropdown.map((i: any, index: number) => (
+                                <MenuItem value={i.value} key={index}>
                                   {i.label}
                                 </MenuItem>
                               ))}
@@ -4028,7 +4030,7 @@ const EditDrawer = ({
                                       return assignee.includes(i) ? (
                                         <span
                                           className="text-secondary"
-                                          key={i + Math.random()}
+                                          key={index}
                                         >
                                           &nbsp; {i} &nbsp;
                                         </span>
@@ -4307,7 +4309,7 @@ const EditDrawer = ({
                       <div className="pl-4 m-2 flex">
                         {days.map((day, index) => (
                           <div
-                            key={day[0] + Math.random()}
+                            key={index}
                             className={`px-3 py-1 rounded-[50%] m-[5px] ${
                               selectedDays.includes(index)
                                 ? "text-pureWhite bg-secondary"
@@ -5099,7 +5101,7 @@ const EditDrawer = ({
                           }}
                         >
                           {hours.map((i: any, index: number) => (
-                            <MenuItem value={i.value} key={i.value}>
+                            <MenuItem value={i.value} key={index}>
                               {i.label}
                             </MenuItem>
                           ))}
@@ -5207,10 +5209,7 @@ const EditDrawer = ({
                   <>
                     <div className="mt-3 pl-6">
                       {errorLogFieldsApprovals.map((field, index) => (
-                        <div
-                          className="w-[100%] mt-4"
-                          key={field.SubmitedBy + Math.random()}
-                        >
+                        <div className="w-[100%] mt-4" key={index}>
                           {field.SubmitedBy.length > 0 && (
                             <div className="ml-1 mt-8 mb-3">
                               <span className="font-bold">Correction By</span>

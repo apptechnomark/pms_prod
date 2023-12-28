@@ -196,9 +196,9 @@ function Group({
             <div className="relative z-10 flex justify-center items-center">
               <div className="absolute top-1 right-0 py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-40">
-                  {actionPermissions.map((action: any) => (
+                  {actionPermissions.map((action: any, index: any) => (
                     <li
-                      key={action + Math.random()}
+                      key={index}
                       onClick={() => {
                         handleActions(action, id);
                       }}
