@@ -160,11 +160,11 @@ function Process({
               <div className="absolute top-1 right-0 py-2 border border-lightSilver rounded-md bg-pureWhite shadow-lg ">
                 <ul className="w-40">
                   {actionPermissions.map(
-                    (action: any, index: any) =>
+                    (action: any) =>
                       ((action.toLowerCase() === "edit" && canEdit) ||
                         (action.toLowerCase() === "delete" && canDelete)) && (
                         <li
-                          key={index}
+                          key={action + Math.random()}
                           onClick={() => {
                             handleActionValue(action, id);
                           }}

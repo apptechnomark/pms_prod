@@ -144,7 +144,7 @@ function Organization({
                 <ul className="w-40">
                   {actions.map((action: any, index: any) => (
                     <li
-                      key={index}
+                      key={action + Math.random()}
                       onClick={() => handleActionValue(action, id)}
                       className="flex w-full h-9 px-3 hover:bg-lightGray !cursor-pointer"
                     >

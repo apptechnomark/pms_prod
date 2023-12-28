@@ -2729,7 +2729,7 @@ const EditDrawer = ({
                 .filter((i: any) => i !== false)
                 .map((task: any, index: number) => (
                   <div
-                    key={index}
+                    key={task + Math.random()}
                     className={`my-2 px-3 text-[14px] ${
                       index !== Task.length - 1 &&
                       "border-r border-r-lightSilver"
@@ -2890,13 +2890,11 @@ const EditDrawer = ({
                             }
                           }}
                         >
-                          {typeOfWorkWorklogsDropdownData.map(
-                            (i: any, index: number) => (
-                              <MenuItem value={i.value} key={index}>
-                                {i.label}
-                              </MenuItem>
-                            )
-                          )}
+                          {typeOfWorkWorklogsDropdownData.map((i: any) => (
+                            <MenuItem value={i.value} key={i.value}>
+                              {i.label}
+                            </MenuItem>
+                          ))}
                         </Select>
                         {typeOfWorkWorklogsErr && (
                           <FormHelperText>
@@ -3573,13 +3571,11 @@ const EditDrawer = ({
                                 }
                               }}
                             >
-                              {yearWorklogsDrawerDropdown.map(
-                                (i: any, index: number) => (
-                                  <MenuItem value={i.value} key={index}>
-                                    {i.label}
-                                  </MenuItem>
-                                )
-                              )}
+                              {yearWorklogsDrawerDropdown.map((i: any) => (
+                                <MenuItem value={i.value} key={i.value}>
+                                  {i.label}
+                                </MenuItem>
+                              ))}
                             </Select>
                             {returnYearWorklogsErr && (
                               <FormHelperText>
@@ -3774,7 +3770,10 @@ const EditDrawer = ({
                 {subTaskWorklogsDrawer && (
                   <div className="mt-3 pl-6">
                     {subTaskFieldsWorklogs.map((field, index) => (
-                      <div className="w-[100%] flex" key={index}>
+                      <div
+                        className="w-[100%] flex"
+                        key={field.Title + Math.random()}
+                      >
                         <TextField
                           label={
                             <span>
@@ -4264,7 +4263,7 @@ const EditDrawer = ({
                                         return assignee.includes(i) ? (
                                           <span
                                             className="text-secondary"
-                                            key={index}
+                                            key={i + Math.random()}
                                           >
                                             &nbsp; {i} &nbsp;
                                           </span>
@@ -4634,7 +4633,7 @@ const EditDrawer = ({
                       <div className="pl-4 m-2 flex">
                         {days.map((day, index) => (
                           <div
-                            key={index}
+                            key={day[0] + Math.random()}
                             className={`px-3 py-1 rounded-[50%] m-[5px] ${
                               selectedDays.includes(index)
                                 ? "text-pureWhite bg-secondary"
@@ -4801,7 +4800,10 @@ const EditDrawer = ({
                   <>
                     <div className="-mt-2 pl-6">
                       {manualFieldsWorklogs.map((field, index) => (
-                        <div key={index} className="flex items-center">
+                        <div
+                          key={field.Id + Math.random()}
+                          className="flex items-center"
+                        >
                           <div
                             className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
                               inputDateWorklogsErrors[index]
@@ -5353,8 +5355,8 @@ const EditDrawer = ({
                             }
                           }}
                         >
-                          {hours.map((i: any, index: number) => (
-                            <MenuItem value={i.value} key={index}>
+                          {hours.map((i: any) => (
+                            <MenuItem value={i.value} key={i.value}>
                               {i.label}
                             </MenuItem>
                           ))}
@@ -5463,7 +5465,7 @@ const EditDrawer = ({
                             </div>
                             <div
                               className="w-[100%] mt-2 text-[14px]"
-                              key={index}
+                              key={i.SubmissionId + Math.random()}
                             >
                               <FormControl
                                 variant="standard"

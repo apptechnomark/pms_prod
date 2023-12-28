@@ -630,8 +630,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   value={clientName === 0 ? "" : clientName}
                   onChange={(e) => setClientName(e.target.value)}
                 >
-                  {clientDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                  {clientDropdownData.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}
@@ -646,8 +646,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   value={workType === 0 ? "" : workType}
                   onChange={(e) => setWorkType(e.target.value)}
                 >
-                  {worktypeDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                  {worktypeDropdownData.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}
@@ -662,8 +662,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   value={projectName === 0 ? "" : projectName}
                   onChange={(e) => setProjectName(e.target.value)}
                 >
-                  {projectDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                  {projectDropdownData.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}
@@ -680,30 +680,13 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   value={status === 0 ? "" : status}
                   onChange={(e) => setStatus(e.target.value)}
                 >
-                  {statusDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                  {statusDropdownData.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
-
-              {/* <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="assignedTo">Assigned To</InputLabel>
-                <Select
-                  labelId="assignedTo"
-                  id="assignedTo"
-                  value={assignedTo === 0 ? "" : assignedTo}
-                  onChange={(e) => setAssignedTo(e.target.value)}
-                  disabled={!isHaveManageAssignee}
-                >
-                  {assignedToDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl> */}
 
               <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
                 <InputLabel id="assignedBy">Assigned By</InputLabel>
@@ -714,8 +697,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   onChange={(e) => setAssignedBy(e.target.value)}
                   disabled={!isHaveManageAssignee}
                 >
-                  {assignedByDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
+                  {assignedByDropdownData.map((i: any) => (
+                    <MenuItem value={i.value} key={i.value}>
                       {i.label}
                     </MenuItem>
                   ))}
@@ -786,24 +769,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                 </LocalizationProvider>
               </div>
             </div>
-
-            {/* <div className="flex gap-[20px]">
-              <FormControl variant="standard" sx={{ mx: 0.75, minWidth: 200 }}>
-                <InputLabel id="review_Status">Review Status</InputLabel>
-                <Select
-                  labelId="review_Status"
-                  id="review_Status"
-                  value={ReviewStatus === 0 ? "" : ReviewStatus}
-                  onChange={(e) => setReviewStatus(e.target.value)}
-                >
-                  {revwStatusDropdownData.map((i: any, index: number) => (
-                    <MenuItem value={i.value} key={index}>
-                      {i.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div> */}
           </div>
         </DialogContent>
         <DialogActions className="border-t border-t-lightSilver p-[20px] gap-[10px] h-[64px]">

@@ -1681,7 +1681,7 @@ const ClientContent = forwardRef<
                     },
                     index: any
                   ) => (
-                    <div className="flex flex-row" key={index}>
+                    <div className="flex flex-row" key={Math.random()}>
                       <div className="flex gap-5 w-full">
                         <Text
                           label="Client POC Name"

@@ -377,7 +377,7 @@ const Drawer = ({
     setMentionClientWorklog(
       e
         .split("(")
-        .map((i: any, index: number) => {
+        .map((i: any) => {
           if (i.includes(")")) {
             return parseInt(i.split(")")[0]);
           }
@@ -1008,6 +1008,7 @@ const Drawer = ({
     };
     callAPI(url, params, successCallback, "POST");
   };
+
   useEffect(() => {
     const getData = async () => {
       const clientId: any = await localStorage.getItem("clientId");
@@ -1035,6 +1036,23 @@ const Drawer = ({
       setProcessClientWorklogDropdownData(
         processData.map((i: any) => new Object({ label: i.Name, value: i.Id }))
       );
+      setCCDropdownClientWorklogData(await getCCDropdownData());
+    };
+
+    if (onEdit > 0) {
+      getEditDataClientWorklog();
+      getSubTaskDataClientWorklog();
+      getCommentDataClientWorklog();
+      getErrorLogDataClientWorklog();
+      getData();
+    }
+
+    onOpen && getData();
+  }, [onOpen, onEdit]);
+
+  useEffect(() => {
+    const getData = async () => {
+      const clientId: any = await localStorage.getItem("clientId");
       const subProcessData: any =
         clientId > 0 &&
         processNameClientWorklog !== 0 &&
@@ -1045,14 +1063,9 @@ const Drawer = ({
             (i: any) => new Object({ label: i.Name, value: i.Id })
           )
         );
-      setCCDropdownClientWorklogData(await getCCDropdownData());
     };
 
     if (onEdit > 0) {
-      getEditDataClientWorklog();
-      getSubTaskDataClientWorklog();
-      getCommentDataClientWorklog();
-      getErrorLogDataClientWorklog();
       getData();
     }
 
@@ -1188,7 +1201,7 @@ const Drawer = ({
                 .filter((i: any) => i !== false)
                 .map((task: any, index: number) => (
                   <div
-                    key={index}
+                    key={task + Math.random()}
                     className={`my-2 px-3 text-[14px] ${
                       index !== Task.length - 1 &&
                       "border-r border-r-lightSilver"
@@ -1272,8 +1285,8 @@ const Drawer = ({
                                 }}
                               >
                                 {typeOfWorkClientWorklogDropdownData.map(
-                                  (i: any, index: number) => (
-                                    <MenuItem value={i.value} key={index}>
+                                  (i: any) => (
+                                    <MenuItem value={i.value} key={i.value}>
                                       {i.label}
                                     </MenuItem>
                                   )
@@ -1613,8 +1626,8 @@ const Drawer = ({
                                     setReturnYearClientWorklog(e.target.value)
                                   }
                                 >
-                                  {yearDropdown.map((i: any, index: number) => (
-                                    <MenuItem value={i.value} key={index}>
+                                  {yearDropdown.map((i: any) => (
+                                    <MenuItem value={i.value} key={i.value}>
                                       {i.label}
                                     </MenuItem>
                                   ))}
@@ -1691,7 +1704,10 @@ const Drawer = ({
                     <>
                       <div className="mt-3 pl-6">
                         {subTaskClientWorklogFields.map((field, index) => (
-                          <div className="w-[100%] flex" key={index}>
+                          <div
+                            className="w-[100%] flex"
+                            key={field.Title + Math.random()}
+                          >
                             <TextField
                               label={
                                 <span>
@@ -1875,7 +1891,10 @@ const Drawer = ({
                         commentDataClientWorklog.length > 0 &&
                         commentDataClientWorklog.map(
                           (i: any, index: number) => (
-                            <div className="flex gap-4" key={index}>
+                            <div
+                              className="flex gap-4"
+                              key={i.UserName + Math.random()}
+                            >
                               {i.UserName.length > 0 ? (
                                 <Avatar>
                                   {i.UserName.split(" ")
@@ -2026,7 +2045,7 @@ const Drawer = ({
                                             return assignee.includes(i) ? (
                                               <span
                                                 className="text-secondary"
-                                                key={index}
+                                                key={i + Math.random()}
                                               >
                                                 &nbsp; {i} &nbsp;
                                               </span>
@@ -2243,7 +2262,10 @@ const Drawer = ({
                         <div className="mt-3 pl-6">
                           {errorLogClientWorklogFields.map(
                             (field: any, index: any) => (
-                              <div className="w-[100%] mt-4" key={index}>
+                              <div
+                                className="w-[100%] mt-4"
+                                key={field.SubmitedBy + Math.random()}
+                              >
                                 {field.SubmitedBy.length > 0 && (
                                   <div className="ml-1 mt-8 mb-3">
                                     <span className="font-bold">
