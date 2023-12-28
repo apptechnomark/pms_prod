@@ -224,6 +224,7 @@ const Datatable_Worklog = ({
           title={undefined}
           options={{
             ...worklogs_Options,
+            tableBodyHeight: "71vh",
             selectAllRows: isPopupOpen && selectedRowsCount === 0,
             rowsSelected: selectedRows,
             textLabels: {

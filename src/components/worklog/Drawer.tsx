@@ -982,10 +982,10 @@ const Drawer = ({
             : ResponseData.Quantity
         );
         setReceiverDateClientWorklog(
-          ResponseData.ReceiverDate === null ? 0 : ResponseData.ReceiverDate
+          ResponseData.ReceiverDate === null ? "" : ResponseData.ReceiverDate
         );
         setDueDateClientWorklog(
-          ResponseData.DueDate === null ? 0 : ResponseData.DueDate
+          ResponseData.DueDate === null ? "" : ResponseData.DueDate
         );
         setClientTaskNameClientWorklog(
           ResponseData.TaskName === null ? "" : ResponseData.TaskName
