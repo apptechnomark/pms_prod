@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -16,6 +16,7 @@ import StarIcon from "@mui/icons-material/Star";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { DialogTransition } from "@/utils/style/DialogTransition";
+import { Spinner } from "next-ts-lib";
 
 interface RatingModalProps {
   onOpen: boolean;
@@ -25,7 +26,6 @@ interface RatingModalProps {
   onActionClick?: () => void;
   onDataFetch: () => void;
   handleClearSelection: () => void;
-  getOverLay: any;
 }
 
 const RatingDialog: React.FC<RatingModalProps> = ({
@@ -35,11 +35,11 @@ const RatingDialog: React.FC<RatingModalProps> = ({
   noRatingId,
   onDataFetch,
   handleClearSelection,
-  getOverLay,
 }) => {
   const [ratingValue, setRatingValue] = React.useState<any>(0);
   const [ratingErr, setRatingErr] = React.useState(false);
   const [comment, setComment] = React.useState<string>("");
+  const [loaded, setLoaded] = useState(false);
 
   const handleClose = () => {
     setRatingValue(0);
@@ -61,7 +61,7 @@ const RatingDialog: React.FC<RatingModalProps> = ({
         handleClose();
       }
       if (ratingId.length > 0) {
-        getOverLay(true);
+        setLoaded(true);
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
         try {
@@ -85,7 +85,7 @@ const RatingDialog: React.FC<RatingModalProps> = ({
               toast.success("Rating successfully submitted.");
               onDataFetch();
               handleClose();
-              getOverLay(false);
+              setLoaded(false);
             } else {
               const data = response.data.Message;
               if (data === null) {
@@ -93,7 +93,7 @@ const RatingDialog: React.FC<RatingModalProps> = ({
               } else {
                 toast.error(data);
               }
-              getOverLay(false);
+              setLoaded(false);
             }
           } else {
             const data = response.data.Message;
@@ -102,11 +102,11 @@ const RatingDialog: React.FC<RatingModalProps> = ({
             } else {
               toast.error(data);
             }
-            getOverLay(false);
+            setLoaded(false);
           }
         } catch (error) {
           console.error(error);
-          getOverLay(false);
+          setLoaded(false);
         }
       }
     }
@@ -168,14 +168,20 @@ const RatingDialog: React.FC<RatingModalProps> = ({
           <Button variant="outlined" color="info" onClick={handleClose}>
             Cancel
           </Button>
-          <Button
-            variant="contained"
-            color="info"
-            className="!bg-secondary"
-            onClick={handleSubmit}
-          >
-            Submit
-          </Button>
+          {loaded ? (
+            <span className="w-[75px] flex items-center justify-center">
+              <Spinner size="20px" />
+            </span>
+          ) : (
+            <Button
+              variant="contained"
+              color="info"
+              className="!bg-secondary"
+              onClick={handleSubmit}
+            >
+              Submit
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     </div>

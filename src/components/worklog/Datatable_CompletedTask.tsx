@@ -398,10 +398,7 @@ const Datatable_CompletedTask = ({
       )}
 
       {/* Completed Task Action Bar */}
-      <CompletedTaskActionBar
-        {...propsForActionBar}
-        getOverLay={(e: any) => setIsLoadingWorklogCompletedDatatable(e)}
-      />
+      <CompletedTaskActionBar {...propsForActionBar} />
       {isLoadingWorklogCompletedDatatable ? <OverLay /> : ""}
     </div>
   );

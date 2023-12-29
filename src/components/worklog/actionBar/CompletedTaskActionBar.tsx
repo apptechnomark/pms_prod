@@ -19,7 +19,6 @@ const CompletedTaskActionBar = ({
   selectedRowStatusId,
   workItemData,
   onDataFetch,
-  getOverLay,
 }: any) => {
   const [isRatingOpen, setIsRatingOpen] = useState(false);
 
@@ -117,7 +116,6 @@ const CompletedTaskActionBar = ({
           .filter((i: any) => i !== undefined)}
         onDataFetch={onDataFetch}
         handleClearSelection={handleClearSelection}
-        getOverLay={getOverLay}
       />
     </div>
   );
