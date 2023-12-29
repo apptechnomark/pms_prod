@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
-import { Button, Typography, Password, Loader } from "next-ts-lib";
+import { Button, Typography, Password, Spinner } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import Footer from "@/components/common/Footer";
 import { useState } from "react";
@@ -123,7 +123,7 @@ const Page = () => {
           <div className="pb-5 flex justify-center items-center w-[320px] lg:w-[384px]">
             {clicked ? (
               <span className="mt-[35px] w-full text-center">
-                <Loader size="sm" />
+                <Spinner size="20px" />
               </span>
             ) : (
               <Button

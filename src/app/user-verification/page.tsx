@@ -2,12 +2,13 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Button, Loader, Password } from "next-ts-lib";
+import { Button, Password, Spinner } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
 import Footer from "@/components/common/Footer";
 import Pabs from "@/assets/icons/Pabs";
 import { toast } from "react-toastify";
+import ReportLoader from "@/components/common/ReportLoader";
 
 const Page = () => {
   const router = useRouter();
@@ -148,7 +149,7 @@ const Page = () => {
     <>
       {showPass ? (
         <div className="flex items-center justify-center min-h-screen">
-          <Loader size="lg" />
+          <ReportLoader />
         </div>
       ) : message ? (
         <div className="flex items-center justify-center min-h-screen">
@@ -200,7 +201,7 @@ const Page = () => {
                   </span>
                 )}
                 {clicked ? (
-                  <Loader size="sm" />
+                  <Spinner size="20px" />
                 ) : (
                   <Button
                     type="submit"

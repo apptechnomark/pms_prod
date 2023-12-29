@@ -13,6 +13,7 @@ import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import { datatableWorklogCols } from "@/utils/datatable/columns/ClientDatatableColumns";
 import WorklogActionbar from "./actionBar/WorklogActionbar";
 import ReportLoader from "../common/ReportLoader";
+import OverLay from "../common/OverLay";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -46,6 +47,8 @@ const Datatable_Worklog = ({
   onSearchWorkTypeData,
   onCloseDrawer,
 }: any) => {
+  const [isLoadingWorklogDatatable, setIsLoadingWorklogDatatable] =
+    useState(false);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
@@ -215,80 +218,85 @@ const Datatable_Worklog = ({
     isCreatedByClient,
   };
 
-  return loaded ? (
+  return (
     <div>
-      <ThemeProvider theme={getMuiTheme()}>
-        <MUIDataTable
-          data={workItemData}
-          columns={datatableWorklogCols}
-          title={undefined}
-          options={{
-            ...worklogs_Options,
-            tableBodyHeight: "71vh",
-            selectAllRows: isPopupOpen && selectedRowsCount === 0,
-            rowsSelected: selectedRows,
-            textLabels: {
-              body: {
-                noMatch: (
-                  <div className="flex items-center">
-                    <span>
-                      Currently no record found, you have to&nbsp;
-                      <a
-                        className="text-secondary underline cursor-pointer"
-                        onClick={onDrawerOpen}
-                      >
-                        create
-                      </a>{" "}
-                      process/task.
-                    </span>
-                  </div>
-                ),
-                toolTip: "",
+      {loaded ? (
+        <ThemeProvider theme={getMuiTheme()}>
+          <MUIDataTable
+            data={workItemData}
+            columns={datatableWorklogCols}
+            title={undefined}
+            options={{
+              ...worklogs_Options,
+              tableBodyHeight: "71vh",
+              selectAllRows: isPopupOpen && selectedRowsCount === 0,
+              rowsSelected: selectedRows,
+              textLabels: {
+                body: {
+                  noMatch: (
+                    <div className="flex items-center">
+                      <span>
+                        Currently no record found, you have to&nbsp;
+                        <a
+                          className="text-secondary underline cursor-pointer"
+                          onClick={onDrawerOpen}
+                        >
+                          create
+                        </a>{" "}
+                        process/task.
+                      </span>
+                    </div>
+                  ),
+                  toolTip: "",
+                },
               },
-            },
-            onRowSelectionChange: (
-              currentRowsSelected: any,
-              allRowsSelected: any,
-              rowsSelected: any
-            ) =>
-              handleRowSelect(
-                currentRowsSelected,
-                allRowsSelected,
-                rowsSelected
-              ),
-          }}
-          data-tableid="worklog_Datatable"
-        />
-        <TablePagination
-          className="mt-[10px]"
-          component="div"
-          count={tableDataCount}
-          page={page}
-          onPageChange={(
-            event: React.MouseEvent<HTMLButtonElement> | null,
-            newPage: number
-          ) => {
-            handlePageChangeWithFilter(newPage, setPage, setFilteredOject);
-          }}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={(
-            event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-          ) => {
-            handleChangeRowsPerPageWithFilter(
-              event,
-              setRowsPerPage,
-              setPage,
-              setFilteredOject
-            );
-          }}
-        />
-      </ThemeProvider>
-
-      {/* WorkLog's Action Bar */}
-      <WorklogActionbar {...propsForActionBar} />
+              onRowSelectionChange: (
+                currentRowsSelected: any,
+                allRowsSelected: any,
+                rowsSelected: any
+              ) =>
+                handleRowSelect(
+                  currentRowsSelected,
+                  allRowsSelected,
+                  rowsSelected
+                ),
+            }}
+            data-tableid="worklog_Datatable"
+          />
+          <TablePagination
+            className="mt-[10px]"
+            component="div"
+            count={tableDataCount}
+            page={page}
+            onPageChange={(
+              event: React.MouseEvent<HTMLButtonElement> | null,
+              newPage: number
+            ) => {
+              handlePageChangeWithFilter(newPage, setPage, setFilteredOject);
+            }}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={(
+              event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+            ) => {
+              handleChangeRowsPerPageWithFilter(
+                event,
+                setRowsPerPage,
+                setPage,
+                setFilteredOject
+              );
+            }}
+          />
+        </ThemeProvider>
+      ) : (
+        <ReportLoader />
+      )}
+      ;{/* WorkLog's Action Bar */}
+      <WorklogActionbar
+        {...propsForActionBar}
+        getOverLay={(e: any) => setIsLoadingWorklogDatatable(e)}
+      />
+      {isLoadingWorklogDatatable ? <OverLay /> : ""}
     </div>
-  ) : (
-    <ReportLoader />
   );
 };
 

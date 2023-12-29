@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import Link from "next/link";
-import { Button, Password, Loader, Email } from "next-ts-lib";
+import { Button, Password, Email, Spinner } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
@@ -142,7 +142,7 @@ const Page = () => {
             </div>
             {clicked ? (
               <span className="mt-[35px]">
-                <Loader size="sm" />
+                <Spinner size="20px" />
               </span>
             ) : (
               <Button

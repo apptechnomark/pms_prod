@@ -2,7 +2,7 @@
 "use client";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Button, Select, Text, Tooltip, Loader } from "next-ts-lib";
+import { Button, Select, Text, Tooltip } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import AddPlusIcon from "@/assets/icons/AddPlusIcon";
@@ -32,6 +32,7 @@ import {
   USER,
 } from "@/components/settings/tables/Constants/Tabname";
 import { toast } from "react-toastify";
+import ReportLoader from "@/components/common/ReportLoader";
 
 type Tabs = { id: string; label: string; canView: boolean };
 
@@ -963,7 +964,7 @@ const Page = () => {
       <div>
         {isLoading ? (
           <div className="flex items-center justify-center min-h-screen">
-            <Loader />
+            <ReportLoader />
           </div>
         ) : (
           <div className="bg-white flex justify-between items-center">

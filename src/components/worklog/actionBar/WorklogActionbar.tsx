@@ -31,6 +31,7 @@ const WorklogActionbar = ({
   workItemData,
   getWorkItemList,
   isCreatedByClient,
+  getOverLay,
 }: any) => {
   const [allStatus, setAllStatus] = useState<any | any[]>([]);
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
@@ -94,6 +95,7 @@ const WorklogActionbar = ({
     const Org_Token = await localStorage.getItem("Org_Token");
 
     try {
+      getOverLay(true);
       const response = await axios.post(
         `${process.env.worklog_api_url}/workitem/UpdatePriority`,
         {
@@ -114,12 +116,15 @@ const WorklogActionbar = ({
           toast.success("Priority has been updated successfully.");
           handleClearSelection();
           getWorkItemList();
+          getOverLay(false);
         } else {
           toast.error(data || "Please try again later.");
+          getOverLay(false);
         }
       } else {
         const data = response.data.Message;
         toast.error(data || "Please try again later.");
+        getOverLay(false);
       }
     } catch (error) {
       console.error(error);
@@ -153,6 +158,7 @@ const WorklogActionbar = ({
         toast.warning("You can not delete task which is created by PABS.");
       }
       if (deletedId.length > 0) {
+        getOverLay(true);
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
 
@@ -177,13 +183,16 @@ const WorklogActionbar = ({
             toast.success("Task has been deleted successfully.");
             handleClearSelection();
             getWorkItemList();
+            getOverLay(false);
           } else {
             const data = response.data.Message || "An error occurred.";
             toast.error(data);
+            getOverLay(false);
           }
         } catch (error) {
           console.error(error);
           toast.error("An error occurred while deleting the task.");
+          getOverLay(false);
         }
       }
     }
@@ -210,6 +219,7 @@ const WorklogActionbar = ({
       toast.warning("You can not duplicate task which is created by PABS.");
     }
     if (duplicateId.length > 0) {
+      getOverLay(true);
       const token = await localStorage.getItem("token");
       const Org_Token = await localStorage.getItem("Org_Token");
       try {
@@ -231,6 +241,7 @@ const WorklogActionbar = ({
             toast.success("Task has been duplicated successfully");
             handleClearSelection();
             getWorkItemList();
+            getOverLay(false);
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -238,6 +249,7 @@ const WorklogActionbar = ({
             } else {
               toast.error(data);
             }
+            getOverLay(false);
           }
         } else {
           const data = response.data.Message;
@@ -246,9 +258,11 @@ const WorklogActionbar = ({
           } else {
             toast.error(data);
           }
+          getOverLay(false);
         }
       } catch (error) {
         console.error(error);
+        getOverLay(false);
       }
     }
   };
@@ -301,6 +315,7 @@ const WorklogActionbar = ({
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 
+    getOverLay(true);
     try {
       const response = await axios.post(
         `${process.env.worklog_api_url}/workitem/UpdateStatus`,
@@ -322,6 +337,7 @@ const WorklogActionbar = ({
           toast.success("Status has been updated successfully.");
           handleClearSelection();
           getWorkItemList();
+          getOverLay(false);
         } else {
           const data = response.data.Message;
           if (data === null) {
@@ -329,6 +345,7 @@ const WorklogActionbar = ({
           } else {
             toast.error(data);
           }
+          getOverLay(false);
         }
       } else {
         const data = response.data.Message;
@@ -337,9 +354,11 @@ const WorklogActionbar = ({
         } else {
           toast.error(data);
         }
+        getOverLay(false);
       }
     } catch (error) {
       console.error(error);
+      getOverLay(false);
     }
   };
 

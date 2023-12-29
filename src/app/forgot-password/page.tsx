@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button, Typography, Email, Loader } from "next-ts-lib";
+import { Button, Typography, Email, Spinner } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import axios from "axios";
 import Pabs from "@/assets/icons/Pabs";
@@ -91,7 +91,7 @@ const ForgetPassword = () => {
             </div>
             {clicked ? (
               <span className="mt-[35px] w-[300px] lg:w-[356px] text-center">
-                <Loader size="sm" />
+                <Spinner size="20px" />
               </span>
             ) : (
               <Button

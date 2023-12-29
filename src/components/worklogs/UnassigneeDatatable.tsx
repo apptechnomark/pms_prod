@@ -19,6 +19,7 @@ import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
 import WorklogsActionBar from "./actionBar/WorklogsActionBar";
 import ReportLoader from "../common/ReportLoader";
+import OverLay from "../common/OverLay";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -49,6 +50,10 @@ const UnassigneeDatatable = ({
   searchValue,
   isUnassigneeClicked,
 }: any) => {
+  const [
+    isLoadingWorklogsUnassigneeDatatable,
+    setIsLoadingWorklogsUnassigneeDatatable,
+  ] = useState(false);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [selectedRowsCount, setSelectedRowsCount] = useState(0);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -576,7 +581,11 @@ const UnassigneeDatatable = ({
       )}
 
       {/* Action Bar */}
-      <WorklogsActionBar {...propsForActionBar} />
+      <WorklogsActionBar
+        {...propsForActionBar}
+        getOverLay={(e: any) => setIsLoadingWorklogsUnassigneeDatatable(e)}
+      />
+      {isLoadingWorklogsUnassigneeDatatable ? <OverLay /> : ""}
     </div>
   );
 };

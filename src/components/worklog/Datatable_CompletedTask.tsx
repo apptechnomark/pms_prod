@@ -18,6 +18,7 @@ import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import CompletedTaskActionBar from "./actionBar/CompletedTaskActionBar";
 import ReportLoader from "../common/ReportLoader";
+import OverLay from "../common/OverLay";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -52,6 +53,10 @@ const Datatable_CompletedTask = ({
   onSearchWorkTypeData,
   onCloseDrawer,
 }: any) => {
+  const [
+    isLoadingWorklogCompletedDatatable,
+    setIsLoadingWorklogCompletedDatatable,
+  ] = useState(false);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(pageSize);
@@ -393,7 +398,11 @@ const Datatable_CompletedTask = ({
       )}
 
       {/* Completed Task Action Bar */}
-      <CompletedTaskActionBar {...propsForActionBar} />
+      <CompletedTaskActionBar
+        {...propsForActionBar}
+        getOverLay={(e: any) => setIsLoadingWorklogCompletedDatatable(e)}
+      />
+      {isLoadingWorklogCompletedDatatable ? <OverLay /> : ""}
     </div>
   );
 };

@@ -910,6 +910,7 @@ const Drawer = ({
             );
             onEdit === 0 && handleCloseClientWorklog();
             setIsLoadingClientWorklog(false);
+            getEditDataClientWorklog();
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -917,6 +918,7 @@ const Drawer = ({
             } else {
               toast.error(data);
             }
+            getEditDataClientWorklog();
             setIsLoadingClientWorklog(false);
           }
         } else {
@@ -926,6 +928,7 @@ const Drawer = ({
           } else {
             toast.error(data);
           }
+          getEditDataClientWorklog();
           setIsLoadingClientWorklog(false);
         }
       } catch (error: any) {

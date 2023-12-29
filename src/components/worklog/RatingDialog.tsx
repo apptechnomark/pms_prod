@@ -25,6 +25,7 @@ interface RatingModalProps {
   onActionClick?: () => void;
   onDataFetch: () => void;
   handleClearSelection: () => void;
+  getOverLay: any;
 }
 
 const RatingDialog: React.FC<RatingModalProps> = ({
@@ -34,6 +35,7 @@ const RatingDialog: React.FC<RatingModalProps> = ({
   noRatingId,
   onDataFetch,
   handleClearSelection,
+  getOverLay,
 }) => {
   const [ratingValue, setRatingValue] = React.useState<any>(0);
   const [ratingErr, setRatingErr] = React.useState(false);
@@ -59,6 +61,7 @@ const RatingDialog: React.FC<RatingModalProps> = ({
         handleClose();
       }
       if (ratingId.length > 0) {
+        getOverLay(true);
         const token = await localStorage.getItem("token");
         const Org_Token = await localStorage.getItem("Org_Token");
         try {
@@ -82,6 +85,7 @@ const RatingDialog: React.FC<RatingModalProps> = ({
               toast.success("Rating successfully submitted.");
               onDataFetch();
               handleClose();
+              getOverLay(false);
             } else {
               const data = response.data.Message;
               if (data === null) {
@@ -89,6 +93,7 @@ const RatingDialog: React.FC<RatingModalProps> = ({
               } else {
                 toast.error(data);
               }
+              getOverLay(false);
             }
           } else {
             const data = response.data.Message;
@@ -97,9 +102,11 @@ const RatingDialog: React.FC<RatingModalProps> = ({
             } else {
               toast.error(data);
             }
+            getOverLay(false);
           }
         } catch (error) {
           console.error(error);
+          getOverLay(false);
         }
       }
     }
