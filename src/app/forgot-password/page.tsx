@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Typography, Email, Spinner } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
-import axios from "axios";
 import Pabs from "@/assets/icons/Pabs";
 import { toast } from "react-toastify";
+import { callAPI } from "@/utils/API/callAPI";
 
 const ForgetPassword = () => {
   const router = useRouter();
@@ -22,33 +22,23 @@ const ForgetPassword = () => {
     } else {
       setError(false);
       setClicked(true);
-      try {
-        if (forgetValue.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/) && emailError) {
-          const response = await axios.post(
-            `${process.env.api_url}/auth/forgotpassword`,
-            { Username: forgetValue }
-          );
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success("Please check your email.");
-              router.push(`/forgot-confirm/?email=${forgetValue}`);
-            } else {
-              toast.error("Please try again.");
-              setClicked(false);
-            }
+      if (forgetValue.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/) && emailError) {
+        const params = { Username: forgetValue };
+        const url = `${process.env.api_url}/auth/forgotpassword`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            router.push(`/forgot-confirm/?email=${forgetValue}`);
+            toast.success("Please check your email.");
+            setClicked(false);
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again after sometime.");
-            } else {
-              toast.error(data);
-            }
             setClicked(false);
           }
-        }
-      } catch (error) {
-        setClicked(false);
-        console.error(error);
+        };
+        callAPI(url, params, successCallback, "POST");
       }
     }
   };
@@ -90,7 +80,7 @@ const ForgetPassword = () => {
               />
             </div>
             {clicked ? (
-              <span className="mt-[35px] w-[300px] lg:w-[356px] text-center">
+              <span className="mt-[35px] w-[300px] lg:w-[356px] text-center flex items-center justify-center">
                 <Spinner size="20px" />
               </span>
             ) : (

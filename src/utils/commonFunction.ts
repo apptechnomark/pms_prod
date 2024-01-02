@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-
-import axios from "axios";
 import { toast } from "react-toastify";
+import { callAPI } from "./API/callAPI";
 
 const hasToken = (router: any) => {
   const token = localStorage.getItem("token");
@@ -18,28 +17,20 @@ const hasNoToken = (router: any) => {
 };
 
 const handleLogoutUtil = async () => {
-  const token = await localStorage.getItem("token");
-  const Org_Token = await localStorage.getItem("Org_Token");
-  try {
-    const response = await axios.get(`${process.env.api_url}/auth/logout`, {
-      headers: {
-        Authorization: `bearer ${token}`,
-        org_token: `${Org_Token}`,
-      },
-    });
-
-    if (response.status === 200) {
-      if (response.data.ResponseStatus === "Success") {
-        localStorage.clear();
-      } else {
-        toast.error("Something went wrong.");
-      }
+  const params = {};
+  const url = `${process.env.api_url}/auth/logout`;
+  const successCallback = (
+    ResponseData: any,
+    error: any,
+    ResponseStatus: any
+  ) => {
+    if (ResponseStatus === "Success" && error === false) {
+      localStorage.clear();
     } else {
       toast.error("Something went wrong.");
     }
-  } catch (error) {
-    console.error(error);
-  }
+  };
+  callAPI(url, params, successCallback, "GET");
 };
 
 const hasPermissionWorklog = (

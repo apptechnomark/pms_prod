@@ -14,11 +14,11 @@ import { toast } from "react-toastify";
 import FilterDialog from "@/components/worklog/filterDialog";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import ImportIcon from "@/assets/icons/ImportIcon";
-import axios from "axios";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { useRouter } from "next/navigation";
 import ImportDialog from "@/components/worklog/worklog_Import/ImportDialog";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Worklog = () => {
   const router = useRouter();
@@ -52,60 +52,38 @@ const Worklog = () => {
     }
   }, [router]);
 
-  const handleIsWorklogSearch = async (searchValue: any, orgToken: any) => {
-    const token = await localStorage.getItem("token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/ClientWorkitem/getworkitemlist`,
-        {
-          PageNo: 1,
-          PageSize: 50000,
-          SortColumn: "",
-          IsDesc: true,
-          GlobalSearch: searchValue,
-          ProjectIds: null,
-          OverdueBy: null,
-          PriorityId: null,
-          StatusId: null,
-          WorkTypeId: null,
-          AssignedTo: null,
-          StartDate: null,
-          EndDate: null,
-          DueDate: null,
-          IsCreatedByClient: null,
-          IsCompletedTaskPage: false,
-          IsSignedOff: false,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: orgToken,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setWorkTypeData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Login failed. Please try again.");
-        } else {
-          toast.error(data);
-        }
+  const handleIsWorklogSearch = async (searchValue: any) => {
+    const params = {
+      PageNo: 1,
+      PageSize: 50000,
+      SortColumn: "",
+      IsDesc: true,
+      GlobalSearch: searchValue,
+      ProjectIds: null,
+      OverdueBy: null,
+      PriorityId: null,
+      StatusId: null,
+      WorkTypeId: null,
+      AssignedTo: null,
+      StartDate: null,
+      EndDate: null,
+      DueDate: null,
+      IsCreatedByClient: null,
+      IsCompletedTaskPage: false,
+      IsSignedOff: false,
+      ...currentFilterData,
+    };
+    const url = `${process.env.worklog_api_url}/ClientWorkitem/getworkitemlist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setWorkTypeData(ResponseData.List);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -113,9 +91,9 @@ const Worklog = () => {
       const orgToken = await localStorage.getItem("Org_Token");
       if (orgToken && isWorklogClicked) {
         if (isWorklogSearch.length >= 3) {
-          handleIsWorklogSearch(isWorklogSearch, orgToken);
+          handleIsWorklogSearch(isWorklogSearch);
         } else {
-          handleIsWorklogSearch("", orgToken);
+          handleIsWorklogSearch("");
         }
       }
     };
@@ -123,63 +101,38 @@ const Worklog = () => {
     fetchOrgToken();
   }, [isWorklogSearch, isWorklogClicked]);
 
-  const handleIsWorklogCompleteSearch = async (
-    searchValue: any,
-    orgToken: any
-  ) => {
-    const token = await localStorage.getItem("token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/ClientWorkitem/getworkitemlist`,
-        {
-          PageNo: 1,
-          PageSize: 50000,
-          SortColumn: "",
-          IsDesc: true,
-          GlobalSearch: searchValue,
-          ProjectIds: null,
-          OverdueBy: null,
-          PriorityId: null,
-          StatusId: null,
-          WorkTypeId: null,
-          AssignedTo: null,
-          StartDate: null,
-          EndDate: null,
-          DueDate: null,
-          IsCreatedByClient: null,
-          IsCompletedTaskPage: true,
-          IsSignedOff: false,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: orgToken,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setWorkTypeCompleteData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Login failed. Please try again.");
-        } else {
-          toast.error(data);
-        }
+  const handleIsWorklogCompleteSearch = async (searchValue: any) => {
+    const params = {
+      PageNo: 1,
+      PageSize: 50000,
+      SortColumn: "",
+      IsDesc: true,
+      GlobalSearch: searchValue,
+      ProjectIds: null,
+      OverdueBy: null,
+      PriorityId: null,
+      StatusId: null,
+      WorkTypeId: null,
+      AssignedTo: null,
+      StartDate: null,
+      EndDate: null,
+      DueDate: null,
+      IsCreatedByClient: null,
+      IsCompletedTaskPage: true,
+      IsSignedOff: false,
+      ...currentFilterData,
+    };
+    const url = `${process.env.worklog_api_url}/ClientWorkitem/getworkitemlist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setWorkTypeCompleteData(ResponseData.List);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -187,9 +140,9 @@ const Worklog = () => {
       const orgToken = await localStorage.getItem("Org_Token");
       if (orgToken && isCompletedTaskClicked) {
         if (isWorklogCompleteSearch.length >= 3) {
-          handleIsWorklogCompleteSearch(isWorklogCompleteSearch, orgToken);
+          handleIsWorklogCompleteSearch(isWorklogCompleteSearch);
         } else {
-          handleIsWorklogCompleteSearch("", orgToken);
+          handleIsWorklogCompleteSearch("");
         }
       }
     };

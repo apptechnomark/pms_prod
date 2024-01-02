@@ -93,8 +93,6 @@ const EditDrawer = ({
   const [editData, setEditData] = useState<any>([]);
   const [isCreatedByClient, setIsCreatedByClient] = useState(false);
   const [isManual, setIsManual] = useState(null);
-  const [isPartiallySubmitted, setIsPartiallySubmitted] =
-    useState<boolean>(false);
   const [selectedDays, setSelectedDays] = useState<any>([]);
   const [inputDateErrors, setInputDateErrors] = useState([false]);
   const [startTimeErrors, setStartTimeErrors] = useState([false]);
@@ -119,8 +117,8 @@ const EditDrawer = ({
     hasPermissionWorklog("CheckList", "View", "WorkLogs") && "Checklist",
     hasPermissionWorklog("Comment", "View", "WorkLogs") && "Comments",
     hasPermissionWorklog("Reccuring", "View", "WorkLogs") && "Recurring",
-    (isManual === true || isManual === null) && "Manual Time",
-    isPartiallySubmitted && "Reviewer Manual Time",
+    "Manual Time",
+    "Reviewer Manual Time",
     hasPermissionWorklog("Reminder", "View", "WorkLogs") && "Reminder",
     hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && "Error Logs",
     "Reviewer's Note",
@@ -128,32 +126,9 @@ const EditDrawer = ({
   ];
 
   useEffect(() => {
-    scrollToPanel(
-      (isManual === null || isManual === true) && isPartiallySubmitted
-        ? 8
-        : isManual === null || isManual === true
-        ? 7
-        : isPartiallySubmitted
-        ? 7
-        : 0
-    );
-    if (hasIconIndex > 0) {
-      setIsPartiallySubmitted(true);
-      scrollToPanel(isManual === null || isManual === true ? 6 : 5);
-    }
     onComment === true ? scrollToPanel(3) : scrollToPanel(0);
-    onErrorLog === true
-      ? scrollToPanel(
-          isManual === null || isManual === true
-            ? 8
-            : isPartiallySubmitted
-            ? 8
-            : 7
-        )
-      : scrollToPanel(0);
-    onManualTime === true
-      ? scrollToPanel(isManual === null || isManual === true ? 6 : 5)
-      : scrollToPanel(0);
+    onErrorLog === true ? scrollToPanel(8) : scrollToPanel(0);
+    onManualTime === true ? scrollToPanel(6) : scrollToPanel(0);
   }, [onEdit, onComment, onErrorLog, onManualTime]);
 
   const handleTabClick = (index: number) => {
@@ -4518,238 +4493,190 @@ const EditDrawer = ({
               </div>
             )}
 
-            {isPartiallySubmitted && (
-              <div
-                className="mt-14"
-                id={`${
-                  isManual === true || isManual === null
-                    ? "tabpanel-6"
-                    : isPartiallySubmitted && "tabpanel-5"
-                }`}
-              >
-                <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
-                  <span className="flex items-center">
-                    <ClockIcon />
-                    <span className="ml-[21px]">Reviewer Manual Time</span>
-                  </span>
-                  <span className="flex items-center">
-                    {onEdit > 0 && manualSwitch && (
-                      <Button
-                        variant="contained"
-                        className={`rounded-[4px] !h-[36px] mr-6 ${
-                          manualSubmitDisable ? "" : "!bg-secondary"
-                        }`}
-                        disabled={manualSubmitDisable}
-                        onClick={
-                          manualSubmitDisable
-                            ? undefined
-                            : saveReviewerManualTimelog
-                        }
-                      >
-                        Update
-                      </Button>
-                    )}
-                    <Switch
-                      checked={manualSwitch}
-                      onChange={(e) => {
-                        setManualSwitch(e.target.checked);
-                        setReviewerManualFields([
-                          {
-                            AssigneeId: 0,
-                            Id: 0,
-                            inputDate: "",
-                            startTime: "",
-                            endTime: "",
-                            totalTime: "",
-                            manualDesc: "",
-                            IsApproved: false,
-                          },
-                        ]);
-                        setInputDateErrors([false]);
-                        setStartTimeErrors([false]);
-                        setEndTimeErrors([false]);
-                        setManualDescErrors([false]);
-                        setInputTypeDate(["text"]);
-                        setManualDisableData([
-                          {
-                            AssigneeId: 0,
-                            Id: 0,
-                            inputDate: "",
-                            startTime: "",
-                            endTime: "",
-                            totalTime: "",
-                            manualDesc: "",
-                            IsApproved: false,
-                          },
-                        ]);
-                      }}
-                    />
-                    <span
-                      className={`cursor-pointer ${
-                        manualTimeDrawer ? "rotate-180" : ""
+            <div className="mt-14" id="tabpanel-6">
+              <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
+                <span className="flex items-center">
+                  <ClockIcon />
+                  <span className="ml-[21px]">Reviewer Manual Time</span>
+                </span>
+                <span className="flex items-center">
+                  {onEdit > 0 && manualSwitch && (
+                    <Button
+                      variant="contained"
+                      className={`rounded-[4px] !h-[36px] mr-6 ${
+                        manualSubmitDisable ? "" : "!bg-secondary"
                       }`}
-                      onClick={() => setManualTimeDrawer(!manualTimeDrawer)}
+                      disabled={manualSubmitDisable}
+                      onClick={
+                        manualSubmitDisable
+                          ? undefined
+                          : saveReviewerManualTimelog
+                      }
                     >
-                      <ChevronDownIcon />
-                    </span>
+                      Update
+                    </Button>
+                  )}
+                  <Switch
+                    checked={manualSwitch}
+                    onChange={(e) => {
+                      setManualSwitch(e.target.checked);
+                      setReviewerManualFields([
+                        {
+                          AssigneeId: 0,
+                          Id: 0,
+                          inputDate: "",
+                          startTime: "",
+                          endTime: "",
+                          totalTime: "",
+                          manualDesc: "",
+                          IsApproved: false,
+                        },
+                      ]);
+                      setInputDateErrors([false]);
+                      setStartTimeErrors([false]);
+                      setEndTimeErrors([false]);
+                      setManualDescErrors([false]);
+                      setInputTypeDate(["text"]);
+                      setManualDisableData([
+                        {
+                          AssigneeId: 0,
+                          Id: 0,
+                          inputDate: "",
+                          startTime: "",
+                          endTime: "",
+                          totalTime: "",
+                          manualDesc: "",
+                          IsApproved: false,
+                        },
+                      ]);
+                    }}
+                  />
+                  <span
+                    className={`cursor-pointer ${
+                      manualTimeDrawer ? "rotate-180" : ""
+                    }`}
+                    onClick={() => setManualTimeDrawer(!manualTimeDrawer)}
+                  >
+                    <ChevronDownIcon />
                   </span>
-                </div>
-                {manualTimeDrawer && (
-                  <>
-                    <div className="-mt-2 pl-6">
-                      {reviewermanualFields.map((field, index) => (
-                        <div key={field.Id} className="flex items-center">
-                          <div
-                            className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
-                              inputDateErrors[index] ? "datepickerError" : ""
-                            }`}
-                          >
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                              <DatePicker
-                                label={
-                                  <span>
-                                    Date
-                                    <span className="!text-defaultRed">
-                                      &nbsp;*
-                                    </span>
+                </span>
+              </div>
+              {manualTimeDrawer && (
+                <>
+                  <div className="-mt-2 pl-6">
+                    {reviewermanualFields.map((field, index) => (
+                      <div key={field.Id} className="flex items-center">
+                        <div
+                          className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
+                            inputDateErrors[index] ? "datepickerError" : ""
+                          }`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              label={
+                                <span>
+                                  Date
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
                                   </span>
-                                }
-                                minDate={dayjs(recurringStartDateApprovals)}
-                                maxDate={dayjs(new Date())}
-                                disabled={
-                                  !manualSwitch ||
-                                  field.IsApproved ||
-                                  (field.AssigneeId !== 0 &&
-                                    field.AssigneeId !== userId)
-                                }
-                                onError={() => {
-                                  if (
-                                    field.inputDate[index]?.trim().length > 0
-                                  ) {
-                                    const newInputDateErrors = [
-                                      ...inputDateErrors,
-                                    ];
-                                    newInputDateErrors[index] = false;
-                                    setInputDateErrors(newInputDateErrors);
-                                  }
-                                }}
-                                value={
-                                  field.inputDate === ""
-                                    ? null
-                                    : dayjs(field.inputDate)
-                                }
-                                onChange={(newDate: any) => {
-                                  handleInputDateChange(newDate.$d, index);
-                                }}
-                                slotProps={{
-                                  textField: {
-                                    helperText: inputDateErrors[index]
-                                      ? "This is a required field."
-                                      : "",
-                                    readOnly: true,
-                                  } as Record<string, any>,
-                                }}
-                              />
-                            </LocalizationProvider>
-                          </div>
-                          <TextField
-                            label={
-                              <span>
-                                Start Time(24h)
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
                                 </span>
-                              </span>
-                            }
-                            placeholder="00:00:00"
-                            disabled={
-                              !manualSwitch ||
-                              field.IsApproved ||
-                              (field.AssigneeId !== 0 &&
-                                field.AssigneeId !== userId)
-                            }
-                            fullWidth
-                            value={field.startTime}
-                            onChange={(e) => handleStartTimeChange(e, index)}
-                            onBlur={(e: any) => {
-                              if (e.target.value.trim().length > 7) {
-                                const newStartTimeErrors = [...startTimeErrors];
-                                newStartTimeErrors[index] = false;
-                                setStartTimeErrors(newStartTimeErrors);
                               }
-                            }}
-                            error={startTimeErrors[index]}
-                            helperText={
-                              field.startTime.trim().length > 0 &&
-                              field.startTime.trim().length < 8 &&
-                              startTimeErrors[index]
-                                ? "Start time must be in HH:MM:SS"
-                                : field.startTime.trim().length <= 0 &&
-                                  startTimeErrors[index]
-                                ? "This is a required field"
-                                : ""
-                            }
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 225 }}
-                          />
-                          <TextField
-                            label={
-                              <span>
-                                End Time(24h)
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            placeholder="00:00:00"
-                            disabled={
-                              !manualSwitch ||
-                              field.IsApproved ||
-                              (field.AssigneeId !== 0 &&
-                                field.AssigneeId !== userId)
-                            }
-                            fullWidth
-                            value={field.endTime}
-                            onChange={(e) => handleEndTimeChange(e, index)}
-                            onBlur={(e: any) => {
-                              if (
-                                e.target.value.trim().length > 7 &&
-                                field.endTime > field.startTime &&
-                                field.startTime
-                                  .split(":")
-                                  .reduce(
-                                    (acc, timePart, index) =>
-                                      acc +
-                                      parseInt(timePart) * [3600, 60, 1][index],
-                                    0
-                                  ) +
-                                  "07:59:59"
-                                    .split(":")
-                                    .reduce(
-                                      (acc, timePart, index) =>
-                                        acc +
-                                        parseInt(timePart) *
-                                          [3600, 60, 1][index],
-                                      0
-                                    ) <
-                                  field.endTime
-                                    .split(":")
-                                    .reduce(
-                                      (acc, timePart, index) =>
-                                        acc +
-                                        parseInt(timePart) *
-                                          [3600, 60, 1][index],
-                                      0
-                                    )
-                              ) {
-                                const newEndTimeErrors = [...endTimeErrors];
-                                newEndTimeErrors[index] = false;
-                                setEndTimeErrors(newEndTimeErrors);
+                              minDate={dayjs(recurringStartDateApprovals)}
+                              maxDate={dayjs(new Date())}
+                              disabled={
+                                !manualSwitch ||
+                                field.IsApproved ||
+                                (field.AssigneeId !== 0 &&
+                                  field.AssigneeId !== userId)
                               }
-                            }}
-                            error={endTimeErrors[index]}
-                            helperText={
+                              onError={() => {
+                                if (field.inputDate[index]?.trim().length > 0) {
+                                  const newInputDateErrors = [
+                                    ...inputDateErrors,
+                                  ];
+                                  newInputDateErrors[index] = false;
+                                  setInputDateErrors(newInputDateErrors);
+                                }
+                              }}
+                              value={
+                                field.inputDate === ""
+                                  ? null
+                                  : dayjs(field.inputDate)
+                              }
+                              onChange={(newDate: any) => {
+                                handleInputDateChange(newDate.$d, index);
+                              }}
+                              slotProps={{
+                                textField: {
+                                  helperText: inputDateErrors[index]
+                                    ? "This is a required field."
+                                    : "",
+                                  readOnly: true,
+                                } as Record<string, any>,
+                              }}
+                            />
+                          </LocalizationProvider>
+                        </div>
+                        <TextField
+                          label={
+                            <span>
+                              Start Time(24h)
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          placeholder="00:00:00"
+                          disabled={
+                            !manualSwitch ||
+                            field.IsApproved ||
+                            (field.AssigneeId !== 0 &&
+                              field.AssigneeId !== userId)
+                          }
+                          fullWidth
+                          value={field.startTime}
+                          onChange={(e) => handleStartTimeChange(e, index)}
+                          onBlur={(e: any) => {
+                            if (e.target.value.trim().length > 7) {
+                              const newStartTimeErrors = [...startTimeErrors];
+                              newStartTimeErrors[index] = false;
+                              setStartTimeErrors(newStartTimeErrors);
+                            }
+                          }}
+                          error={startTimeErrors[index]}
+                          helperText={
+                            field.startTime.trim().length > 0 &&
+                            field.startTime.trim().length < 8 &&
+                            startTimeErrors[index]
+                              ? "Start time must be in HH:MM:SS"
+                              : field.startTime.trim().length <= 0 &&
+                                startTimeErrors[index]
+                              ? "This is a required field"
+                              : ""
+                          }
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 225 }}
+                        />
+                        <TextField
+                          label={
+                            <span>
+                              End Time(24h)
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          placeholder="00:00:00"
+                          disabled={
+                            !manualSwitch ||
+                            field.IsApproved ||
+                            (field.AssigneeId !== 0 &&
+                              field.AssigneeId !== userId)
+                          }
+                          fullWidth
+                          value={field.endTime}
+                          onChange={(e) => handleEndTimeChange(e, index)}
+                          onBlur={(e: any) => {
+                            if (
+                              e.target.value.trim().length > 7 &&
+                              field.endTime > field.startTime &&
                               field.startTime
                                 .split(":")
                                 .reduce(
@@ -4766,142 +4693,156 @@ const EditDrawer = ({
                                       parseInt(timePart) * [3600, 60, 1][index],
                                     0
                                   ) <
-                              field.endTime
+                                field.endTime
+                                  .split(":")
+                                  .reduce(
+                                    (acc, timePart, index) =>
+                                      acc +
+                                      parseInt(timePart) * [3600, 60, 1][index],
+                                    0
+                                  )
+                            ) {
+                              const newEndTimeErrors = [...endTimeErrors];
+                              newEndTimeErrors[index] = false;
+                              setEndTimeErrors(newEndTimeErrors);
+                            }
+                          }}
+                          error={endTimeErrors[index]}
+                          helperText={
+                            field.startTime
+                              .split(":")
+                              .reduce(
+                                (acc, timePart, index) =>
+                                  acc +
+                                  parseInt(timePart) * [3600, 60, 1][index],
+                                0
+                              ) +
+                              "07:59:59"
                                 .split(":")
                                 .reduce(
                                   (acc, timePart, index) =>
                                     acc +
                                     parseInt(timePart) * [3600, 60, 1][index],
                                   0
-                                )
-                                ? "Time must be less than 07:59:59"
-                                : field.endTime.trim().length > 0 &&
-                                  field.endTime.trim().length < 8 &&
-                                  endTimeErrors[index]
-                                ? "Start time must be in HH:MM:SS"
-                                : field.endTime.trim().length <= 0 &&
-                                  endTimeErrors[index]
-                                ? "This is a required field"
-                                : endTimeErrors[index] &&
-                                  field.endTime <= field.startTime
-                                ? "End time must be grater than start time"
-                                : ""
-                            }
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 225 }}
-                          />
-                          <TextField
-                            label="Total Time"
-                            disabled
-                            fullWidth
-                            value={field.totalTime}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 225 }}
-                          />
-                          <TextField
-                            label={
-                              <span>
-                                Description
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            className="mt-4"
-                            disabled={
-                              !manualSwitch ||
-                              field.IsApproved ||
-                              (field.AssigneeId !== 0 &&
-                                field.AssigneeId !== userId)
-                            }
-                            fullWidth
-                            value={field.manualDesc}
-                            onChange={(e) => handleManualDescChange(e, index)}
-                            onBlur={(e: any) => {
-                              if (e.target.value.trim().length > 0) {
-                                const newManualDescErrors = [
-                                  ...manualDescErrors,
-                                ];
-                                newManualDescErrors[index] = false;
-                                setManualDescErrors(newManualDescErrors);
-                              }
-                            }}
-                            error={manualDescErrors[index]}
-                            helperText={
-                              manualDescErrors[index] &&
-                              field.manualDesc.length > 0 &&
-                              field.manualDesc.length < 5
-                                ? "Minumum 5 characters required."
-                                : manualDescErrors[index] &&
-                                  field.manualDesc.length > 500
-                                ? "Maximum 500 characters allowed."
-                                : manualDescErrors[index]
-                                ? "This is a required field."
-                                : ""
-                            }
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
-                          />
-                          {index === 0
-                            ? manualSwitch && (
-                                <span
-                                  className="cursor-pointer"
-                                  onClick={addManualField}
-                                >
-                                  <svg
-                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                    focusable="false"
-                                    aria-hidden="true"
-                                    viewBox="0 0 24 24"
-                                    data-testid="AddIcon"
-                                  >
-                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
-                                  </svg>
-                                </span>
+                                ) <
+                            field.endTime
+                              .split(":")
+                              .reduce(
+                                (acc, timePart, index) =>
+                                  acc +
+                                  parseInt(timePart) * [3600, 60, 1][index],
+                                0
                               )
-                            : manualSwitch &&
-                              !field.IsApproved && (
-                                <span
-                                  className="cursor-pointer"
-                                  onClick={() => removePhoneField(index)}
+                              ? "Time must be less than 07:59:59"
+                              : field.endTime.trim().length > 0 &&
+                                field.endTime.trim().length < 8 &&
+                                endTimeErrors[index]
+                              ? "Start time must be in HH:MM:SS"
+                              : field.endTime.trim().length <= 0 &&
+                                endTimeErrors[index]
+                              ? "This is a required field"
+                              : endTimeErrors[index] &&
+                                field.endTime <= field.startTime
+                              ? "End time must be grater than start time"
+                              : ""
+                          }
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 225 }}
+                        />
+                        <TextField
+                          label="Total Time"
+                          disabled
+                          fullWidth
+                          value={field.totalTime}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 225 }}
+                        />
+                        <TextField
+                          label={
+                            <span>
+                              Description
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          className="mt-4"
+                          disabled={
+                            !manualSwitch ||
+                            field.IsApproved ||
+                            (field.AssigneeId !== 0 &&
+                              field.AssigneeId !== userId)
+                          }
+                          fullWidth
+                          value={field.manualDesc}
+                          onChange={(e) => handleManualDescChange(e, index)}
+                          onBlur={(e: any) => {
+                            if (e.target.value.trim().length > 0) {
+                              const newManualDescErrors = [...manualDescErrors];
+                              newManualDescErrors[index] = false;
+                              setManualDescErrors(newManualDescErrors);
+                            }
+                          }}
+                          error={manualDescErrors[index]}
+                          helperText={
+                            manualDescErrors[index] &&
+                            field.manualDesc.length > 0 &&
+                            field.manualDesc.length < 5
+                              ? "Minumum 5 characters required."
+                              : manualDescErrors[index] &&
+                                field.manualDesc.length > 500
+                              ? "Maximum 500 characters allowed."
+                              : manualDescErrors[index]
+                              ? "This is a required field."
+                              : ""
+                          }
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
+                        />
+                        {index === 0
+                          ? manualSwitch && (
+                              <span
+                                className="cursor-pointer"
+                                onClick={addManualField}
+                              >
+                                <svg
+                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                  focusable="false"
+                                  aria-hidden="true"
+                                  viewBox="0 0 24 24"
+                                  data-testid="AddIcon"
                                 >
-                                  <svg
-                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                    focusable="false"
-                                    aria-hidden="true"
-                                    viewBox="0 0 24 24"
-                                    data-testid="RemoveIcon"
-                                  >
-                                    <path d="M19 13H5v-2h14v2z"></path>
-                                  </svg>
-                                </span>
-                              )}
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+                                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                                </svg>
+                              </span>
+                            )
+                          : manualSwitch &&
+                            !field.IsApproved && (
+                              <span
+                                className="cursor-pointer"
+                                onClick={() => removePhoneField(index)}
+                              >
+                                <svg
+                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                  focusable="false"
+                                  aria-hidden="true"
+                                  viewBox="0 0 24 24"
+                                  data-testid="RemoveIcon"
+                                >
+                                  <path d="M19 13H5v-2h14v2z"></path>
+                                </svg>
+                              </span>
+                            )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
 
             {hasPermissionWorklog("Reminder", "View", "WorkLogs") && (
-              <div
-                className="my-14"
-                id={`${
-                  (isManual === true || isManual === null) &&
-                  isPartiallySubmitted
-                    ? "tabpanel-7"
-                    : (isManual === true || isManual === null) &&
-                      !isPartiallySubmitted
-                    ? "tabpanel-6"
-                    : isManual === false && isPartiallySubmitted
-                    ? "tabpanel-6"
-                    : "tabpanel-5"
-                }`}
-              >
+              <div className="my-14" id="tabpanel-7">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
                     <BellIcon />
@@ -5163,20 +5104,7 @@ const EditDrawer = ({
             )}
 
             {hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && (
-              <div
-                className="mt-14"
-                id={`${
-                  (isManual === true || isManual === null) &&
-                  isPartiallySubmitted
-                    ? "tabpanel-8"
-                    : (isManual === true || isManual === null) &&
-                      !isPartiallySubmitted
-                    ? "tabpanel-7"
-                    : isManual === false && isPartiallySubmitted
-                    ? "tabpanel-7"
-                    : "tabpanel-6"
-                }`}
-              >
+              <div className="mt-14" id="tabpanel-8">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
                     <TaskIcon />
@@ -5711,19 +5639,7 @@ const EditDrawer = ({
               </div>
             )}
 
-            <div
-              className="my-14"
-              id={`${
-                (isManual === true || isManual === null) && isPartiallySubmitted
-                  ? "tabpanel-9"
-                  : (isManual === true || isManual === null) &&
-                    !isPartiallySubmitted
-                  ? "tabpanel-8"
-                  : isManual === false && isPartiallySubmitted
-                  ? "tabpanel-8"
-                  : "tabpanel-7"
-              }`}
-            >
+            <div className="my-14" id="tabpanel-9">
               <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                 <span className="flex items-center">
                   <HistoryIcon />
@@ -5791,20 +5707,7 @@ const EditDrawer = ({
 
             {/* Logs */}
             {onEdit > 0 && (
-              <div
-                className="mt-14"
-                id={`${
-                  (isManual === true || isManual === null) &&
-                  isPartiallySubmitted
-                    ? "tabpanel-10"
-                    : (isManual === true || isManual === null) &&
-                      !isPartiallySubmitted
-                    ? "tabpanel-9"
-                    : isManual === false && isPartiallySubmitted
-                    ? "tabpanel-9"
-                    : "tabpanel-8"
-                }`}
-              >
+              <div className="mt-14" id="tabpanel-10">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
                     <HistoryIcon />

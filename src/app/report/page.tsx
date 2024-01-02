@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import { callAPI } from "@/utils/API/callAPI";
 
 const task_InitialFilter = {
   pageNo: 1,
@@ -78,57 +79,29 @@ const Report = () => {
     }
   }, [router]);
 
-  const handleIsTaskSearch = async (searchValue: any, orgToken: any) => {
-    const token = await localStorage.getItem("token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/client/task`,
-        {
-          PageNo: 1,
-          PageSize: 50000,
-          SortColumn: null,
-          IsDesc: true,
-          GlobalSearch: searchValue,
-          Priority: null,
-          StatusFilter: null,
-          OverDueBy: 1,
-          WorkType: null,
-          AssignedIdsForFilter: [],
-          ProjectIdsForFilter: [],
-          StartDate: null,
-          EndDate: null,
-          IsDownload: false,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: orgToken,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setTaskData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+  const handleIsTaskSearch = async (searchValue: any) => {
+    const params = {
+      ...task_InitialFilter,
+      GlobalSearch: searchValue,
+      projectIdsForFilter: currentFilterData.ProjectIdsForFilter,
+      workType: currentFilterData.WorkType,
+      priority: currentFilterData.Priority,
+      startDate: currentFilterData.StartDate,
+      endDate: currentFilterData.EndDate,
+    };
+    const url = `${process.env.report_api_url}/report/client/task`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setTaskData(ResponseData.List);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Login failed. Please try again.");
-        } else {
-          toast.error(data);
-        }
+        setTaskData([]);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -136,9 +109,9 @@ const Report = () => {
       const orgToken = await localStorage.getItem("Org_Token");
       if (orgToken && isTaskClicked) {
         if (isTaskSearch.length >= 3) {
-          handleIsTaskSearch(isTaskSearch, orgToken);
+          handleIsTaskSearch(isTaskSearch);
         } else {
-          handleIsTaskSearch("", orgToken);
+          handleIsTaskSearch("");
         }
       }
     };
@@ -146,57 +119,29 @@ const Report = () => {
     fetchOrgToken();
   }, [isTaskSearch, isTaskClicked]);
 
-  const handleIsRatingSearch = async (searchValue: any, orgToken: any) => {
-    const token = await localStorage.getItem("token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/client/rating`,
-        {
-          PageNo: 1,
-          PageSize: 50000,
-          SortColumn: null,
-          IsDesc: true,
-          GlobalSearch: searchValue,
-          Projects: [],
-          ReturnTypeId: null,
-          TypeofReturnId: null,
-          Ratings: null,
-          Users: [],
-          DepartmentId: null,
-          DateSubmitted: null,
-          StartDate: null,
-          EndDate: null,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: orgToken,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setRatingData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+  const handleIsRatingSearch = async (searchValue: any) => {
+    const params = {
+      ...rating_InitialFilter,
+      GlobalSearch: searchValue,
+      projects: currentFilterData.Projects,
+      returnTypeId: currentFilterData.ReturnTypeId,
+      typeofReturnId: currentFilterData.TypeofReturnId,
+      ratings: currentFilterData.Ratings,
+      dateSubmitted: currentFilterData.DateSubmitted,
+    };
+    const url = `${process.env.report_api_url}/report/client/rating`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setRatingData(ResponseData.List);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Login failed. Please try again.");
-        } else {
-          toast.error(data);
-        }
+        setRatingData([]);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -204,9 +149,9 @@ const Report = () => {
       const orgToken = await localStorage.getItem("Org_Token");
       if (orgToken && isRatingClicked) {
         if (isRatingSearch.length >= 3) {
-          handleIsRatingSearch(isRatingSearch, orgToken);
+          handleIsRatingSearch(isRatingSearch);
         } else {
-          handleIsRatingSearch("", orgToken);
+          handleIsRatingSearch("");
         }
       }
     };

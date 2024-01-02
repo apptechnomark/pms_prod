@@ -1,5 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
+import { handleLogoutUtil } from "../commonFunction";
 
 export const callAPI = async (
   url: any,
@@ -53,6 +54,5 @@ export const callAPI = async (
     if (error.response && error.response.status === 401) {
       localStorage.clear();
     }
-    console.error(error);
   }
 };

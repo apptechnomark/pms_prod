@@ -30,6 +30,7 @@ import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import RestorePageOutlinedIcon from "@mui/icons-material/RestorePageOutlined";
 import PlaylistAddCheckOutlinedIcon from "@mui/icons-material/PlaylistAddCheckOutlined";
 import RunningWithErrorsOutlinedIcon from "@mui/icons-material/RunningWithErrorsOutlined";
+import Person4OutlinedIcon from "@mui/icons-material/Person4Outlined";
 import Dialog_TaskStatus from "@/components/admin-dashboard/dialog/Dialog_TaskStatus";
 import Dialog_BillingType from "@/components/admin-dashboard/dialog/Dialog_BillingType";
 import Dialog_ProjectStatus from "@/components/admin-dashboard/dialog/Dialog_ProjectStatus";
@@ -47,6 +48,7 @@ import { getMuiTheme, ColorToolTip } from "@/utils/datatable/CommonStyle";
 import ExportIcon from "@/assets/icons/ExportIcon";
 import Loading from "@/assets/icons/reports/Loading";
 import { dashboardReport_Options } from "@/utils/datatable/TableOptions";
+import { callAPI } from "@/utils/API/callAPI";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -131,43 +133,19 @@ const Page = () => {
   }, [router]);
 
   const getReportData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/dashboardclientsummary`,
-        filteredObject,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setReportData(response.data.ResponseData.ClientSummary);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+    const params = filteredObject;
+    const url = `${process.env.report_api_url}/dashboard/dashboardclientsummary`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setReportData(ResponseData.ClientSummary);
+        setTableDataCount(ResponseData.TotalCount);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -180,44 +158,20 @@ const Page = () => {
   }, [isDashboardClicked, isReportClicked, filteredObject]);
 
   const getProjectSummary = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/summary`,
-        {
-          WorkTypeId: null,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setDashboardSummary(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      WorkTypeId: null,
+    };
+    const url = `${process.env.report_api_url}/dashboard/summary`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setDashboardSummary(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -225,6 +179,7 @@ const Page = () => {
   }, []);
 
   const statusIconMapping: any = {
+    Assigned: <Person4OutlinedIcon />,
     Accepted: <CheckCircleOutlineOutlinedIcon />,
     "In Preparation": <InPreparation />,
     "In Review": <InReview />,

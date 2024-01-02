@@ -1,8 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
-
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Navbar from "@/components/common/Navbar";
 import Wrapper from "@/components/common/Wrapper";
 import {
@@ -16,7 +14,6 @@ import {
   Popover,
   Select,
 } from "@mui/material";
-import { toast } from "react-toastify";
 import TotalTaskCreated from "@/assets/icons/dashboard_Client/TotalTaskCreated";
 import InProgressWork from "@/assets/icons/dashboard_Client/InProgressWork";
 import PendingTask from "@/assets/icons/dashboard_Client/PendingTask";
@@ -41,6 +38,7 @@ import { useRouter } from "next/navigation";
 import Dialog_OverallProjectSummary from "@/components/dashboard/dialog/Dialog_OverallProjectSummary";
 import Dialog_SummaryList from "@/components/dashboard/dialog/Dialog_SummaryList";
 import Dialog_ReturnTypeData from "@/components/dashboard/dialog/Dialog_ReturnTypeData";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Page = () => {
   const router = useRouter();
@@ -164,88 +162,44 @@ const Page = () => {
   }, [router]);
 
   const getProjects = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
     const ClientId = await localStorage.getItem("clientId");
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/project/getdropdown`,
-        {
-          clientId: ClientId,
-          isAll: true,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setProjects(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+    const params = {
+      clientId: ClientId,
+      isAll: true,
+    };
+    const url = `${process.env.pms_api_url}/project/getdropdown`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setProjects(ResponseData.List);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+        setProjects([]);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const getWorkTypes = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
     const ClientId = await localStorage.getItem("clientId");
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/WorkType/GetDropdown`,
-        {
-          clientId: ClientId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setWorkTypeData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+    const params = {
+      clientId: ClientId,
+    };
+    const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setWorkTypeData(ResponseData);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+        setWorkTypeData([]);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -254,45 +208,23 @@ const Page = () => {
   }, []);
 
   const getProjectSummary = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/clientdashboard/summarybyproject`,
-        {
-          projectIds: currentProjectId,
-          typeOfWork: workType === 0 ? null : workType,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setProjectSummary(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+    const params = {
+      projectIds: currentProjectId,
+      typeOfWork: workType === 0 ? null : workType,
+    };
+    const url = `${process.env.report_api_url}/clientdashboard/summarybyproject`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setProjectSummary(ResponseData);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+        setProjectSummary([]);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {

@@ -6,8 +6,8 @@ import "next-ts-lib/dist/index.css";
 import Footer from "@/components/common/Footer";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import axios from "axios";
 import { toast } from "react-toastify";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Page = () => {
   const getToken = useSearchParams();
@@ -43,39 +43,22 @@ const Page = () => {
       cPasswordHasError
     ) {
       setClicked(true);
-      try {
-        const response = await axios.post(
-          `${process.env.api_url}/auth/setpassword`,
-          { Token: token, Password: password, TokenType: 2 }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            setClicked(false);
-            toast.success("Password set successfully.");
-            router.push(`/login`);
-          } else {
-            setClicked(false);
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
+      const params = { Token: token, Password: password, TokenType: 2 };
+      const url = `${process.env.api_url}/auth/setpassword`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          setClicked(false);
+          toast.success("Password set successfully.");
+          router.push(`/login`);
         } else {
           setClicked(false);
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again after sometime.");
-          } else {
-            toast.error(data);
-          }
         }
-      } catch (error) {
-        setClicked(false);
-        console.error(error);
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     } else {
       setClicked(false);
     }
@@ -90,10 +73,7 @@ const Page = () => {
         >
           PMS
         </Typography>
-        <Typography
-          type="h5"
-          className="text-primary font-bold mb-[20px] text-darkCharcoal"
-        >
+        <Typography type="h5" className="text-secondary font-bold mb-[20px]">
           Please set a password for your account.
         </Typography>
         <form

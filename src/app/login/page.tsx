@@ -5,11 +5,11 @@ import Link from "next/link";
 import { Button, Password, Email, Spinner } from "next-ts-lib";
 import "next-ts-lib/dist/index.css";
 import { useEffect, useState } from "react";
-import axios, { AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import { hasToken } from "@/utils/commonFunction";
 import Pabs from "@/assets/icons/Pabs";
 import { toast } from "react-toastify";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Page = () => {
   const router = useRouter();
@@ -38,23 +38,6 @@ const Page = () => {
     toast.error(errorMessage);
   };
 
-  const handleSuccessfulLogin = (response: AxiosResponse<any, any>) => {
-    const { ResponseStatus, ResponseData } = response.data;
-    if (ResponseStatus === "Success") {
-      toast.success("You are successfully logged in.");
-      setEmail("");
-      setPassword("");
-      setEmailHasError(false);
-      setPasswordHasError(false);
-      localStorage.setItem("token", ResponseData.Token.Token);
-      router.push("/");
-    } else {
-      setClicked(false);
-      const errorMessage = response.data.Message || "Data does not match.";
-      toast.error(errorMessage);
-    }
-  };
-
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setEmailError(email.trim().length <= 0);
@@ -67,22 +50,30 @@ const Page = () => {
       passwordHasError
     ) {
       setClicked(true);
-      try {
-        const response = await axios.post(`${process.env.api_url}/auth/token`, {
-          Username: email,
-          Password: password,
-        });
-
-        if (response.status === 200) {
-          handleSuccessfulLogin(response);
+      const params = {
+        Username: email,
+        Password: password,
+      };
+      const url = `${process.env.api_url}/auth/token`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success("You are successfully logged in.");
+          setEmail("");
+          setPassword("");
+          setEmailHasError(false);
+          setPasswordHasError(false);
+          localStorage.setItem("token", ResponseData.Token.Token);
+          router.push("/");
+          setClicked(false);
         } else {
           setClicked(false);
-          showErrorToast(response.data.Message);
         }
-      } catch (error) {
-        setClicked(false);
-        console.error(error);
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     } else {
       setClicked(false);
     }

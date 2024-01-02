@@ -633,7 +633,13 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
               const formattedDate = date.split("-");
               return (
                 <span className={`font-bold text-sm`}>
-                  {`${formattedDate[1]}/${formattedDate[2]}/${formattedDate[0]}`}
+                  <span className="font-bold text-sm">
+                    {`${
+                      formattedDate[1].length === 1
+                        ? `0${formattedDate[1]}`
+                        : formattedDate[1]
+                    }/${formattedDate[2]}/${formattedDate[0]}`}
+                  </span>
                 </span>
               );
             },

@@ -9,6 +9,7 @@ import Footer from "@/components/common/Footer";
 import Pabs from "@/assets/icons/Pabs";
 import { toast } from "react-toastify";
 import ReportLoader from "@/components/common/ReportLoader";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Page = () => {
   const router = useRouter();
@@ -106,40 +107,30 @@ const Page = () => {
 
     if (isFormValid) {
       setClicked(true);
-
-      try {
-        const response = await axios.post(
-          `${process.env.api_url}/auth/setpassword`,
-          {
-            token,
-            password,
-            TokenType: 3,
-          }
-        );
-
-        if (response.status === 200) {
-          const { ResponseStatus, Message } = response.data;
-          if (ResponseStatus === "Success") {
-            setPassword("");
-            setCPassword("");
-            setPasswordHasError(false);
-            setCPasswordHasError(false);
-            setClicked(false);
-            toast.success("Password set successfully.");
-            router.push(`/login`);
-          } else {
-            setClicked(false);
-            toast.error(Message || "Please try again.");
-          }
+      const params = {
+        token,
+        password,
+        TokenType: 3,
+      };
+      const url = `${process.env.api_url}/auth/setpassword`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          setPassword("");
+          setCPassword("");
+          setPasswordHasError(false);
+          setCPasswordHasError(false);
+          setClicked(false);
+          toast.success("Password set successfully.");
+          router.push(`/login`);
         } else {
           setClicked(false);
-          const data = response.data.Message;
-          toast.error(data || "Please try again after some time.");
         }
-      } catch (error) {
-        setClicked(false);
-        console.error(error);
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     } else {
       setClicked(false);
     }

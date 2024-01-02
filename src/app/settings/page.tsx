@@ -33,6 +33,7 @@ import {
 } from "@/components/settings/tables/Constants/Tabname";
 import { toast } from "react-toastify";
 import ReportLoader from "@/components/common/ReportLoader";
+import { callAPI } from "@/utils/API/callAPI";
 
 type Tabs = { id: string; label: string; canView: boolean };
 
@@ -210,41 +211,20 @@ const Page = () => {
   };
 
   const getPermissionDropdown = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/Role/GetList`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setPermissionDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+    const params = {};
+    const url = `${process.env.pms_api_url}/Role/GetList`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setPermissionDropdownData(ResponseData);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+        setPermissionDropdownData([]);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "GET");
   };
 
   useEffect(() => {
@@ -262,143 +242,72 @@ const Page = () => {
   };
 
   const saveData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/Role/SavePermission`,
-        {
-          RoleId: permissionValue !== 0 && permissionValue,
-          Permissions: updatedPermissionsData,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Data saved successfully.");
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      RoleId: permissionValue !== 0 && permissionValue,
+      Permissions: updatedPermissionsData,
+    };
+    const url = `${process.env.pms_api_url}/Role/SavePermission`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Data saved successfully.");
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleFormButtonClick = (editing: boolean) => {
-    if (editing && textName.trim().length > 0 && textValue !== null) {
-      const saveRole = async () => {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.pms_api_url}/Role/Save`,
-            {
-              RoleId: textValue,
-              Name: textName,
-              Type: permissionDropdownData
-                .map((i: any) => (i.value === textValue ? i.Type : undefined))
-                .filter((i: any) => i !== undefined)[0],
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              getPermissionDropdown();
-              toast.success(`Role saved successfully.`);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error) {
-          console.error(error);
+    const saveRole = async () => {
+      const params = {
+        RoleId: textValue,
+        Name: textName,
+        Type: permissionDropdownData
+          .map((i: any) => (i.value === textValue ? i.Type : undefined))
+          .filter((i: any) => i !== undefined)[0],
+      };
+      const url = `${process.env.pms_api_url}/Role/Save`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          getPermissionDropdown();
+          toast.success(`Role saved successfully.`);
         }
       };
+      callAPI(url, params, successCallback, "POST");
+    };
+
+    if (editing && textName.trim().length > 0 && textValue !== null) {
       saveRole();
     }
   };
 
-  const saveRole = async (e: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/Role/Delete`,
-        {
-          RoleId: e,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          getPermissionDropdown();
-          toast.success(`Role has been deleted successfully!`);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Failed Please try again.");
-        } else {
-          toast.error(data);
-        }
+  const deleteRole = async (e: any) => {
+    const params = {
+      RoleId: e,
+    };
+    const url = `${process.env.pms_api_url}/Role/Delete`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        getPermissionDropdown();
+        toast.success(`Role has been deleted successfully!`);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleProjectDelete = (e: any) => {
     if (e > 0) {
-      saveRole(e);
+      deleteRole(e);
     }
   };
 
@@ -519,302 +428,162 @@ const Page = () => {
   }, []);
 
   const handleClientSearch = async (searchValue: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/client/GetAll`,
-        {
-          GlobalSearch: searchValue,
-          SortColumn: null,
-          IsDesc: false,
-          PageNo: 1,
-          PageSize: 50000,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: Org_Token,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setClientSearchData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Login failed. Please try again.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      GlobalSearch: searchValue,
+      SortColumn: null,
+      IsDesc: false,
+      PageNo: 1,
+      PageSize: 50000,
+    };
+    const url = `${process.env.pms_api_url}/client/GetAll`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setClientSearchData(ResponseData.List);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleProjectSearch = async (searchValue: any) => {
-    const token = await localStorage.getItem("token");
-    const org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/project/getall`,
-        {
-          GlobalSearch: searchValue,
-          PageNo: 1,
-          PageSize: 50000,
-          ClientId: null,
-          ProjectId: null,
-          IsActive: null,
-          SortColumn: null,
-          IsDesc: true,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: org_Token,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setProjectSearchData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      GlobalSearch: searchValue,
+      PageNo: 1,
+      PageSize: 50000,
+      ClientId: null,
+      ProjectId: null,
+      IsActive: null,
+      SortColumn: null,
+      IsDesc: true,
+    };
+    const url = `${process.env.pms_api_url}/project/getall`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setProjectSearchData(ResponseData.List);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleUserSearch = async (searchValue: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.api_url}/user/getall`,
-        {
-          GlobalSearch: searchValue,
-          PageNo: 1,
-          PageSize: 50000,
-          RoleId: null,
-          DepartmentId: null,
-          Status: null,
-          IsClientUser: null,
-          SortColumn: null,
-          IsDesc: true,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: Org_Token,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setUserSearchData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      GlobalSearch: searchValue,
+      PageNo: 1,
+      PageSize: 50000,
+      RoleId: null,
+      DepartmentId: null,
+      Status: null,
+      IsClientUser: null,
+      SortColumn: null,
+      IsDesc: true,
+    };
+    const url = `${process.env.api_url}/user/getall`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setUserSearchData(ResponseData.List);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleProcessSearch = async (searchValue: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const prams = {
-        GlobalSearch: searchValue,
-        PageNo: 1,
-        PageSize: 50000,
-        SortColumn: "",
-        IsDesc: 0,
-        IsBillable: null,
-        IsProductive: null,
-      };
-      const response = await axios.post(
-        `${process.env.pms_api_url}/process/GetAll`,
-        prams,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: Org_Token,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setProcessSearchData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+    const params = {
+      GlobalSearch: searchValue,
+      PageNo: 1,
+      PageSize: 50000,
+      SortColumn: "",
+      IsDesc: 0,
+      IsBillable: null,
+      IsProductive: null,
+    };
+    const url = `${process.env.pms_api_url}/process/GetAll`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setProcessSearchData(ResponseData.List);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleGroupSearch = async (searchValue: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const prams = {
-        UserId: 0,
-        GlobalSearch: searchValue,
-        SortColumn: null,
-        IsDesc: true,
-        PageNo: 1,
-        PageSize: 50000,
-        Status: true,
-      };
-      const response = await axios.post(
-        `${process.env.pms_api_url}/group/getall`,
-        prams,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: Org_Token,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setGroupSearchData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+    const params = {
+      UserId: 0,
+      GlobalSearch: searchValue,
+      SortColumn: null,
+      IsDesc: true,
+      PageNo: 1,
+      PageSize: 50000,
+      Status: true,
+    };
+    const url = `${process.env.pms_api_url}/group/getall`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setGroupSearchData(ResponseData.List);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleStatusSearch = async (searchValue: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const headers = {
-        Authorization: `${token}`,
-        org_token: Org_Token,
-      };
-      const param = {
-        pageNo: 1,
-        pageSize: 50000,
-        SortColumn: "",
-        IsDec: true,
-        GlobalSearch: searchValue,
-        IsDefault: null,
-        Type: "",
-        Export: false,
-      };
-      const response = await axios.post(
-        `${process.env.pms_api_url}/status/GetAll`,
-        param,
-        { headers: headers }
-      );
-      if (response.status === 200) {
-        setStatusSearchData(response.data.ResponseData.List);
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      pageNo: 1,
+      pageSize: 50000,
+      SortColumn: "",
+      IsDec: true,
+      GlobalSearch: searchValue,
+      IsDefault: null,
+      Type: "",
+      Export: false,
+    };
+    const url = `${process.env.pms_api_url}/status/GetAll`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setStatusSearchData(ResponseData.List);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleOrganizationSearch = async (searchValue: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: `bearer ${token}`,
-        org_token: Org_Token,
-      };
-      const param = {
-        GlobalSearch: searchValue,
-        SortColumn: null,
-        IsDesc: true,
-      };
-      const response = await axios.post(
-        `${process.env.pms_api_url}/organization/getall`,
-        param,
-        { headers: headers }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setOrgSearchData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+    const params = {
+      GlobalSearch: searchValue,
+      SortColumn: null,
+      IsDesc: true,
+    };
+    const url = `${process.env.pms_api_url}/organization/getall`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setOrgSearchData(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {

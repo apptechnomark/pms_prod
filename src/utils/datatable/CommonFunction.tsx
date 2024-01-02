@@ -101,11 +101,15 @@ export const generateInitialTimer = (value: any) => {
 };
 
 export const generateDateWithoutTime = (value: any) => {
+  const generatedValue =
+    value === null || value === 0 || value === ""
+      ? "-"
+      : value.split("T")[0].split("-");
   return (
     <div>
       {value === null || value === 0 || value === ""
-        ? "-"
-        : value.split("T")[0]}
+        ? generatedValue
+        : `${generatedValue[1]}-${generatedValue[2]}-${generatedValue[0]}`}
     </div>
   );
 };
@@ -117,7 +121,10 @@ export const generateDateWithTime = (value: any) => {
         "-"
       ) : (
         <>
-          {value.split("T")[0]}&nbsp;
+          {value.split("T")[0].split("-")[1]}-
+          {value.split("T")[0].split("-")[2]}-
+          {value.split("T")[0].split("-")[0]}
+          &nbsp;
           {value.split("T")[1]}
         </>
       )}

@@ -26,6 +26,7 @@ import ImportDialog from "@/components/worklogs/worklogs_Import/ImportDialog";
 import IdleTimer from "@/components/common/IdleTimer";
 import Loading from "@/assets/icons/reports/Loading";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import { callAPI } from "@/utils/API/callAPI";
 
 const exportBody = {
   PageNo: 1,
@@ -151,87 +152,41 @@ const Page = () => {
   };
 
   const getFilterList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/getfilterlist`,
-        {
-          type: 1,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setFilterList(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      type: 1,
+    };
+    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setFilterList(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const deleteFilter = async (FilterId: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/delete`,
-        {
-          filterId: FilterId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Filter has been deleted successfully.");
-          getFilterList();
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      filterId: FilterId,
+    };
+    const url = `${process.env.worklog_api_url}/filter/delete`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Filter has been deleted successfully.");
+        setCurrentFilterId(0);
+        getFilterList();
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
+  console.log(currentFilterId)
 
   useEffect(() => {
     getFilterList();
@@ -242,101 +197,44 @@ const Page = () => {
   };
 
   const getBreakData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.get(
-        `${process.env.worklog_api_url}/workitem/break/getbyuser`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          if (
-            response.data.ResponseData.BreakId === null &&
-            response.data.ResponseData.TotalTime === null
-          ) {
-            setBreakID(0);
-            setTimer("00:00:00");
-          } else if (
-            !response.data.ResponseData.IsStared &&
-            response.data.ResponseData.TotalTime !== null
-          ) {
-            setTimer(response.data.ResponseData.TotalTime);
-          } else if (
-            response.data.ResponseData.IsStared &&
-            response.data.ResponseData.BreakId !== null
-          ) {
-            setBreakID(response.data.ResponseData.BreakId);
-            setTimer(response.data.ResponseData.TotalTime);
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
+    const params = {};
+    const url = `${process.env.worklog_api_url}/workitem/break/getbyuser`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        if (ResponseData.BreakId === null && ResponseData.TotalTime === null) {
+          setBreakID(0);
+          setTimer("00:00:00");
+        } else if (!ResponseData.IsStared && ResponseData.TotalTime !== null) {
+          setTimer(ResponseData.TotalTime);
+        } else if (ResponseData.IsStared && ResponseData.BreakId !== null) {
+          setBreakID(ResponseData.BreakId);
+          setTimer(ResponseData.TotalTime);
         }
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "GET");
   };
 
   const setBreak = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/break/setbreak`,
-        {
-          breakId: breakId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          getBreakData();
-          setBreakID((prev) =>
-            response.data.ResponseData === prev ? 0 : response.data.ResponseData
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      breakId: breakId,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/break/setbreak`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        getBreakData();
+        setBreakID((prev) => (ResponseData === prev ? 0 : ResponseData));
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -399,6 +297,7 @@ const Page = () => {
                 setGlobalSearchValue("");
                 setIsTaskClicked(true);
                 setIsUnassigneeClicked(false);
+                setCurrentFilterId(0);
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isTaskClicked
@@ -420,6 +319,7 @@ const Page = () => {
                     setGlobalSearchValue("");
                     setIsUnassigneeClicked(true);
                     setIsTaskClicked(false);
+                    setCurrentFilterId(0);
                   }}
                   className={`py-[10px] text-[16px] cursor-pointer select-none ${
                     isUnassigneeClicked

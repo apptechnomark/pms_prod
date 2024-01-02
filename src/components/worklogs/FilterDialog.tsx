@@ -106,6 +106,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
     setStartDate(null);
     setEndDate(null);
     setReviewStatus(0);
+    setFilterName("");
+    currentFilterData(initialFilter);
     setError("");
   };
 
