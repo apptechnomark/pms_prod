@@ -6,13 +6,19 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { FormControl, InputLabel, MenuItem, TextField } from "@mui/material";
 import Select from "@mui/material/Select";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { isWeekend } from "@/utils/commonFunction";
+import {
+  getClientDropdownData,
+  getProjectDropdownData,
+  getStatusDropdownData,
+  getTypeOfWorkDropdownData,
+} from "@/utils/commonDropdownApiCall";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -63,7 +69,6 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   const [statusDropdownData, setStatusDropdownData] = useState([]);
   const [assignedByDropdownData, setAssignedByDropdownData] = useState([]);
   const [assignedToDropdownData, setAssignedToDropdownData] = useState([]);
-  const [revwStatusDropdownData, setRevwStatusDropdownData] = useState([]);
   const [anyFieldSelected, setAnyFieldSelected] = useState(false);
   const [currSelectedFields, setCurrSelectedFileds] = useState<any | any[]>([]);
   const [error, setError] = useState("");
@@ -117,251 +122,43 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   };
 
   const getClientData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/client/getdropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setClientDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    setClientDropdownData(await getClientDropdownData());
   };
 
   const getWorkTypeData = async (clientName: string | number) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/WorkType/GetDropdown`,
-        {
-          clientId: clientName ? clientName : 0,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setWorktypeDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    setWorktypeDropdownData(await getTypeOfWorkDropdownData(clientName));
   };
 
   const getProjectData = async (clientName: string | number) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/project/getdropdown`,
-        {
-          clientId: clientName ? clientName : 0,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setProjectDropdownData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    setProjectDropdownData(await getProjectDropdownData(clientName));
   };
 
   const getAllStatus = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/status/GetDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setStatusDropdownData(
-            response.data.ResponseData.filter((i: any) => i.Type !== "Reject")
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getReviewStatusData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/status/GetDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setRevwStatusDropdownData(
-            response.data.ResponseData.map((i: any) =>
-              i.Type !== "Reject" ? i : ""
-            ).filter((i: any) => i !== "")
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    const data = await getStatusDropdownData();
+    data.length > 0 &&
+      setStatusDropdownData(data.filter((i: any) => i.Type !== "Reject"));
   };
 
   const getAssignee = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.api_url}/user/GetAssigneeFilterDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setAssignedByDropdownData(response.data.ResponseData);
-          setAssignedToDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {};
+    const url = `${process.env.api_url}/user/GetAssigneeFilterDropdown`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setAssignedByDropdownData(ResponseData);
+        setAssignedToDropdownData(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "GET");
   };
 
   useEffect(() => {
     if (onOpen === true) {
       getClientData();
       getAllStatus();
-      getReviewStatusData();
       getAssignee();
     }
   }, [onOpen]);
@@ -378,118 +175,66 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       setError("Max 15 characters allowed!");
     } else {
       setError("");
-
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/filter/savefilter`,
-          {
-            filterId: onCurrentFilterId !== 0 ? onCurrentFilterId : null,
-            name: filterName,
-            AppliedFilter: {
-              ClientId: clientName || 0,
-              TypeOfWork: workType || 0,
-              ProjectId: projectName || 0,
-              Status: status || 0,
-              AssignedTo: assignedTo || 0,
-              AssignedBy: assignedBy || 0,
-              DueDate: dueDate || null,
-              StartDate: startDate || null,
-              EndDate: endDate || null,
-              ReviewStatus: ReviewStatus || 0,
-            },
-            type: 1,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            toast.success(
-              `Filter has been ${
-                onCurrentFilterId > 0 ? "updated" : "saved"
-              } successully.`
-            );
-            setSaveFilter(false);
-            onDataFetch();
-            sendFilterToPage();
-            onClose();
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+      const params = {
+        filterId: onCurrentFilterId !== 0 ? onCurrentFilterId : null,
+        name: filterName,
+        AppliedFilter: {
+          ClientId: clientName || 0,
+          TypeOfWork: workType || 0,
+          ProjectId: projectName || 0,
+          Status: status || 0,
+          AssignedTo: assignedTo || 0,
+          AssignedBy: assignedBy || 0,
+          DueDate: dueDate || null,
+          StartDate: startDate || null,
+          EndDate: endDate || null,
+          ReviewStatus: ReviewStatus || 0,
+        },
+        type: 1,
+      };
+      const url = `${process.env.worklog_api_url}/filter/savefilter`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success(
+            `Filter has been ${
+              onCurrentFilterId > 0 ? "updated" : "saved"
+            } successully.`
+          );
+          setSaveFilter(false);
+          onDataFetch();
+          sendFilterToPage();
+          onClose();
         }
-      } catch (error) {
-        console.error(error);
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     }
   };
 
   const getFilterList = async (filterId: number) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
+    const params = {
+      type: 1,
+    };
+    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        const filteredData = ResponseData.filter(
+          (filter: any) => filter.FilterId === filterId
+        );
 
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/getfilterlist`,
-        {
-          type: 1,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          const responseData = response.data.ResponseData;
-
-          const filteredData = responseData.filter(
-            (filter: any) => filter.FilterId === filterId
-          );
-
-          if (filteredData.length > 0) {
-            setAppliedFilterData(filteredData);
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
+        if (filteredData.length > 0) {
+          setAppliedFilterData(filteredData);
         }
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -630,7 +375,10 @@ const FilterDialog: React.FC<FilterModalProps> = ({
                   labelId="client_Name"
                   id="client_Name"
                   value={clientName === 0 ? "" : clientName}
-                  onChange={(e) => setClientName(e.target.value)}
+                  onChange={(e) => {
+                    setClientName(e.target.value);
+                    setWorkType(0);
+                  }}
                 >
                   {clientDropdownData.map((i: any, index: number) => (
                     <MenuItem value={i.value} key={index}>

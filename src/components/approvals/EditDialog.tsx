@@ -13,10 +13,10 @@ import {
   styled,
   tooltipClasses,
 } from "@mui/material";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { Close } from "@mui/icons-material";
 import { DialogTransition } from "@/utils/style/DialogTransition";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface EditModalProps {
   onOpen: boolean;
@@ -124,51 +124,26 @@ const EditDialog: React.FC<EditModalProps> = ({
   useEffect(() => {
     if (onSelectedSubmissionId > 0 && onSelectedSubmissionId !== null) {
       const getDataForManualTime = async () => {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/approval/GetDataForManulTime`,
-            {
-              SubmissionId: onSelectedSubmissionId,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              const data = response.data.ResponseData;
-              setEstTime(formatTime(data.EstimateTime));
-              setQuantity(data.Quantity);
-              setActualTime(formatTime(data.ActualTime));
-              setTotalTime(formatTime(data.TotalEstimateTime));
-              setActualTime(formatTime(data.ActualTime));
-              setInitialEditTime(formatTime(data.ManagerTime));
-              setEditTime(formatTime(data.ManagerTime));
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
+        const params = {
+          SubmissionId: onSelectedSubmissionId,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/approval/GetDataForManulTime`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            setEstTime(formatTime(ResponseData.EstimateTime));
+            setQuantity(ResponseData.Quantity);
+            setActualTime(formatTime(ResponseData.ActualTime));
+            setTotalTime(formatTime(ResponseData.TotalEstimateTime));
+            setActualTime(formatTime(ResponseData.ActualTime));
+            setInitialEditTime(formatTime(ResponseData.ManagerTime));
+            setEditTime(formatTime(ResponseData.ManagerTime));
           }
-        } catch (error) {
-          console.error(error);
-        }
+        };
+        callAPI(url, params, successCallback, "POST");
       };
 
       getDataForManualTime();
@@ -181,52 +156,28 @@ const EditDialog: React.FC<EditModalProps> = ({
       parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
 
     getOverLay(true);
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/approval/updateManualTime`,
-        {
-          WorkItemId: onSelectWorkItemId,
-          managerTime: convertedEditTime,
-          SubmissionId: onSelectedSubmissionId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Time has been updated successfully.");
-          onClose();
-          onClearSelection();
-          onReviewerDataFetch();
-          getOverLay(false);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-          getOverLay(false);
-        }
+    const params = {
+      WorkItemId: onSelectWorkItemId,
+      managerTime: convertedEditTime,
+      SubmissionId: onSelectedSubmissionId,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/approval/updateManualTime`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Time has been updated successfully.");
+        onClose();
+        onClearSelection();
+        onReviewerDataFetch();
+        getOverLay(false);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
         getOverLay(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const hasEditTimeChanged = () => {

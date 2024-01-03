@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
@@ -23,10 +22,11 @@ import { FilterType } from "../types/ReportsFilterType";
 import { timesheet } from "../Enum/Filtertype";
 import { timeSheet_InitialFilter } from "@/utils/reports/getFilters";
 import { getDates, getFormattedDate } from "@/utils/timerFunctions";
-import { getDeptData, getUserData } from "./api/getDropDownData";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
 import { isWeekend } from "@/utils/commonFunction";
+import { callAPI } from "@/utils/API/callAPI";
+import { getCCDropdownData, getDeptData } from "@/utils/commonDropdownApiCall";
 
 const TimesheetFilter = ({
   isFiltering,
@@ -134,68 +134,43 @@ const TimesheetFilter = ({
       setTimesheetError("Max 15 characters allowed!");
     } else {
       setTimesheetError("");
-
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/filter/savefilter`,
-          {
-            filterId:
-              timesheetCurrentFilterId !== "" ? timesheetCurrentFilterId : null,
-            name: timesheetFilterName,
-            AppliedFilter: {
-              users: timesheetUserNames.length > 0 ? timesheetUserNames : [],
-              departmentId: timesheetDept === null ? null : timesheetDept.value,
-              startDate:
-                timesheetStartDate.toString().trim().length <= 0
-                  ? timesheetEndDate.toString().trim().length <= 0
-                    ? getDates()[0]
-                    : getFormattedDate(timesheetEndDate)
-                  : getFormattedDate(timesheetStartDate),
-              endDate:
-                timesheetEndDate.toString().trim().length <= 0
-                  ? timesheetStartDate.toString().trim().length <= 0
-                    ? getDates()[getDates().length - 1]
-                    : getFormattedDate(timesheetStartDate)
-                  : getFormattedDate(timesheetEndDate),
-            },
-            type: timesheet,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus.toLowerCase() === "success") {
-            toast.success("Filter has been successully saved.");
-            handleTimesheetClose();
-            getTimesheetFilterList();
-            handleTimesheetFilterApply();
-            setTimesheetSaveFilter(false);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+      const params = {
+        filterId:
+          timesheetCurrentFilterId !== "" ? timesheetCurrentFilterId : null,
+        name: timesheetFilterName,
+        AppliedFilter: {
+          users: timesheetUserNames.length > 0 ? timesheetUserNames : [],
+          departmentId: timesheetDept === null ? null : timesheetDept.value,
+          startDate:
+            timesheetStartDate.toString().trim().length <= 0
+              ? timesheetEndDate.toString().trim().length <= 0
+                ? getDates()[0]
+                : getFormattedDate(timesheetEndDate)
+              : getFormattedDate(timesheetStartDate),
+          endDate:
+            timesheetEndDate.toString().trim().length <= 0
+              ? timesheetStartDate.toString().trim().length <= 0
+                ? getDates()[getDates().length - 1]
+                : getFormattedDate(timesheetStartDate)
+              : getFormattedDate(timesheetEndDate),
+        },
+        type: timesheet,
+      };
+      const url = `${process.env.worklog_api_url}/filter/savefilter`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success("Filter has been successully saved.");
+          handleTimesheetClose();
+          getTimesheetFilterList();
+          handleTimesheetFilterApply();
+          setTimesheetSaveFilter(false);
         }
-      } catch (error) {
-        console.error(error);
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     }
   };
 
@@ -217,50 +192,26 @@ const TimesheetFilter = ({
   useEffect(() => {
     const userDropdowns = async () => {
       setTimesheetDeptDropdown(await getDeptData());
-      setTimesheetUserDropdown(await getUserData());
+      setTimesheetUserDropdown(await getCCDropdownData());
     };
     userDropdowns();
   }, []);
 
   const getTimesheetFilterList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/getfilterlist`,
-        {
-          type: timesheet,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setTimesheetSavedFilters(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      type: timesheet,
+    };
+    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setTimesheetSavedFilters(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleTimesheetSavedFilterEdit = (index: number) => {
@@ -296,47 +247,23 @@ const TimesheetFilter = ({
   };
 
   const handleTimesheetSavedFilterDelete = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/delete`,
-        {
-          filterId: timesheetCurrentFilterId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Filter has been deleted successfully.");
-          handleTimesheetClose();
-          getTimesheetFilterList();
-          setTimesheetCurrentFilterId("");
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      filterId: timesheetCurrentFilterId,
+    };
+    const url = `${process.env.worklog_api_url}/filter/delete`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Filter has been deleted successfully.");
+        handleTimesheetClose();
+        getTimesheetFilterList();
+        setTimesheetCurrentFilterId("");
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

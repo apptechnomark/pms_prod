@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
 import {
@@ -12,7 +11,6 @@ import {
   TextField,
 } from "@mui/material";
 import TablePagination from "@mui/material/TablePagination";
-import { toast } from "react-toastify";
 import PlayButton from "@/assets/icons/worklogs/PlayButton";
 import PlayPause from "@/assets/icons/worklogs/PlayPause";
 import PauseButton from "@/assets/icons/worklogs/PauseButton";
@@ -36,6 +34,7 @@ import WorklogsActionBar from "./actionBar/WorklogsActionBar";
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
 import ReportLoader from "../common/ReportLoader";
 import OverLay from "../common/OverLay";
+import { callAPI } from "@/utils/API/callAPI";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -213,126 +212,73 @@ const Datatable = ({
     selectedRowId: number,
     workitemTimeId?: number
   ) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
     if (state === 1 && isOnBreak !== 0) {
       onGetBreakData();
       onSetBreak();
     }
 
-    try {
-      setIsLoadingWorklogsDatatable(true);
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/saveworkitemtimestamp`,
-        {
-          workitemTimeId:
-            workitemTimeId && workitemTimeId > 0 ? workitemTimeId : 0,
-          workitemId: selectedRowId,
-          state: state,
-          comment: comment.trim().length <= 0 ? null : comment.trim(),
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setComment("");
-          setWorkitemTimeId((prev) =>
-            response.data.ResponseData !== prev
-              ? response.data.ResponseData
-              : -1
-          );
-          setRunning((prev) => (selectedRowId !== prev ? selectedRowId : -1));
-          getWorkItemList();
-          setIsLoadingWorklogsDatatable(false);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-          setIsLoadingWorklogsDatatable(false);
-        }
+    setIsLoadingWorklogsDatatable(true);
+    const params = {
+      workitemTimeId: workitemTimeId && workitemTimeId > 0 ? workitemTimeId : 0,
+      workitemId: selectedRowId,
+      state: state,
+      comment: comment.trim().length <= 0 ? null : comment.trim(),
+    };
+    const url = `${process.env.worklog_api_url}/workitem/saveworkitemtimestamp`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setComment("");
+        setWorkitemTimeId((prev) =>
+          ResponseData !== prev ? ResponseData : -1
+        );
+        setRunning((prev) => (selectedRowId !== prev ? selectedRowId : -1));
+        getWorkItemList();
+        setIsLoadingWorklogsDatatable(false);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
         setIsLoadingWorklogsDatatable(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleSync = async (selectedRowId: number) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      setIsLoadingWorklogsDatatable(true);
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/getworkitemsync`,
-        {
-          workitemId: selectedRowId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          if (response.data.ResponseData !== null) {
-            setWorkItemData((prev: any) =>
-              prev.map((data: any) => {
-                if (data.WorkitemId === selectedRowId) {
-                  return new Object({
-                    ...data,
-                    Timer: response.data.ResponseData?.SyncTime,
-                  });
-                } else {
-                  return data;
-                }
-              })
-            );
-            setIsLoadingWorklogsDatatable(false);
-          } else {
-            getWorkItemList();
-            setIsLoadingWorklogsDatatable(false);
-          }
+    const params = {
+      workitemId: selectedRowId,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/getworkitemsync`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        if (ResponseData !== null) {
+          setWorkItemData((prev: any) =>
+            prev.map((data: any) => {
+              if (data.WorkitemId === selectedRowId) {
+                return new Object({
+                  ...data,
+                  Timer: ResponseData?.SyncTime,
+                });
+              } else {
+                return data;
+              }
+            })
+          );
+          setIsLoadingWorklogsDatatable(false);
         } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+          getWorkItemList();
           setIsLoadingWorklogsDatatable(false);
         }
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
         setIsLoadingWorklogsDatatable(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -348,156 +294,101 @@ const Datatable = ({
     if (filterId === 0) {
       setFilteredOject(initialFilter);
     } else {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
+      const params = {
+        type: 1,
+      };
+      const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          const filteredData = ResponseData.filter(
+            (filter: any) => filter.FilterId === filterId
+          );
 
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/filter/getfilterlist`,
-          {
-            type: 1,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            const responseData = response.data.ResponseData;
-
-            const filteredData = responseData.filter(
-              (filter: any) => filter.FilterId === filterId
-            );
-
-            if (filteredData.length > 0) {
-              const appliedFilterData = filteredData[0].AppliedFilter;
-              setFilteredOject({
-                ...filteredObject,
-                ClientId:
-                  appliedFilterData.ClientId === 0 ||
-                  appliedFilterData.ClientId === null
-                    ? null
-                    : appliedFilterData.ClientId,
-                TypeOfWork:
-                  appliedFilterData.TypeOfWork === 0 ||
-                  appliedFilterData.TypeOfWork === null
-                    ? null
-                    : appliedFilterData.TypeOfWork,
-                ProjectId:
-                  appliedFilterData.ProjectId === 0 ||
-                  appliedFilterData.ProjectId === null
-                    ? null
-                    : appliedFilterData.ProjectId,
-                StatusId:
-                  appliedFilterData.Status === 0 ||
-                  appliedFilterData.Status === null
-                    ? null
-                    : appliedFilterData.Status,
-                AssignedTo:
-                  appliedFilterData.AssignedTo === 0 ||
-                  appliedFilterData.AssignedTo === null
-                    ? null
-                    : appliedFilterData.AssignedTo,
-                AssignedBy:
-                  appliedFilterData.AssignedBy === 0 ||
-                  appliedFilterData.AssignedBy === null
-                    ? null
-                    : appliedFilterData.AssignedBy,
-                DueDate:
-                  appliedFilterData.DueDate === 0 ||
-                  appliedFilterData.DueDate === null
-                    ? null
-                    : appliedFilterData.DueDate,
-                StartDate:
-                  appliedFilterData.StartDate === 0 ||
-                  appliedFilterData.StartDate === null
-                    ? null
-                    : appliedFilterData.StartDate,
-                EndDate:
-                  appliedFilterData.EndDate === 0 ||
-                  appliedFilterData.EndDate === null
-                    ? null
-                    : appliedFilterData.EndDate,
-                ReviewStatus:
-                  appliedFilterData.ReviewStatus === 0 ||
-                  appliedFilterData.ReviewStatus === null
-                    ? null
-                    : appliedFilterData.ReviewStatus,
-              });
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
+          if (filteredData.length > 0) {
+            const appliedFilterData = filteredData[0].AppliedFilter;
+            setFilteredOject({
+              ...filteredObject,
+              ClientId:
+                appliedFilterData.ClientId === 0 ||
+                appliedFilterData.ClientId === null
+                  ? null
+                  : appliedFilterData.ClientId,
+              TypeOfWork:
+                appliedFilterData.TypeOfWork === 0 ||
+                appliedFilterData.TypeOfWork === null
+                  ? null
+                  : appliedFilterData.TypeOfWork,
+              ProjectId:
+                appliedFilterData.ProjectId === 0 ||
+                appliedFilterData.ProjectId === null
+                  ? null
+                  : appliedFilterData.ProjectId,
+              StatusId:
+                appliedFilterData.Status === 0 ||
+                appliedFilterData.Status === null
+                  ? null
+                  : appliedFilterData.Status,
+              AssignedTo:
+                appliedFilterData.AssignedTo === 0 ||
+                appliedFilterData.AssignedTo === null
+                  ? null
+                  : appliedFilterData.AssignedTo,
+              AssignedBy:
+                appliedFilterData.AssignedBy === 0 ||
+                appliedFilterData.AssignedBy === null
+                  ? null
+                  : appliedFilterData.AssignedBy,
+              DueDate:
+                appliedFilterData.DueDate === 0 ||
+                appliedFilterData.DueDate === null
+                  ? null
+                  : appliedFilterData.DueDate,
+              StartDate:
+                appliedFilterData.StartDate === 0 ||
+                appliedFilterData.StartDate === null
+                  ? null
+                  : appliedFilterData.StartDate,
+              EndDate:
+                appliedFilterData.EndDate === 0 ||
+                appliedFilterData.EndDate === null
+                  ? null
+                  : appliedFilterData.EndDate,
+              ReviewStatus:
+                appliedFilterData.ReviewStatus === 0 ||
+                appliedFilterData.ReviewStatus === null
+                  ? null
+                  : appliedFilterData.ReviewStatus,
+            });
           }
         }
-      } catch (error) {
-        console.error(error);
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     }
   };
 
   const getWorkItemList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/getworkitemlist`,
-        filteredObject,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          onChangeLoader(response.data.ResponseData.TotalTime);
-          onHandleExport(
-            response.data.ResponseData.List.length > 0 ? true : false
-          );
-          setLoaded(true);
-          setWorkItemData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          setLoaded(true);
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+    const params = filteredObject;
+    const url = `${process.env.worklog_api_url}/workitem/getworkitemlist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        onChangeLoader(ResponseData.TotalTime);
+        onHandleExport(ResponseData.List.length > 0 ? true : false);
+        setLoaded(true);
+        setWorkItemData(ResponseData.List);
+        setTableDataCount(ResponseData.TotalCount);
       } else {
         setLoaded(true);
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
       }
-    } catch (error) {
-      setLoaded(true);
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {

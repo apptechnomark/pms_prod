@@ -34,7 +34,6 @@ import {
   Typography,
 } from "@mui/material";
 import { Close, Download, Save } from "@mui/icons-material";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -1174,104 +1173,77 @@ const EditDrawer = ({
   };
 
   const getErrorLogDataApprpvals = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/errorlog/getByWorkitem`,
-        {
-          WorkitemId: onEdit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          response.data.ResponseData.length <= 0
-            ? setErrorLogFieldsApprovals([
-                {
-                  SubmitedBy: "",
-                  SubmitedOn: "",
-                  ErrorLogId: 0,
-                  ErrorType: 0,
-                  RootCause: 0,
-                  Priority: 0,
-                  ErrorCount: 0,
-                  NatureOfError: 0,
-                  CC: [],
-                  Remark: "",
-                  Attachments: [
-                    {
-                      AttachmentId: 0,
-                      UserFileName: "",
-                      SystemFileName: "",
-                      AttachmentPath: process.env.attachment,
-                    },
-                  ],
-                  isSolved: false,
-                },
-              ])
-            : setErrorLogFieldsApprovals(
-                response.data.ResponseData.map(
-                  (i: any) =>
-                    new Object({
-                      SubmitedBy: i.SubmitedBy,
-                      SubmitedOn: i.SubmitedOn,
-                      ErrorLogId: i.ErrorLogId,
-                      ErrorType: i.ErrorType,
-                      RootCause: i.RootCause,
-                      Priority: i.Priority,
-                      ErrorCount: i.ErrorCount,
-                      NatureOfError: i.NatureOfError,
-                      CC: i.CC.map((i: any) =>
-                        cCDropdownDataApprovals.find(
-                          (j: { value: any }) => j.value === i
-                        )
-                      ).filter(Boolean),
-                      Remark: i.Remark,
-                      Attachments:
-                        i.Attachment.length > 0 &&
-                        i.Attachment[0].SystemFileName.length > 0
-                          ? i.Attachment
-                          : [
-                              {
-                                AttachmentId: 0,
-                                UserFileName: "",
-                                SystemFileName: "",
-                                AttachmentPath: process.env.attachment,
-                              },
-                            ],
-                      isSolved: i.IsSolved,
-                    })
-                )
-              );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      WorkitemId: onEdit,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/errorlog/getByWorkitem`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        ResponseData.length <= 0
+          ? setErrorLogFieldsApprovals([
+              {
+                SubmitedBy: "",
+                SubmitedOn: "",
+                ErrorLogId: 0,
+                ErrorType: 0,
+                RootCause: 0,
+                Priority: 0,
+                ErrorCount: 0,
+                NatureOfError: 0,
+                CC: [],
+                Remark: "",
+                Attachments: [
+                  {
+                    AttachmentId: 0,
+                    UserFileName: "",
+                    SystemFileName: "",
+                    AttachmentPath: process.env.attachment,
+                  },
+                ],
+                isSolved: false,
+              },
+            ])
+          : setErrorLogFieldsApprovals(
+              ResponseData.map(
+                (i: any) =>
+                  new Object({
+                    SubmitedBy: i.SubmitedBy,
+                    SubmitedOn: i.SubmitedOn,
+                    ErrorLogId: i.ErrorLogId,
+                    ErrorType: i.ErrorType,
+                    RootCause: i.RootCause,
+                    Priority: i.Priority,
+                    ErrorCount: i.ErrorCount,
+                    NatureOfError: i.NatureOfError,
+                    CC: i.CC.map((i: any) =>
+                      cCDropdownDataApprovals.find(
+                        (j: { value: any }) => j.value === i
+                      )
+                    ).filter(Boolean),
+                    Remark: i.Remark,
+                    Attachments:
+                      i.Attachment.length > 0 &&
+                      i.Attachment[0].SystemFileName.length > 0
+                        ? i.Attachment
+                        : [
+                            {
+                              AttachmentId: 0,
+                              UserFileName: "",
+                              SystemFileName: "",
+                              AttachmentPath: process.env.attachment,
+                            },
+                          ],
+                    isSolved: i.IsSolved,
+                  })
+              )
+            );
       }
-    } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleSubmitErrorLog = async (e: { preventDefault: () => void }) => {
@@ -1523,69 +1495,40 @@ const EditDrawer = ({
 
       if (!hasManualErrors) {
         setIsLoadingApprovals(true);
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/approval/savereviewermanualtimelog`,
-            {
-              submissionId: onHasId,
-              timelogs: reviewermanualFields.map(
-                (i: any) =>
-                  new Object({
-                    id: i.Id,
-                    startTime:
-                      dayjs(i.inputDate).format("YYYY/MM/DD") +
-                      " " +
-                      i.startTime,
-                    endTime:
-                      dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.endTime,
-                    assigneeId:
-                      i.AssigneeId === 0 ? assigneeApprovals : i.AssigneeId,
-                    comment: i.manualDesc,
-                  })
-              ),
-              deletedTimelogIds: deletedManualTime,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success(`Manual Time Updated successfully.`);
-              setDeletedManualTime([]);
-              getManualTimeLogForReviewer(onEdit);
-              getEditData();
-              setIsLoadingApprovals(false);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-              setIsLoadingApprovals(false);
-            }
+        const params = {
+          submissionId: onHasId,
+          timelogs: reviewermanualFields.map(
+            (i: any) =>
+              new Object({
+                id: i.Id,
+                startTime:
+                  dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.startTime,
+                endTime:
+                  dayjs(i.inputDate).format("YYYY/MM/DD") + " " + i.endTime,
+                assigneeId:
+                  i.AssigneeId === 0 ? assigneeApprovals : i.AssigneeId,
+                comment: i.manualDesc,
+              })
+          ),
+          deletedTimelogIds: deletedManualTime,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/approval/savereviewermanualtimelog`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus.toLowerCase() === "success" && error === false) {
+            toast.success(`Manual Time Updated successfully.`);
+            setDeletedManualTime([]);
+            getManualTimeLogForReviewer(onEdit);
+            getEditData();
+            setIsLoadingApprovals(false);
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Failed Please try again.");
-            } else {
-              toast.error(data);
-            }
             setIsLoadingApprovals(false);
           }
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            router.push("/login");
-            localStorage.clear();
-          }
-        }
+        };
+        callAPI(url, params, successCallback, "POST");
       }
     } else {
       toast.warning("Only Reviewer can Edit Manual time.");
@@ -1594,73 +1537,53 @@ const EditDrawer = ({
   };
 
   const getManualTimeLogForReviewer = async (workItemId: any) => {
-    const token = localStorage.getItem("token");
-    const Org_Token = localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/approval/getmanuallogbyworkitem`,
-        { workItemId: workItemId },
-        { headers: { Authorization: `bearer ${token}`, org_token: Org_Token } }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          const data = await response.data.ResponseData;
-          setManualSwitch(data.length <= 0 ? false : true);
-          setManualSubmitDisable(
-            data
-              .map((i: any) => i.IsApproved === false && i.assignee !== userId)
-              .includes(true)
-              ? false
-              : true
-          );
-          setReviewerManualFields(
-            data.length <= 0
-              ? [
-                  {
-                    AssigneeId: 0,
-                    Id: 0,
-                    inputDate: "",
-                    startTime: "",
-                    endTime: "",
-                    totalTime: "",
-                    manualDesc: "",
-                    IsApproved: false,
-                  },
-                ]
-              : data.map(
-                  (i: any) =>
-                    new Object({
-                      AssigneeId: i.AssigneeId,
-                      Id: i.TimeId,
-                      inputDate: i.Date,
-                      startTime: i.StartTime,
-                      endTime: i.EndTime,
-                      totalTime: getTimeDifference(i.StartTime, i.EndTime),
-                      manualDesc: i.Comment,
-                      IsApproved: i.IsApproved,
-                    })
-                )
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = { workItemId: workItemId };
+    const url = `${process.env.worklog_api_url}/workitem/approval/getmanuallogbyworkitem`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        setManualSwitch(ResponseData.length <= 0 ? false : true);
+        setManualSubmitDisable(
+          ResponseData.map(
+            (i: any) => i.IsApproved === false && i.assignee !== userId
+          ).includes(true)
+            ? false
+            : true
+        );
+        setReviewerManualFields(
+          ResponseData.length <= 0
+            ? [
+                {
+                  AssigneeId: 0,
+                  Id: 0,
+                  inputDate: "",
+                  startTime: "",
+                  endTime: "",
+                  totalTime: "",
+                  manualDesc: "",
+                  IsApproved: false,
+                },
+              ]
+            : ResponseData.map(
+                (i: any) =>
+                  new Object({
+                    AssigneeId: i.AssigneeId,
+                    Id: i.TimeId,
+                    inputDate: i.Date,
+                    startTime: i.StartTime,
+                    endTime: i.EndTime,
+                    totalTime: getTimeDifference(i.StartTime, i.EndTime),
+                    manualDesc: i.Comment,
+                    IsApproved: i.IsApproved,
+                  })
+              )
+        );
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -2032,57 +1955,29 @@ const EditDrawer = ({
 
     const saveWorklog = async () => {
       setIsLoadingApprovals(true);
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/saveworkitem`,
-          data,
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            toast.success(
-              `Worklog ${onEdit > 0 ? "Updated" : "created"} successfully.`
-            );
-            onEdit > 0 && getEditData();
-            onEdit > 0 &&
-              typeOfWorkApprovals === 3 &&
-              getCheckListDataApprovals();
-            onEdit === 0 && onClose();
-            onEdit === 0 && handleClose();
-            setIsLoadingApprovals(false);
-          } else {
-            const data = response.data.Message;
-            onEdit > 0 && getEditData();
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-            setIsLoadingApprovals(false);
-          }
+      const params = data;
+      const url = `${process.env.worklog_api_url}/workitem/saveworkitem`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success(
+            `Worklog ${onEdit > 0 ? "Updated" : "created"} successfully.`
+          );
+          onEdit > 0 && getEditData();
+          onEdit > 0 &&
+            typeOfWorkApprovals === 3 &&
+            getCheckListDataApprovals();
+          onEdit === 0 && onClose();
+          onEdit === 0 && handleClose();
+          setIsLoadingApprovals(false);
         } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Failed Please try again.");
-          } else {
-            toast.error(data);
-          }
           setIsLoadingApprovals(false);
         }
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     };
 
     if (
@@ -2227,27 +2122,19 @@ const EditDrawer = ({
 
   // API CALLS dropdown data
   const getUserDetails = async () => {
-    try {
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: localStorage.getItem("token"),
-      };
-      const response = await axios.get(
-        `${process.env.api_url}/auth/getuserdetails`,
-        { headers: headers }
-      );
-      if (response.status === 200) {
-        setAssigneeDisableApprovals(
-          response.data.ResponseData.IsHaveManageAssignee
-        );
-        setUserId(response.data.ResponseData.UserId);
+    const params = {};
+    const url = `${process.env.api_url}/auth/getuserdetails`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setAssigneeDisableApprovals(ResponseData.IsHaveManageAssignee);
+        setUserId(ResponseData.UserId);
       }
-    } catch (error: any) {
-      if (error.response.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
+    };
+    callAPI(url, params, successCallback, "GET");
   };
 
   useEffect(() => {
@@ -2309,12 +2196,12 @@ const EditDrawer = ({
   useEffect(() => {
     const getData = async () => {
       const assigneeData = await getAssigneeDropdownData(
-        clientNameApprovals,
+        [clientNameApprovals],
         typeOfWorkApprovals
       );
       assigneeData.length > 0 && setAssigneeApprovalsDropdownData(assigneeData);
       setReviewerApprovalsDropdownData(
-        await getReviewerDropdownData(clientNameApprovals, typeOfWorkApprovals)
+        await getReviewerDropdownData([clientNameApprovals], typeOfWorkApprovals)
       );
     };
 

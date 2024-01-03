@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
@@ -18,23 +17,10 @@ import {
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-
-//custom component
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
-
-//Filter Type
 import { FilterType } from "../types/ReportsFilterType";
-
-//Admin Rating Enum
 import { AdminRatingsReports } from "../Enum/Filtertype";
-
-//filter body for rating
 import { rating_InitialFilter } from "@/utils/reports/getFilters";
-
-//dropdown apis
-import { getProjectData } from "./api/getDropDownData";
-
-//icons
 import { Edit, Delete } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { isWeekend } from "@/utils/commonFunction";
@@ -42,6 +28,7 @@ import {
   getClientDropdownData,
   getProjectDropdownData,
 } from "@/utils/commonDropdownApiCall";
+import { callAPI } from "@/utils/API/callAPI";
 
 const RatingReportFilter = ({
   isFiltering,
@@ -214,147 +201,91 @@ const RatingReportFilter = ({
       setRatingReport_Error("Max 15 characters allowed!");
     } else {
       setRatingReport_Error("");
-
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/filter/savefilter`,
-          {
-            filterId:
-              ratingreport_currentFilterId !== ""
-                ? ratingreport_currentFilterId
-                : null,
-            name: ratingreport_filterName,
-            AppliedFilter: {
-              Clients:
-                ratingreport_clientName.length > 0
-                  ? ratingreport_clientName
-                  : [],
-              Projects:
-                ratingreport_projectName === null ||
-                ratingreport_projectName === ""
-                  ? []
-                  : [ratingreport_projectName.value],
-              ReturnTypeId:
-                ratingreport_returnType !== null
-                  ? ratingreport_returnType.value
-                  : null,
-              Ratings:
-                ratingreport_ratings !== null
-                  ? ratingreport_ratings.value
-                  : null,
-              StartDate:
-                ratingreport_startDate !== null
-                  ? new Date(
-                      new Date(ratingreport_startDate).getTime() +
-                        24 * 60 * 60 * 1000
-                    )
-                      .toISOString()
-                      .split("T")[0]
-                  : ratingreport_endDate !== null
-                  ? new Date(
-                      new Date(ratingreport_endDate).getTime() +
-                        24 * 60 * 60 * 1000
-                    )
-                      .toISOString()
-                      .split("T")[0]
-                  : null,
-              EndDate:
-                ratingreport_endDate !== null
-                  ? new Date(
-                      new Date(ratingreport_endDate).getTime() +
-                        24 * 60 * 60 * 1000
-                    )
-                      .toISOString()
-                      .split("T")[0]
-                  : ratingreport_startDate !== null
-                  ? new Date(
-                      new Date(ratingreport_startDate).getTime() +
-                        24 * 60 * 60 * 1000
-                    )
-                      .toISOString()
-                      .split("T")[0]
-                  : null,
-            },
-            type: AdminRatingsReports,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus.toLowerCase() === "success") {
-            toast.success("Filter has been successully saved.");
-            handleRatingReport_Close();
-            getRatingReport_FilterList();
-            handleRatingReport_FilterApply();
-            setRatingReport_SaveFilter(false);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+      const params = {
+        filterId:
+          ratingreport_currentFilterId !== ""
+            ? ratingreport_currentFilterId
+            : null,
+        name: ratingreport_filterName,
+        AppliedFilter: {
+          Clients:
+            ratingreport_clientName.length > 0 ? ratingreport_clientName : [],
+          Projects:
+            ratingreport_projectName === null || ratingreport_projectName === ""
+              ? []
+              : [ratingreport_projectName.value],
+          ReturnTypeId:
+            ratingreport_returnType !== null
+              ? ratingreport_returnType.value
+              : null,
+          Ratings:
+            ratingreport_ratings !== null ? ratingreport_ratings.value : null,
+          StartDate:
+            ratingreport_startDate !== null
+              ? new Date(
+                  new Date(ratingreport_startDate).getTime() +
+                    24 * 60 * 60 * 1000
+                )
+                  .toISOString()
+                  .split("T")[0]
+              : ratingreport_endDate !== null
+              ? new Date(
+                  new Date(ratingreport_endDate).getTime() + 24 * 60 * 60 * 1000
+                )
+                  .toISOString()
+                  .split("T")[0]
+              : null,
+          EndDate:
+            ratingreport_endDate !== null
+              ? new Date(
+                  new Date(ratingreport_endDate).getTime() + 24 * 60 * 60 * 1000
+                )
+                  .toISOString()
+                  .split("T")[0]
+              : ratingreport_startDate !== null
+              ? new Date(
+                  new Date(ratingreport_startDate).getTime() +
+                    24 * 60 * 60 * 1000
+                )
+                  .toISOString()
+                  .split("T")[0]
+              : null,
+        },
+        type: AdminRatingsReports,
+      };
+      const url = `${process.env.worklog_api_url}/filter/savefilter`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success("Filter has been successully saved.");
+          handleRatingReport_Close();
+          getRatingReport_FilterList();
+          handleRatingReport_FilterApply();
+          setRatingReport_SaveFilter(false);
         }
-      } catch (error) {
-        console.error(error);
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     }
   };
 
   const getRatingReport_FilterList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/getfilterlist`,
-        {
-          type: AdminRatingsReports,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setRatingReport_SavedFilters(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      type: AdminRatingsReports,
+    };
+    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setRatingReport_SavedFilters(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleRatingReport_SavedFilterEdit = async (index: number) => {
@@ -415,47 +346,23 @@ const RatingReportFilter = ({
   };
 
   const handleRatingReport_SavedFilterDelete = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/delete`,
-        {
-          filterId: ratingreport_currentFilterId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Filter has been deleted successfully.");
-          handleRatingReport_Close();
-          getRatingReport_FilterList();
-          setRatingReport_CurrentFilterId("");
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = `${process.env.worklog_api_url}/filter/delete`;
+    const url = {
+      filterId: ratingreport_currentFilterId,
+    };
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Filter has been deleted successfully.");
+        handleRatingReport_Close();
+        getRatingReport_FilterList();
+        setRatingReport_CurrentFilterId("");
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -487,7 +394,7 @@ const RatingReportFilter = ({
     const filterDropdowns = async () => {
       setRatingReport_ClientDropdown(await getClientDropdownData());
       setRatingReport_ProjectDropdown(
-        await getProjectData(
+        await getProjectDropdownData(
           ratingreport_clientName.length > 0 ? ratingreport_clientName[0] : 0
         )
       );

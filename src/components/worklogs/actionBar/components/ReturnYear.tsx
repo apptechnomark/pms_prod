@@ -1,10 +1,10 @@
 import React from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { List, Popover } from "@mui/material";
 import ReturnYearIcon from "@/assets/icons/worklogs/ReturnYearIcon";
 import { getYears } from "@/utils/commonFunction";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
+import { callAPI } from "@/utils/API/callAPI";
 
 const ReturnYear = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
   const yearDropdown = getYears();
@@ -32,49 +32,25 @@ const ReturnYear = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
 
   const updateReturnYear = async (id: number[], retunYear: number) => {
     getOverLay(true);
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/bulkupdateworkitemreturnyear`,
-        {
-          workitemIds: id,
-          returnYear: retunYear,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Return Year has been updated successfully.");
-          getWorkItemList();
-          getOverLay(false);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Something went wrong, Please try again later..");
-          } else {
-            toast.error(data);
-          }
-          getOverLay(false);
-        }
+    const params = {
+      workitemIds: id,
+      returnYear: retunYear,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemreturnyear`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Return Year has been updated successfully.");
+        getWorkItemList();
+        getOverLay(false);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Something went wrong, Please try again later..");
-        } else {
-          toast.error(data);
-        }
         getOverLay(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

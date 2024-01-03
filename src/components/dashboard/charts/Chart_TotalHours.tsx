@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface TotalHoursProps {
   onSelectedProjectIds: number[];
@@ -24,41 +23,27 @@ const Chart_TotalHours: React.FC<TotalHoursProps> = ({
   const [totalCount, setTotalCount] = useState<number>(0);
 
   useEffect(() => {
-    const getData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/clientdashboard/clienttotalhours`,
-          {
-            projectIds: onSelectedProjectIds,
-            typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (
-          response.status === 200 &&
-          response.data.ResponseStatus === "Success"
-        ) {
-          setData(response.data.ResponseData.List);
-          const totalCount = response.data.ResponseData.List.reduce(
+    const getData = () => {
+      const params = {
+        projectIds: onSelectedProjectIds,
+        typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      };
+      const url = `${process.env.report_api_url}/clientdashboard/clienttotalhours`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          setData(ResponseData.List);
+          const totalCount = ResponseData.List.reduce(
             (total: number, item: any) => total + item.Value,
             0
           );
           setTotalCount(totalCount);
-        } else {
-          const errorMessage = response.data.Message || "Something went wrong.";
-          toast.error(errorMessage);
         }
-      } catch (error) {
-        toast.error("Error fetching data. Please try again later.");
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     };
 
     getData();

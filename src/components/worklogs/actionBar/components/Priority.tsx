@@ -1,9 +1,9 @@
 import React from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { List, Popover } from "@mui/material";
 import PriorityIcon from "@/assets/icons/worklogs/Priority";
+import { callAPI } from "@/utils/API/callAPI";
 
 const priorityOptions = [
   { id: 3, text: "Low" },
@@ -16,6 +16,7 @@ const Priority = ({
   selectedRowStatusId,
   selectedRowsCount,
   getWorkItemList,
+  getOverLay,
 }: any) => {
   const [anchorElPriority, setAnchorElPriority] =
     React.useState<HTMLButtonElement | null>(null);
@@ -37,39 +38,26 @@ const Priority = ({
   };
 
   const updatePriority = async (id: number[], priorityId: number) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/UpdatePriority`,
-        {
-          workitemIds: id,
-          priority: priorityId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        const data = response.data.Message;
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Priority has been updated successfully.");
-          getWorkItemList();
-        } else {
-          toast.error(data || "Please try again later.");
-        }
+    getOverLay(true);
+    const params = {
+      workitemIds: id,
+      priority: priorityId,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/UpdatePriority`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Priority has been updated successfully.");
+        getWorkItemList();
+        getOverLay(false);
       } else {
-        const data = response.data.Message;
-        toast.error(data || "Please try again later.");
+        getOverLay(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

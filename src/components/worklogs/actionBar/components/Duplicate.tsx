@@ -1,8 +1,8 @@
 import React from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import ContentCopy from "@/assets/icons/worklogs/ContentCopy";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Duplicate = ({
   workItemData,
@@ -33,49 +33,25 @@ const Duplicate = ({
     }
     if (duplicateId.length > 0) {
       getOverLay(true);
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/copyworkitem`,
-          {
-            workitemIds: duplicateId,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            toast.success("Task has been duplicated successfully");
-            handleClearSelection();
-            getWorkItemList();
-            getOverLay(false);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-            getOverLay(false);
-          }
+      const params = {
+        workitemIds: duplicateId,
+      };
+      const url = `${process.env.worklog_api_url}/workitem/copyworkitem`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success("Task has been duplicated successfully");
+          handleClearSelection();
+          getWorkItemList();
+          getOverLay(false);
         } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
           getOverLay(false);
         }
-      } catch (error) {
-        console.error(error);
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     }
   };
   return (

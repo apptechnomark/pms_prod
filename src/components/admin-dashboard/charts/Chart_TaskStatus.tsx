@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface TaskStatusProps {
   onSelectedProjectIds: number[];
@@ -17,52 +16,28 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
   const [data, setData] = useState<any[]>([]);
 
   const getTaskStatusData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/taskstatusgraph`,
-        {
-          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
+    const params = {
+      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+    };
+    const url = `${process.env.report_api_url}/dashboard/taskstatusgraph`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        const chartData = ResponseData.map(
+          (item: { ColorCode: any; Key: any; Value: any }) => ({
+            name: item.Key,
+            y: item.Value,
+            color: item.ColorCode,
+          })
+        );
 
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          const chartData = response.data.ResponseData.map(
-            (item: { ColorCode: any; Key: any; Value: any }) => ({
-              name: item.Key,
-              y: item.Value,
-              color: item.ColorCode,
-            })
-          );
-
-          setData(chartData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+        setData(chartData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {

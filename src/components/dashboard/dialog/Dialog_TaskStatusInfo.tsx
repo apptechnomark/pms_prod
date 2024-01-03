@@ -9,10 +9,9 @@ import {
   Select,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
-import axios from "axios";
-import { toast } from "react-toastify";
 import Datatable_TaskStatusInfo from "../datatable/Datatable_TaskStatusInfo";
 import { DialogTransition } from "@/utils/style/DialogTransition";
+import { getStatusDropdownData } from "@/utils/commonDropdownApiCall";
 
 interface Status {
   Type: string;
@@ -67,41 +66,7 @@ const Dialog_TaskStatusInfo: React.FC<TaskStatusInfoDialogProps> = ({
   }, [clickedStatusName, onSelectedStatusName]);
 
   const getAllStatus = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/status/GetDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setAllStatus(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    setAllStatus(await getStatusDropdownData());
   };
 
   useEffect(() => {

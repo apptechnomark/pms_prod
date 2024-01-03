@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
@@ -22,7 +21,6 @@ import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { FilterType } from "../types/ReportsFilterType";
 import { logReport } from "../Enum/Filtertype";
 import { logReport_InitialFilter } from "@/utils/reports/getFilters";
-import { getProjectData } from "./api/getDropDownData";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Edit, Delete } from "@mui/icons-material";
 import { getFormattedDate } from "@/utils/timerFunctions";
@@ -31,7 +29,9 @@ import {
   getAllProcessDropdownData,
   getClientDropdownData,
   getCommentUserDropdownData,
+  getProjectDropdownData,
 } from "@/utils/commonDropdownApiCall";
+import { callAPI } from "@/utils/API/callAPI";
 
 const LogReportFilter = ({
   isFiltering,
@@ -181,78 +181,49 @@ const LogReportFilter = ({
       setLogReport_Error("Max 15 characters allowed!");
     } else {
       setLogReport_Error("");
-
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/filter/savefilter`,
-          {
-            filterId:
-              logReport_currentFilterId !== ""
-                ? logReport_currentFilterId
-                : null,
-            name: logReport_filterName,
-            AppliedFilter: {
-              clientFilter:
-                logReport_clientName.length > 0 ? logReport_clientName : [],
-              projectFilter:
-                logReport_projectName === null
-                  ? []
-                  : [logReport_projectName.value],
-              processFilter:
-                logReport_process === null ? null : [logReport_process.value],
-              updatedByFilter:
-                logReport_updatedBy === null ? [] : [logReport_updatedBy.value],
-              startDate:
-                logReport_startDate.toString().trim().length <= 0
-                  ? logReport_endDate.toString().trim().length <= 0
-                    ? null
-                    : getFormattedDate(logReport_endDate)
-                  : getFormattedDate(logReport_startDate),
-              endDate:
-                logReport_endDate.toString().trim().length <= 0
-                  ? logReport_startDate.toString().trim().length <= 0
-                    ? null
-                    : getFormattedDate(logReport_startDate)
-                  : getFormattedDate(logReport_endDate),
-            },
-            type: logReport,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus.toLowerCase() === "success") {
-            toast.success("Filter has been successully saved.");
-            handleLogReport_Close();
-            getLogReport_FilterList();
-            handleLogReport_FilterApply();
-            setLogReport_SaveFilter(false);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+      const params = {
+        filterId:
+          logReport_currentFilterId !== "" ? logReport_currentFilterId : null,
+        name: logReport_filterName,
+        AppliedFilter: {
+          clientFilter:
+            logReport_clientName.length > 0 ? logReport_clientName : [],
+          projectFilter:
+            logReport_projectName === null ? [] : [logReport_projectName.value],
+          processFilter:
+            logReport_process === null ? null : [logReport_process.value],
+          updatedByFilter:
+            logReport_updatedBy === null ? [] : [logReport_updatedBy.value],
+          startDate:
+            logReport_startDate.toString().trim().length <= 0
+              ? logReport_endDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(logReport_endDate)
+              : getFormattedDate(logReport_startDate),
+          endDate:
+            logReport_endDate.toString().trim().length <= 0
+              ? logReport_startDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(logReport_startDate)
+              : getFormattedDate(logReport_endDate),
+        },
+        type: logReport,
+      };
+      const url = `${process.env.worklog_api_url}/filter/savefilter`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success("Filter has been successully saved.");
+          handleLogReport_Close();
+          getLogReport_FilterList();
+          handleLogReport_FilterApply();
+          setLogReport_SaveFilter(false);
         }
-      } catch (error) {
-        console.error(error);
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     }
   };
 
@@ -291,7 +262,7 @@ const LogReportFilter = ({
       );
       setLogReport_ClientDropdown(await getClientDropdownData());
       setLogReport_ProjectDropdown(
-        await getProjectData(
+        await getProjectDropdownData(
           logReport_clientName.length > 0 ? logReport_clientName[0] : 0
         )
       );
@@ -305,44 +276,20 @@ const LogReportFilter = ({
   }, [logReport_clientName]);
 
   const getLogReport_FilterList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/getfilterlist`,
-        {
-          type: logReport,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setLogReport_SavedFilters(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      type: logReport,
+    };
+    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setLogReport_SavedFilters(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleLogReport_SavedFilterEdit = async (index: number) => {
@@ -366,7 +313,7 @@ const LogReportFilter = ({
     setLogReport_ProjectName(
       logReport_savedFilters[index].AppliedFilter.projectFilter.length > 0
         ? (
-            await getProjectData(
+            await getProjectDropdownData(
               logReport_savedFilters[index].AppliedFilter.clientFilter[0]
             )
           ).filter(
@@ -403,47 +350,23 @@ const LogReportFilter = ({
   };
 
   const handleLogReport_SavedFilterDelete = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/delete`,
-        {
-          filterId: logReport_currentFilterId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Filter has been deleted successfully.");
-          handleLogReport_Close();
-          getLogReport_FilterList();
-          setLogReport_CurrentFilterId("");
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      filterId: logReport_currentFilterId,
+    };
+    const url = `${process.env.worklog_api_url}/filter/delete`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Filter has been deleted successfully.");
+        handleLogReport_Close();
+        getLogReport_FilterList();
+        setLogReport_CurrentFilterId("");
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

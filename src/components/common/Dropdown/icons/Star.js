@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 const Star = ({ data, getUserDetails }) => {
@@ -8,45 +7,17 @@ const Star = ({ data, getUserDetails }) => {
   }, [data]);
 
   const getData = async (id) => {
-    const token = localStorage.getItem("token");
-    const Org_Token = localStorage.getItem("Org_Token");
-    try {
-      let response = await axios.post(
-        `${process.env.pms_api_url}/organization/setfavorite`,
-        {
-          OrganizationId: id,
-          Isfavourite: !starred,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setStarred(!starred);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      OrganizationId: id,
+      Isfavourite: !starred,
+    };
+    const url = `${process.env.pms_api_url}/organization/setfavorite`;
+    const successCallback = (ResponseData, error, ResponseStatus) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setStarred(!starred);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

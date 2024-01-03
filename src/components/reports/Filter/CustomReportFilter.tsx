@@ -1,4 +1,3 @@
-import axios from "axios";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
@@ -22,9 +21,9 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { FilterType } from "../types/ReportsFilterType";
 import { customReport } from "../Enum/Filtertype";
 import { customreport_InitialFilter } from "@/utils/reports/getFilters";
-import { getUserData } from "./api/getDropDownData";
 import {
   getAllProcessDropdownData,
+  getCCDropdownData,
   getClientDropdownData,
   getProjectDropdownData,
   getStatusDropdownData,
@@ -34,6 +33,7 @@ import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { getYears, isWeekend } from "@/utils/commonFunction";
+import { callAPI } from "@/utils/API/callAPI";
 
 const SIGNED_OFF = "signedoff";
 const ACCEPTED = "accept";
@@ -244,84 +244,57 @@ const CustomReportFilter = ({
       setError("Max 15 characters allowed!");
     } else {
       setError("");
-
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/filter/savefilter`,
-          {
-            filterId: currentFilterId !== "" ? currentFilterId : null,
-            name: filterName,
-            AppliedFilter: {
-              clientIdsJSON: clientName.length > 0 ? clientName : [],
-              projectIdsJSON: projectName === null ? [] : [projectName.value],
-              processIdsJSON: processName === null ? [] : [processName.value],
-              assignedById: assignByName === null ? null : assignByName.value,
-              assigneeId: assigneeName === null ? null : assigneeName.value,
-              reviewerId: reviewerName === null ? null : reviewerName.value,
-              returnTypeId:
-                returnTypeName === null ? null : returnTypeName.value,
-              numberOfPages:
-                noofPages.toString().trim().length <= 0 ? null : noofPages,
-              returnYear: returnYear === null ? null : returnYear.value,
-              subProcessId:
-                subProcessName === null ? null : subProcessName.value,
-              StatusId: status === null ? null : status.value,
-              priority: priority === null ? null : priority.value,
-              startDate:
-                startDate.toString().trim().length <= 0
-                  ? null
-                  : getFormattedDate(startDate),
-              endDate:
-                endDate.toString().trim().length <= 0
-                  ? null
-                  : getFormattedDate(endDate),
-              dueDate:
-                dueDate.toString().trim().length <= 0
-                  ? null
-                  : getFormattedDate(dueDate),
-              allInfoDate:
-                allInfoDate.toString().trim().length <= 0
-                  ? null
-                  : getFormattedDate(allInfoDate),
-            },
-            type: customReport,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus.toLowerCase() === "success") {
-            toast.success("Filter has been successully saved.");
-            handleClose();
-            getFilterList();
-            handleFilterApply();
-            setSaveFilter(false);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+      const params = {
+        filterId: currentFilterId !== "" ? currentFilterId : null,
+        name: filterName,
+        AppliedFilter: {
+          clientIdsJSON: clientName.length > 0 ? clientName : [],
+          projectIdsJSON: projectName === null ? [] : [projectName.value],
+          processIdsJSON: processName === null ? [] : [processName.value],
+          assignedById: assignByName === null ? null : assignByName.value,
+          assigneeId: assigneeName === null ? null : assigneeName.value,
+          reviewerId: reviewerName === null ? null : reviewerName.value,
+          returnTypeId: returnTypeName === null ? null : returnTypeName.value,
+          numberOfPages:
+            noofPages.toString().trim().length <= 0 ? null : noofPages,
+          returnYear: returnYear === null ? null : returnYear.value,
+          subProcessId: subProcessName === null ? null : subProcessName.value,
+          StatusId: status === null ? null : status.value,
+          priority: priority === null ? null : priority.value,
+          startDate:
+            startDate.toString().trim().length <= 0
+              ? null
+              : getFormattedDate(startDate),
+          endDate:
+            endDate.toString().trim().length <= 0
+              ? null
+              : getFormattedDate(endDate),
+          dueDate:
+            dueDate.toString().trim().length <= 0
+              ? null
+              : getFormattedDate(dueDate),
+          allInfoDate:
+            allInfoDate.toString().trim().length <= 0
+              ? null
+              : getFormattedDate(allInfoDate),
+        },
+        type: customReport,
+      };
+      const url = `${process.env.worklog_api_url}/filter/savefilter`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success("Filter has been successully saved.");
+          handleClose();
+          getFilterList();
+          handleFilterApply();
+          setSaveFilter(false);
         }
-      } catch (error) {
-        console.error(error);
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     }
   };
 
@@ -391,7 +364,7 @@ const CustomReportFilter = ({
           )
         )
       );
-      setUserDropdown(await getUserData());
+      setUserDropdown(await getCCDropdownData());
       setStatusDropdown(await getStatusDropdownData());
     };
     customDropdowns();
@@ -402,44 +375,20 @@ const CustomReportFilter = ({
   }, [clientName, processName]);
 
   const getFilterList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/getfilterlist`,
-        {
-          type: customReport,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setSavedFilters(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      type: customReport,
+    };
+    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setSavedFilters(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleSavedFilterEdit = async (index: number) => {
@@ -550,47 +499,23 @@ const CustomReportFilter = ({
   };
 
   const handleSavedFilterDelete = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/delete`,
-        {
-          filterId: currentFilterId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Filter has been deleted successfully.");
-          handleClose();
-          getFilterList();
-          setCurrentFilterId("");
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      filterId: currentFilterId,
+    };
+    const url = `${process.env.worklog_api_url}/filter/delete`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Filter has been deleted successfully.");
+        handleClose();
+        getFilterList();
+        setCurrentFilterId("");
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

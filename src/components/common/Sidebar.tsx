@@ -14,8 +14,7 @@ import Pabs from "../../assets/icons/Pabs";
 import PabsCollapse from "../../assets/icons/PabsCollaps";
 import Link from "next/link";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
-import axios from "axios";
-import { toast } from "react-toastify";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface SidebarItem {
   name: string;
@@ -60,7 +59,6 @@ const DashboardItems = ({ pathname, isCollapsed }: any) => {
 };
 
 const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
-  const router = useRouter();
   const pathname = usePathname();
   const [isCollapsed, setCollapse] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -68,66 +66,45 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
 
   useEffect(() => {
     const getUserDetails = async () => {
-      try {
-        const headers = {
-          "Content-Type": "application/json",
-          Authorization: localStorage.getItem("token"),
-        };
-        const response = await axios.get(
-          `${process.env.api_url}/auth/getuserdetails`,
-          { headers: headers }
-        );
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            localStorage.setItem(
-              "IsHaveManageAssignee",
-              response.data.ResponseData.IsHaveManageAssignee
-            );
+      const params = {};
+      const url = `${process.env.api_url}/auth/getuserdetails`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          localStorage.setItem(
+            "IsHaveManageAssignee",
+            ResponseData.IsHaveManageAssignee
+          );
 
+          localStorage.setItem("permission", JSON.stringify(ResponseData.Menu));
+          localStorage.setItem("roleId", ResponseData.RoleId);
+          localStorage.setItem("isClient", ResponseData.IsClientUser);
+          localStorage.setItem("UserId", ResponseData.UserId);
+          if (localStorage.getItem("Org_Token") === null) {
             localStorage.setItem(
-              "permission",
-              JSON.stringify(response.data.ResponseData.Menu)
+              "Org_Token",
+              ResponseData.Organizations[0].Token
             );
-            localStorage.setItem("roleId", response.data.ResponseData.RoleId);
-            localStorage.setItem(
-              "isClient",
-              response.data.ResponseData.IsClientUser
-            );
-            localStorage.setItem("UserId", response.data.ResponseData.UserId);
-            if (localStorage.getItem("Org_Token") === null) {
-              localStorage.setItem(
-                "Org_Token",
-                response.data.ResponseData.Organizations[0].Token
-              );
-            }
-            if (localStorage.getItem("Org_Id") === null) {
-              localStorage.setItem(
-                "Org_Id",
-                response.data.ResponseData.Organizations[0].OrganizationId
-              );
-            }
-            if (localStorage.getItem("Org_Name") === null) {
-              localStorage.setItem(
-                "Org_Name",
-                response.data.ResponseData.Organizations[0].OrganizationName
-              );
-            }
-            getSidebarData(response.data.ResponseData.IsClientUser);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
           }
+          if (localStorage.getItem("Org_Id") === null) {
+            localStorage.setItem(
+              "Org_Id",
+              ResponseData.Organizations[0].OrganizationId
+            );
+          }
+          if (localStorage.getItem("Org_Name") === null) {
+            localStorage.setItem(
+              "Org_Name",
+              ResponseData.Organizations[0].OrganizationName
+            );
+          }
+          getSidebarData(ResponseData.IsClientUser);
         }
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
-      }
+      };
+      callAPI(url, params, successCallback, "GET");
     };
 
     const getSidebarData = async (isClient: any) => {

@@ -14,6 +14,17 @@ const ClientFieldsDrawer = ({ onOpen, onClose, selectedRowId }: any) => {
   };
 
   const getFieldsByClient = async () => {
+    // const params = ;
+    // const url = ;
+    // const successCallback = (
+    //   ResponseData: any,
+    //   error: any,
+    //   ResponseStatus: any
+    // ) => {
+    //   if (ResponseStatus === "Success" && error === false) {
+    //   }
+    // };
+    // callAPI(url, params, successCallback, "POST");
     const token = await localStorage.getItem("token");
     const Org_Token = await localStorage.getItem("Org_Token");
 

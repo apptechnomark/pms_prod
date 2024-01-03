@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
@@ -23,10 +22,11 @@ import { FilterType } from "../types/ReportsFilterType";
 import { user } from "../Enum/Filtertype";
 import { user_InitialFilter } from "@/utils/reports/getFilters";
 import { getDates, getFormattedDate } from "@/utils/timerFunctions";
-import { getDeptData, getUserData } from "./api/getDropDownData";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
 import { isWeekend } from "@/utils/commonFunction";
+import { callAPI } from "@/utils/API/callAPI";
+import { getCCDropdownData, getDeptData } from "@/utils/commonDropdownApiCall";
 
 const UserFilter = ({
   isFiltering,
@@ -125,67 +125,42 @@ const UserFilter = ({
       setUser_Error("Max 15 characters allowed!");
     } else {
       setUser_Error("");
-
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/filter/savefilter`,
-          {
-            filterId: user_currentFilterId !== "" ? user_currentFilterId : null,
-            name: user_filterName,
-            AppliedFilter: {
-              users: user_userNames.length > 0 ? user_userNames : [],
-              departmentId: user_dept === null ? null : user_dept.value,
-              startDate:
-                user_startDate.toString().trim().length <= 0
-                  ? user_endDate.toString().trim().length <= 0
-                    ? getDates()[0]
-                    : getFormattedDate(user_endDate)
-                  : getFormattedDate(user_startDate),
-              endDate:
-                user_endDate.toString().trim().length <= 0
-                  ? user_startDate.toString().trim().length <= 0
-                    ? getDates()[getDates().length - 1]
-                    : getFormattedDate(user_startDate)
-                  : getFormattedDate(user_endDate),
-            },
-            type: user,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus.toLowerCase() === "success") {
-            toast.success("Filter has been successully saved.");
-            handleUserClose();
-            getUserFilterList();
-            handleUserFilterApply();
-            setUser_SaveFilter(false);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+      const params = {
+        filterId: user_currentFilterId !== "" ? user_currentFilterId : null,
+        name: user_filterName,
+        AppliedFilter: {
+          users: user_userNames.length > 0 ? user_userNames : [],
+          departmentId: user_dept === null ? null : user_dept.value,
+          startDate:
+            user_startDate.toString().trim().length <= 0
+              ? user_endDate.toString().trim().length <= 0
+                ? getDates()[0]
+                : getFormattedDate(user_endDate)
+              : getFormattedDate(user_startDate),
+          endDate:
+            user_endDate.toString().trim().length <= 0
+              ? user_startDate.toString().trim().length <= 0
+                ? getDates()[getDates().length - 1]
+                : getFormattedDate(user_startDate)
+              : getFormattedDate(user_endDate),
+        },
+        type: user,
+      };
+      const url = `${process.env.worklog_api_url}/filter/savefilter`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success("Filter has been successully saved.");
+          handleUserClose();
+          getUserFilterList();
+          handleUserFilterApply();
+          setUser_SaveFilter(false);
         }
-      } catch (error) {
-        console.error(error);
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     }
   };
 
@@ -207,50 +182,26 @@ const UserFilter = ({
   useEffect(() => {
     const userDropdowns = async () => {
       setUser_DeptDropdown(await getDeptData());
-      setUser_UserDropdown(await getUserData());
+      setUser_UserDropdown(await getCCDropdownData());
     };
     userDropdowns();
   }, []);
 
   const getUserFilterList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/getfilterlist`,
-        {
-          type: user,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setUser_SavedFilters(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      type: user,
+    };
+    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setUser_SavedFilters(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleUserSavedFilterEdit = (index: number) => {
@@ -279,47 +230,23 @@ const UserFilter = ({
   };
 
   const handleUserSavedFilterDelete = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/delete`,
-        {
-          filterId: user_currentFilterId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Filter has been deleted successfully.");
-          handleUserClose();
-          getUserFilterList();
-          setUser_CurrentFilterId("");
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      filterId: user_currentFilterId,
+    };
+    const url = `${process.env.worklog_api_url}/filter/delete`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Filter has been deleted successfully.");
+        handleUserClose();
+        getUserFilterList();
+        setUser_CurrentFilterId("");
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

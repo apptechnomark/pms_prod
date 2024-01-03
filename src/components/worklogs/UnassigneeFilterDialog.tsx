@@ -5,9 +5,11 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import { toast } from "react-toastify";
-import axios from "axios";
 import { DialogTransition } from "@/utils/style/DialogTransition";
+import {
+  getClientDropdownData,
+  getTypeOfWorkDropdownData,
+} from "@/utils/commonDropdownApiCall";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -64,82 +66,11 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
   };
 
   const getClientData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/client/getdropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setClientDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    setClientDropdownData(await getClientDropdownData());
   };
 
   const getWorkTypeData = async (clientName: string | number) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/WorkType/GetDropdown`,
-        {
-          clientId: clientName ? clientName : 0,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setTypeOfWorkDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    setTypeOfWorkDropdownData(await getTypeOfWorkDropdownData(clientName));
   };
 
   useEffect(() => {
@@ -178,6 +109,7 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
                   value={clientName === 0 ? "" : clientName}
                   onChange={(e) => {
                     setClientName(e.target.value);
+                    setTypeOfWork(0);
                   }}
                 >
                   {clientDropdownData.map((i: any) => (

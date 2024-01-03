@@ -14,10 +14,9 @@ import {
 } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import axios from "axios";
 import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { getProjectDropdownData } from "@/utils/commonDropdownApiCall";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -129,45 +128,8 @@ const FilterDialog_Rating: React.FC<FilterModalProps> = ({
   };
 
   const getProjectData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
     const clientId = await localStorage.getItem("clientId");
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/project/getdropdown`,
-        {
-          clientId: clientId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setProjectFilterRatingDropdownData(response.data.ResponseData.List);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    setProjectFilterRatingDropdownData(await getProjectDropdownData(clientId));
   };
 
   useEffect(() => {

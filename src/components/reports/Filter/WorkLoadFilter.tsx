@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
@@ -22,11 +21,12 @@ import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { FilterType } from "../types/ReportsFilterType";
 import { workload } from "../Enum/Filtertype";
 import { workLoad_InitialFilter } from "@/utils/reports/getFilters";
-import { getDeptData, getUserData } from "./api/getDropDownData";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Delete, Edit } from "@mui/icons-material";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { isWeekend } from "@/utils/commonFunction";
+import { callAPI } from "@/utils/API/callAPI";
+import { getCCDropdownData, getDeptData } from "@/utils/commonDropdownApiCall";
 
 const WorkLoadFilter = ({
   isFiltering,
@@ -121,58 +121,31 @@ const WorkLoadFilter = ({
       setWorkload_Error("Max 15 characters allowed!");
     } else {
       setWorkload_Error("");
-
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/filter/savefilter`,
-          {
-            filterId: !workload_currentFilterId
-              ? null
-              : workload_currentFilterId,
-            name: workload_filterName,
-            AppliedFilter: {
-              users: workload_userNames.length > 0 ? workload_userNames : [],
-              Department: workload_dept === null ? null : workload_dept.value,
-              dateFilter: !workload_dateFilter ? null : workload_dateFilter,
-            },
-            type: workload,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus.toLowerCase() === "success") {
-            toast.success("Filter has been successully saved.");
-            handleUserClose();
-            getFilterList();
-            handleFilterApply();
-            setWorkload_SaveFilter(false);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+      const params = {
+        filterId: !workload_currentFilterId ? null : workload_currentFilterId,
+        name: workload_filterName,
+        AppliedFilter: {
+          users: workload_userNames.length > 0 ? workload_userNames : [],
+          Department: workload_dept === null ? null : workload_dept.value,
+          dateFilter: !workload_dateFilter ? null : workload_dateFilter,
+        },
+        type: workload,
+      };
+      const url = `${process.env.worklog_api_url}/filter/savefilter`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success("Filter has been successully saved.");
+          handleUserClose();
+          getFilterList();
+          handleFilterApply();
+          setWorkload_SaveFilter(false);
         }
-      } catch (error) {
-        console.error(error);
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     }
   };
 
@@ -189,51 +162,27 @@ const WorkLoadFilter = ({
   useEffect(() => {
     const workLoadDropdowns = async () => {
       setWorkload_DeptDropdown(await getDeptData());
-      setWorkload_UserDropdown(await getUserData());
+      setWorkload_UserDropdown(await getCCDropdownData());
     };
 
     workLoadDropdowns();
   }, []);
 
   const getFilterList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/getfilterlist`,
-        {
-          type: workload,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setWorkload_SavedFilters(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      type: workload,
+    };
+    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setWorkload_SavedFilters(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleSavedFilterEdit = (index: number) => {
@@ -266,47 +215,23 @@ const WorkLoadFilter = ({
   };
 
   const handleSavedFilterDelete = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/delete`,
-        {
-          filterId: workload_currentFilterId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Filter has been deleted successfully.");
-          handleUserClose();
-          getFilterList();
-          setWorkload_CurrentFilterId("");
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      filterId: workload_currentFilterId,
+    };
+    const url = `${process.env.worklog_api_url}/filter/delete`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Filter has been deleted successfully.");
+        handleUserClose();
+        getFilterList();
+        setWorkload_CurrentFilterId("");
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

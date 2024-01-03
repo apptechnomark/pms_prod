@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { List, Popover } from "@mui/material";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import DetectorStatus from "@/assets/icons/worklogs/DetectorStatus";
 import { getStatusDropdownData } from "@/utils/commonDropdownApiCall";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Status = ({
   selectedRowIds,
@@ -84,56 +84,39 @@ const Status = ({
       }
     });
 
-    try {
-      getOverLay(true);
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/UpdateStatus`,
-        {
-          workitemIds: isNotRework.length > 0 ? isNotRework : isRework,
-          statusId: statusId,
-          SecondManagerReviewId: null,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        const data = response.data.Message;
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Status has been updated successfully.");
-          handleClearSelection();
-          isNotRework = [];
-          isRework = [];
-          getWorkItemList();
-          getOverLay(false);
-        } else if (response.data.ResponseStatus === "Warning" && !!data) {
-          toast.warning(data);
-          handleClearSelection();
-          isNotRework = [];
-          isRework = [];
-          getWorkItemList();
-          getOverLay(false);
-        } else {
-          toast.error(data || "Please try again later.");
-          handleClearSelection();
-          getWorkItemList();
-          getOverLay(false);
-        }
+    getOverLay(true);
+    const params = {
+      workitemIds: isNotRework.length > 0 ? isNotRework : isRework,
+      statusId: statusId,
+      SecondManagerReviewId: null,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/UpdateStatus`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Status has been updated successfully.");
+        handleClearSelection();
+        isNotRework = [];
+        isRework = [];
+        getWorkItemList();
+        getOverLay(false);
+      } else if (ResponseStatus === "Warning") {
+        toast.warning(ResponseData);
+        handleClearSelection();
+        isNotRework = [];
+        isRework = [];
+        getWorkItemList();
+        getOverLay(false);
       } else {
-        const data = response.data.Message;
-        toast.error(data || "Please try again later.");
+        handleClearSelection();
+        getWorkItemList();
         getOverLay(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

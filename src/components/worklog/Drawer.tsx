@@ -22,7 +22,6 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Mention, MentionsInput } from "react-mentions";
@@ -834,109 +833,80 @@ const Drawer = ({
     const saveWorklog = async () => {
       setIsLoadingClientWorklog(true);
       const clientId = await localStorage.getItem("clientId");
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/ClientWorkitem/saveworkitem`,
-          {
-            ClientId: clientId,
-            WorkItemId: onEdit > 0 ? onEdit : 0,
-            taskName:
-              clientTaskNameClientWorklog.length <= 0
-                ? null
-                : clientTaskNameClientWorklog,
-            WorkTypeId:
-              typeOfWorkClientWorklog === 0 ? null : typeOfWorkClientWorklog,
-            ProjectId:
-              projectNameClientWorklog === 0 ? null : projectNameClientWorklog,
-            ProcessId:
-              processNameClientWorklog === 0 ? null : processNameClientWorklog,
-            SubProcessId:
-              subProcessNameClientWorklog === 0
-                ? null
-                : subProcessNameClientWorklog,
-            Priority:
-              priorityClientWorklog === 0 ? null : priorityClientWorklog,
-            Quantity: quantityClientWorklog <= 0 ? null : quantityClientWorklog,
-            ReceiverDate:
-              receiverDateClientWorklog.length === 0
-                ? null
-                : dayjs(receiverDateClientWorklog).format("YYYY/MM/DD"),
-            DueDate:
-              dueDateClientWorklog.length === 0
-                ? null
-                : dayjs(dueDateClientWorklog).format("YYYY/MM/DD"),
-            TaxReturnType: null,
-            TypeOfReturnId: null,
-            TaxCustomFields:
-              typeOfWorkClientWorklog !== 3
-                ? null
-                : {
-                    ReturnYear:
-                      returnYearClientWorklog === 0
-                        ? null
-                        : returnYearClientWorklog,
-                    Complexity: null,
-                    CountYear: null,
-                    NoOfPages: null,
-                  },
-            SubTaskList:
-              onEdit > 0
-                ? null
-                : subTaskClientWorklogSwitch
-                ? subTaskClientWorklogFields.map(
-                    (i: any) =>
-                      new Object({
-                        SubtaskId: i.SubtaskId,
-                        Title: i.Title.trim(),
-                        Description: i.Description.trim(),
-                      })
-                  )
-                : null,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            toast.success(
-              `Worklog ${onEdit > 0 ? "Updated" : "created"} successfully.`
-            );
-            onEdit === 0 && handleCloseClientWorklog();
-            setIsLoadingClientWorklog(false);
-            getEditDataClientWorklog();
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-            getEditDataClientWorklog();
-            setIsLoadingClientWorklog(false);
-          }
+      const params = {
+        ClientId: clientId,
+        WorkItemId: onEdit > 0 ? onEdit : 0,
+        taskName:
+          clientTaskNameClientWorklog.length <= 0
+            ? null
+            : clientTaskNameClientWorklog,
+        WorkTypeId:
+          typeOfWorkClientWorklog === 0 ? null : typeOfWorkClientWorklog,
+        ProjectId:
+          projectNameClientWorklog === 0 ? null : projectNameClientWorklog,
+        ProcessId:
+          processNameClientWorklog === 0 ? null : processNameClientWorklog,
+        SubProcessId:
+          subProcessNameClientWorklog === 0
+            ? null
+            : subProcessNameClientWorklog,
+        Priority: priorityClientWorklog === 0 ? null : priorityClientWorklog,
+        Quantity: quantityClientWorklog <= 0 ? null : quantityClientWorklog,
+        ReceiverDate:
+          receiverDateClientWorklog.length === 0
+            ? null
+            : dayjs(receiverDateClientWorklog).format("YYYY/MM/DD"),
+        DueDate:
+          dueDateClientWorklog.length === 0
+            ? null
+            : dayjs(dueDateClientWorklog).format("YYYY/MM/DD"),
+        TaxReturnType: null,
+        TypeOfReturnId: null,
+        TaxCustomFields:
+          typeOfWorkClientWorklog !== 3
+            ? null
+            : {
+                ReturnYear:
+                  returnYearClientWorklog === 0
+                    ? null
+                    : returnYearClientWorklog,
+                Complexity: null,
+                CountYear: null,
+                NoOfPages: null,
+              },
+        SubTaskList:
+          onEdit > 0
+            ? null
+            : subTaskClientWorklogSwitch
+            ? subTaskClientWorklogFields.map(
+                (i: any) =>
+                  new Object({
+                    SubtaskId: i.SubtaskId,
+                    Title: i.Title.trim(),
+                    Description: i.Description.trim(),
+                  })
+              )
+            : null,
+      };
+      const url = `${process.env.worklog_api_url}/ClientWorkitem/saveworkitem`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success(
+            `Worklog ${onEdit > 0 ? "Updated" : "created"} successfully.`
+          );
+          onEdit === 0 && handleCloseClientWorklog();
+          setIsLoadingClientWorklog(false);
+          getEditDataClientWorklog();
         } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Failed Please try again.");
-          } else {
-            toast.error(data);
-          }
           getEditDataClientWorklog();
           setIsLoadingClientWorklog(false);
         }
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     };
 
     if (!hasErrors && !hasSubErrors) {

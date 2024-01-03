@@ -1,4 +1,3 @@
-import axios from "axios";
 import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import MUIDataTable from "mui-datatables";
@@ -137,51 +136,27 @@ const BillingReport = ({
   };
 
   const saveBTCData = async (arg1: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/report/billing/savebtc`,
-        { selectedArray: arg1 },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setBTCSaved(true);
-          onSaveBTCDataComplete(false);
-          setBTCData([]);
-          setRaisedInvoice([]);
-          setFinalBTCData([]);
-          getData(
-            filteredData !== null ? filteredData : billingreport_InitialFilter
-          );
-          toast.success("BTC Data saved successfully!");
-          setTimeout(() => setBTCSaved(false), 100);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = { selectedArray: arg1 };
+    const url = `${process.env.report_api_url}/report/billing/savebtc`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setBTCSaved(true);
+        onSaveBTCDataComplete(false);
+        setBTCData([]);
+        setRaisedInvoice([]);
+        setFinalBTCData([]);
+        getData(
+          filteredData !== null ? filteredData : billingreport_InitialFilter
+        );
+        toast.success("BTC Data saved successfully!");
+        setTimeout(() => setBTCSaved(false), 100);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleChangePage = (

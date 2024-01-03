@@ -6,11 +6,12 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { FormControl, InputLabel, MenuItem } from "@mui/material";
 import Select from "@mui/material/Select";
-import axios from "axios";
-import { toast } from "react-toastify";
 import {
+  getCCDropdownData,
+  getClientDropdownData,
   getProcessDropdownData,
   getProjectDropdownData,
+  getStatusDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -84,132 +85,26 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
     onClose();
   };
 
-  const getClientData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/client/getdropdownforgroup`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
+  const getDropdownData = async () => {
+    setClientDropdownData(await getClientDropdownData());
+    setUserData(await getCCDropdownData());
+    const data = await getStatusDropdownData();
+    data.length > 0 &&
+      setStatusDropdownData(
+        activeTab === 1
+          ? data.filter(
+              (item: any) =>
+                item.Type === "InReview" ||
+                item.Type === "OnHoldFromClient" ||
+                item.Type === "ReworkInReview" ||
+                item.Type === "Submitted" ||
+                item.Type === "ReworkSubmitted" ||
+                item.Type === "SecondManagerReview" ||
+                item.Type === "WithDraw" ||
+                item.Type === "WithdrawnbyClient"
+            )
+          : data
       );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setClientDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getEmployeeData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.api_url}/user/getdropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setUserData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getAllStatus = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/status/GetDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setStatusDropdownData(
-            activeTab === 1
-              ? response.data.ResponseData.filter(
-                  (item: any) =>
-                    item.Type === "InReview" ||
-                    item.Type === "OnHoldFromClient" ||
-                    item.Type === "ReworkInReview" ||
-                    item.Type === "Submitted" ||
-                    item.Type === "ReworkSubmitted" ||
-                    item.Type === "SecondManagerReview" ||
-                    item.Type === "WithDraw" ||
-                    item.Type === "WithdrawnbyClient"
-                )
-              : response.data.ResponseData
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
   };
 
   const getAllData = async (clientName: any) => {
@@ -219,9 +114,7 @@ const FilterDialog_Approval: React.FC<FilterModalProps> = ({
 
   useEffect(() => {
     if (onOpen === true) {
-      getClientData();
-      getEmployeeData();
-      getAllStatus();
+      getDropdownData();
     }
   }, [onOpen]);
 

@@ -9,9 +9,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from "@mui/material";
-import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
-import axios from "axios";
 import PlayButton from "@/assets/icons/worklogs/PlayButton";
 import { toHoursAndMinutes } from "@/utils/timerFunctions";
 import PlayPause from "@/assets/icons/worklogs/PlayPause";
@@ -35,6 +33,7 @@ import ApprovalsActionBar from "./actionBar/ApprovalsActionBar";
 import { generateCustomColumn } from "@/utils/datatable/columns/ColsGenerateFunctions";
 import ReportLoader from "../common/ReportLoader";
 import OverLay from "../common/OverLay";
+import { callAPI } from "@/utils/API/callAPI";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -114,58 +113,34 @@ const Datatable = ({
     }
   }, [onCloseDrawer]);
 
-  const getReviewList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/approval/${
-          activeTab === 1 ? "GetReviewList" : "GetAllWorkitemForReviewer"
-        }
-        `,
-        {
-          ...filteredObject,
-          dueDate: activeTab === 1 ? null : filteredObject.dueDate,
-          startDate: activeTab === 1 ? null : filteredObject.startDate,
-          endDate: activeTab === 1 ? null : filteredObject.endDate,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          onChangeLoader(response.data.ResponseData.TotalTime);
-          onHandleExport(response.data.ResponseData.List > 0 ? true : false);
-          setLoaded(true);
-          setReviewList(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          setLoaded(true);
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+  const getReviewList = () => {
+    setLoaded(true);
+    const params = {
+      ...filteredObject,
+      dueDate: activeTab === 1 ? null : filteredObject.dueDate,
+      startDate: activeTab === 1 ? null : filteredObject.startDate,
+      endDate: activeTab === 1 ? null : filteredObject.endDate,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/approval/${
+      activeTab === 1 ? "GetReviewList" : "GetAllWorkitemForReviewer"
+    }
+    `;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        onChangeLoader(ResponseData.TotalTime);
+        onHandleExport(ResponseData.List > 0 ? true : false);
+        setLoaded(true);
+        setReviewList(ResponseData.List);
+        setTableDataCount(ResponseData.TotalCount);
       } else {
         setLoaded(true);
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
       }
-    } catch (error) {
-      setLoaded(true);
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleRowSelect = (
@@ -285,114 +260,63 @@ const Datatable = ({
     submissionId: number,
     workitemTimeId?: number
   ) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      setIsLoadingApprovalsDatatable(true);
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/approval/saveworkitemreviewertimestamp`,
-        {
-          state: state,
-          workitemId: workitemId,
-          submissionId: submissionId,
-          timeId: workitemTimeId && workitemTimeId > 0 ? workitemTimeId : 0,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setWorkitemTimeId((prev) =>
-            response.data.ResponseData !== prev
-              ? response.data.ResponseData
-              : -1
-          );
-          setRunning((prev) => (workitemId !== prev ? workitemId : -1));
-          getReviewList();
-          setIsLoadingApprovalsDatatable(false);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-          setIsLoadingApprovalsDatatable(false);
-        }
+    setIsLoadingApprovalsDatatable(true);
+    const params = {
+      state: state,
+      workitemId: workitemId,
+      submissionId: submissionId,
+      timeId: workitemTimeId && workitemTimeId > 0 ? workitemTimeId : 0,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/approval/saveworkitemreviewertimestamp`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        setWorkitemTimeId((prev) =>
+          ResponseData !== prev ? ResponseData : -1
+        );
+        setRunning((prev) => (workitemId !== prev ? workitemId : -1));
+        getReviewList();
+        setIsLoadingApprovalsDatatable(false);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
         setIsLoadingApprovalsDatatable(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleReviewSync = async (submissionId: number) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      setIsLoadingApprovalsDatatable(true);
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/approval/getreviewerworkitemsync`,
-        {
-          submissionId: submissionId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setReviewList((prev: any) =>
-            prev.map((data: any) => {
-              if (data.SubmissionId === submissionId) {
-                return new Object({
-                  ...data,
-                  Timer: response.data.ResponseData.SyncTime,
-                });
-              } else {
-                return data;
-              }
-            })
-          );
-          setIsLoadingApprovalsDatatable(false);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-          setIsLoadingApprovalsDatatable(false);
-        }
+    setIsLoadingApprovalsDatatable(true);
+    const params = {
+      submissionId: submissionId,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/approval/getreviewerworkitemsync`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        setReviewList((prev: any) =>
+          prev.map((data: any) => {
+            if (data.SubmissionId === submissionId) {
+              return new Object({
+                ...data,
+                Timer: ResponseData.SyncTime,
+              });
+            } else {
+              return data;
+            }
+          })
+        );
+        setIsLoadingApprovalsDatatable(false);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
         setIsLoadingApprovalsDatatable(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {

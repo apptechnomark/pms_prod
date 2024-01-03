@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
 import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
 import TablePagination from "@mui/material/TablePagination";
@@ -11,6 +9,7 @@ import {
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { dashboardPriorityReturnTaskInfoCols } from "@/utils/datatable/columns/ClientDatatableColumns";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface ReturnTypeDataProps {
   onSelectedProjectIds: number[];
@@ -30,45 +29,31 @@ const Datatable_ReturnTypeData: React.FC<ReturnTypeDataProps> = ({
 
   useEffect(() => {
     const getData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/clientdashboard/taskstatusandprioritylist`,
-          {
-            PageNo: page + 1,
-            PageSize: rowsPerPage,
-            SortColumn: null,
-            IsDesc: true,
-            projectIds: onSelectedProjectIds,
-            typeOfWork: null,
-            priorityId: null,
-            statusId: null,
-            ReturnTypeId: onCurrSelectedReturnType
-              ? onCurrSelectedReturnType
-              : onSelectedReturnTypeValue,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (
-          response.status === 200 &&
-          response.data.ResponseStatus === "Success"
-        ) {
-          setData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          const errorMessage = response.data.Message || "Something went wrong.";
-          toast.error(errorMessage);
+      const params = {
+        PageNo: page + 1,
+        PageSize: rowsPerPage,
+        SortColumn: null,
+        IsDesc: true,
+        projectIds: onSelectedProjectIds,
+        typeOfWork: null,
+        priorityId: null,
+        statusId: null,
+        ReturnTypeId: onCurrSelectedReturnType
+          ? onCurrSelectedReturnType
+          : onSelectedReturnTypeValue,
+      };
+      const url = `${process.env.report_api_url}/clientdashboard/taskstatusandprioritylist`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          setData(ResponseData.List);
+          setTableDataCount(ResponseData.TotalCount);
         }
-      } catch (error) {
-        toast.error("Error fetching data. Please try again later.");
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     };
 
     getData();

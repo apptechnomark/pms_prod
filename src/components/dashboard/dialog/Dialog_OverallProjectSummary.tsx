@@ -9,10 +9,9 @@ import {
   Select,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
-import axios from "axios";
-import { toast } from "react-toastify";
 import Datatable_OverallProjectSummary from "../datatable/Datatable_OverallProjectSummary";
 import { DialogTransition } from "@/utils/style/DialogTransition";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface OverallProjectSummaryDialogProps {
   onOpen: boolean;
@@ -39,52 +38,26 @@ const Dialog_OverallProjectSummary: React.FC<
     setTaskStatusName("");
   };
 
-  const getTaskStatusList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/clientdashboard/overallprojectcompletion`,
-        {
-          typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-          ProjectIds: onSelectedProjectIds ? onSelectedProjectIds : [],
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
+  const getTaskStatusList = () => {
+    const params = {
+      typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      ProjectIds: onSelectedProjectIds ? onSelectedProjectIds : [],
+    };
+    const url = `${process.env.report_api_url}/clientdashboard/overallprojectcompletion`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        const statusName: any = ResponseData.List.map((item: { Key: any }) => ({
+          name: item.Key,
+        }));
 
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          const statusName: any = response.data.ResponseData.List.map(
-            (item: { Key: any }) => ({
-              name: item.Key,
-            })
-          );
-
-          setAllTaskList(statusName);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+        setAllTaskList(statusName);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {

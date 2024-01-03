@@ -10,8 +10,9 @@ import Comments from "@/assets/icons/worklogs/Comments";
 import EditIcon from "@/assets/icons/worklogs/EditIcon";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import { toast } from "react-toastify";
-import axios from "axios";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import { getStatusDropdownData } from "@/utils/commonDropdownApiCall";
+import { callAPI } from "@/utils/API/callAPI";
 
 const priorityOptions = [
   { id: 3, text: "Low" },
@@ -91,44 +92,27 @@ const WorklogActionbar = ({
   };
 
   const updatePriority = async (id: number[], priorityId: number) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      getOverLay(true);
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/UpdatePriority`,
-        {
-          workitemIds: id,
-          priority: priorityId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        const data = response.data.Message;
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Priority has been updated successfully.");
-          handleClearSelection();
-          getWorkItemList();
-          getOverLay(false);
-        } else {
-          toast.error(data || "Please try again later.");
-          getOverLay(false);
-        }
+    getOverLay(true);
+    const params = {
+      workitemIds: id,
+      priority: priorityId,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/UpdatePriority`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Priority has been updated successfully.");
+        handleClearSelection();
+        getWorkItemList();
+        getOverLay(false);
       } else {
-        const data = response.data.Message;
-        toast.error(data || "Please try again later.");
         getOverLay(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const deleteWorkItem = async () => {
@@ -159,41 +143,25 @@ const WorklogActionbar = ({
       }
       if (deletedId.length > 0) {
         getOverLay(true);
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/deleteworkitem`,
-            {
-              workitemIds: deletedId,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (
-            response.status === 200 &&
-            response.data.ResponseStatus === "Success"
-          ) {
+        const params = {
+          workitemIds: deletedId,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/deleteworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
             toast.success("Task has been deleted successfully.");
             handleClearSelection();
             getWorkItemList();
             getOverLay(false);
           } else {
-            const data = response.data.Message || "An error occurred.";
-            toast.error(data);
             getOverLay(false);
           }
-        } catch (error) {
-          console.error(error);
-          toast.error("An error occurred while deleting the task.");
-          getOverLay(false);
-        }
+        };
+        callAPI(url, params, successCallback, "POST");
       }
     }
   };
@@ -220,146 +188,65 @@ const WorklogActionbar = ({
     }
     if (duplicateId.length > 0) {
       getOverLay(true);
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/copyworkitem`,
-          {
-            workitemIds: selectedRowIds,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            toast.success("Task has been duplicated successfully");
-            handleClearSelection();
-            getWorkItemList();
-            getOverLay(false);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-            getOverLay(false);
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-          getOverLay(false);
-        }
-      } catch (error) {
-        console.error(error);
-        getOverLay(false);
-      }
-    }
-  };
-
-  const getAllStatus = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/status/GetDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setAllStatus(
-            response.data.ResponseData.map((i: any) =>
-              i.Type === "WithdrawnbyClient" || i.Type === "OnHoldFromClient"
-                ? i
-                : ""
-            ).filter((i: any) => i !== "")
-          );
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const updateStatus = async (id: number[], statusId: number) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    getOverLay(true);
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/UpdateStatus`,
-        {
-          workitemIds: id,
-          statusId: statusId,
-          SecondManagerReviewId: null,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Status has been updated successfully.");
+      const params = {
+        workitemIds: selectedRowIds,
+      };
+      const url = `${process.env.worklog_api_url}/workitem/copyworkitem`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success("Task has been duplicated successfully");
           handleClearSelection();
           getWorkItemList();
           getOverLay(false);
         } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
           getOverLay(false);
         }
+      };
+      callAPI(url, params, successCallback, "POST");
+    }
+  };
+
+  const getAllStatus = async () => {
+    const data = await getStatusDropdownData();
+    data.length > 0 &&
+      setAllStatus(
+        data
+          .map((i: any) =>
+            i.Type === "WithdrawnbyClient" || i.Type === "OnHoldFromClient"
+              ? i
+              : ""
+          )
+          .filter((i: any) => i !== "")
+      );
+  };
+
+  const updateStatus = async (id: number[], statusId: number) => {
+    getOverLay(true);
+    const params = {
+      workitemIds: id,
+      statusId: statusId,
+      SecondManagerReviewId: null,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/UpdateStatus`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Status has been updated successfully.");
+        handleClearSelection();
+        getWorkItemList();
+        getOverLay(false);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
         getOverLay(false);
       }
-    } catch (error) {
-      console.error(error);
-      getOverLay(false);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

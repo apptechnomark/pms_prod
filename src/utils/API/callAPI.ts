@@ -1,6 +1,5 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-import { handleLogoutUtil } from "../commonFunction";
 
 export const callAPI = async (
   url: any,
@@ -34,6 +33,8 @@ export const callAPI = async (
     if (response.status === 200) {
       if (ResponseStatus === "Success") {
         successCallback(ResponseData, false, ResponseStatus);
+      } else if (ResponseStatus === "Warning") {
+        successCallback(Message, false, ResponseStatus);
       } else {
         if (Message === null) {
           toast.error("Please try again later.");

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { InputBase, List, Popover } from "@mui/material";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import ClientIcon from "@/assets/icons/worklogs/ClientIcon";
 import { getClientDropdownData } from "@/utils/commonDropdownApiCall";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Client = ({
   selectedRowIds,
@@ -49,51 +49,27 @@ const Client = ({
   };
 
   const updateClient = async (id: number[], clientId: number) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      getOverLay(true);
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/bulkupdateworkitemclient`,
-        {
-          workitemIds: id,
-          ClientId: clientId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Client has been updated successfully.");
-          handleClearSelection();
-          getWorkItemList();
-          getOverLay(false);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Something went wrong, Please try again later..");
-          } else {
-            toast.error(data);
-          }
-          getOverLay(false);
-        }
+    getOverLay(true);
+    const params = {
+      workitemIds: id,
+      ClientId: clientId,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemclient`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Client has been updated successfully.");
+        handleClearSelection();
+        getWorkItemList();
+        getOverLay(false);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Something went wrong, Please try again later..");
-        } else {
-          toast.error(data);
-        }
         getOverLay(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
+import { callAPI } from "@/utils/API/callAPI";
 
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
@@ -26,28 +25,18 @@ const Chart_Priority: React.FC<PriorityProps> = ({
 
   useEffect(() => {
     const getData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/clientdashboard/taskprioritycount`,
-          {
-            projectIds: onSelectedProjectIds,
-            typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (
-          response.status === 200 &&
-          response.data.ResponseStatus === "Success"
-        ) {
-          const drilldownData = Object.entries(response.data.ResponseData).map(
+      const params = {
+        projectIds: onSelectedProjectIds,
+        typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      };
+      const url = `${process.env.report_api_url}/clientdashboard/taskprioritycount`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          const drilldownData = Object.entries(ResponseData).map(
             ([category, value]) => ({
               name: category,
               id: category.toLowerCase(),
@@ -60,15 +49,10 @@ const Chart_Priority: React.FC<PriorityProps> = ({
             0
           );
           setTotalCount(total);
-
           setData(drilldownData);
-        } else {
-          const errorMessage = response.data.Message || "Something went wrong.";
-          toast.error(errorMessage);
         }
-      } catch (error) {
-        toast.error("Error fetching data. Please try again later.");
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     };
 
     getData();

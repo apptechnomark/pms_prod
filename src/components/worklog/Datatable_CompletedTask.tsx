@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-
 import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
 import TablePagination from "@mui/material/TablePagination";
-import { toast } from "react-toastify";
 import {
   generateCustomHeaderName,
   generateCommonBodyRender,
@@ -19,6 +16,7 @@ import { worklogs_Options } from "@/utils/datatable/TableOptions";
 import CompletedTaskActionBar from "./actionBar/CompletedTaskActionBar";
 import ReportLoader from "../common/ReportLoader";
 import OverLay from "../common/OverLay";
+import { callAPI } from "@/utils/API/callAPI";
 
 const pageNo = 1;
 const pageSize = 10;
@@ -151,49 +149,23 @@ const Datatable_CompletedTask = ({
     }
   }, []);
 
-  const getWorkItemList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/ClientWorkitem/getworkitemlist`,
-        filteredObject,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setLoaded(true);
-          setWorkItemData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          setLoaded(true);
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
+  const getWorkItemList = () => {
+    const params = filteredObject;
+    const url = `${process.env.worklog_api_url}/ClientWorkitem/getworkitemlist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setLoaded(true);
+        setWorkItemData(ResponseData.List);
+        setTableDataCount(ResponseData.TotalCount);
       } else {
         setLoaded(true);
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
       }
-    } catch (error) {
-      setLoaded(true);
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {

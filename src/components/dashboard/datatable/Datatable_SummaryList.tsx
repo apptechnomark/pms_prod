@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
-import axios from "axios";
-import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
 import {
   handleChangePage,
@@ -11,6 +9,7 @@ import {
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { dashboardOverallProjectSumCols } from "@/utils/datatable/columns/ClientDatatableColumns";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface SummaryListProps {
   onSelectedProjectIds: number[];
@@ -30,54 +29,30 @@ const Datatable_SummaryList: React.FC<SummaryListProps> = ({
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [tableDataCount, setTableDataCount] = useState(0);
 
-  const getSummaryData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/clientdashboard/summarylist`,
-        {
-          PageNo: page + 1,
-          PageSize: rowsPerPage,
-          SortColumn: null,
-          IsDesc: true,
-          TypeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-          ProjectIds: onSelectedProjectIds ? onSelectedProjectIds : [],
-          Key: onCurrSelectedSummaryStatus
-            ? onCurrSelectedSummaryStatus
-            : onSelectedSummaryStatus,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+  const getSummaryData = () => {
+    const params = {
+      PageNo: page + 1,
+      PageSize: rowsPerPage,
+      SortColumn: null,
+      IsDesc: true,
+      TypeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      ProjectIds: onSelectedProjectIds ? onSelectedProjectIds : [],
+      Key: onCurrSelectedSummaryStatus
+        ? onCurrSelectedSummaryStatus
+        : onSelectedSummaryStatus,
+    };
+    const url = `${process.env.report_api_url}/clientdashboard/summarylist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setData(ResponseData.List);
+        setTableDataCount(ResponseData.TotalCount);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {

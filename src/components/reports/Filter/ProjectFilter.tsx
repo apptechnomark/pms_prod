@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import axios from "axios";
 import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 import {
@@ -22,16 +21,17 @@ import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { FilterType } from "../types/ReportsFilterType";
 import { project } from "../Enum/Filtertype";
 import { client_project_InitialFilter } from "@/utils/reports/getFilters";
-import {
-  getBillingTypeData,
-  getProjectData,
-  getWorkTypeData,
-} from "./api/getDropDownData";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { Edit, Delete } from "@mui/icons-material";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { isWeekend } from "@/utils/commonFunction";
-import { getClientDropdownData } from "@/utils/commonDropdownApiCall";
+import {
+  getBillingTypeData,
+  getClientDropdownData,
+  getProjectDropdownData,
+  getTypeOfWorkDropdownData,
+} from "@/utils/commonDropdownApiCall";
+import { callAPI } from "@/utils/API/callAPI";
 
 const project_filter_InitialFilter = {
   ...client_project_InitialFilter,
@@ -163,73 +163,47 @@ const ProjectFilter = ({
       setProject_Error("Max 15 characters allowed!");
     } else {
       setProject_Error("");
-
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/filter/savefilter`,
-          {
-            filterId:
-              project_currentFilterId !== "" ? project_currentFilterId : null,
-            name: project_filterName,
-            AppliedFilter: {
-              clients: project_clientName.length > 0 ? project_clientName : [],
-              projects:
-                project_projects !== null ? [project_projects.value] : [],
-              TypeOfWork:
-                project_typeOfWork === null ? null : project_typeOfWork.value,
-              BillingType:
-                project_billingType === null ? null : project_billingType.value,
-              startDate:
-                project_startDate.toString().trim().length <= 0
-                  ? project_endDate.toString().trim().length <= 0
-                    ? null
-                    : getFormattedDate(project_endDate)
-                  : getFormattedDate(project_startDate),
-              endDate:
-                project_endDate.toString().trim().length <= 0
-                  ? project_startDate.toString().trim().length <= 0
-                    ? null
-                    : getFormattedDate(project_startDate)
-                  : getFormattedDate(project_endDate),
-            },
-            type: project,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus.toLowerCase() === "success") {
-            toast.success("Filter has been successully saved.");
-            handleProject_Close();
-            getProject_FilterList();
-            handleProject_FilterApply();
-            setProject_SaveFilter(false);
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-          }
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
+      const params = {
+        filterId:
+          project_currentFilterId !== "" ? project_currentFilterId : null,
+        name: project_filterName,
+        AppliedFilter: {
+          clients: project_clientName.length > 0 ? project_clientName : [],
+          projects: project_projects !== null ? [project_projects.value] : [],
+          TypeOfWork:
+            project_typeOfWork === null ? null : project_typeOfWork.value,
+          BillingType:
+            project_billingType === null ? null : project_billingType.value,
+          startDate:
+            project_startDate.toString().trim().length <= 0
+              ? project_endDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(project_endDate)
+              : getFormattedDate(project_startDate),
+          endDate:
+            project_endDate.toString().trim().length <= 0
+              ? project_startDate.toString().trim().length <= 0
+                ? null
+                : getFormattedDate(project_startDate)
+              : getFormattedDate(project_endDate),
+        },
+        type: project,
+      };
+      const url = `${process.env.worklog_api_url}/filter/savefilter`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success("Filter has been successully saved.");
+          handleProject_Close();
+          getProject_FilterList();
+          handleProject_FilterApply();
+          setProject_SaveFilter(false);
         }
-      } catch (error) {
-        console.error(error);
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     }
   };
 
@@ -261,10 +235,12 @@ const ProjectFilter = ({
   useEffect(() => {
     const filterDropdowns = async () => {
       setProject_ClientDropdown(await getClientDropdownData());
-      setProject_ProjectDropdown(await getProjectData(project_clientName[0]));
+      setProject_ProjectDropdown(
+        await getProjectDropdownData(project_clientName[0])
+      );
       project_clientName.length > 0 &&
         setProject_WorkTypeDropdown(
-          await getWorkTypeData(project_clientName[0])
+          await getTypeOfWorkDropdownData(project_clientName[0])
         );
       setProject_BillingTypeDropdown(await getBillingTypeData());
     };
@@ -276,44 +252,20 @@ const ProjectFilter = ({
   }, [project_clientName]);
 
   const getProject_FilterList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/getfilterlist`,
-        {
-          type: project,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setProject_SavedFilters(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      type: project,
+    };
+    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setProject_SavedFilters(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleProject_SavedFilterEdit = async (index: number) => {
@@ -335,7 +287,7 @@ const ProjectFilter = ({
     setProject_Projects(
       project_savedFilters[index].AppliedFilter.projects.length > 0
         ? (
-            await getProjectData(
+            await getProjectDropdownData(
               project_savedFilters[index].AppliedFilter.clients[0]
             )
           ).filter(
@@ -349,7 +301,7 @@ const ProjectFilter = ({
       project_savedFilters[index].AppliedFilter.TypeOfWork === null
         ? null
         : (
-            await getWorkTypeData(
+            await getTypeOfWorkDropdownData(
               project_savedFilters[index].AppliedFilter.clients[0]
             )
           ).filter(
@@ -374,47 +326,23 @@ const ProjectFilter = ({
   };
 
   const handleProject_SavedFilterDelete = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/delete`,
-        {
-          filterId: project_currentFilterId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Filter has been deleted successfully.");
-          handleProject_Close();
-          getProject_FilterList();
-          setProject_CurrentFilterId("");
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      filterId: project_currentFilterId,
+    };
+    const url = `${process.env.worklog_api_url}/filter/delete`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Filter has been deleted successfully.");
+        handleProject_Close();
+        getProject_FilterList();
+        setProject_CurrentFilterId("");
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

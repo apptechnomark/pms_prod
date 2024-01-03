@@ -1,5 +1,4 @@
 import React from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
 import {
@@ -18,6 +17,7 @@ import {
   Priority,
   Comments,
 } from "@/components/common/actionBar/components/ActionBarComponents";
+import { callAPI } from "@/utils/API/callAPI";
 
 const ConditionalComponentWithoutConditions = ({
   Component,
@@ -84,57 +84,30 @@ const ApprovalsActionBar = ({
 
   const acceptWorkitem = async (note: string, id: number[]) => {
     getOverLay(true);
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/approval/acceptworkitem`,
-        {
-          workitemSubmissionIds: id,
-          comment: note ? note : null,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        const data = response.data.Message;
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Selected tasks have been successfully approved.");
-          handleClearSelection();
-          getReviewList();
-          getInitialPagePerRows();
-          getOverLay(false);
-        } else if (response.data.ResponseStatus === "Warning" && !!data) {
-          toast.warning(data);
-          handleClearSelection();
-          getReviewList();
-          getOverLay(false);
-        } else {
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-          handleClearSelection();
-          getOverLay(false);
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      workitemSubmissionIds: id,
+      comment: note ? note : null,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/approval/acceptworkitem`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Selected tasks have been successfully approved.");
+        handleClearSelection();
+        getReviewList();
+        getInitialPagePerRows();
+        getOverLay(false);
+      } else if (ResponseStatus === "Warning" && error === false) {
+        toast.warning(ResponseData);
+        handleClearSelection();
+        getReviewList();
         getOverLay(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const propsForActionBar = {

@@ -186,7 +186,6 @@ const Page = () => {
     };
     callAPI(url, params, successCallback, "POST");
   };
-  console.log(currentFilterId)
 
   useEffect(() => {
     getFilterList();

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import DeleteIcon from "@/assets/icons/worklogs/Delete";
 import { toast } from "react-toastify";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Delete = ({
   workItemData,
@@ -40,45 +40,32 @@ const Delete = ({
       }
       if (deletedId.length > 0) {
         getOverLay(true);
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/workitem/deleteworkitem`,
-            {
-              workitemIds: deletedId,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-          if (response.status === 200) {
-            const data = response.data.Message;
-            if (response.data.ResponseStatus === "Success") {
-              toast.success("Task has been deleted successfully.");
-              handleClearSelection();
-              getWorkItemList();
-              getOverLay(false);
-            } else if (response.data.ResponseStatus === "Warning" && !!data) {
-              toast.warning(data);
-              handleClearSelection();
-              getWorkItemList();
-              getOverLay(false);
-            } else {
-              toast.error(data || "Please try again later.");
-              handleClearSelection();
-              getWorkItemList();
-              getOverLay(false);
-            }
+        const params = {
+          workitemIds: deletedId,
+        };
+        const url = `${process.env.worklog_api_url}/workitem/deleteworkitem`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success("Task has been deleted successfully.");
+            handleClearSelection();
+            getWorkItemList();
+            getOverLay(false);
+          } else if (ResponseStatus === "Warning") {
+            toast.warning(ResponseData);
+            handleClearSelection();
+            getWorkItemList();
+            getOverLay(false);
+          } else {
+            handleClearSelection();
+            getWorkItemList();
+            getOverLay(false);
           }
-        } catch (error) {
-          console.error(error);
-          toast.error("An error occurred while deleting the task.");
-        }
+        };
+        callAPI(url, params, successCallback, "POST");
       }
     }
   };

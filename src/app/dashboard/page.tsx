@@ -39,6 +39,7 @@ import Dialog_OverallProjectSummary from "@/components/dashboard/dialog/Dialog_O
 import Dialog_SummaryList from "@/components/dashboard/dialog/Dialog_SummaryList";
 import Dialog_ReturnTypeData from "@/components/dashboard/dialog/Dialog_ReturnTypeData";
 import { callAPI } from "@/utils/API/callAPI";
+import { getTypeOfWorkDropdownData } from "@/utils/commonDropdownApiCall";
 
 const Page = () => {
   const router = useRouter();
@@ -184,22 +185,7 @@ const Page = () => {
 
   const getWorkTypes = async () => {
     const ClientId = await localStorage.getItem("clientId");
-    const params = {
-      clientId: ClientId,
-    };
-    const url = `${process.env.pms_api_url}/WorkType/GetDropdown`;
-    const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
-    ) => {
-      if (ResponseStatus === "Success" && error === false) {
-        setWorkTypeData(ResponseData);
-      } else {
-        setWorkTypeData([]);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
+    setWorkTypeData(await getTypeOfWorkDropdownData(ClientId));
   };
 
   useEffect(() => {

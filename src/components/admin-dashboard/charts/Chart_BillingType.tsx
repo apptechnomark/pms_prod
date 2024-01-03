@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 
 import HighchartsVariablePie from "highcharts/modules/variable-pie";
+import { callAPI } from "@/utils/API/callAPI";
 
 if (typeof Highcharts === "object") {
   HighchartsVariablePie(Highcharts);
@@ -24,53 +23,29 @@ const Chart_BillingType: React.FC<ChartBillingTypeProps> = ({
   const [totalCount, setTotalCount] = useState<number>(0);
 
   const getBillingTypeData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/billingstatusgraph`,
-        {
-          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
+    const params = {
+      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+    };
+    const url = `${process.env.report_api_url}/dashboard/billingstatusgraph`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        const chartData = ResponseData.List.map(
+          (item: { Percentage: any; Key: any; Value: any }) => ({
+            name: item.Key,
+            y: item.Value,
+            percentage: item.Percentage,
+          })
+        );
 
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          const chartData = response.data.ResponseData.List.map(
-            (item: { Percentage: any; Key: any; Value: any }) => ({
-              name: item.Key,
-              y: item.Value,
-              percentage: item.Percentage,
-            })
-          );
-
-          setData(chartData);
-          setTotalCount(response.data.ResponseData.TotalCount);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+        setData(chartData);
+        setTotalCount(ResponseData.TotalCount);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {

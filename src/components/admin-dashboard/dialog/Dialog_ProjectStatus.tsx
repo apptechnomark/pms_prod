@@ -9,10 +9,9 @@ import {
   Select,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
-import axios from "axios";
-import { toast } from "react-toastify";
 import Datatable_ProjectStatus from "../Datatables/Datatable_ProjectStatus";
 import { DialogTransition } from "@/utils/style/DialogTransition";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface Status {
   Type: string;
@@ -44,52 +43,26 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
   };
 
   const getProjectStatusList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/projectstatusgraph`,
-        {
-          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-          ProjectId:
-            onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
+    const params = {
+      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      ProjectId:
+        onSelectedProjectIds.length === 0 ? null : onSelectedProjectIds,
+    };
+    const url = `${process.env.report_api_url}/dashboard/projectstatusgraph`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        const statusName: any = ResponseData.List.map((item: { Key: any }) => ({
+          name: item.Key,
+        }));
 
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          const statusName: any = response.data.ResponseData.List.map(
-            (item: { Key: any }) => ({
-              name: item.Key,
-            })
-          );
-
-          setAllProjectStatus(statusName);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+        setAllProjectStatus(statusName);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {

@@ -15,10 +15,14 @@ import {
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
-import { toast } from "react-toastify";
-import axios from "axios";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { isWeekend } from "@/utils/commonFunction";
+import {
+  getProjectDropdownData,
+  getStatusDropdownData,
+  getTypeOfWorkDropdownData,
+} from "@/utils/commonDropdownApiCall";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface FilterModalProps {
   onOpen: boolean;
@@ -167,189 +171,61 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   };
 
   const getProjectData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
     const clientId = await localStorage.getItem("clientId");
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/project/getdropdown`,
-        {
-          clientId: clientId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setProjectDropdownData(response.data.ResponseData.List);
-          getWorkTypeData();
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    setProjectDropdownData(await getProjectDropdownData(clientId));
+    getWorkTypeData();
   };
 
   const getWorkTypeData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
     const clientId = await localStorage.getItem("clientId");
-    try {
-      const response = await axios.post(
-        `${process.env.pms_api_url}/WorkType/GetDropdown`,
-        {
-          clientId: clientId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setTypeOfWorkDropdownData(response.data.ResponseData);
-          getAllStatus();
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    setTypeOfWorkDropdownData(await getTypeOfWorkDropdownData(clientId));
+    getAllStatus();
   };
 
   const getAllStatus = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/status/GetDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
+    const data = await getStatusDropdownData();
+    data.length > 0 &&
+      setStatusDropdownWorklogData(
+        data.filter(
+          (i: any) =>
+            i.Type !== "Accept" &&
+            i.Type !== "AcceptWithNotes" &&
+            i.Type !== "Reject" &&
+            i.Type !== "SignedOff"
+        )
       );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setStatusDropdownWorklogData(
-            response.data.ResponseData.filter(
-              (i: any) =>
-                i.Type !== "Accept" &&
-                i.Type !== "AcceptWithNotes" &&
-                i.Type !== "Reject" &&
-                i.Type !== "SignedOff"
-            )
-          );
-          setStatusDropdownCompletedData(
-            response.data.ResponseData.filter(
-              (i: any) =>
-                i.Type !== "Errorlogs" &&
-                i.Type !== "InProgress" &&
-                i.Type !== "InReview" &&
-                i.Type !== "NotStarted" &&
-                i.Type !== "OnHoldFromClient" &&
-                i.Type !== "PartialSubmitted" &&
-                i.Type !== "Rework" &&
-                i.Type !== "Reject" &&
-                i.Type !== "Stop" &&
-                i.Type !== "WithDraw"
-            )
-          );
-          getAssignee();
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    data.length > 0 &&
+      setStatusDropdownCompletedData(
+        data.filter(
+          (i: any) =>
+            i.Type !== "Errorlogs" &&
+            i.Type !== "InProgress" &&
+            i.Type !== "InReview" &&
+            i.Type !== "NotStarted" &&
+            i.Type !== "OnHoldFromClient" &&
+            i.Type !== "PartialSubmitted" &&
+            i.Type !== "Rework" &&
+            i.Type !== "Reject" &&
+            i.Type !== "Stop" &&
+            i.Type !== "WithDraw"
+        )
+      );
+    getAssignee();
   };
 
   const getAssignee = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.api_url}/user/GetAssigneeFilterDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setAssigneeDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {};
+    const url = `${process.env.api_url}/user/GetAssigneeFilterDropdown`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setAssigneeDropdownData(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "GET");
   };
 
   useEffect(() => {

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { toast } from "react-toastify";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface TaskStatusProps {
   onSelectedProjectIds: number[];
@@ -18,29 +17,19 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
   const [data, setData] = useState<any | any[]>([]);
 
   useEffect(() => {
-    const getData = async () => {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.report_api_url}/clientdashboard/taskstatuscount`,
-          {
-            projectIds: onSelectedProjectIds,
-            typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (
-          response.status === 200 &&
-          response.data.ResponseStatus === "Success"
-        ) {
-          const chartData = response.data.ResponseData.map(
+    const getData = () => {
+      const params = {
+        projectIds: onSelectedProjectIds,
+        typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      };
+      const url = `${process.env.report_api_url}/clientdashboard/taskstatuscount`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          const chartData = ResponseData.map(
             (item: { ColorCode: any; Key: any; Value: any }) => ({
               name: item.Key,
               y: item.Value,
@@ -49,13 +38,9 @@ const Chart_TaskStatus: React.FC<TaskStatusProps> = ({
           );
 
           setData(chartData);
-        } else {
-          const errorMessage = response.data.Message || "Something went wrong.";
-          toast.error(errorMessage);
         }
-      } catch (error) {
-        toast.error("Error fetching data. Please try again later.");
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     };
 
     getData();

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
-import axios from "axios";
-import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
 import {
   handleChangePage,
@@ -11,6 +9,7 @@ import {
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboard_Options } from "@/utils/datatable/TableOptions";
 import { adminDashboardTaskStatusCols } from "@/utils/datatable/columns/AdminDatatableColumns";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface TaskStatusProps {
   onSelectedWorkType: number;
@@ -31,52 +30,32 @@ const Datatable_TaskStatus: React.FC<TaskStatusProps> = ({
   const [tableDataCount, setTableDataCount] = useState(0);
 
   const getTaskStatusData = async (value: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/taskstatuslist`,
-        {
-          PageNo: page + 1,
-          PageSize: rowsPerPage,
-          SortColumn: null,
-          IsDesc: true,
-          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-          GlobalSearch: value,
-          StatusId: onCurrSelectedStatus === 0 ? null : onCurrSelectedStatus,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      PageNo: page + 1,
+      PageSize: rowsPerPage,
+      SortColumn: null,
+      IsDesc: true,
+      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      GlobalSearch: value,
+      StatusId: onCurrSelectedStatus === 0 ? null : onCurrSelectedStatus,
+    };
+    const url = `${process.env.report_api_url}/dashboard/taskstatuslist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        setData(ResponseData.List);
+        setTableDataCount(ResponseData.TotalCount);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
+
+  useEffect(() => {
+    setPage(0);
+  }, [onCurrSelectedStatus]);
 
   useEffect(() => {
     if (onSearchValue.length >= 3) {

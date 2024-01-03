@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { Avatar, InputBase, List, Popover } from "@mui/material";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import DetectorStatus from "@/assets/icons/worklogs/DetectorStatus";
-import { getStatusDropdownData } from "@/utils/commonDropdownApiCall";
+import {
+  getReviewerDropdownData,
+  getStatusDropdownData,
+} from "@/utils/commonDropdownApiCall";
 import SearchIcon from "@/assets/icons/SearchIcon";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Status = ({
   selectedWorkItemIds,
@@ -65,9 +68,14 @@ const Status = ({
   const openSecondPopover = Boolean(anchorElSecondPopover);
   const idSecondPopover = openSecondPopover ? "simple-popover" : undefined;
 
-  const handleOptionStatus = (id: any) => {
+  const handleOptionStatus = async (id: any) => {
     if (id == 56) {
-      getReviwer();
+      setReviewer(
+        await getReviewerDropdownData(
+          selectedRowClientId,
+          selectedRowWorkTypeId[0]
+        )
+      );
       setOpenDrawer(true);
       handleClickSecondPopover();
     } else {
@@ -109,45 +117,6 @@ const Status = ({
       );
   };
 
-  const getReviwer = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.api_url}/user/GetReviewerDropdown`,
-        {
-          ClientIds: selectedRowClientId,
-          WorktypeId: selectedRowWorkTypeId[0],
-          IsAll: selectedRowClientId.length > 0 ? true : false,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setReviewer(
-            response.data.ResponseData.map((i: any) =>
-              i.value != localStorage.getItem("UserId") ? i : false
-            ).filter((j: any) => j !== false)
-          );
-        } else {
-          toast.error("Please try again later.");
-        }
-      } else {
-        toast.error("Please try again.");
-      }
-    } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        localStorage.clear();
-      }
-    }
-  };
-
   const updateStatus = async (statusId: number, secondReviewerId: any) => {
     let isRework: any = [];
     let isNotRework: any = [];
@@ -160,55 +129,39 @@ const Status = ({
         }
       }
     });
-    try {
-      getOverLay(true);
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/UpdateStatus`,
-        {
-          workitemIds: isNotRework.length > 0 ? isNotRework : isRework,
-          statusId: statusId,
-          SecondManagerReviewId: secondReviewerId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
 
-      if (response.status === 200) {
-        const data = response.data.Message;
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Status has been updated successfully.");
-          isNotRework = [];
-          isRework = [];
-          handleClearSelection();
-          getReviewList();
-          getOverLay(false);
-        } else if (response.data.ResponseStatus === "Warning" && !!data) {
-          toast.warning(data);
-          handleClearSelection();
-          isNotRework = [];
-          isRework = [];
-          getReviewList();
-          getOverLay(false);
-        } else {
-          toast.error(data || "Please try again later.");
-          handleClearSelection();
-          getReviewList();
-          getOverLay(false);
-        }
+    getOverLay(true);
+    const params = {
+      workitemIds: isNotRework.length > 0 ? isNotRework : isRework,
+      statusId: statusId,
+      SecondManagerReviewId: secondReviewerId,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/UpdateStatus`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Status has been updated successfully.");
+        isNotRework = [];
+        isRework = [];
+        handleClearSelection();
+        getReviewList();
+        getOverLay(false);
+      } else if (ResponseStatus === "Warning") {
+        toast.warning(ResponseData);
+        handleClearSelection();
+        isNotRework = [];
+        isRework = [];
+        getReviewList();
+        getOverLay(false);
       } else {
-        const data = response.data.Message;
-        toast.error(data || "Please try again later.");
+        getReviewList();
         getOverLay(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

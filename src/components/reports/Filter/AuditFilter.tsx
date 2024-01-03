@@ -1,4 +1,3 @@
-import axios from "axios";
 import dayjs from "dayjs";
 import {
   Autocomplete,
@@ -19,7 +18,6 @@ import { useEffect, useState } from "react";
 import { Edit, Delete } from "@mui/icons-material";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import { isWeekend } from "@/utils/commonFunction";
-import { getUserData } from "./api/getDropDownData";
 import { FilterType } from "../types/ReportsFilterType";
 import { getFormattedDate } from "@/utils/timerFunctions";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -27,7 +25,11 @@ import { audit_InitialFilter } from "@/utils/reports/getFilters";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import DeleteDialog from "@/components/common/workloags/DeleteDialog";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { getClientDropdownData } from "@/utils/commonDropdownApiCall";
+import {
+  getCCDropdownData,
+  getClientDropdownData,
+} from "@/utils/commonDropdownApiCall";
+import { callAPI } from "@/utils/API/callAPI";
 
 const AuditFilter = ({
   isFiltering,
@@ -136,62 +138,42 @@ const AuditFilter = ({
       return;
     }
     setError("");
-
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/savefilter`,
-        {
-          filterId: !!currentFilterId ?? currentFilterId,
-          name: filterName,
-          AppliedFilter: {
-            clients: auditClientName,
-            users: userName,
-            startDate:
-              startDate.toString().trim().length <= 0
-                ? endDate.toString().trim().length <= 0
-                  ? null
-                  : getFormattedDate(endDate)
-                : getFormattedDate(startDate),
-            endDate:
-              endDate.toString().trim().length <= 0
-                ? startDate.toString().trim().length <= 0
-                  ? null
-                  : getFormattedDate(startDate)
-                : getFormattedDate(endDate),
-          },
-          type: audit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      const status = response.status;
-      const responseStatus = response.data.ResponseStatus.toLowerCase();
-
-      if (status === 200 && responseStatus === "success") {
+    const params = {
+      filterId: !!currentFilterId ?? currentFilterId,
+      name: filterName,
+      AppliedFilter: {
+        clients: auditClientName,
+        users: userName,
+        startDate:
+          startDate.toString().trim().length <= 0
+            ? endDate.toString().trim().length <= 0
+              ? null
+              : getFormattedDate(endDate)
+            : getFormattedDate(startDate),
+        endDate:
+          endDate.toString().trim().length <= 0
+            ? startDate.toString().trim().length <= 0
+              ? null
+              : getFormattedDate(startDate)
+            : getFormattedDate(endDate),
+      },
+      type: audit,
+    };
+    const url = `${process.env.worklog_api_url}/filter/savefilter`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
         toast.success("Filter has been successully saved.");
         handleClose();
         getFilterList();
         handleFilterApply();
         setSaveFilter(false);
-      } else {
-        const data = response.data.Message;
-        if (!data) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -213,7 +195,7 @@ const AuditFilter = ({
   useEffect(() => {
     const filterDropdowns = async () => {
       setClientDropdown(await getClientDropdownData());
-      setUserDropdown(await getUserData());
+      setUserDropdown(await getCCDropdownData());
     };
     filterDropdowns();
 
@@ -223,44 +205,20 @@ const AuditFilter = ({
   }, [auditClientName]);
 
   const getFilterList = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/getfilterlist`,
-        {
-          type: audit,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setSavedFilters(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      type: audit,
+    };
+    const url = `${process.env.worklog_api_url}/filter/getfilterlist`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setSavedFilters(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const handleSavedFilterEdit = (index: number) => {
@@ -307,47 +265,23 @@ const AuditFilter = ({
   };
 
   const handleSavedFilterDelete = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/filter/delete`,
-        {
-          filterId: currentFilterId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Filter has been deleted successfully.");
-          handleClose();
-          getFilterList();
-          setCurrentFilterId("");
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      filterId: currentFilterId,
+    };
+    const url = `${process.env.worklog_api_url}/filter/delete`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Filter has been deleted successfully.");
+        handleClose();
+        getFilterList();
+        setCurrentFilterId("");
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

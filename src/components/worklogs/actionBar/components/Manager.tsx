@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { InputBase, List, Popover } from "@mui/material";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { getManagerDropdownData } from "@/utils/commonDropdownApiCall";
 import ManagerIcon from "@/assets/icons/worklogs/ManagerIcon";
 import SearchIcon from "@/assets/icons/SearchIcon";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Manager = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
   const [managerSearchQuery, setManagerSearchQuery] = useState("");
@@ -45,49 +45,25 @@ const Manager = ({ selectedRowIds, getWorkItemList, getOverLay }: any) => {
 
   const updateManager = async (id: number[], manager: number) => {
     getOverLay(true);
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/bulkupdateworkitemmanager`,
-        {
-          WorkitemIds: id,
-          ManagerId: manager,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Manager has been updated successfully.");
-          getWorkItemList();
-          getOverLay(false);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Something went wrong, Please try again later..");
-          } else {
-            toast.error(data);
-          }
-          getOverLay(false);
-        }
+    const params = {
+      WorkitemIds: id,
+      ManagerId: manager,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/bulkupdateworkitemmanager`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("Manager has been updated successfully.");
+        getWorkItemList();
+        getOverLay(false);
       } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Something went wrong, Please try again later..");
-        } else {
-          toast.error(data);
-        }
         getOverLay(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

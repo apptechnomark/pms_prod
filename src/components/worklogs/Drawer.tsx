@@ -35,7 +35,6 @@ import {
 } from "@mui/material";
 import { Close, Download, Save } from "@mui/icons-material";
 import EditIcon from "@mui/icons-material/Edit";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -2063,58 +2062,28 @@ const EditDrawer = ({
 
     const saveWorklog = async () => {
       setIsLoadingWorklogs(true);
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-      try {
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/saveworkitem`,
-          data,
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          if (response.data.ResponseStatus === "Success") {
-            toast.success(
-              `Worklog ${onEdit > 0 ? "Updated" : "created"} successfully.`
-            );
-            onEdit > 0 && getEditDataWorklogs();
-            onEdit > 0 &&
-              typeOfWorkWorklogs === 3 &&
-              getCheckListDataWorklogs();
-            onEdit > 0 && getLogsDataWorklogs();
-            onEdit === 0 && onClose();
-            onEdit === 0 && handleClose();
-            setIsLoadingWorklogs(false);
-          } else {
-            const data = response.data.Message;
-            onEdit > 0 && getEditDataWorklogs();
-            if (data === null) {
-              toast.error("Please try again later.");
-            } else {
-              toast.error(data);
-            }
-            setIsLoadingWorklogs(false);
-          }
+      const params = data;
+      const url = `${process.env.worklog_api_url}/workitem/saveworkitem`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success(
+            `Worklog ${onEdit > 0 ? "Updated" : "created"} successfully.`
+          );
+          onEdit > 0 && getEditDataWorklogs();
+          onEdit > 0 && typeOfWorkWorklogs === 3 && getCheckListDataWorklogs();
+          onEdit > 0 && getLogsDataWorklogs();
+          onEdit === 0 && onClose();
+          onEdit === 0 && handleClose();
+          setIsLoadingWorklogs(false);
         } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Failed Please try again.");
-          } else {
-            toast.error(data);
-          }
           setIsLoadingWorklogs(false);
         }
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          router.push("/login");
-          localStorage.clear();
-        }
-      }
+      };
+      callAPI(url, params, successCallback, "POST");
     };
 
     if (
@@ -2443,7 +2412,7 @@ const EditDrawer = ({
   useEffect(() => {
     const getData = async () => {
       const assigneeData = await getAssigneeDropdownData(
-        clientNameWorklogs,
+        [clientNameWorklogs],
         typeOfWorkWorklogs
       );
       assigneeData.length > 0 && setAssigneeWorklogsDropdownData(assigneeData);
@@ -2462,7 +2431,7 @@ const EditDrawer = ({
         setAssigneeWorklogs(assigneeId !== undefined ? assigneeId : 0);
 
       const reviewerData = await getReviewerDropdownData(
-        clientNameWorklogs,
+        [clientNameWorklogs],
         typeOfWorkWorklogs
       );
       reviewerData.length > 0 && setReviewerWorklogsDropdownData(reviewerData);
@@ -2482,50 +2451,21 @@ const EditDrawer = ({
   }, [typeOfWorkWorklogs, clientNameWorklogs]);
 
   const getUserDetails = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.get(
-        `${process.env.api_url}/auth/getuserdetails`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setAssigneeWorklogsDisable(
-            response.data.ResponseData.IsHaveManageAssignee
-          );
-          setUserId(response.data.ResponseData.UserId);
-          !response.data.ResponseData.IsHaveManageAssignee &&
-            setAssigneeWorklogs(response.data.ResponseData.UserId);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {};
+    const url = `${process.env.api_url}/auth/getuserdetails`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setAssigneeWorklogsDisable(ResponseData.IsHaveManageAssignee);
+        setUserId(ResponseData.UserId);
+        !ResponseData.IsHaveManageAssignee &&
+          setAssigneeWorklogs(ResponseData.UserId);
       }
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        router.push("/login");
-        localStorage.clear();
-      }
-    }
+    };
+    callAPI(url, params, successCallback, "GET");
   };
 
   const handleClose = () => {

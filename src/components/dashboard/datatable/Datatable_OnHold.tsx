@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import MUIDataTable from "mui-datatables";
 import { ThemeProvider } from "@mui/material/styles";
-import { toast } from "react-toastify";
 import TablePagination from "@mui/material/TablePagination";
 import {
   handleChangePage,
@@ -10,6 +8,7 @@ import {
 } from "@/utils/datatable/CommonFunction";
 import { getMuiTheme } from "@/utils/datatable/CommonStyle";
 import { dashboardOnHoldAndOverdueCols } from "@/utils/datatable/columns/ClientDatatableColumns";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface OnHoldProps {
   onSelectedProjectIds: number[];
@@ -77,51 +76,27 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
   }, []);
 
   const getData = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/clientdashboard/tasklistbyproject`,
-        {
-          PageNo: page + 1,
-          PageSize: rowsPerPage,
-          SortColumn: null,
-          IsDesc: true,
-          projectIds: onSelectedProjectIds,
-          typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-          onHold: true,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setData(response.data.ResponseData.List);
-          setTableDataCount(response.data.ResponseData.TotalCount);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      PageNo: page + 1,
+      PageSize: rowsPerPage,
+      SortColumn: null,
+      IsDesc: true,
+      projectIds: onSelectedProjectIds,
+      typeOfWork: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+      onHold: true,
+    };
+    const url = `${process.env.report_api_url}/clientdashboard/tasklistbyproject`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setData(ResponseData.List);
+        setTableDataCount(ResponseData.TotalCount);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {

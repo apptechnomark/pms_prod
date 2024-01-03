@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { Button } from "@mui/material";
 import { hasPermissionWorklog } from "@/utils/commonFunction";
@@ -27,6 +26,7 @@ import {
   Comments,
 } from "@/components/common/actionBar/components/ActionBarComponents";
 import CustomActionBar from "@/components/common/actionBar/CustomActionBar";
+import { callAPI } from "@/utils/API/callAPI";
 
 const WorklogsActionBar = ({
   selectedRowsCount,
@@ -51,43 +51,18 @@ const WorklogsActionBar = ({
   const [subProcessDropdownData, setSubProcessDropdownData] = useState([]);
 
   const getProcessData = async (ids: any) => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/getclientcommonprocess`,
-        { ClientIds: ids },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setProcessDropdownData(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = { ClientIds: ids };
+    const url = `${process.env.worklog_api_url}/workitem/getclientcommonprocess`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        setProcessDropdownData(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {
@@ -250,55 +225,31 @@ const WorklogsActionBar = ({
       toast.warning("Only Assignee can submit the task.");
     }
     getOverLay(true);
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/saveworkitemsubmission`,
-        {
-          workitemIds: workItemIds,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        const data = response.data.Message;
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("The task has been successfully submitted.");
-          handleClearSelection();
-          getWorkItemList();
-          getOverLay(false);
-        } else if (response.data.ResponseStatus === "Warning" && data) {
-          toast.warning(data);
-          handleClearSelection();
-          getWorkItemList();
-          getOverLay(false);
-        } else {
-          if (data) {
-            toast.error(data);
-          } else {
-            toast.error("Please try again later.");
-          }
-          getOverLay(false);
-          handleClearSelection();
-        }
-      } else {
-        const data = response.data.Message;
-        if (data) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      workitemIds: workItemIds,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/saveworkitemsubmission`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        toast.success("The task has been successfully submitted.");
+        handleClearSelection();
+        getWorkItemList();
         getOverLay(false);
+      } else if (ResponseStatus === "Warning") {
+        toast.warning(ResponseData);
+        handleClearSelection();
+        getWorkItemList();
+        getOverLay(false);
+      } else {
+        getOverLay(false);
+        handleClearSelection();
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   const SubmitButton = () => (

@@ -10,11 +10,10 @@ import {
   TextField,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
-import axios from "axios";
-import { toast } from "react-toastify";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import Datatable_TaskStatus from "@/components/admin-dashboard/Datatables/Datatable_TaskStatus";
 import { DialogTransition } from "@/utils/style/DialogTransition";
+import { getStatusDropdownData } from "@/utils/commonDropdownApiCall";
 
 interface Status {
   Type: string;
@@ -35,7 +34,7 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
   onSelectedWorkType,
   onSelectedStatusName,
 }) => {
-  const [allStatus, setAllStatus] = useState<Status[]>([]);
+  const [allStatus, setAllStatus] = useState<any>([]);
   const [status, setStatus] = useState<number | any>(0);
   const [clickedStatusName, setClickedStatusName] = useState<string>("");
   const [searchValue, setSearchValue] = useState("");
@@ -71,41 +70,9 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
   }, [clickedStatusName, onSelectedStatusName]);
 
   const getAllStatus = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/status/GetDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setAllStatus(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    const statusData = await getStatusDropdownData();
+    console.log(statusData);
+    setAllStatus(statusData);
   };
 
   useEffect(() => {

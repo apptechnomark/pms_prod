@@ -1,12 +1,9 @@
 "use client";
-
 import React, { useEffect, useRef, useState } from "react";
 import LogoutIcon from "@/assets/icons/LogoutIcon";
 import { Avatar } from "@mui/material";
-import axios from "axios";
 import Dropdown from "./Dropdown";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
 import { handleLogoutUtil } from "@/utils/commonFunction";
 import { callAPI } from "@/utils/API/callAPI";
 
@@ -32,6 +29,7 @@ const Navbar = (props: NavbarPropsType) => {
   let options: any[] = [];
 
   const getDataNavbar = async () => {
+    const params = {};
     const url = `${process.env.pms_api_url}/Role/GetDropdown`;
     const successCallback = (
       ResponseData: any,
@@ -46,102 +44,55 @@ const Navbar = (props: NavbarPropsType) => {
         setRoleDropdownDataNavbar(ResponseData);
       }
     };
-    callAPI(url, null, successCallback, "GET");
-
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.get(
-        `${process.env.pms_api_url}/Role/GetDropdown`,
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setRoleDropdownDataNavbar(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    callAPI(url, params, successCallback, "GET");
   };
 
   const getUserDetails = async () => {
-    try {
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: token,
-      };
-      const response = await axios.get(
-        `${process.env.api_url}/auth/getuserdetails`,
-        { headers: headers }
-      );
-      if (response.status === 200) {
-        const username =
-          response.data.ResponseData?.FirstName +
-          " " +
-          response.data.ResponseData?.LastName;
+    const params = {};
+    const url = `${process.env.api_url}/auth/getuserdetails`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus === "Success" && error === false) {
+        const username = ResponseData?.FirstName + " " + ResponseData?.LastName;
         setUserNameNavbar(username);
-        setUserDataNavbar(response.data.ResponseData);
-        setOrgDataNavbar(response.data.ResponseData.Organizations);
+        setUserDataNavbar(ResponseData);
+        setOrgDataNavbar(ResponseData.Organizations);
 
         localStorage.setItem(
           "IsHaveManageAssignee",
-          response.data.ResponseData.IsHaveManageAssignee
+          ResponseData.IsHaveManageAssignee
         );
 
-        localStorage.setItem(
-          "permission",
-          JSON.stringify(response.data.ResponseData.Menu)
-        );
-        localStorage.setItem("roleId", response.data.ResponseData.RoleId);
-        localStorage.setItem(
-          "isClient",
-          response.data.ResponseData.IsClientUser
-        );
-        localStorage.setItem("clientId", response.data.ResponseData.ClientId);
+        localStorage.setItem("permission", JSON.stringify(ResponseData.Menu));
+        localStorage.setItem("roleId", ResponseData.RoleId);
+        localStorage.setItem("isClient", ResponseData.IsClientUser);
+        localStorage.setItem("clientId", ResponseData.ClientId);
         if (localStorage.getItem("Org_Token") === null) {
           localStorage.setItem(
             "Org_Token",
-            response.data.ResponseData.Organizations[0].Token
+            ResponseData.Organizations[0].Token
           );
         }
         if (localStorage.getItem("Org_Id") === null) {
           localStorage.setItem(
             "Org_Id",
-            response.data.ResponseData.Organizations[0].OrganizationId
+            ResponseData.Organizations[0].OrganizationId
           );
         }
         if (localStorage.getItem("Org_Name") === null) {
           localStorage.setItem(
             "Org_Name",
-            response.data.ResponseData.Organizations[0].OrganizationName
+            ResponseData.Organizations[0].OrganizationName
           );
         }
         getDataNavbar();
-        const filteredOrganization =
-          response.data.ResponseData.Organizations.filter(
-            (org: any) =>
-              org.OrganizationName === localStorage.getItem("Org_Name")
-          );
+        const filteredOrganization = ResponseData.Organizations.filter(
+          (org: any) =>
+            org.OrganizationName === localStorage.getItem("Org_Name")
+        );
         const {
           ClientModuleName,
           ProjectModuleName,
@@ -154,16 +105,12 @@ const Navbar = (props: NavbarPropsType) => {
             ProjectModuleName,
             ProcessModuleName,
             SubProcessModuleName,
-            response.data.ResponseData.RoleId
+            ResponseData.RoleId
           );
         }
       }
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        routerNavbar.push("/login");
-        localStorage.clear();
-      }
-    }
+    };
+    callAPI(url, params, successCallback, "GET");
   };
 
   const fetchData = async () => {

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { Avatar, InputBase, List, Popover } from "@mui/material";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import { toast } from "react-toastify";
 import EditUserIcon from "@/assets/icons/EditUserIcon";
 import SearchIcon from "@/assets/icons/SearchIcon";
+import { getReviewerDropdownData } from "@/utils/commonDropdownApiCall";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Reviewer = ({
   selectedWorkItemIds,
@@ -22,9 +23,16 @@ const Reviewer = ({
   const [anchorElReviewer, setAnchorElReviewer] =
     React.useState<HTMLButtonElement | null>(null);
 
-  const handleClickReviewer = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClickReviewer = async (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     setAnchorElReviewer(event.currentTarget);
-    getReviwer();
+    setReviewer(
+      await getReviewerDropdownData(
+        selectedRowClientId,
+        selectedRowWorkTypeId[0]
+      )
+    );
   };
 
   const handleCloseReviewer = () => {
@@ -47,80 +55,29 @@ const Reviewer = ({
     handleCloseReviewer();
   };
 
-  const getReviwer = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.api_url}/user/GetReviewerDropdown`,
-        {
-          ClientIds: selectedRowClientId,
-          WorktypeId: selectedRowWorkTypeId[0],
-          IsAll: selectedRowClientId.length > 0 ? true : false,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setReviewer(response.data.ResponseData);
-        } else {
-          toast.error("Please try again later.");
-        }
-      } else {
-        toast.error("Please try again.");
-      }
-    } catch (error: any) {
-      if (error.response && error.response.status === 401) {
-        localStorage.clear();
-      }
-    }
-  };
-
   const updateReviewer = async (id: number[], reviewerId: number) => {
     getOverLay(true);
-    try {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
-
-      const response = await axios.post(
-        `${process.env.worklog_api_url}/workitem/UpdateReviewer`,
-        {
-          workitemIds: id,
-          ReviewerId: reviewerId,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        const data = response.data.Message;
-        if (response.data.ResponseStatus === "Success") {
-          toast.success("Reviewer has been updated successfully.");
-          handleClearSelection();
-          getReviewList();
-          getOverLay(false);
-        } else {
-          toast.error(data || "Please try again after some time.");
-          getOverLay(false);
-        }
+    const params = {
+      workitemIds: id,
+      ReviewerId: reviewerId,
+    };
+    const url = `${process.env.worklog_api_url}/workitem/UpdateReviewer`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        toast.success("Reviewer has been updated successfully.");
+        handleClearSelection();
+        getReviewList();
+        getOverLay(false);
       } else {
-        const data = response.data.Message;
-        toast.error(data || "Please try again after some time.");
+        getReviewList();
         getOverLay(false);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   return (

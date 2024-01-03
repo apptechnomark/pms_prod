@@ -9,10 +9,9 @@ import {
   Select,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
-import axios from "axios";
-import { toast } from "react-toastify";
 import Datatable_DashboardSummaryList from "../Datatables/Datatable_DashboardSummaryList";
 import { DialogTransition } from "@/utils/style/DialogTransition";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface Status {
   Type: string;
@@ -42,44 +41,20 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
   };
 
   const getProjectSummary = async () => {
-    const token = await localStorage.getItem("token");
-    const Org_Token = await localStorage.getItem("Org_Token");
-    try {
-      const response = await axios.post(
-        `${process.env.report_api_url}/dashboard/summary`,
-        {
-          WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
-        },
-        {
-          headers: {
-            Authorization: `bearer ${token}`,
-            org_token: `${Org_Token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        if (response.data.ResponseStatus === "Success") {
-          setSummaryList(response.data.ResponseData);
-        } else {
-          const data = response.data.Message;
-          if (data === null) {
-            toast.error("Please try again later.");
-          } else {
-            toast.error(data);
-          }
-        }
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again.");
-        } else {
-          toast.error(data);
-        }
+    const params = {
+      WorkTypeId: onSelectedWorkType === 0 ? null : onSelectedWorkType,
+    };
+    const url = `${process.env.report_api_url}/dashboard/summary`;
+    const successCallback = (
+      ResponseData: any,
+      error: any,
+      ResponseStatus: any
+    ) => {
+      if (ResponseStatus.toLowerCase() === "success" && error === false) {
+        setSummaryList(ResponseData);
       }
-    } catch (error) {
-      console.error(error);
-    }
+    };
+    callAPI(url, params, successCallback, "POST");
   };
 
   useEffect(() => {

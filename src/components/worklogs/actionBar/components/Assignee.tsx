@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { Avatar, InputBase, List, Popover } from "@mui/material";
 import { ColorToolTip } from "@/utils/datatable/CommonStyle";
 import SearchIcon from "@/assets/icons/SearchIcon";
 import AssigneeIcon from "@/assets/icons/worklogs/Assignee";
+import { getAssigneeDropdownData } from "@/utils/commonDropdownApiCall";
+import { callAPI } from "@/utils/API/callAPI";
 
 const Assignee = ({
   selectedRowIds,
@@ -56,109 +57,58 @@ const Assignee = ({
       areAllValuesSame(selectedRowWorkTypeId)
     ) {
       const getAssignee = async () => {
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.api_url}/user/GetAssigneeUserDropdown`,
-            {
-              ClientIds: selectedRowClientId,
-              WorktypeId: selectedRowWorkTypeId[0],
-              IsAll: selectedRowClientId.length > 1 ? true : false,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              setAssignee(response.data.ResponseData);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Something went wrong, Please try again later..");
-              } else {
-                toast.error(data);
-              }
-            }
-          } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Something went wrong, Please try again later..");
-            } else {
-              toast.error(data);
-            }
-          }
-        } catch (error) {
-          console.error(error);
-        }
+        setAssignee(
+          await getAssigneeDropdownData(
+            selectedRowClientId,
+            selectedRowWorkTypeId[0]
+          )
+        );
       };
 
       getAssignee();
     }
   }, [selectedRowClientId, selectedRowWorkTypeId]);
 
-  const updateAssignee = async (id: number[], assigneeId: number) => {
-    try {
-      const token = await localStorage.getItem("token");
-      const Org_Token = await localStorage.getItem("Org_Token");
+  const updateAssignee = (id: number[], assigneeId: number) => {
+    const isRunning = workItemData
+      .map((item: any) =>
+        id.includes(item.WorkitemId) && item.IsActive === true
+          ? item.WorkitemId
+          : false
+      )
+      .filter((j: any) => j !== false);
 
-      const isRunning = workItemData
-        .map((item: any) =>
-          id.includes(item.WorkitemId) && item.IsActive === true
-            ? item.WorkitemId
-            : false
-        )
-        .filter((j: any) => j !== false);
-
-      const isNotRunning = workItemData
-        .map((item: any) =>
-          id.includes(item.WorkitemId) && item.IsActive !== true
-            ? item.WorkitemId
-            : false
-        )
-        .filter((j: any) => j !== false);
-      if (isRunning.length > 0) {
-        toast.warning("Cannot change Assignee for Running tasks.");
-      } else if (isNotRunning.length > 0) {
-        getOverLay(true);
-        const response = await axios.post(
-          `${process.env.worklog_api_url}/workitem/UpdateAssignee`,
-          {
-            workitemIds: isNotRunning,
-            assigneeId: assigneeId,
-          },
-          {
-            headers: {
-              Authorization: `bearer ${token}`,
-              org_token: `${Org_Token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          const data = response.data.Message;
-          if (response.data.ResponseStatus === "Success") {
-            toast.success("Assignee has been updated successfully.");
-            handleClearSelection();
-            getWorkItemList();
-            getOverLay(false);
-          } else {
-            toast.error(data || "Please try again later.");
-            getOverLay(false);
-          }
+    const isNotRunning = workItemData
+      .map((item: any) =>
+        id.includes(item.WorkitemId) && item.IsActive !== true
+          ? item.WorkitemId
+          : false
+      )
+      .filter((j: any) => j !== false);
+    if (isRunning.length > 0) {
+      toast.warning("Cannot change Assignee for Running tasks.");
+    } else if (isNotRunning.length > 0) {
+      getOverLay(true);
+      const params = {
+        workitemIds: isNotRunning,
+        assigneeId: assigneeId,
+      };
+      const url = `${process.env.worklog_api_url}/workitem/UpdateAssignee`;
+      const successCallback = (
+        ResponseData: any,
+        error: any,
+        ResponseStatus: any
+      ) => {
+        if (ResponseStatus === "Success" && error === false) {
+          toast.success("Assignee has been updated successfully.");
+          handleClearSelection();
+          getWorkItemList();
+          getOverLay(false);
         } else {
-          const data = response.data.Message;
-          toast.error(data || "Please try again later.");
           getOverLay(false);
         }
-      }
-    } catch (error) {
-      console.error(error);
+      };
+      callAPI(url, params, successCallback, "POST");
     }
   };
 

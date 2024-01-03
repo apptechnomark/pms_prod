@@ -14,9 +14,9 @@ import { Close } from "@mui/icons-material";
 import Rating from "@mui/material/Rating";
 import StarIcon from "@mui/icons-material/Star";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { DialogTransition } from "@/utils/style/DialogTransition";
 import { Spinner } from "next-ts-lib";
+import { callAPI } from "@/utils/API/callAPI";
 
 interface RatingModalProps {
   onOpen: boolean;
@@ -62,52 +62,27 @@ const RatingDialog: React.FC<RatingModalProps> = ({
       }
       if (ratingId.length > 0) {
         setLoaded(true);
-        const token = await localStorage.getItem("token");
-        const Org_Token = await localStorage.getItem("Org_Token");
-        try {
-          const response = await axios.post(
-            `${process.env.worklog_api_url}/ClientWorkitem/workitemrating`,
-            {
-              workitemIds: ratingId,
-              rating: ratingValue,
-              comment: comment.trim(),
-            },
-            {
-              headers: {
-                Authorization: `bearer ${token}`,
-                org_token: `${Org_Token}`,
-              },
-            }
-          );
-
-          if (response.status === 200) {
-            if (response.data.ResponseStatus === "Success") {
-              toast.success("Rating successfully submitted.");
-              onDataFetch();
-              handleClose();
-              setLoaded(false);
-            } else {
-              const data = response.data.Message;
-              if (data === null) {
-                toast.error("Please try again later.");
-              } else {
-                toast.error(data);
-              }
-              setLoaded(false);
-            }
+        const params = {
+          workitemIds: ratingId,
+          rating: ratingValue,
+          comment: comment.trim(),
+        };
+        const url = `${process.env.worklog_api_url}/ClientWorkitem/workitemrating`;
+        const successCallback = (
+          ResponseData: any,
+          error: any,
+          ResponseStatus: any
+        ) => {
+          if (ResponseStatus === "Success" && error === false) {
+            toast.success("Rating successfully submitted.");
+            onDataFetch();
+            handleClose();
+            setLoaded(false);
           } else {
-            const data = response.data.Message;
-            if (data === null) {
-              toast.error("Please try again.");
-            } else {
-              toast.error(data);
-            }
             setLoaded(false);
           }
-        } catch (error) {
-          console.error(error);
-          setLoaded(false);
-        }
+        };
+        callAPI(url, params, successCallback, "POST");
       }
     }
   };
