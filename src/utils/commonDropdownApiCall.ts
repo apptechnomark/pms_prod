@@ -494,3 +494,81 @@ export const getCommentUserDropdownData = async (fields: any) => {
     }
   }
 };
+
+export const getBillingTypeData = async () => {
+  const token = await localStorage.getItem("token");
+  const Org_Token = await localStorage.getItem("Org_Token");
+
+  try {
+    const response = await axios.get(
+      `${process.env.pms_api_url}/BillingType/GetDropdown`,
+      {
+        headers: {
+          Authorization: `bearer ${token}`,
+          org_token: `${Org_Token}`,
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      if (response.data.ResponseStatus === "Success") {
+        return response.data.ResponseData;
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } else {
+      const data = response.data.Message;
+      if (data === null) {
+        toast.error("Please try again.");
+      } else {
+        toast.error(data);
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const getDeptData = async () => {
+  const token = await localStorage.getItem("token");
+  const Org_Token = await localStorage.getItem("Org_Token");
+
+  try {
+    const response = await axios.get(
+      `${process.env.pms_api_url}/department/getdropdown`,
+      {
+        headers: {
+          Authorization: `bearer ${token}`,
+          org_token: `${Org_Token}`,
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      if (response.data.ResponseStatus === "Success") {
+        return response.data.ResponseData;
+      } else {
+        const data = response.data.Message;
+        if (data === null) {
+          toast.error("Please try again later.");
+        } else {
+          toast.error(data);
+        }
+      }
+    } else {
+      const data = response.data.Message;
+      if (data === null) {
+        toast.error("Please try again.");
+      } else {
+        toast.error(data);
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
