@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -53,6 +54,7 @@ export const callAPI = async (
     }
   } catch (error: any) {
     if (error.response && error.response.status === 401) {
+      window.location.href = "/login";
       localStorage.clear();
     }
   }

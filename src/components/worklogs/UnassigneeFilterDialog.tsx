@@ -80,7 +80,7 @@ const UnassigneeFilterDialog: React.FC<FilterModalProps> = ({
   }, [onOpen]);
 
   useEffect(() => {
-    getWorkTypeData(clientName);
+    clientName > 0 && getWorkTypeData(clientName);
   }, [clientName]);
 
   return (

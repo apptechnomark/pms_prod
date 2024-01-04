@@ -51,7 +51,7 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   currentFilterData,
 }) => {
   const [saveFilter, setSaveFilter] = useState(false);
-  const [clientName, setClientName] = useState<number | string>(0);
+  const [clientName, setClientName] = useState<any>(0);
   const [workType, setWorkType] = useState<number | string>(0);
   const [projectName, setProjectName] = useState<number | string>(0);
   const [status, setStatus] = useState<number | string>(0);
@@ -164,8 +164,8 @@ const FilterDialog: React.FC<FilterModalProps> = ({
   }, [onOpen]);
 
   useEffect(() => {
-    getWorkTypeData(clientName);
-    getProjectData(clientName);
+    clientName > 0 && getWorkTypeData(clientName);
+    clientName > 0 && getProjectData(clientName);
   }, [clientName]);
 
   const saveCurrentFilter = async () => {
