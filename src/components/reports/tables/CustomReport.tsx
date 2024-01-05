@@ -179,17 +179,6 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       },
     },
     {
-      name: "AssignedBy",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Assigned By"),
-        customBodyRender: (value: any) => {
-          return generateCommonBodyRender(value);
-        },
-      },
-    },
-    {
       name: "AssigneeName",
       options: {
         filter: true,
@@ -206,6 +195,17 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         filter: true,
         sort: true,
         customHeadLabelRender: () => generateCustomHeaderName("Reviewer"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
+        },
+      },
+    },
+    {
+      name: "AssignedBy",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Assigned By"),
         customBodyRender: (value: any) => {
           return generateCommonBodyRender(value);
         },

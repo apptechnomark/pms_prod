@@ -72,19 +72,16 @@ export const hours = [
   { label: "24", value: 24 },
 ];
 
-export const getClientDropdownData = async () => {
+const getApiFunction = async (api: any) => {
   const token = await localStorage.getItem("token");
   const Org_Token = await localStorage.getItem("Org_Token");
   try {
-    const response = await axios.get(
-      `${process.env.pms_api_url}/client/getdropdownforgroup`,
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-      }
-    );
+    const response = await axios.get(api, {
+      headers: {
+        Authorization: `bearer ${token}`,
+        org_token: `${Org_Token}`,
+      },
+    });
 
     if (response.status === 200) {
       if (response.data.ResponseStatus === "Success") {
@@ -97,72 +94,59 @@ export const getClientDropdownData = async () => {
     }
   } catch (error: any) {
     if (error.response && error.response.status === 401) {
+      window.location.href = "/login";
       localStorage.clear();
     }
   }
+};
+
+const postApiFunction = async (api: any, params: any) => {
+  const token = await localStorage.getItem("token");
+  const Org_Token = await localStorage.getItem("Org_Token");
+  try {
+    const response = await axios.post(api, params, {
+      headers: {
+        Authorization: `bearer ${token}`,
+        org_token: `${Org_Token}`,
+      },
+    });
+
+    if (response.status === 200) {
+      if (response.data.ResponseStatus === "Success") {
+        return response.data.ResponseData;
+      } else {
+        toast.error("Please try again later.");
+      }
+    } else {
+      toast.error("Please try again.");
+    }
+  } catch (error: any) {
+    if (error.response && error.response.status === 401) {
+      window.location.href = "/login";
+      localStorage.clear();
+    }
+  }
+};
+
+export const getClientDropdownData = async () => {
+  return await getApiFunction(
+    `${process.env.pms_api_url}/client/getdropdownforgroup`
+  );
 };
 
 export const getAllProcessDropdownData = async () => {
-  const token = await localStorage.getItem("token");
-  const Org_Token = await localStorage.getItem("Org_Token");
-  try {
-    const response = await axios.get(
-      `${process.env.pms_api_url}/process/getdropdownforgroup`,
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      if (response.data.ResponseStatus === "Success") {
-        return response.data.ResponseData;
-      } else {
-        toast.error("Please try again later.");
-      }
-    } else {
-      toast.error("Please try again.");
-    }
-  } catch (error: any) {
-    if (error.response && error.response.status === 401) {
-      localStorage.clear();
-    }
-  }
+  return await getApiFunction(
+    `${process.env.pms_api_url}/process/getdropdownforgroup`
+  );
 };
 
 export const getTypeOfWorkDropdownData = async (clientId: any) => {
-  const token = await localStorage.getItem("token");
-  const Org_Token = await localStorage.getItem("Org_Token");
-  try {
-    const response = await axios.post(
-      `${process.env.pms_api_url}/WorkType/GetDropdown`,
-      {
-        clientId: clientId,
-      },
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      if (response.data.ResponseStatus === "Success") {
-        return response.data.ResponseData;
-      } else {
-        toast.error("Please try again later.");
-      }
-    } else {
-      toast.error("Please try again.");
+  return await postApiFunction(
+    `${process.env.pms_api_url}/WorkType/GetDropdown`,
+    {
+      clientId: clientId,
     }
-  } catch (error: any) {
-    if (error.response && error.response.status === 401) {
-      localStorage.clear();
-    }
-  }
+  );
 };
 
 export const getProjectDropdownData = async (clientId: any) => {
@@ -199,376 +183,88 @@ export const getProjectDropdownData = async (clientId: any) => {
 };
 
 export const getProcessDropdownData = async (clientId: any) => {
-  const token = await localStorage.getItem("token");
-  const Org_Token = await localStorage.getItem("Org_Token");
-  try {
-    const response = await axios.post(
-      `${process.env.pms_api_url}/Process/GetDropdownByClient`,
-      {
-        clientId: clientId,
-      },
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      if (response.data.ResponseStatus === "Success") {
-        return response.data.ResponseData;
-      } else {
-        toast.error("Please try again later.");
-      }
-    } else {
-      toast.error("Please try again.");
+  return await postApiFunction(
+    `${process.env.pms_api_url}/Process/GetDropdownByClient`,
+    {
+      clientId: clientId,
     }
-  } catch (error: any) {
-    if (error.response && error.response.status === 401) {
-      localStorage.clear();
-    }
-  }
+  );
 };
 
 export const getStatusDropdownData = async () => {
-  const token = await localStorage.getItem("token");
-  const Org_Token = await localStorage.getItem("Org_Token");
-  try {
-    const response = await axios.get(
-      `${process.env.pms_api_url}/status/GetDropdown`,
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      if (response.data.ResponseStatus === "Success") {
-        return response.data.ResponseData;
-      } else {
-        toast.error("Please try again later.");
-      }
-    } else {
-      toast.error("Please try again later.");
-    }
-  } catch (error: any) {
-    if (error.response && error.response.status === 401) {
-      localStorage.clear();
-    }
-  }
+  return await getApiFunction(`${process.env.pms_api_url}/status/GetDropdown`);
 };
 
 export const getSubProcessDropdownData = async (
   clientId: any,
   processId: any
 ) => {
-  const token = await localStorage.getItem("token");
-  const Org_Token = await localStorage.getItem("Org_Token");
-  try {
-    const response = await axios.post(
-      `${process.env.pms_api_url}/Process/GetDropdownByClient`,
-      {
-        clientId: clientId,
-        processId: processId,
-      },
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      if (response.data.ResponseStatus === "Success") {
-        return response.data.ResponseData;
-      } else {
-        toast.error("Please try again later.");
-      }
-    } else {
-      toast.error("Please try again.");
+  return await postApiFunction(
+    `${process.env.pms_api_url}/Process/GetDropdownByClient`,
+    {
+      clientId: clientId,
+      processId: processId,
     }
-  } catch (error: any) {
-    if (error.response && error.response.status === 401) {
-      localStorage.clear();
-    }
-  }
+  );
 };
 
 export const getAssigneeDropdownData = async (
   clientId: any,
   workTypeId: any
 ) => {
-  const token = await localStorage.getItem("token");
-  const Org_Token = await localStorage.getItem("Org_Token");
-  try {
-    const response = await axios.post(
-      `${process.env.api_url}/user/GetAssigneeUserDropdown`,
-      {
-        ClientIds: clientId,
-        WorktypeId: workTypeId,
-        IsAll: clientId.length > 1 ? true : false,
-      },
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      if (response.data.ResponseStatus === "Success") {
-        return response.data.ResponseData;
-      } else {
-        toast.error("Please try again later.");
-      }
-    } else {
-      toast.error("Please try again.");
+  return await postApiFunction(
+    `${process.env.api_url}/user/GetAssigneeUserDropdown`,
+    {
+      ClientIds: clientId,
+      WorktypeId: workTypeId,
+      IsAll: clientId.length > 1 ? true : false,
     }
-  } catch (error: any) {
-    if (error.response && error.response.status === 401) {
-      localStorage.clear();
-    }
-  }
+  );
 };
 
 export const getReviewerDropdownData = async (
   clientId: any,
   workTypeId: any
 ) => {
-  const token = await localStorage.getItem("token");
-  const Org_Token = await localStorage.getItem("Org_Token");
-  try {
-    const response = await axios.post(
-      `${process.env.api_url}/user/GetReviewerDropdown`,
-      {
-        ClientIds: clientId,
-        WorktypeId: workTypeId,
-        IsAll: false,
-      },
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      if (response.data.ResponseStatus === "Success") {
-        return response.data.ResponseData;
-      } else {
-        toast.error("Please try again later.");
-      }
-    } else {
-      toast.error("Please try again.");
+  return await postApiFunction(
+    `${process.env.api_url}/user/GetReviewerDropdown`,
+    {
+      ClientIds: clientId,
+      WorktypeId: workTypeId,
+      IsAll: clientId.length > 1 ? true : false,
     }
-  } catch (error: any) {
-    if (error.response && error.response.status === 401) {
-      localStorage.clear();
-    }
-  }
+  );
 };
 
 export const getManagerDropdownData = async () => {
-  const token = await localStorage.getItem("token");
-  const Org_Token = await localStorage.getItem("Org_Token");
-  try {
-    const response = await axios.get(
-      `${process.env.api_url}/user/getmanagerdropdown`,
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      if (response.data.ResponseStatus === "Success") {
-        return response.data.ResponseData;
-      } else {
-        toast.error("Please try again later.");
-      }
-    } else {
-      toast.error("Please try again.");
-    }
-  } catch (error: any) {
-    if (error.response && error.response.status === 401) {
-      localStorage.clear();
-    }
-  }
+  return await getApiFunction(`${process.env.api_url}/user/getmanagerdropdown`);
 };
 
 export const getTypeOfReturnDropdownData = async () => {
-  const token = await localStorage.getItem("token");
-  const Org_Token = await localStorage.getItem("Org_Token");
-  try {
-    const response = await axios.get(
-      `${process.env.worklog_api_url}/workitem/getformtypelist`,
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      if (response.data.ResponseStatus === "Success") {
-        return response.data.ResponseData;
-      } else {
-        toast.error("Please try again later.");
-      }
-    } else {
-      toast.error("Please try again.");
-    }
-  } catch (error: any) {
-    if (error.response && error.response.status === 401) {
-      localStorage.clear();
-    }
-  }
+  return await getApiFunction(
+    `${process.env.worklog_api_url}/workitem/getformtypelist`
+  );
 };
 
 export const getCCDropdownData = async () => {
-  const token = await localStorage.getItem("token");
-  const Org_Token = await localStorage.getItem("Org_Token");
-  try {
-    const response = await axios.get(
-      `${process.env.api_url}/user/getdropdown`,
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      if (response.data.ResponseStatus === "Success") {
-        return response.data.ResponseData;
-      } else {
-        toast.error("Please try again later.");
-      }
-    } else {
-      toast.error("Please try again.");
-    }
-  } catch (error: any) {
-    if (error.response && error.response.status === 401) {
-      localStorage.clear();
-    }
-  }
+  return await getApiFunction(`${process.env.api_url}/user/getdropdown`);
 };
 
 export const getCommentUserDropdownData = async (fields: any) => {
-  const token = await localStorage.getItem("token");
-  const Org_Token = await localStorage.getItem("Org_Token");
-  try {
-    const response = await axios.post(
-      `${process.env.api_url}/user/getgroupusersdropdown`,
-      fields,
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      if (response.data.ResponseStatus === "Success") {
-        return response.data.ResponseData;
-      } else {
-        toast.error("Please try again later.");
-      }
-    } else {
-      toast.error("Please try again.");
-    }
-  } catch (error: any) {
-    if (error.response && error.response.status === 401) {
-      localStorage.clear();
-    }
-  }
+  return await postApiFunction(
+    `${process.env.api_url}/user/getgroupusersdropdown`,
+    fields
+  );
 };
 
 export const getBillingTypeData = async () => {
-  const token = await localStorage.getItem("token");
-  const Org_Token = await localStorage.getItem("Org_Token");
-
-  try {
-    const response = await axios.get(
-      `${process.env.pms_api_url}/BillingType/GetDropdown`,
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      if (response.data.ResponseStatus === "Success") {
-        return response.data.ResponseData;
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } else {
-      const data = response.data.Message;
-      if (data === null) {
-        toast.error("Please try again.");
-      } else {
-        toast.error(data);
-      }
-    }
-  } catch (error) {
-    console.error(error);
-  }
+  return await getApiFunction(
+    `${process.env.pms_api_url}/BillingType/GetDropdown`
+  );
 };
 
 export const getDeptData = async () => {
-  const token = await localStorage.getItem("token");
-  const Org_Token = await localStorage.getItem("Org_Token");
-
-  try {
-    const response = await axios.get(
-      `${process.env.pms_api_url}/department/getdropdown`,
-      {
-        headers: {
-          Authorization: `bearer ${token}`,
-          org_token: `${Org_Token}`,
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      if (response.data.ResponseStatus === "Success") {
-        return response.data.ResponseData;
-      } else {
-        const data = response.data.Message;
-        if (data === null) {
-          toast.error("Please try again later.");
-        } else {
-          toast.error(data);
-        }
-      }
-    } else {
-      const data = response.data.Message;
-      if (data === null) {
-        toast.error("Please try again.");
-      } else {
-        toast.error(data);
-      }
-    }
-  } catch (error) {
-    console.error(error);
-  }
+  return await getApiFunction(
+    `${process.env.pms_api_url}/department/getdropdown`
+  );
 };

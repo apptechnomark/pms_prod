@@ -2389,7 +2389,7 @@ const EditDrawer = ({
     };
 
     onOpen && getData();
-  }, [clientNameWorklogs, commentSelectWorklogs]);
+  }, [clientNameWorklogs, commentSelectWorklogs, commentSelectWorklogs]);
 
   useEffect(() => {
     const getData = async () => {
@@ -4198,7 +4198,7 @@ const EditDrawer = ({
                                     <div className="flex items-start">
                                       {extractText(i.Message).map((i: any) => {
                                         const assignee =
-                                          assigneeWorklogsDropdownData.map(
+                                          commentWorklogsUserData.map(
                                             (j: any) => j.label
                                           );
                                         return assignee.includes(i) ? (

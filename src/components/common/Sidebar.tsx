@@ -148,6 +148,13 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
               icon: <Reports />,
             },
           hasPermissionWorklog("", "View", "Settings") &&
+            (hasPermissionWorklog("Client", "View", "Settings") ||
+              hasPermissionWorklog("Project", "View", "Settings") ||
+              hasPermissionWorklog("User", "View", "Settings") ||
+              hasPermissionWorklog("Process", "View", "Settings") ||
+              hasPermissionWorklog("Group", "View", "Settings") ||
+              hasPermissionWorklog("Permission", "View", "Settings") ||
+              hasPermissionWorklog("Status", "View", "Settings")) &&
             !isClient && {
               name: "Settings",
               href: "/settings",

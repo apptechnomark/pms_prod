@@ -2173,7 +2173,7 @@ const EditDrawer = ({
     };
 
     onOpen && getData();
-  }, [clientNameApprovals, commentSelectApprovals]);
+  }, [clientNameApprovals, commentSelectApprovals, commentSelectApprovals]);
 
   useEffect(() => {
     const getData = async () => {
@@ -2201,7 +2201,10 @@ const EditDrawer = ({
       );
       assigneeData.length > 0 && setAssigneeApprovalsDropdownData(assigneeData);
       setReviewerApprovalsDropdownData(
-        await getReviewerDropdownData([clientNameApprovals], typeOfWorkApprovals)
+        await getReviewerDropdownData(
+          [clientNameApprovals],
+          typeOfWorkApprovals
+        )
       );
     };
 
@@ -3886,7 +3889,7 @@ const EditDrawer = ({
                                   <div className="flex items-start">
                                     {extractText(i.Message).map((i: any) => {
                                       const assignee =
-                                        assigneeApprovalsDropdownData.map(
+                                        commentUserDataApprovals.map(
                                           (j: any) => j.label
                                         );
                                       return assignee.includes(i) ? (

@@ -126,7 +126,16 @@ const Page = () => {
 
   useEffect(() => {
     if (localStorage.getItem("isClient") === "false") {
-      if (!hasPermissionWorklog("", "View", "Settings")) {
+      if (
+        !hasPermissionWorklog("", "View", "Settings") ||
+        !hasPermissionWorklog("Client", "View", "Settings") ||
+        !hasPermissionWorklog("Project", "View", "Settings") ||
+        !hasPermissionWorklog("User", "View", "Settings") ||
+        !hasPermissionWorklog("Process", "View", "Settings") ||
+        !hasPermissionWorklog("Group", "View", "Settings") ||
+        !hasPermissionWorklog("Permission", "View", "Settings") ||
+        !hasPermissionWorklog("Status", "View", "Settings")
+      ) {
         router.push("/");
       }
     } else {
