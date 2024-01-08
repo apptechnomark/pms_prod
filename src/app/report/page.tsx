@@ -233,18 +233,23 @@ const Report = () => {
 
   const handleExportResponse = (response: any) => {
     if (response.status === 200) {
-      const blob = new Blob([response.data], {
-        type: response.headers["content-type"],
-      });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${isTaskClicked ? "Task" : "Rating"}_report.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-      setIsExporting(false);
+      if (response.data.ResponseStatus === "Failure") {
+        setIsExporting(false);
+        toast.error("Please try again later.");
+      } else {
+        const blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${isTaskClicked ? "Task" : "Rating"}_report.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        setIsExporting(false);
+      }
     } else {
       setIsExporting(false);
       toast.error("Login failed. Please try again.");

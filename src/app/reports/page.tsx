@@ -249,26 +249,31 @@ const Page = () => {
       }
     );
     if (response.status === 200) {
-      const blob = new Blob([response.data], {
-        type: response.headers["content-type"],
-      });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${
-        getCurrentTabDetails(activeTab).charAt(0).toUpperCase() +
-        getCurrentTabDetails(activeTab).slice(1)
-      }_report.${
-        getCurrentTabDetails(activeTab).toLowerCase() === "billing"
-          ? "zip"
-          : "xlsx"
-      }`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      if (response.data.ResponseStatus === "Failure") {
+        setIsExporting(false);
+        toast.error("Please try again later.");
+      } else {
+        const blob = new Blob([response.data], {
+          type: response.headers["content-type"],
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${
+          getCurrentTabDetails(activeTab).charAt(0).toUpperCase() +
+          getCurrentTabDetails(activeTab).slice(1)
+        }_report.${
+          getCurrentTabDetails(activeTab).toLowerCase() === "billing"
+            ? "zip"
+            : "xlsx"
+        }`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
 
-      setIsExporting(false);
+        setIsExporting(false);
+      }
     } else {
       toast.error("Failed to download, please try again later.");
     }

@@ -223,18 +223,22 @@ const ImportDialog: React.FC<ImportDialogProp> = ({
       );
 
       if (response.status === 200) {
-        const blob = new Blob([response.data], {
-          type: response.headers["content-type"],
-        });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `SampleExcel.xlsx`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        toast.success("File has been downloaded successfully.");
+        if (response.data.ResponseStatus === "Failure") {
+          toast.error("Please try again later.");
+        } else {
+          const blob = new Blob([response.data], {
+            type: response.headers["content-type"],
+          });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `SampleExcel.xlsx`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+          toast.success("File has been downloaded successfully.");
+        }
       } else {
         toast.error("Please try again later.");
       }
