@@ -42,7 +42,9 @@ const getDates = (startDate?: any, endDate?: any) => {
     let d =
       current.getFullYear() +
       "-" +
-      (current.getMonth() + 1) +
+      ((current.getMonth() + 1).toString().length > 1
+        ? current.getMonth() + 1
+        : "0" + (current.getMonth() + 1)) +
       "-" +
       (current.getDate().toString().length > 1
         ? current.getDate()
