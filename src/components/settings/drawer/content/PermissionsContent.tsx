@@ -146,7 +146,7 @@ const PermissionsContent = forwardRef<
           variant="btn-primary"
           className="rounded-[4px] !h-[36px] !uppercase"
         >
-          Create {tab === "Permissions" ? "Role" : tab}
+          Create Role
         </Button>
       </div>
     </form>

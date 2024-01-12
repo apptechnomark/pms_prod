@@ -26,6 +26,7 @@ const UserContent = forwardRef<
   {
     tab: string;
     onEdit: boolean;
+    onOpen: boolean;
     onClose: () => void;
     userData: any;
     onUserDataFetch: any;
@@ -33,7 +34,7 @@ const UserContent = forwardRef<
   }
 >(
   (
-    { tab, onEdit, onClose, userData, onUserDataFetch, onChangeLoader },
+    { tab, onEdit, onOpen, onClose, userData, onUserDataFetch, onChangeLoader },
     ref
   ) => {
     const [value, setValue] = useState("Employee");
@@ -263,12 +264,15 @@ const UserContent = forwardRef<
         }
       };
 
-      getData("/client/getdropdown");
-      getData("/department/getdropdown");
-      getData("/Role/GetDropdown");
-      getData("/group/getdropdown");
-      getData("/user/GetRMUserDropdown");
-    }, [department, userId]);
+      onOpen && getData("/client/getdropdown");
+      onOpen && getData("/department/getdropdown");
+      onOpen && getData("/Role/GetDropdown");
+      onOpen && getData("/group/getdropdown");
+      onOpen &&
+        userId > 0 &&
+        department > 0 &&
+        getData("/user/GetRMUserDropdown");
+    }, [department, userId, onOpen]);
 
     const setEmployeeDataTrue = () => {
       setFirstNameHasError(true);
@@ -655,6 +659,7 @@ const UserContent = forwardRef<
                   setRole(value);
                   value > 0 && setRoleHasError(false);
                 }}
+                search
                 getError={(e) => setRoleError(e)}
                 options={roleDropdownData
                   .map((i: any) => (i.Type === 1 ? i : undefined))
@@ -769,6 +774,7 @@ const UserContent = forwardRef<
                   setClientRole(value);
                   value > 0 && setClientRoleHasError(false);
                 }}
+                search
                 getError={(e) => setClientRoleError(e)}
                 options={roleDropdownData
                   .map((i: any) => (i.Type === 2 ? i : undefined))

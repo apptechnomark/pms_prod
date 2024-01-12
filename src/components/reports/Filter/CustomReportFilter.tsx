@@ -703,7 +703,7 @@ const CustomReportFilter = ({
                     onChange={(e: any, data: any) => {
                       setProcessName(data);
                     }}
-                    disabled={clientName.length > 1}
+                    // disabled={clientName.length > 1}
                     value={processName}
                     renderInput={(params: any) => (
                       <TextField
@@ -727,7 +727,7 @@ const CustomReportFilter = ({
                     onChange={(e: any, data: any) => {
                       setSubProcessName(data);
                     }}
-                    disabled={clientName.length > 1}
+                    // disabled={clientName.length > 1}
                     value={subProcessName}
                     renderInput={(params: any) => (
                       <TextField

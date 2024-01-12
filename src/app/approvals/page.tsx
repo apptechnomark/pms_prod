@@ -46,7 +46,7 @@ const Page = () => {
   const [globalSearchValue, setGlobalSearchValue] = useState("");
   const [isFilterOpen, setisFilterOpen] = useState<boolean>(false);
   const [dataFunction, setDataFunction] = useState<(() => void) | null>(null);
-  const [currentFilterData, setCurrentFilterData] = useState([]);
+  const [currentFilterData, setCurrentFilterData] = useState<any>([]);
   const [hasComment, setHasComment] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [hasManual, setHasManual] = useState(false);
@@ -121,7 +121,9 @@ const Page = () => {
 
     const response = await axios.post(
       `${process.env.worklog_api_url}${
-        activeTab === 1 ? "/workitem/approval/GetReviewExportExcelList" : "/workitem/approval/GetAllTasksExportForReviewer"
+        activeTab === 1
+          ? "/workitem/approval/GetReviewExportExcelList"
+          : "/workitem/approval/GetAllTasksExportForReviewer"
       }`,
       {
         ...exportBody,
@@ -147,7 +149,8 @@ const Page = () => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = activeTab === 1 ? "approval_report.xlsx" : "all_task_report.xlsx";
+        a.download =
+          activeTab === 1 ? "approval_report.xlsx" : "all_task_report.xlsx";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -177,7 +180,10 @@ const Page = () => {
                   ? "text-secondary font-semibold"
                   : "text-slatyGrey"
               }`}
-              onClick={() => setActiveTab(1)}
+              onClick={() => {
+                setActiveTab(1);
+                setCurrentFilterData({ PageNo: 1, PageSize: 10 });
+              }}
             >
               Review
             </span>
@@ -188,7 +194,10 @@ const Page = () => {
                   ? "text-secondary font-semibold"
                   : "text-slatyGrey"
               }`}
-              onClick={() => setActiveTab(2)}
+              onClick={() => {
+                setActiveTab(2);
+                setCurrentFilterData({ PageNo: 1, PageSize: 10 });
+              }}
             >
               All Task
             </span>

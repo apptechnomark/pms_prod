@@ -452,15 +452,18 @@ const User = ({
     }
   };
 
-  useEffect(() => {
-    getData();
-  }, []);
+  // useEffect(() => {
+  //   getData();
+  // }, []);
 
   useEffect(() => {
     if (onSearchUserData) {
       setData(onSearchUserData);
     } else {
-      getData();
+      const timer = setTimeout(() => {
+        getData();
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [onSearchUserData]);
 
@@ -519,8 +522,10 @@ const User = ({
       await getData();
       onUserDataFetch(() => fetchData());
     };
-
-    fetchData();
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   return (

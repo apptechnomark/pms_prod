@@ -303,6 +303,7 @@ const Page = () => {
                 setIsTaskClicked(true);
                 setIsUnassigneeClicked(false);
                 setCurrentFilterId(0);
+                setCurrentFilterData([]);
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isTaskClicked
@@ -325,6 +326,7 @@ const Page = () => {
                     setIsUnassigneeClicked(true);
                     setIsTaskClicked(false);
                     setCurrentFilterId(0);
+                    setCurrentFilterData([]);
                   }}
                   className={`py-[10px] text-[16px] cursor-pointer select-none ${
                     isUnassigneeClicked

@@ -145,7 +145,7 @@ const Drawer = ({
       >
         <div className="flex p-[20px] justify-between items-center bg-whiteSmoke border-b border-lightSilver">
           <span className="text-pureBlack text-lg font-medium">
-            {onEdit ? "Edit" : "Create"} {tab}
+            {onEdit ? "Edit" : "Create"} {tab === "Permission" ? "Role" : tab}
           </span>
           <span onClick={handleClose}>
             <Close variant="medium" />
@@ -175,6 +175,7 @@ const Drawer = ({
         )}
         {tab === "Project" && (
           <ProjectContent
+            onOpen={onOpen}
             tab={tab}
             ref={projectRef}
             onEdit={onEdit}
@@ -198,6 +199,7 @@ const Drawer = ({
         )}
         {tab === "User" && (
           <UserContent
+            onOpen={onOpen}
             tab={tab}
             onEdit={onEdit}
             onClose={onClose}
@@ -209,6 +211,7 @@ const Drawer = ({
         )}
         {tab === "Process" && (
           <ProcessContent
+            onOpen={onOpen}
             tab={tab}
             onEdit={onEdit}
             onClose={onClose}
@@ -232,6 +235,7 @@ const Drawer = ({
         )}
         {tab === "Group" && (
           <GroupContent
+            onOpen={onOpen}
             tab={tab}
             onEdit={onEdit}
             onClose={onClose}

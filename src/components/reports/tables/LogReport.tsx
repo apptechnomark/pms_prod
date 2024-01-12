@@ -84,16 +84,18 @@ const LogReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   };
 
   useEffect(() => {
-    getData(logReport_InitialFilter);
-  }, []);
-
-  useEffect(() => {
     if (filteredData !== null) {
-      getData({ ...filteredData, globalSearch: searchValue });
-      setLogReportCurrentPage(0);
-      setLogReportRowsPerPage(10);
+      const timer = setTimeout(() => {
+        getData({ ...filteredData, globalSearch: searchValue });
+        setLogReportCurrentPage(0);
+        setLogReportRowsPerPage(10);
+      }, 500);
+      return () => clearTimeout(timer);
     } else {
-      getData({ ...logReport_InitialFilter, globalSearch: searchValue });
+      const timer = setTimeout(() => {
+        getData({ ...logReport_InitialFilter, globalSearch: searchValue });
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [filteredData, searchValue]);
 

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-key */
 /* eslint-disable react/display-name */
 import {
   Button,
@@ -41,13 +42,81 @@ const ClientContent = forwardRef<
     { tab, onEdit, onClose, clientData, onOpen, onDataFetch, onChangeLoader },
     ref
   ) => {
+    const [departmentData, setDepartmentData] = useState([
+      "Tax",
+      "Acounting",
+      "Audit",
+    ]);
+    const [departmentDataObj, setDepartmentDataObj] = useState<any>([]);
+    const handleClose = () => {
+      setDepartmentDataObj([
+        ...departmentData.map(
+          (i: any, index: any) =>
+            new Object({
+              id: 0,
+              apiId:
+                i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" && 3,
+              index: index,
+              label: i,
+              checkbox: false,
+              isOpen: false,
+              billingType: 0,
+              billingErr: false,
+              billingHasErr: true,
+              group: [],
+              groupErr: false,
+              groupHasErr: true,
+              contHrs: 0,
+              contHrsErr: false,
+              contHrsHasErr: true,
+              contHrsErrMsg: "",
+              actHrs: 0,
+              actHrsErr: false,
+              actHrsHasErr: true,
+              actHrsErrMsg: "",
+            })
+        ),
+      ]);
+    };
+
+    useEffect(() => {
+      onOpen &&
+        departmentDataObj.length < 3 &&
+        setDepartmentDataObj([
+          ...departmentDataObj,
+          ...departmentData.map(
+            (i: any, index: any) =>
+              new Object({
+                id: 0,
+                apiId:
+                  i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" && 3,
+                index: index,
+                label: i,
+                checkbox: false,
+                isOpen: false,
+                billingType: 0,
+                billingErr: false,
+                billingHasErr: true,
+                group: [],
+                groupErr: false,
+                groupHasErr: true,
+                contHrs: 0,
+                contHrsErr: false,
+                contHrsHasErr: true,
+                contHrsErrMsg: "",
+                actHrs: 0,
+                actHrsErr: false,
+                actHrsHasErr: true,
+                actHrsErrMsg: "",
+              })
+          ),
+        ]);
+    }, [onOpen]);
+
     const [billingTypeData, setBillingTypeData] = useState([]);
     const [groupTypeData, setGroupTypeData] = useState([]);
 
     const [Id, setId] = useState(0);
-    const [accountingId, setAccountingId] = useState(0);
-    const [auditId, setAuditId] = useState(0);
-    const [taxId, setTaxId] = useState(0);
     const [clientName, setClientName] = useState("");
     const [clientError, setClientError] = useState(false);
     const [clientNameHasError, setClientNameHasError] = useState(false);
@@ -59,64 +128,6 @@ const ClientContent = forwardRef<
     const [emailHasError, setEmailHasError] = useState(false);
     const [tel, setTel] = useState("");
     const [telError, settelError] = useState(false);
-
-    const [accounting, setAccounting] = useState(false);
-    const [audit, setAudit] = useState(false);
-    const [tax, setTax] = useState(false);
-    const [isAccountingOpen, setIsAccountingOpen] = useState(false);
-    const [isAuditOpen, setIsAuditOpen] = useState(false);
-    const [isTaxOpen, setIsTaxOpen] = useState(false);
-
-    const [workTypeData, setWorkTypeData] = useState<any>([]);
-
-    const [accBillingType, setAccBillingType] = useState(0);
-    const [accBillingErr, setAccBillingErr] = useState(false);
-    const [accBillingHasErr, setAccBillingHasErr] = useState(true);
-    const [accGroup, setAccGroup] = useState([]);
-    const [accGroupErr, setAccGroupErr] = useState(false);
-    const [accGroupHasErr, setAccGroupHasErr] = useState(true);
-    const [accContHrs, setAccContHrs] = useState<any>(0);
-    const [accContHrsErr, setAccContHrsErr] = useState(false);
-    const [accContHrsHasErr, setAccContHrsHasErr] = useState(true);
-    const [accContHrsErrMsg, setAccContHrsErrMsg] = useState("");
-    const [accActualHrs, setAccActHrs] = useState<any>(0);
-    const [accActualHrsErr, setAccActHrsErr] = useState(false);
-    const [accActualHrsHasErr, setAccActHrsHasErr] = useState(true);
-    const [accActualHrsErrMsg, setAccActualHrsErrMsg] = useState("");
-
-    const [auditBillingType, setAuditBillingType] = useState(0);
-    const [auditBillingErr, setAuditBillingErr] = useState(false);
-    const [auditBillingHasErr, setAuditBillingHasErr] = useState(true);
-    const [auditGroup, setAuditGroup] = useState([]);
-    const [auditGroupErr, setAuditGroupErr] = useState(false);
-    const [auditGroupHasErr, setAuditGroupHasErr] = useState(true);
-    const [auditContHrs, setAuditContHrs] = useState<any>(0);
-    const [auditContHrsErr, setAuditContHrsErr] = useState(false);
-    const [auditContHrsHasErr, setAuditContHrsHasErr] = useState(true);
-    const [auditContHrsErrMsg, setAuditContHrsErrMsg] = useState("");
-    const [auditActualHrs, setAuditActHrs] = useState<any>(0);
-    const [auditActualHrsErr, setAuditActHrsErr] = useState(false);
-    const [auditActualHrsErrMsg, setAuditActualHrsErrMsg] = useState("");
-    const [auditActualHrsHasErr, setAuditActHrsHasErr] = useState(true);
-
-    const [taxBillingType, setTaxBillingType] = useState(0);
-    const [taxBillingErr, setTaxBillingErr] = useState(false);
-    const [taxBillingHasErr, setTaxBillingHasErr] = useState(true);
-    const [taxGroup, setTaxGroup] = useState([]);
-    const [taxGroupErr, setTaxGroupErr] = useState(false);
-    const [taxGroupHasErr, setTaxGroupHasErr] = useState(true);
-    const [taxContHrs, setTaxContHrs] = useState<any>(0);
-    const [taxContHrsErr, setTaxContHrsErr] = useState(false);
-    const [taxContHrsHasErr, setTaxContHrsHasErr] = useState(true);
-    const [taxContHrsErrMsg, setTaxContHrsErrMsg] = useState("");
-    const [taxActualHrs, setTaxActHrs] = useState<any>(0);
-    const [taxActualHrsErr, setTaxActHrsErr] = useState(false);
-    const [taxActualHrsErrMsg, setTaxActualHrsErrMsg] = useState("");
-    const [taxActualHrsHasErr, setTaxActHrsHasErr] = useState(true);
-
-    const workTypeAccData: any[] = [];
-    const workTypeAuditData: any[] = [];
-    const workTypeTaxData: any[] = [];
 
     const [addMoreClicked, setAddMoreClicked] = useState(false);
     const [isAddClientClicked, setIsAddClientClicked] = useState(true);
@@ -190,39 +201,31 @@ const ClientContent = forwardRef<
       setPocFields(newPOCFields);
     };
 
-    const toggleAccountingAccordion = (
-      e: React.ChangeEvent<HTMLInputElement>
+    const toggleAccordion = (
+      e: React.ChangeEvent<HTMLInputElement>,
+      index: any
     ) => {
       const checked = e.target.checked;
-      setIsAccountingOpen((prevIsOpen) => !prevIsOpen);
-      setAccounting(checked);
-      setAccBillingHasErr(!checked);
-      setAccGroupHasErr(!checked);
-      setAccContHrsHasErr(!checked);
-      setAccActHrsHasErr(!checked);
-    };
-
-    const toggleAuditAccordion = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const checked = e.target.checked;
-      setIsAuditOpen((prevIsOpen) => !prevIsOpen);
-      setAudit(checked);
-      setAuditBillingHasErr(!checked);
-      setAuditGroupHasErr(!checked);
-      setAuditContHrsHasErr(!checked);
-      setAuditActHrsHasErr(!checked);
-    };
-
-    const toggleTaxAccordion = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const checked = e.target.checked;
-      setIsTaxOpen((prevIsOpen) => !prevIsOpen);
-      setTax(checked);
-      setTaxBillingHasErr(!checked);
-      setTaxGroupHasErr(!checked);
-      setTaxContHrsHasErr(!checked);
-      setTaxActHrsHasErr(!checked);
+      setDepartmentDataObj([
+        ...departmentDataObj.map((i: any) =>
+          i.index === index
+            ? new Object({
+                ...i,
+                checkbox: checked,
+                isOpen: checked,
+                billingHasErr: !checked,
+                groupHasErr: !checked,
+                contHrsHasErr: !checked,
+                actHrsHasErr: !checked,
+              })
+            : i
+        ),
+      ]);
     };
 
     useEffect(() => {
+      setErrorTrue();
+      clearClientData();
       if (clientData && onEdit) {
         const getClientById = async () => {
           const token = await localStorage.getItem("token");
@@ -251,7 +254,34 @@ const ClientContent = forwardRef<
                 setEmailHasError(true);
                 setTel(response.data.ResponseData.ContactNo);
                 setId(response.data.ResponseData.Id);
-                setWorkTypeData(response.data.ResponseData.WorkTypes);
+                const updatedFirstArray = departmentDataObj.map((item: any) => {
+                  const matchingItem =
+                    response.data.ResponseData.WorkTypes.find(
+                      (secondItem: any) =>
+                        secondItem.WorkTypeId === item.apiId ? true : false
+                    );
+
+                  if (matchingItem) {
+                    return {
+                      ...item,
+                      apiId: matchingItem.WorkTypeId,
+                      id: matchingItem.ClientWorkTypeId,
+                      checkbox: true,
+                      isOpen: true,
+                      billingType: matchingItem.BillingTypeId,
+                      billingHasErr: true,
+                      group: matchingItem.GroupIds,
+                      groupHasErr: true,
+                      contHrs: matchingItem.ContractHrs,
+                      contHrsHasErr: true,
+                      actHrs: matchingItem.InternalHrs,
+                      actHrsHasErr: true,
+                    };
+                  }
+
+                  return item;
+                });
+                setDepartmentDataObj(updatedFirstArray);
 
                 setCpaName(
                   response.data.ResponseData.OwnerAndCPAName === null
@@ -423,93 +453,35 @@ const ClientContent = forwardRef<
 
         getClientById();
       }
-      setErrorTrue();
-      clearClientData();
     }, [clientData, onEdit, onOpen]);
 
-    const settingWorkTypeData = () => {
-      workTypeData.map((i: any) => {
-        if (i.WorkTypeId === 1) {
-          setAccountingId(i.ClientWorkTypeId);
-          setAccounting(true);
-          setIsAccountingOpen(true);
-          setAccBillingType(i.BillingTypeId);
-          setAccGroup(i.GroupIds);
-          setAccContHrs(i.ContractHrs);
-          setAccActHrs(i.InternalHrs);
-          setAccContHrsHasErr(true);
-          setAccActHrsHasErr(true);
-          setAccBillingHasErr(true);
-          setAccGroupHasErr(true);
-        }
-
-        if (i.WorkTypeId === 2) {
-          setAuditId(i.ClientWorkTypeId);
-          setAudit(true);
-          setIsAuditOpen(true);
-          setAuditBillingType(i.BillingTypeId);
-          setAuditGroup(i.GroupIds);
-          setAuditContHrs(i.ContractHrs);
-          setAuditActHrs(i.InternalHrs);
-          setAuditContHrsHasErr(true);
-          setAuditActHrsHasErr(true);
-          setAuditBillingHasErr(true);
-          setAuditGroupHasErr(true);
-        }
-
-        if (i.WorkTypeId === 3) {
-          setTaxId(i.ClientWorkTypeId);
-          setTax(true);
-          setIsTaxOpen(true);
-          setTaxBillingType(i.BillingTypeId);
-          setTaxGroup(i.GroupIds);
-          setTaxContHrs(i.ContractHrs);
-          setTaxActHrs(i.InternalHrs);
-          setTaxContHrsHasErr(true);
-          setTaxActHrsHasErr(true);
-          setTaxBillingHasErr(true);
-          setTaxGroupHasErr(true);
-        }
-      });
-    };
-
-    useEffect(() => {
-      workTypeData.length > 0 && settingWorkTypeData();
-    }, [workTypeData]);
-
-    const handleAccContHrs = (e: any) => {
+    const handleContHrs = (e: any, index: any) => {
       if (e.length <= 5) {
-        setAccContHrs(e);
+        setDepartmentDataObj([
+          ...departmentDataObj.map((i: any) =>
+            i.index === index
+              ? new Object({
+                  ...i,
+                  contHrs: e,
+                })
+              : i
+          ),
+        ]);
       }
     };
 
-    const handleAccActualHrs = (e: any) => {
+    const handleActualHrs = (e: any, index: any) => {
       if (e.length <= 5) {
-        setAccActHrs(e);
-      }
-    };
-
-    const handleAuditContHrs = (e: any) => {
-      if (e.length <= 5) {
-        setAuditContHrs(e);
-      }
-    };
-
-    const handleAuditActHrs = (e: any) => {
-      if (e.length <= 5) {
-        setAuditActHrs(e);
-      }
-    };
-
-    const handleTaxContHrs = (e: any) => {
-      if (e.length <= 5) {
-        setTaxContHrs(e);
-      }
-    };
-
-    const handleTaxActHrs = (e: any) => {
-      if (e.length <= 5) {
-        setTaxActHrs(e);
+        setDepartmentDataObj([
+          ...departmentDataObj.map((i: any) =>
+            i.index === index
+              ? new Object({
+                  ...i,
+                  actHrs: e,
+                })
+              : i
+          ),
+        ]);
       }
     };
 
@@ -520,289 +492,122 @@ const ClientContent = forwardRef<
       address.trim().length <= 0 && setAddressError(true);
       email.trim().length <= 0 && setEmailError(true);
 
-      if (accounting) {
-        if (accBillingType <= 0) {
-          setAccBillingErr(true);
-        }
-        if (accGroup.length === 0) {
-          setAccGroupErr(true);
-        }
+      setDepartmentDataObj([
+        ...departmentDataObj.map((i: any) =>
+          i.checkbox === true
+            ? new Object({
+                ...i,
+                billingErr: i.billingType <= 0 ? true : false,
+                groupErr: i.group.length === 0 ? true : false,
+                contHrsErr:
+                  i.contHrs <= 0
+                    ? true
+                    : i.contHrs === "0" ||
+                      i.contHrs === "00" ||
+                      i.contHrs === "000" ||
+                      i.contHrs === "0000" ||
+                      i.contHrs === "00000" ||
+                      i.contHrs === "-0" ||
+                      i.contHrs === "-00" ||
+                      i.contHrs === "-000" ||
+                      i.contHrs === "-0000" ||
+                      i.contHrs === "-00000"
+                    ? true
+                    : i.contHrs.toString().includes(".") ||
+                      i.contHrs.toString().includes(",")
+                    ? true
+                    : false,
+                contHrsErrMsg:
+                  i.contHrs <= 0
+                    ? "Contracted Hours must be greater than 0."
+                    : i.contHrs === "0" ||
+                      i.contHrs === "00" ||
+                      i.contHrs === "000" ||
+                      i.contHrs === "0000" ||
+                      i.contHrs === "00000" ||
+                      i.contHrs === "-0" ||
+                      i.contHrs === "-00" ||
+                      i.contHrs === "-000" ||
+                      i.contHrs === "-0000" ||
+                      i.contHrs === "-00000"
+                    ? `Contracted Hours should not be ${i.contHrs}.`
+                    : i.contHrs.toString().includes(".") ||
+                      i.contHrs.toString().includes(",")
+                    ? "Contracted Hours must be a valid value."
+                    : "",
+                actHrsErr:
+                  i.actHrs <= 0
+                    ? true
+                    : Number(i.actHrs) > Number(i.contHrs)
+                    ? true
+                    : i.actHrs === "0" ||
+                      i.actHrs === "00" ||
+                      i.actHrs === "000" ||
+                      i.actHrs === "0000" ||
+                      i.actHrs === "00000" ||
+                      i.actHrs === "-0" ||
+                      i.actHrs === "-00" ||
+                      i.actHrs === "-000" ||
+                      i.actHrs === "-0000" ||
+                      i.actHrs === "-00000"
+                    ? true
+                    : i.actHrs.toString().includes(".") ||
+                      i.actHrs.toString().includes(",")
+                    ? true
+                    : false,
+                actHrsErrMsg:
+                  i.actHrs <= 0
+                    ? "Internal Hours must be greater than 0."
+                    : Number(i.actHrs) > Number(i.contHrs)
+                    ? "Internal Hours should be less than or equal to contracted hours."
+                    : i.actHrs === "0" ||
+                      i.actHrs === "00" ||
+                      i.actHrs === "000" ||
+                      i.actHrs === "0000" ||
+                      i.actHrs === "00000" ||
+                      i.actHrs === "-0" ||
+                      i.actHrs === "-00" ||
+                      i.actHrs === "-000" ||
+                      i.actHrs === "-0000" ||
+                      i.actHrs === "-00000"
+                    ? `Internal Hours should not be ${i.actHrs}.`
+                    : i.actHrs.toString().includes(".") ||
+                      i.actHrs.toString().includes(",")
+                    ? "Internal Hours must be a valid value."
+                    : "",
+              })
+            : i
+        ),
+      ]);
 
-        if (accContHrs <= 0) {
-          setAccContHrsErr(true);
-          setAccContHrsErrMsg("Contracted Hours must be greater than 0.");
-        } else if (
-          accContHrs === "0" ||
-          accContHrs === "00" ||
-          accContHrs === "000" ||
-          accContHrs === "0000" ||
-          accContHrs === "00000" ||
-          accContHrs === "-0" ||
-          accContHrs === "-00" ||
-          accContHrs === "-000" ||
-          accContHrs === "-0000" ||
-          accContHrs === "-00000"
-        ) {
-          setAccContHrsErr(true);
-          setAccContHrsErrMsg(`Contracted Hours should not be ${accContHrs}.`);
-          return false;
-        } else if (
-          accContHrs.toString().includes(".") ||
-          accContHrs.toString().includes(",")
-        ) {
-          setAccContHrsErr(true);
-          setAccContHrsErrMsg("Contracted Hours must be a valid value.");
-          return false;
-        }
+      const timeGrater = departmentDataObj
+        .map((i: any) => Number(i.actHrs) > Number(i.contHrs))
+        .includes(true);
 
-        if (accActualHrs <= 0) {
-          setAccActHrsErr(true);
-          setAccActualHrsErrMsg("Internal Hours must be greater than 0.");
-        } else if (Number(accActualHrs) > Number(accContHrs)) {
-          setAccActHrsErr(true);
-          setAccActualHrsErrMsg(
-            "Internal Hours should be less than or equal to contracted hours."
-          );
-          return false;
-        } else if (
-          accActualHrs === "0" ||
-          accActualHrs === "00" ||
-          accActualHrs === "000" ||
-          accActualHrs === "0000" ||
-          accActualHrs === "00000" ||
-          accActualHrs === "-0" ||
-          accActualHrs === "-00" ||
-          accActualHrs === "-000" ||
-          accActualHrs === "-0000" ||
-          accActualHrs === "-00000"
-        ) {
-          setAccActHrsErr(true);
-          setAccActualHrsErrMsg(
-            `Internal Hours should not be ${accActualHrs}.`
-          );
-          return false;
-        } else if (
-          accActualHrs.toString().includes(".") ||
-          accActualHrs.toString().includes(",")
-        ) {
-          setAccActHrsErr(true);
-          setAccActualHrsErrMsg("Internal Hours must be a valid value.");
-          return false;
-        }
-      }
+      const isChecked = departmentDataObj
+        .map((i: any) => (i.checkbox === true ? i.index : false))
+        .filter((j: any) => j !== false);
 
-      if (audit) {
-        if (auditBillingType <= 0) {
-          setAuditBillingErr(true);
-        }
-        if (auditGroup.length === 0) {
-          setAuditGroupErr(true);
-        }
-
-        if (auditContHrs <= 0) {
-          setAuditContHrsErr(true);
-          setAuditContHrsErrMsg("Contracted Hours must be greater than 0.");
-        } else if (
-          auditContHrs === "0" ||
-          auditContHrs === "00" ||
-          auditContHrs === "000" ||
-          auditContHrs === "0000" ||
-          auditContHrs === "00000" ||
-          auditContHrs === "-0" ||
-          auditContHrs === "-00" ||
-          auditContHrs === "-000" ||
-          auditContHrs === "-0000" ||
-          auditContHrs === "-00000"
-        ) {
-          setAuditContHrsErr(true);
-          setAuditContHrsErrMsg(
-            `Contracted Hours should not be ${auditContHrs}.`
-          );
-          return false;
-        } else if (
-          auditContHrs.toString().includes(".") ||
-          auditContHrs.toString().includes(",")
-        ) {
-          setAuditContHrsErr(true);
-          setAuditContHrsErrMsg("Contracted Hours must be a valid value.");
-          return false;
-        }
-
-        if (auditActualHrs <= 0) {
-          setAuditActHrsErr(true);
-          setAuditActualHrsErrMsg("Internal Hours must be greater than 0.");
-        } else if (Number(auditActualHrs) > Number(auditContHrs)) {
-          setAuditActHrsErr(true);
-          setAuditActualHrsErrMsg(
-            "Internal Hours should be less than or equal to contracted hours."
-          );
-          return false;
-        } else if (
-          auditActualHrs === "0" ||
-          auditActualHrs === "00" ||
-          auditActualHrs === "000" ||
-          auditActualHrs === "0000" ||
-          auditActualHrs === "00000" ||
-          auditActualHrs === "-0" ||
-          auditActualHrs === "-00" ||
-          auditActualHrs === "-000" ||
-          auditActualHrs === "-0000" ||
-          auditActualHrs === "-00000"
-        ) {
-          setAuditActHrsErr(true);
-          setAuditActualHrsErrMsg(
-            `Internal Hours should not be ${auditActualHrs}.`
-          );
-          return false;
-        } else if (
-          auditActualHrs.toString().includes(".") ||
-          auditActualHrs.toString().includes(",")
-        ) {
-          setAuditActHrsErr(true);
-          setAuditActualHrsErrMsg("Internal Hours must be a valid value.");
-          return false;
-        }
-      }
-
-      if (tax) {
-        if (taxBillingType <= 0) {
-          setTaxBillingErr(true);
-        }
-        if (taxGroup.length === 0) {
-          setTaxGroupErr(true);
-        }
-
-        if (taxContHrs <= 0) {
-          setTaxContHrsErr(true);
-          setTaxContHrsErrMsg("Contracted Hours must be greater than 0.");
-        } else if (
-          taxContHrs === "0" ||
-          taxContHrs === "00" ||
-          taxContHrs === "000" ||
-          taxContHrs === "0000" ||
-          taxContHrs === "00000" ||
-          taxContHrs === "-0" ||
-          taxContHrs === "-00" ||
-          taxContHrs === "-000" ||
-          taxContHrs === "-0000" ||
-          taxContHrs === "-00000"
-        ) {
-          setTaxContHrsErr(true);
-          setTaxContHrsErrMsg(`Contracted Hours should not be ${taxContHrs}.`);
-          return false;
-        } else if (
-          taxContHrs.toString().includes(".") ||
-          taxContHrs.toString().includes(",")
-        ) {
-          setTaxContHrsErr(true);
-          setTaxContHrsErrMsg("Contracted Hours must be a valid value.");
-          return false;
-        }
-
-        if (taxActualHrs <= 0) {
-          setTaxActHrsErr(true);
-          setTaxActualHrsErrMsg("Internal Hours must be greater than 0.");
-        } else if (Number(taxActualHrs) > Number(taxContHrs)) {
-          setTaxActHrsErr(true);
-          setTaxActualHrsErrMsg(
-            "Internal Hours should be less than or equal to contracted hours."
-          );
-          return false;
-        } else if (
-          taxActualHrs === "0" ||
-          taxActualHrs === "00" ||
-          taxActualHrs === "000" ||
-          taxActualHrs === "0000" ||
-          taxActualHrs === "00000" ||
-          taxActualHrs === "-0" ||
-          taxActualHrs === "-00" ||
-          taxActualHrs === "-000" ||
-          taxActualHrs === "-0000" ||
-          taxActualHrs === "-00000"
-        ) {
-          setTaxActHrsErr(true);
-          setTaxActualHrsErrMsg(
-            `Internal Hours should not be ${taxActualHrs}.`
-          );
-          return false;
-        } else if (
-          taxActualHrs.toString().includes(".") ||
-          taxActualHrs.toString().includes(",")
-        ) {
-          setTaxActHrsErr(true);
-          setTaxActualHrsErrMsg("Internal Hours must be a valid value.");
-          return false;
-        }
-      }
-      const accHasError =
-        accContHrsHasErr &&
-        accActualHrsHasErr &&
-        accBillingHasErr &&
-        accGroupHasErr;
-      const auditHasError =
-        auditActualHrsHasErr &&
-        auditContHrsHasErr &&
-        auditBillingHasErr &&
-        auditGroupHasErr;
-      const taxHasError =
-        taxActualHrsHasErr &&
-        taxContHrsHasErr &&
-        taxBillingHasErr &&
-        taxGroupHasErr;
-
-      if (accounting && accHasError) {
-        workTypeAccData.push({
-          ClientWorkTypeId: accountingId,
-          workTypeId: 1,
-          billingTypeId: accBillingType,
-          groupIds: accGroup,
-          layoutId: 1,
-          internalHrs: accActualHrs,
-          contractHrs: accContHrs,
-        });
-      }
-
-      if (audit && auditHasError) {
-        workTypeAuditData.push({
-          ClientWorkTypeId: auditId,
-          WorkTypeId: 2,
-          BillingTypeId: auditBillingType,
-          GroupIds: auditGroup,
-          LayoutId: 1,
-          InternalHrs: auditActualHrs,
-          ContractHrs: auditContHrs,
-        });
-      }
-
-      if (tax && taxHasError) {
-        workTypeTaxData.push({
-          ClientWorkTypeId: taxId,
-          WorkTypeId: 3,
-          BillingTypeId: taxBillingType,
-          GroupIds: taxGroup,
-          LayoutId: 1,
-          InternalHrs: taxActualHrs,
-          ContractHrs: taxContHrs,
-        });
-      }
+      const hasError = departmentDataObj.map((i: any) =>
+        i.billingHasErr && i.groupHasErr && i.contHrsHasErr && i.actHrsHasErr
+          ? i.index
+          : false
+      );
 
       if (
         emailHasError &&
         clientNameHasError &&
         addressHasError &&
-        (tax || accounting || audit) &&
-        accHasError &&
-        auditHasError &&
-        taxHasError
+        isChecked.length > 0 &&
+        !hasError.includes(false) &&
+        !timeGrater
       ) {
         saveClient();
       } else if (
         emailHasError &&
         clientNameHasError &&
         addressHasError &&
-        !accounting &&
-        !audit &&
-        !tax
+        isChecked.length <= 0
       ) {
         toast.error("Please Select at least one work type.");
       }
@@ -813,27 +618,6 @@ const ClientContent = forwardRef<
       setAddressError(true);
       setEmailError(true);
       settelError(true);
-
-      setAccBillingErr(true);
-      setAccGroupErr(true);
-      setAccContHrsErr(true);
-      setAccActHrsErr(true);
-      setAccActualHrsErrMsg("");
-      setAccContHrsErrMsg("");
-
-      setAuditBillingErr(true);
-      setAuditGroupErr(true);
-      setAuditContHrsErr(true);
-      setAuditActHrsErr(true);
-      setAuditActualHrsErrMsg("");
-      setAuditContHrsErrMsg("");
-
-      setTaxBillingErr(true);
-      setTaxGroupErr(true);
-      setTaxContHrsErr(true);
-      setTaxActHrsErr(true);
-      setTaxActualHrsErrMsg("");
-      setTaxContHrsErrMsg("");
     };
 
     const clearClientData = () => {
@@ -849,48 +633,36 @@ const ClientContent = forwardRef<
       settelError(false);
       setEmailHasError(false);
       setTel("");
-
-      setAccountingId(0);
-      setAccounting(false);
-      setIsAccountingOpen(false);
-      setAccBillingType(0);
-      setAccBillingErr(false);
-      setAccGroup([]);
-      setAccGroupErr(false);
-      setAccContHrs(0);
-      setAccContHrsErr(false);
-      setAccActHrs(0);
-      setAccActHrsErr(false);
-      setAccActualHrsErrMsg("");
-      setAccContHrsErrMsg("");
-
-      setAuditId(0);
-      setAudit(false);
-      setIsAuditOpen(false);
-      setAuditBillingType(0);
-      setAuditBillingErr(false);
-      setAuditGroup([]);
-      setAuditGroupErr(false);
-      setAuditContHrs(0);
-      setAuditContHrsErr(false);
-      setAuditActHrs(0);
-      setAuditActHrsErr(false);
-      setAuditActualHrsErrMsg("");
-      setAuditContHrsErrMsg("");
-
-      setTaxId(0);
-      setTax(false);
-      setIsTaxOpen(false);
-      setTaxBillingType(0);
-      setTaxBillingErr(false);
-      setTaxGroup([]);
-      setTaxGroupErr(false);
-      setTaxContHrs(0);
-      setTaxContHrsErr(false);
-      setTaxActHrs(0);
-      setTaxActHrsErr(false);
-      setTaxActualHrsErrMsg("");
-      setTaxContHrsErrMsg("");
+      departmentDataObj.length < 3 &&
+        setDepartmentDataObj([
+          ...departmentDataObj,
+          ...departmentData.map(
+            (i: any, index: any) =>
+              new Object({
+                id: 0,
+                apiId:
+                  i === "Acounting" ? 1 : i === "Audit" ? 2 : i === "Tax" && 3,
+                index: index,
+                label: i,
+                checkbox: false,
+                isOpen: false,
+                billingType: 0,
+                billingErr: false,
+                billingHasErr: true,
+                group: [],
+                groupErr: false,
+                groupHasErr: true,
+                contHrs: 0,
+                contHrsErr: false,
+                contHrsHasErr: true,
+                contHrsErrMsg: "",
+                actHrs: 0,
+                actHrsErr: false,
+                actHrsHasErr: true,
+                actHrsErrMsg: "",
+              })
+          ),
+        ]);
 
       setPocFields([
         {
@@ -938,12 +710,21 @@ const ClientContent = forwardRef<
       };
 
       try {
-        const workTypes = [];
-        if (accounting)
-          workTypes.push(workTypeAccData[workTypeAccData.length - 1]);
-        if (audit)
-          workTypes.push(workTypeAuditData[workTypeAuditData.length - 1]);
-        if (tax) workTypes.push(workTypeTaxData[workTypeTaxData.length - 1]);
+        const workTypes = departmentDataObj
+          .map((i: any) =>
+            i.checkbox === true
+              ? new Object({
+                  ClientWorkTypeId: i.id,
+                  workTypeId: i.apiId,
+                  billingTypeId: i.billingType,
+                  groupIds: i.group,
+                  layoutId: 1,
+                  internalHrs: i.actHrs,
+                  contractHrs: i.contHrs,
+                })
+              : false
+          )
+          .filter((j: any) => j !== false);
 
         onChangeLoader(true);
 
@@ -1073,6 +854,7 @@ const ClientContent = forwardRef<
             );
             setErrorTrue();
             clearClientData();
+            handleClose();
             onDataFetch();
             onChangeLoader(false);
             {
@@ -1107,8 +889,23 @@ const ClientContent = forwardRef<
     };
 
     const clearAllData = async () => {
+      setDepartmentDataObj([
+        ...departmentDataObj.map(
+          (i: any) =>
+            new Object({
+              ...i,
+              billingErr: true,
+              groupErr: true,
+              contHrsErr: true,
+              actHrsErr: true,
+              contHrsErrMsg: "",
+              actHrsErrMsg: "",
+            })
+        ),
+      ]);
       await setErrorTrue();
       await clearClientData();
+      handleClose();
       onClose();
     };
 
@@ -1299,312 +1096,143 @@ const ClientContent = forwardRef<
                   getError={() => {}}
                 />
 
-                {/* Taxation Section */}
-                <div>
-                  <label
-                    className={`flex items-center justify-between cursor-pointer`}
-                    htmlFor="Tax"
-                  >
-                    <span className="flex items-center">
-                      <CheckBox
-                        checked={tax}
-                        id="Tax"
-                        label="Tax"
-                        onChange={toggleTaxAccordion}
-                      />
-                    </span>
-                    {isTaxOpen ? (
-                      <span
-                        className={`transition-transform duration-300 transform rotate-180`}
-                      >
-                        <ChevronDownIcon />
+                {/* Checkbox selection */}
+                {departmentDataObj.map((i: any, index: any) => (
+                  <div key={i.index}>
+                    <label
+                      className={`flex items-center justify-between cursor-pointer`}
+                      htmlFor={i.label}
+                    >
+                      <span className="flex items-center">
+                        <CheckBox
+                          checked={i.checkbox}
+                          id={i.index}
+                          label={i.label}
+                          onChange={(e: any) => toggleAccordion(e, index)}
+                        />
                       </span>
-                    ) : (
-                      <span
-                        className={`transition-transform duration-300 transform rotate-0`}
-                      >
-                        <ChevronDownIcon />
-                      </span>
-                    )}
-                  </label>
-                  <div
-                    className={`${
-                      isTaxOpen
-                        ? "max-h-[430px] transition-all duration-700 pt-[10px]"
-                        : "max-h-0 transition-all duration-700"
-                    } overflow-hidden`}
-                  >
-                    <div className="flex flex-col gap-[17px] pl-[34px]">
-                      <Select
-                        id="billing_type"
-                        label="Billing Type"
-                        defaultValue={taxBillingType}
-                        options={billingTypeData}
-                        onSelect={() => {}}
-                        getValue={(e) => {
-                          e > 0 && setTaxBillingErr(false);
-                          setTaxBillingType(e);
-                        }}
-                        getError={(e) => setTaxBillingHasErr(e)}
-                        hasError={taxBillingErr}
-                        validate
-                        errorClass="!-mt-[15px]"
-                      />
-                      <MultiSelectChip
-                        type="checkbox"
-                        id="Group"
-                        label="Group"
-                        defaultValue={taxGroup}
-                        options={groupTypeData}
-                        onSelect={() => {}}
-                        getValue={(e) => {
-                          setTaxGroup(e);
-                          e.length <= 0 && setTaxGroupHasErr(false);
-                        }}
-                        getError={(e) => {
-                          setTaxGroupHasErr(e);
-                        }}
-                        hasError={taxGroupErr}
-                        validate
-                        errorClass="!-mt-[15px]"
-                      />
-                      <Text
-                        className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        type="number"
-                        label="Contracted Hours"
-                        placeholder="Enter Total Contracted Hours"
-                        validate
-                        maxLength={5}
-                        value={taxContHrs === 0 ? "" : taxContHrs}
-                        getValue={(e) => handleTaxContHrs(e)}
-                        getError={(e) => setTaxContHrsHasErr(e)}
-                        hasError={taxContHrsErr}
-                        errorMessage={taxContHrsErrMsg}
-                        noText
-                        onWheel={(e) => e.currentTarget.blur()}
-                      />
-                      <Text
-                        className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        type="number"
-                        label="Internal Hours"
-                        placeholder="Enter Total Internal Hours"
-                        validate
-                        maxLength={5}
-                        value={taxActualHrs === 0 ? "" : taxActualHrs}
-                        getValue={(e) => handleTaxActHrs(e)}
-                        getError={(e) => setTaxActHrsHasErr(e)}
-                        hasError={taxActualHrsErr}
-                        errorMessage={taxActualHrsErrMsg}
-                        noText
-                        onWheel={(e) => e.currentTarget.blur()}
-                      />
+                      {i.isOpen ? (
+                        <span
+                          className={`transition-transform duration-300 transform rotate-180`}
+                        >
+                          <ChevronDownIcon />
+                        </span>
+                      ) : (
+                        <span
+                          className={`transition-transform duration-300 transform rotate-0`}
+                        >
+                          <ChevronDownIcon />
+                        </span>
+                      )}
+                    </label>
+                    <div
+                      className={`${
+                        i.isOpen
+                          ? "max-h-[430px] transition-all duration-700 pt-[10px]"
+                          : "max-h-0 transition-all duration-700"
+                      } overflow-hidden`}
+                    >
+                      <div className="flex flex-col gap-[17px] pl-[34px]">
+                        <Select
+                          id="billing_type"
+                          label="Billing Type"
+                          defaultValue={i.billingType}
+                          options={billingTypeData}
+                          onSelect={() => {}}
+                          getValue={(e) => {
+                            const updatedDepartmentDataObj = [
+                              ...departmentDataObj,
+                            ];
+                            updatedDepartmentDataObj[index].billingType = e;
+                            updatedDepartmentDataObj[index].billingErr = e <= 0;
+                            setDepartmentDataObj(updatedDepartmentDataObj);
+                          }}
+                          getError={(e) => {
+                            const updatedDepartmentDataObj = [
+                              ...departmentDataObj,
+                            ];
+                            updatedDepartmentDataObj[index].billingHasErr = e;
+                            setDepartmentDataObj(updatedDepartmentDataObj);
+                          }}
+                          hasError={i.billingErr}
+                          validate
+                          errorClass="!-mt-[15px]"
+                          search
+                        />
+                        <MultiSelectChip
+                          type="checkbox"
+                          id="group"
+                          label="Group"
+                          defaultValue={i.group}
+                          options={groupTypeData}
+                          onSelect={() => {}}
+                          getValue={(e) => {
+                            const updatedDepartmentDataObj = [
+                              ...departmentDataObj,
+                            ];
+                            updatedDepartmentDataObj[index].group = e;
+                            updatedDepartmentDataObj[index].groupErr =
+                              e.length <= 0;
+                            setDepartmentDataObj(updatedDepartmentDataObj);
+                          }}
+                          getError={(e) => {
+                            const updatedDepartmentDataObj = [
+                              ...departmentDataObj,
+                            ];
+                            updatedDepartmentDataObj[index].groupHasErr = e;
+                            setDepartmentDataObj(updatedDepartmentDataObj);
+                          }}
+                          hasError={i.groupErr}
+                          validate
+                          errorClass="!-mt-[15px]"
+                        />
+                        <Text
+                          className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          type="number"
+                          label="Contracted Hours"
+                          placeholder="Enter Total Contracted Hours"
+                          validate
+                          maxLength={5}
+                          maxChar={5}
+                          value={i.contHrs === 0 ? "" : i.contHrs}
+                          getValue={(e) => handleContHrs(e, index)}
+                          getError={(e) => {
+                            const updatedDepartmentDataObj = [
+                              ...departmentDataObj,
+                            ];
+                            updatedDepartmentDataObj[index].contHrsHasErr = e;
+                            setDepartmentDataObj(updatedDepartmentDataObj);
+                          }}
+                          hasError={i.contHrsErr}
+                          errorMessage={i.contHrsErrMsg}
+                          noText
+                          onWheel={(e) => e.currentTarget.blur()}
+                        />
+                        <Text
+                          className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          type="number"
+                          label="Internal Hours"
+                          placeholder="Enter Total Internal Hours"
+                          validate
+                          maxLength={5}
+                          value={i.actHrs === 0 ? "" : i.actHrs}
+                          getValue={(e) => handleActualHrs(e, index)}
+                          getError={(e) => {
+                            const updatedDepartmentDataObj = [
+                              ...departmentDataObj,
+                            ];
+                            updatedDepartmentDataObj[index].actHrsHasErr = e;
+                            setDepartmentDataObj(updatedDepartmentDataObj);
+                          }}
+                          hasError={i.actHrsErr}
+                          errorMessage={i.actHrsErrMsg}
+                          noText
+                          onWheel={(e) => e.currentTarget.blur()}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Accounting Section */}
-                <div>
-                  <label
-                    className={`flex items-center justify-between cursor-pointer`}
-                    htmlFor="Accounting"
-                  >
-                    <span className="flex items-center">
-                      <CheckBox
-                        checked={accounting}
-                        id="Accounting"
-                        label="Accounting"
-                        onChange={toggleAccountingAccordion}
-                      />
-                    </span>
-                    {isAccountingOpen ? (
-                      <span
-                        className={`transition-transform duration-300 transform rotate-180`}
-                      >
-                        <ChevronDownIcon />
-                      </span>
-                    ) : (
-                      <span
-                        className={`transition-transform duration-300 transform rotate-0`}
-                      >
-                        <ChevronDownIcon />
-                      </span>
-                    )}
-                  </label>
-                  <div
-                    className={`${
-                      isAccountingOpen
-                        ? "max-h-[430px] transition-all duration-700 pt-[10px]"
-                        : "max-h-0 transition-all duration-700"
-                    } overflow-hidden`}
-                  >
-                    <div className="flex flex-col gap-[17px] pl-[34px]">
-                      <Select
-                        id="billing_type"
-                        label="Billing Type"
-                        defaultValue={accBillingType}
-                        options={billingTypeData}
-                        onSelect={() => {}}
-                        getValue={(e) => {
-                          e > 0 && setAccBillingErr(false);
-                          setAccBillingType(e);
-                        }}
-                        getError={(e) => setAccBillingHasErr(e)}
-                        hasError={accBillingErr}
-                        validate
-                        errorClass="!-mt-[15px]"
-                        search
-                      />
-                      <MultiSelectChip
-                        type="checkbox"
-                        id="group"
-                        label="Group"
-                        defaultValue={accGroup}
-                        options={groupTypeData}
-                        onSelect={() => {}}
-                        getValue={(e) => {
-                          setAccGroup(e);
-                          e.length <= 0 && setAccGroupHasErr(false);
-                        }}
-                        getError={(e) => setAccGroupHasErr(e)}
-                        hasError={accGroupErr}
-                        validate
-                        errorClass="!-mt-[15px]"
-                      />
-                      <Text
-                        className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        type="number"
-                        label="Contracted Hours"
-                        placeholder="Enter Total Contracted Hours"
-                        validate
-                        maxLength={5}
-                        maxChar={5}
-                        value={accContHrs === 0 ? "" : accContHrs}
-                        getValue={(e) => handleAccContHrs(e)}
-                        getError={(e) => setAccContHrsHasErr(e)}
-                        hasError={accContHrsErr}
-                        errorMessage={accContHrsErrMsg}
-                        noText
-                        onWheel={(e) => e.currentTarget.blur()}
-                      />
-                      <Text
-                        className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        type="number"
-                        label="Internal Hours"
-                        placeholder="Enter Total Internal Hours"
-                        validate
-                        maxLength={5}
-                        value={accActualHrs === 0 ? "" : accActualHrs}
-                        getValue={(e) => handleAccActualHrs(e)}
-                        getError={(e) => setAccActHrsHasErr(e)}
-                        hasError={accActualHrsErr}
-                        errorMessage={accActualHrsErrMsg}
-                        noText
-                        onWheel={(e) => e.currentTarget.blur()}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Audit Section */}
-                <div>
-                  <label
-                    className={`flex items-center justify-between cursor-pointer`}
-                    htmlFor="Audit"
-                  >
-                    <span className="flex items-center">
-                      <CheckBox
-                        checked={audit}
-                        id="Audit"
-                        label="Audit"
-                        onChange={toggleAuditAccordion}
-                      />
-                    </span>
-                    {isAuditOpen ? (
-                      <span
-                        className={`transition-transform duration-300 transform rotate-180`}
-                      >
-                        <ChevronDownIcon />
-                      </span>
-                    ) : (
-                      <span
-                        className={`transition-transform duration-300 transform rotate-0`}
-                      >
-                        <ChevronDownIcon />
-                      </span>
-                    )}
-                  </label>
-                  <div
-                    className={`${
-                      isAuditOpen
-                        ? "max-h-[430px] transition-all duration-700 pt-[10px]"
-                        : "max-h-0 transition-all duration-700"
-                    } overflow-hidden`}
-                  >
-                    <div className="flex flex-col gap-[17px] pl-[34px]">
-                      <Select
-                        id="billing_type"
-                        label="Billing Type"
-                        defaultValue={auditBillingType}
-                        options={billingTypeData}
-                        onSelect={() => {}}
-                        getValue={(e) => {
-                          e > 0 && setAuditBillingErr(false);
-                          setAuditBillingType(e);
-                        }}
-                        getError={(e) => setAuditBillingHasErr(e)}
-                        hasError={auditBillingErr}
-                        validate
-                        errorClass="!-mt-[15px]"
-                      />
-                      <MultiSelectChip
-                        type="checkbox"
-                        id="Group"
-                        label="Group"
-                        defaultValue={auditGroup}
-                        options={groupTypeData}
-                        onSelect={() => {}}
-                        getValue={(e) => {
-                          setAuditGroup(e);
-                          e.length <= 0 && setAuditGroupHasErr(false);
-                        }}
-                        getError={(e) => setAuditGroupHasErr(e)}
-                        hasError={auditGroupErr}
-                        validate
-                        errorClass="!-mt-[15px]"
-                      />
-                      <Text
-                        className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        type="number"
-                        label="Contracted Hours"
-                        placeholder="Enter Total Contracted Hours"
-                        validate
-                        maxLength={5}
-                        value={auditContHrs === 0 ? "" : auditContHrs}
-                        getValue={(e) => handleAuditContHrs(e)}
-                        getError={(e) => setAuditContHrsHasErr(e)}
-                        hasError={auditContHrsErr}
-                        errorMessage={auditContHrsErrMsg}
-                        noText
-                        onWheel={(e) => e.currentTarget.blur()}
-                      />
-                      <Text
-                        className="[appearance:number] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        type="number"
-                        label="Internal Hours"
-                        placeholder="Enter Total Internal Hours"
-                        validate
-                        maxLength={5}
-                        value={auditActualHrs === 0 ? "" : auditActualHrs}
-                        getValue={(e) => handleAuditActHrs(e)}
-                        getError={(e) => setAuditActHrsHasErr(e)}
-                        hasError={auditActualHrsErr}
-                        errorMessage={auditActualHrsErrMsg}
-                        noText
-                        onWheel={(e) => e.currentTarget.blur()}
-                      />
-                    </div>
-                  </div>
-                </div>
+                ))}
               </>
             )}
 

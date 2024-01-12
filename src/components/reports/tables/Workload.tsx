@@ -84,16 +84,18 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
   };
 
   useEffect(() => {
-    getData(workLoad_InitialFilter);
-  }, []);
-
-  useEffect(() => {
     if (filteredData !== null) {
-      getData({ ...filteredData, globalSearch: searchValue });
-      setWorkloadCurrentPage(0);
-      setWorkloadRowsPerPage(10);
+      const timer = setTimeout(() => {
+        getData({ ...filteredData, globalSearch: searchValue });
+        setWorkloadCurrentPage(0);
+        setWorkloadRowsPerPage(10);
+      }, 500);
+      return () => clearTimeout(timer);
     } else {
-      getData({ ...workLoad_InitialFilter, globalSearch: searchValue });
+      const timer = setTimeout(() => {
+        getData({ ...workLoad_InitialFilter, globalSearch: searchValue });
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [filteredData, searchValue]);
 

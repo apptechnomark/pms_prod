@@ -84,16 +84,18 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
   };
 
   useEffect(() => {
-    getData(rating_InitialFilter);
-  }, []);
-
-  useEffect(() => {
     if (filteredData !== null) {
-      getData({ ...filteredData, GlobalSearch: searchValue });
-      setRatingCurrentPage(0);
-      setRatingRowsPerPage(10);
+      const timer = setTimeout(() => {
+        getData({ ...filteredData, GlobalSearch: searchValue });
+        setRatingCurrentPage(0);
+        setRatingRowsPerPage(10);
+      }, 500);
+      return () => clearTimeout(timer);
     } else {
-      getData({ ...rating_InitialFilter, GlobalSearch: searchValue });
+      const timer = setTimeout(() => {
+        getData({ ...rating_InitialFilter, GlobalSearch: searchValue });
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [filteredData, searchValue]);
 

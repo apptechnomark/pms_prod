@@ -394,12 +394,10 @@ const Drawer = ({
   const handleSaveClickClientWorklog = async (e: any, i: any) => {
     e.preventDefault();
     setCommentValueClientWorklogEditError(
-      commentValueClientWorklogEdit.trim().length < 5 ||
-        commentValueClientWorklogEdit.trim().length > 500
+      commentValueClientWorklogEdit.trim().length < 5
     );
     if (
       commentValueClientWorklogEdit.trim().length > 5 &&
-      commentValueClientWorklogEdit.trim().length < 501 &&
       !commentValueClientWorklogEditError
     ) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
@@ -477,12 +475,10 @@ const Drawer = ({
   }) => {
     e.preventDefault();
     setCommentValueClientWorklogError(
-      commentValueClientWorklog.trim().length < 5 ||
-        commentValueClientWorklog.trim().length > 500
+      commentValueClientWorklog.trim().length < 5
     );
     if (
       commentValueClientWorklog.trim().length >= 5 &&
-      commentValueClientWorklog.trim().length < 501 &&
       !commentValueClientWorklogError
     ) {
       if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
@@ -1974,12 +1970,6 @@ const Drawer = ({
                                             <span className="text-defaultRed text-[14px]">
                                               Minimum 5 characters required.
                                             </span>
-                                          ) : commentValueClientWorklogEditError &&
-                                            commentValueClientWorklogEdit.trim()
-                                              .length > 500 ? (
-                                            <span className="text-defaultRed text-[14px]">
-                                              Maximum 500 characters allowed.
-                                            </span>
                                           ) : (
                                             commentValueClientWorklogEditError && (
                                               <span className="text-defaultRed text-[14px]">
@@ -2142,11 +2132,6 @@ const Drawer = ({
                             commentValueClientWorklog.trim().length < 5 ? (
                               <span className="text-defaultRed text-[14px] ml-20">
                                 Minimum 5 characters required.
-                              </span>
-                            ) : commentValueClientWorklogError &&
-                              commentValueClientWorklog.trim().length > 500 ? (
-                              <span className="text-defaultRed text-[14px] ml-20">
-                                Maximum 500 characters allowed.
                               </span>
                             ) : (
                               commentValueClientWorklogError && (

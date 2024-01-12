@@ -810,16 +810,10 @@ const EditDrawer = ({
 
   const handleSaveClickApprovals = async (e: any, i: any, type: any) => {
     e.preventDefault();
-    setValueEditError(
-      valueEdit.trim().length < 5 || valueEdit.trim().length > 500
-    );
+    setValueEditError(valueEdit.trim().length < 51);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (
-        valueEdit.trim().length > 5 &&
-        valueEdit.trim().length < 501 &&
-        !valueEditError
-      ) {
+      if (valueEdit.trim().length > 51 && !valueEditError) {
         setIsLoadingApprovals(true);
         const params = {
           workitemId: onEdit,
@@ -926,14 +920,10 @@ const EditDrawer = ({
     type: any
   ) => {
     e.preventDefault();
-    setValueError(value.trim().length < 5 || value.trim().length > 500);
+    setValueError(value.trim().length < 5);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (
-        value.trim().length >= 5 &&
-        value.trim().length < 501 &&
-        !valueError
-      ) {
+      if (value.trim().length >= 5 && !valueError) {
         setIsLoadingApprovals(true);
         const params = {
           workitemId: onEdit,
@@ -3052,9 +3042,7 @@ const EditDrawer = ({
                     </Grid>
                     <Grid item xs={3} className="pt-4">
                       <div
-                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px] ${
-                          receiverDateApprovalsErr ? "datepickerError" : ""
-                        }`}
+                        className={`inline-flex -mt-[11px] mx-[6px] muiDatepickerCustomizer w-full max-w-[300px]`}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
@@ -3781,12 +3769,12 @@ const EditDrawer = ({
                             </Typography>
                             <div className="flex items-center gap-2">
                               {editingCommentIndexApprovals === index ? (
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-start justify-center gap-8">
                                   <div className="flex flex-col">
                                     <div className="flex items-start justify-center">
                                       <MentionsInput
                                         style={mentionsInputStyle}
-                                        className="!w-[100%] textareaOutlineNoneEdit"
+                                        className="!w-[100%] textareaOutlineNoneEdit max-w-[70%]"
                                         value={valueEdit}
                                         onChange={(e) => {
                                           setValueEdit(e.target.value);
@@ -3820,7 +3808,7 @@ const EditDrawer = ({
                                       </div>
                                       {commentAttachmentApprovals[0]
                                         ?.SystemFileName.length > 0 && (
-                                        <div className="flex items-center justify-center gap-2">
+                                        <div className="flex items-start justify-center">
                                           <span className="cursor-pointer">
                                             {
                                               commentAttachmentApprovals[0]
@@ -3849,23 +3837,10 @@ const EditDrawer = ({
                                       )}
                                     </div>
                                     <div className="flex flex-col">
-                                      {valueEditError &&
-                                      valueEdit.trim().length > 1 &&
-                                      valueEdit.trim().length < 5 ? (
+                                      {valueEditError && (
                                         <span className="text-defaultRed text-[14px]">
-                                          Minimum 5 characters required.
+                                          This is a required field.
                                         </span>
-                                      ) : valueEditError &&
-                                        valueEdit.trim().length > 500 ? (
-                                        <span className="text-defaultRed text-[14px]">
-                                          Maximum 500 characters allowed.
-                                        </span>
-                                      ) : (
-                                        valueEditError && (
-                                          <span className="text-defaultRed text-[14px]">
-                                            This is a required field.
-                                          </span>
-                                        )
                                       )}
                                     </div>
                                   </div>
@@ -3884,9 +3859,9 @@ const EditDrawer = ({
                                   </button>
                                 </div>
                               ) : (
-                                <>
+                                <div className="flex items-start justify-center gap-8">
                                   <span className="hidden"></span>
-                                  <div className="flex items-start">
+                                  <div className="flex items-start max-w-[70%]">
                                     {extractText(i.Message).map((i: any) => {
                                       const assignee =
                                         commentUserDataApprovals.map(
@@ -3906,7 +3881,7 @@ const EditDrawer = ({
                                   </div>
                                   {i.Attachment[0]?.SystemFileName.length >
                                     0 && (
-                                    <div className="flex items-center justify-center gap-2">
+                                    <div className="flex items-start justify-center">
                                       <span className="cursor-pointer">
                                         {i.Attachment[0]?.UserFileName}
                                       </span>
@@ -3956,7 +3931,7 @@ const EditDrawer = ({
                                         <EditIcon className="h-4 w-4" />
                                       </button>
                                     )}
-                                </>
+                                </div>
                               )}
                             </div>
                           </div>
@@ -4017,10 +3992,6 @@ const EditDrawer = ({
                           value.trim().length < 5 ? (
                             <span className="text-defaultRed text-[14px] ml-20">
                               Minimum 5 characters required.
-                            </span>
-                          ) : valueError && value.trim().length > 500 ? (
-                            <span className="text-defaultRed text-[14px] ml-20">
-                              Maximum 500 characters allowed.
                             </span>
                           ) : (
                             valueError && (

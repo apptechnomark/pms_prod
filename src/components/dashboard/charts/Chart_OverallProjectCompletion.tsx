@@ -45,9 +45,9 @@ const Chart_OverallProjectCompletion: React.FC<
   const chartOptions = {
     chart: {
       type: "variablepie",
-      width: 480,
-      height: 240,
-      spacingTop: 10,
+      width: 300,
+      height: 280,
+      spacingTop: -50,
     },
     title: {
       text: null,
@@ -96,7 +96,7 @@ const Chart_OverallProjectCompletion: React.FC<
       layout: "vertical",
       align: "right",
       verticalAlign: "middle",
-      width: 150,
+      width: 80,
       itemMarginBottom: 10,
     },
     series: [
@@ -138,8 +138,8 @@ const Chart_OverallProjectCompletion: React.FC<
         </div>
         {data.length > 0 && (
           <span
-            className={`flex flex-col items-center absolute bottom-[5.9rem] z-0 ${
-              totalCount <= 1 ? "left-[8.45rem]" : "left-[8.35rem]"
+            className={`flex flex-col items-center absolute bottom-[9rem] z-0 ${
+              totalCount <= 1 ? "left-[8.45rem]" : "left-[5rem]"
             }`}
           >
             <span className="text-xl font-semibold text-darkCharcoal">

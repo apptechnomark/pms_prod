@@ -429,7 +429,7 @@ const Page = () => {
               ))}
           </section>
 
-          <section className="flex gap-[20px] items-center px-[20px] py-[10px]">
+          <section className="flex gap-[20px] items-center px-[20px]">
             <Card className="w-full h-[344px] border border-lightSilver rounded-lg">
               <Chart_OverallProjectCompletion
                 sendData={handleValueFromOverallProject}
@@ -437,14 +437,30 @@ const Page = () => {
                 onSelectedWorkType={workType}
               />
             </Card>
-
-            <Card className="w-full h-[344px] border border-lightSilver rounded-lg">
+            <Card className="w-full h-[344px] mb-[40px] border border-lightSilver rounded-lg mt-10">
+              <Chart_Priority
+                onSelectedProjectIds={currentProjectId}
+                onSelectedWorkType={workType}
+                sendData={handleValueFromPriority}
+              />
+            </Card>
+            {workType !== 1 && (
+              <Card className="w-full h-[344px] border border-lightSilver rounded-lg justify-center flex">
+                <Chart_ReturnType
+                  onSelectedProjectIds={currentProjectId}
+                  onSelectedWorkType={workType}
+                  sendData={handleValueFromReturnType}
+                />
+              </Card>
+            )}
+            {/* <div className="w-full h-[344px]"></div> */}
+            {/* <Card className="w-full h-[344px] border border-lightSilver rounded-lg">
               <Chart_TotalHours
                 sendData={handleValueFromTotalHours}
                 onSelectedProjectIds={currentProjectId}
                 onSelectedWorkType={workType}
               />
-            </Card>
+            </Card> */}
           </section>
 
           <section className="px-[20px] py-[10px]">
@@ -458,7 +474,7 @@ const Page = () => {
           </section>
 
           <section className="flex gap-[20px] px-[20px] py-[10px]">
-            <div className="flex flex-col w-[345px]">
+            {/* <div className="flex flex-col w-[345px]">
               <Card className="w-full h-[344px] mb-[40px] border border-lightSilver rounded-lg">
                 <Chart_Priority
                   onSelectedProjectIds={currentProjectId}
@@ -476,7 +492,7 @@ const Page = () => {
                   />
                 </Card>
               )}
-            </div>
+            </div> */}
 
             <Card className="w-full h-full">
               <div>
@@ -509,7 +525,6 @@ const Page = () => {
                     >
                       On Hold
                     </label>
-                    <span className="text-lightSilver">|</span>
                   </div>
 
                   <IconButton onClick={() => setIsDatatableDialog(true)}>

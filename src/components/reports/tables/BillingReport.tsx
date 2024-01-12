@@ -242,18 +242,19 @@ const BillingReport = ({
     return mergedArray;
   };
 
-  //useEffect for getting data of billing report table
-  useEffect(() => {
-    getData(billingreport_InitialFilter);
-  }, []);
-
   useEffect(() => {
     if (filteredData !== null) {
-      getData({ ...filteredData, globalSearch: searchValue });
-      setBiliingCurrentPage(0);
-      setBillingRowsPerPage(10);
+      const timer = setTimeout(() => {
+        getData({ ...filteredData, globalSearch: searchValue });
+        setBiliingCurrentPage(0);
+        setBillingRowsPerPage(10);
+      }, 500);
+      return () => clearTimeout(timer);
     } else {
-      getData({ ...billingreport_InitialFilter, globalSearch: searchValue });
+      const timer = setTimeout(() => {
+        getData({ ...billingreport_InitialFilter, globalSearch: searchValue });
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [filteredData, searchValue]);
 

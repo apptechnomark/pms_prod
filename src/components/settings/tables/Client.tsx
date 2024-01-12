@@ -87,7 +87,10 @@ function Client({
     if (onSearchClientData) {
       setData(onSearchClientData);
     } else {
-      getData();
+      const timer = setTimeout(() => {
+        getData();
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [onSearchClientData]);
 

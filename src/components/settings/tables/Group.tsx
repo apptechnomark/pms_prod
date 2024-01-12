@@ -41,17 +41,20 @@ function Group({
       await getAll();
       onDataFetch(() => fetchData());
     };
-
-    fetchData();
-
-    getAll();
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (onSearchGroupData) {
       setData(onSearchGroupData);
     } else {
-      getAll();
+      const timer = setTimeout(() => {
+        getAll();
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [onSearchGroupData]);
 

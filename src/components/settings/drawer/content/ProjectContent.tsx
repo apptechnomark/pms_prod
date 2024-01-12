@@ -17,7 +17,8 @@ const ProjectContent = forwardRef<
   ProjectContentRef,
   {
     tab: string;
-    onEdit: boolean;
+    onEdit: any;
+    onOpen: boolean;
     onClose: () => void;
     projectData: any;
     onDataFetch: any;
@@ -30,6 +31,7 @@ const ProjectContent = forwardRef<
       tab,
       onEdit,
       onClose,
+      onOpen,
       projectData,
       onDataFetch,
       onValuesChange,
@@ -94,8 +96,8 @@ const ProjectContent = forwardRef<
         }
       };
 
-      getData();
-    }, []);
+      onOpen && getData();
+    }, [onOpen]);
 
     useEffect(() => {
       if (onEdit) {
@@ -183,11 +185,12 @@ const ProjectContent = forwardRef<
         if (response.status === 200) {
           if (response.data.ResponseStatus === "Success") {
             setProjectDrpdown(response.data.ResponseData.List);
-            setProjectValue(
-              response.data.ResponseData.List.length === 1
-                ? response.data.ResponseData.List[0].value
-                : 0
-            );
+            onEdit == 0 &&
+              setProjectValue(
+                response.data.ResponseData.List.length === 1
+                  ? response.data.ResponseData.List[0].value
+                  : 0
+              );
           } else {
             const data = response.data.Message;
             if (data === null) {
@@ -210,8 +213,8 @@ const ProjectContent = forwardRef<
     };
 
     useEffect(() => {
-      getData();
-    }, [client]);
+      onOpen && client > 0 && getData();
+    }, [client, onOpen]);
 
     const setDataTrue = () => {
       setClientHasError(true);

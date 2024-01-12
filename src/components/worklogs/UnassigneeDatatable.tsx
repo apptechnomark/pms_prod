@@ -76,7 +76,8 @@ const UnassigneeDatatable = ({
 
   useEffect(() => {
     handleClearSelection();
-    setRowsPerPage(10);
+    // setRowsPerPage(10);
+    setPage(0);
   }, [onDrawerClose]);
 
   const handleRowSelect = (
@@ -138,10 +139,6 @@ const UnassigneeDatatable = ({
   }, [currentFilterData, searchValue]);
 
   useEffect(() => {
-    getWorkItemList();
-  }, [filteredObject]);
-
-  useEffect(() => {
     if (typeof window !== "undefined") {
       const pathname = window.location.href.includes("id=");
       if (pathname) {
@@ -177,28 +174,14 @@ const UnassigneeDatatable = ({
       await getWorkItemList();
       onDataFetch(() => fetchData());
     };
-    fetchData();
-    getWorkItemList();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [filteredObject]);
 
-  const generateCustomClientNameBody = (bodyValue: any, TableMeta: any) => {
-    const IsHasErrorlog = TableMeta.rowData[18];
-    return (
-      <div>
-        {IsHasErrorlog && (
-          <div
-            className={
-              "w-[10px] h-[10px] rounded-full inline-block mr-2 bg-defaultRed"
-            }
-          ></div>
-        )}
-        {bodyValue === null || bodyValue === "" ? "-" : bodyValue}
-      </div>
-    );
-  };
-
-  const generateCustomTaskNameBody = (bodyValue: any, TableMeta: any) => {
-    const IsRecurring = TableMeta.rowData[19];
+  const generateCustomTaskNameBody = (bodyValue: any, tableMeta: any) => {
+    const IsRecurring = tableMeta.rowData[tableMeta.rowData.length - 4];
     return (
       <div className="flex items-center gap-2">
         {bodyValue === null || bodyValue === "" ? (
@@ -300,11 +283,11 @@ const UnassigneeDatatable = ({
       label: "Qty.",
       bodyRenderer: generateCommonBodyRender,
     },
-    {
-      name: "ActualTime",
-      label: "Actual Time",
-      bodyRenderer: generateCommonBodyRender,
-    },
+    // {
+    //   name: "ActualTime",
+    //   label: "Actual Time",
+    //   bodyRenderer: generateCommonBodyRender,
+    // },
     {
       name: "STDTime",
       label: "Total Time",

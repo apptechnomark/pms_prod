@@ -78,23 +78,29 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
   };
 
   useEffect(() => {
-    getData(user_InitialFilter);
+    // getData(user_InitialFilter);
     setUserDates(getDates());
   }, []);
 
   useEffect(() => {
     if (filteredData !== null) {
-      getData({ ...filteredData, globalSearch: searchValue });
-      setUserCurrentPage(0);
-      setUserRowsPerPage(10);
-      setUserDates(
-        getDates(
-          filteredData.startDate === null ? "" : filteredData.startDate,
-          filteredData.endDate === null ? "" : filteredData.endDate
-        )
-      );
+      const timer = setTimeout(() => {
+        getData({ ...filteredData, globalSearch: searchValue });
+        setUserDates(
+          getDates(
+            filteredData.startDate === null ? "" : filteredData.startDate,
+            filteredData.endDate === null ? "" : filteredData.endDate
+          )
+        );
+        setUserCurrentPage(0);
+        setUserRowsPerPage(10);
+      }, 500);
+      return () => clearTimeout(timer);
     } else {
-      getData({ ...user_InitialFilter, globalSearch: searchValue });
+      const timer = setTimeout(() => {
+        getData({ ...user_InitialFilter, globalSearch: searchValue });
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [filteredData, searchValue]);
 

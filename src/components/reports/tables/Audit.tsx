@@ -73,16 +73,18 @@ const Audit = ({ filteredData, searchValue, onHandleExport }: any) => {
   };
 
   useEffect(() => {
-    getData(audit_InitialFilter);
-  }, []);
-
-  useEffect(() => {
     if (filteredData !== null) {
-      getData({ ...filteredData, GlobalSearch: searchValue });
-      setAuditCurrentPage(0);
-      setAuditRowsPerPage(10);
+      const timer = setTimeout(() => {
+        getData({ ...filteredData, GlobalSearch: searchValue });
+        setAuditCurrentPage(0);
+        setAuditRowsPerPage(10);
+      }, 500);
+      return () => clearTimeout(timer);
     } else {
-      getData({ ...audit_InitialFilter, GlobalSearch: searchValue });
+      const timer = setTimeout(() => {
+        getData({ ...audit_InitialFilter, GlobalSearch: searchValue });
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [filteredData, searchValue]);
 

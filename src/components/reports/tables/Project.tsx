@@ -89,16 +89,18 @@ const Project = ({ filteredData, searchValue, onHandleExport }: any) => {
   };
 
   useEffect(() => {
-    getData(project_InitialFilter);
-  }, []);
-
-  useEffect(() => {
     if (filteredData !== null) {
-      getData({ ...filteredData, globalSearch: searchValue });
-      setProjectCurrentPage(0);
-      setProjectRowsPerPage(10);
+      const timer = setTimeout(() => {
+        getData({ ...filteredData, globalSearch: searchValue });
+        setProjectCurrentPage(0);
+        setProjectRowsPerPage(10);
+      }, 500);
+      return () => clearTimeout(timer);
     } else {
-      getData({ ...project_InitialFilter, globalSearch: searchValue });
+      const timer = setTimeout(() => {
+        getData({ ...project_InitialFilter, globalSearch: searchValue });
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [filteredData, searchValue]);
 

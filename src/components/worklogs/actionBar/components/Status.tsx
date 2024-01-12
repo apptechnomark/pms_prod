@@ -54,6 +54,7 @@ const Status = ({
       setAllStatus(
         data.filter(
           (item: any) =>
+            item.Type === "PendingFromAccounting" ||
             item.Type === "Rework" ||
             item.Type === "Assigned" ||
             (isNotRework.length > 0

@@ -68,16 +68,18 @@ const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
   };
 
   useEffect(() => {
-    getData(userLogs_InitialFilter);
-  }, []);
-
-  useEffect(() => {
     if (filteredData !== null) {
-      setUserCurrentPage(0);
-      setUserRowsPerPage(10);
-      getData({ ...filteredData, globalSearch: searchValue });
+      const timer = setTimeout(() => {
+        setUserCurrentPage(0);
+        setUserRowsPerPage(10);
+        getData({ ...filteredData, globalSearch: searchValue });
+      }, 500);
+      return () => clearTimeout(timer);
     } else {
-      getData({ ...userLogs_InitialFilter, globalSearch: searchValue });
+      const timer = setTimeout(() => {
+        getData({ ...userLogs_InitialFilter, globalSearch: searchValue });
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [filteredData, searchValue]);
 

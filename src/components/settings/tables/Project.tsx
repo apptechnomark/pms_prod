@@ -41,8 +41,7 @@ const Project = ({
   const columns = [
     ...headers,
     {
-      header:
-        "Actions",
+      header: "Actions",
       accessor: "actions",
       sortable: false,
     },
@@ -305,19 +304,22 @@ const Project = ({
     if (onSearchProjectData) {
       setData(onSearchProjectData);
     } else {
-      getData();
+      const timer = setTimeout(() => {
+        getData();
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [onSearchProjectData]);
 
   useEffect(() => {
-    getData();
-
     const fetchData = async () => {
       await getData();
       onDataFetch(() => fetchData());
     };
-
-    fetchData();
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   const closeModal = () => {

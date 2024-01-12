@@ -167,17 +167,17 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
         },
       },
     },
-    {
-      name: "IsManual",
-      options: {
-        filter: true,
-        sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Is Manual"),
-        customBodyRender: (value: any) => {
-          return generateIsManulaBodyRender(value);
-        },
-      },
-    },
+    // {
+    //   name: "IsManual",
+    //   options: {
+    //     filter: true,
+    //     sort: true,
+    //     customHeadLabelRender: () => generateCustomHeaderName("Is Manual"),
+    //     customBodyRender: (value: any) => {
+    //       return generateIsManulaBodyRender(value);
+    //     },
+    //   },
+    // },
     {
       name: "Description",
       options: {
@@ -253,23 +253,15 @@ const DateWiseLogsContent = ({ data, date, tableMeta }: any) => {
       },
     },
     {
-      name: "IsManual",
+      name: "TotalTimeSpent",
       options: {
         filter: true,
         sort: true,
         customHeadLabelRender: () => {
           return generateIsManualHeaderRender("total time");
         },
-        customBodyRender: (value: any, tableMeta: any) => {
-          return (
-            <span>
-              {!value
-                ? dateWiseLogsData[0].LogsDetails[tableMeta.rowIndex]
-                    .TotalTrackedTimeLogHrs
-                : dateWiseLogsData[0].LogsDetails[tableMeta.rowIndex]
-                    .TotalManualTimeLogHrs}
-            </span>
-          );
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -472,24 +464,28 @@ const TimeSheet = ({ filteredData, searchValue, onHandleExport }: any) => {
   };
 
   useEffect(() => {
-    getData(timeSheet_InitialFilter);
     setDates(getDates());
   }, []);
 
   useEffect(() => {
     if (filteredData !== null) {
-      getData({ ...filteredData, globalSearch: searchValue });
-      setDates(
-        getDates(
-          filteredData.startDate === null ? "" : filteredData.startDate,
-          filteredData.endDate === null ? "" : filteredData.endDate
-        )
-      );
-
-      setTimesheetCurrentPage(0);
-      setTimesheetRowsPerPage(10);
+      const timer = setTimeout(() => {
+        getData({ ...filteredData, globalSearch: searchValue });
+        setDates(
+          getDates(
+            filteredData.startDate === null ? "" : filteredData.startDate,
+            filteredData.endDate === null ? "" : filteredData.endDate
+          )
+        );
+        setTimesheetCurrentPage(0);
+        setTimesheetRowsPerPage(10);
+      }, 500);
+      return () => clearTimeout(timer);
     } else {
-      getData({ ...timeSheet_InitialFilter, globalSearch: searchValue });
+      const timer = setTimeout(() => {
+        getData({ ...timeSheet_InitialFilter, globalSearch: searchValue });
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [filteredData, searchValue]);
 

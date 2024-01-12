@@ -51,9 +51,10 @@ function Process({
       await getAll();
       onDataFetch(() => fetchData());
     };
-    fetchData();
-
-    getAll();
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   const getAll = async () => {
@@ -107,7 +108,10 @@ function Process({
     if (onSearchProcessData) {
       setData(onSearchProcessData);
     } else {
-      getAll();
+      const timer = setTimeout(() => {
+        getAll();
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [onSearchProcessData]);
 

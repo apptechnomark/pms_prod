@@ -69,17 +69,6 @@ const Datatable_Rating = ({
     });
   };
 
-  useEffect(() => {
-    if (onSearchData) {
-      setAllReportRatingFields({
-        ...allReportRatingFields,
-        ratingData: onSearchData,
-      });
-    } else {
-      getReportRatingList();
-    }
-  }, [onSearchData]);
-
   const getReportRatingList = async () => {
     setAllReportRatingFields({
       ...allReportRatingFields,
@@ -118,7 +107,24 @@ const Datatable_Rating = ({
   }, [currentFilterData]);
 
   useEffect(() => {
-    getReportRatingList();
+    if (onSearchData) {
+      setAllReportRatingFields({
+        ...allReportRatingFields,
+        ratingData: onSearchData,
+      });
+    } else {
+      const timer = setTimeout(() => {
+        getReportRatingList();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [onSearchData]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      getReportRatingList();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [filteredObjectReportRating]);
 
   return allReportRatingFields.loaded ? (

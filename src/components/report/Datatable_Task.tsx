@@ -68,17 +68,6 @@ const Datatable_Task = ({
     });
   };
 
-  useEffect(() => {
-    if (onSearchData) {
-      setAllReportTaskFields({
-        ...allReportTaskFields,
-        taskData: onSearchData,
-      });
-    } else {
-      getReportTaskList();
-    }
-  }, [onSearchData]);
-
   const getReportTaskList = async () => {
     setAllReportTaskFields({
       ...allReportTaskFields,
@@ -91,10 +80,7 @@ const Datatable_Task = ({
       error: any,
       ResponseStatus: any
     ) => {
-      if (
-        ResponseStatus === "Success" &&
-        error === false
-      ) {
+      if (ResponseStatus === "Success" && error === false) {
         onHandleExport(ResponseData.List.length > 0);
         setAllReportTaskFields({
           ...allReportTaskFields,
@@ -120,7 +106,24 @@ const Datatable_Task = ({
   }, [currentFilterData]);
 
   useEffect(() => {
-    getReportTaskList();
+    if (onSearchData) {
+      setAllReportTaskFields({
+        ...allReportTaskFields,
+        taskData: onSearchData,
+      });
+    } else {
+      const timer = setTimeout(() => {
+        getReportTaskList();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [onSearchData]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      getReportTaskList();
+    }, 500);
+    return () => clearTimeout(timer);
   }, [filteredObjectReportTask]);
 
   return allReportTaskFields.loaded ? (

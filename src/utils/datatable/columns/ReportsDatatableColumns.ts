@@ -48,11 +48,11 @@ const RatingReportColsConfig = [
     label: "Date Submitted",
     bodyRenderer: generateCustomFormatDate,
   },
-  {
-    name: "HoursLogged",
-    label: "Hours Logged",
-    bodyRenderer: generateCommonBodyRender,
-  },
+  // {
+  //   name: "HoursLogged",
+  //   label: "Hours Logged",
+  //   bodyRenderer: generateCommonBodyRender,
+  // },
   {
     name: "Ratings",
     label: "Ratings",
@@ -107,11 +107,11 @@ const reportTaskColConfig = [
     label: "Assigned To",
     bodyRenderer: generateCommonBodyRender,
   },
-  {
-    name: "HoursLogged",
-    label: "Hours Logged",
-    bodyRenderer: generateCommonBodyRender,
-  },
+  // {
+  //   name: "HoursLogged",
+  //   label: "Hours Logged",
+  //   bodyRenderer: generateCommonBodyRender,
+  // },
   {
     name: "StartDate",
     label: "Start Date",

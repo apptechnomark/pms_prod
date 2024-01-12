@@ -39,8 +39,8 @@ const pageNo = 1;
 const pageSize = 10;
 
 const initialFilter = {
-  pageNo: pageNo,
-  pageSize: pageSize,
+  PageNo: pageNo,
+  PageSize: pageSize,
   sortColumn: "",
   isDesc: true,
   globalSearch: "",
@@ -109,7 +109,8 @@ const Datatable = ({
 
   useEffect(() => {
     if (onCloseDrawer === false || !onCloseDrawer) {
-      setRowsPerPage(10);
+      // setRowsPerPage(10);
+      setPage(0);
     }
   }, [onCloseDrawer]);
 
@@ -224,6 +225,8 @@ const Datatable = ({
 
   useEffect(() => {
     handleClearSelection();
+    setPage(0);
+    setRowsPerPage(10);
   }, [activeTab]);
 
   useEffect(() => {
@@ -355,21 +358,18 @@ const Datatable = ({
       ...currentFilterData,
       globalSearch: searchValue,
     });
-    getReviewList();
   }, [currentFilterData, searchValue, activeTab]);
-
-  useEffect(() => {
-    getReviewList();
-  }, [filteredObject]);
 
   useEffect(() => {
     const fetchData = async () => {
       await getReviewList();
       onDataFetch(() => fetchData());
     };
-    fetchData();
-    getReviewList();
-  }, [activeTab]);
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentFilterData, searchValue, activeTab, filteredObject]);
 
   const generateManualTimeBodyRender = (bodyValue: any) => {
     return <div>{bodyValue ? formatTime(bodyValue) : "00:00:00"}</div>;
@@ -451,9 +451,26 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
-      name: "TotalTime",
-      label: "Total Hrs",
-      bodyRenderer: generateManualTimeBodyRender,
+      name: "Est*Qty",
+      label: "Std. Time",
+      bodyRenderer: (value: any, tableMeta: any) => {
+        return <span>{tableMeta.rowData.toString()}</span>;
+      },
+    },
+    {
+      name: "PreparorTime",
+      label: "Preparation Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ReviewerTime",
+      label: "Reviewer Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "ActualTime",
+      label: "Actual Time",
+      bodyRenderer: generateCommonBodyRender,
     },
     {
       name: "StartDate",
@@ -656,8 +673,13 @@ const Datatable = ({
                       </ColorToolTip>
                     </div>
                   )}
-                {reviewList[tableMeta.rowIndex].ReviewerId ==
-                  localStorage.getItem("UserId") &&
+                {(reviewList[tableMeta.rowIndex].StatusId === 56 ||
+                  reviewList[tableMeta.rowIndex].StatusId === 58 ||
+                  reviewList[tableMeta.rowIndex].StatusId === 59 ||
+                  reviewList[tableMeta.rowIndex].StatusId === 6 ||
+                  reviewList[tableMeta.rowIndex].StatusId === 54) &&
+                  reviewList[tableMeta.rowIndex].ReviewerId ==
+                    localStorage.getItem("UserId") &&
                   tableMeta.rowData[tableMeta.rowData.length - 4] !== false && (
                     <ColorToolTip
                       title="Reviewer Manual Time"
@@ -713,8 +735,47 @@ const Datatable = ({
           sort: true,
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
-          customBodyRender: (value: any, tableMeta: any) =>
-            generateStatusWithColor(value, tableMeta.rowData[rowDataIndex]),
+          customBodyRender: (value: any, tableMeta: any) => {
+            const statusColorCode = tableMeta.rowData[9];
+
+            return (
+              <div>
+                {value === null ||
+                value === "" ||
+                value === 0 ||
+                value === "0" ? (
+                  "-"
+                ) : (
+                  <div className="inline-block mr-1">
+                    <div
+                      className="w-[10px] h-[10px] rounded-full inline-block mr-2"
+                      style={{ backgroundColor: statusColorCode }}
+                    ></div>
+                    {value}
+                  </div>
+                )}
+              </div>
+            );
+          },
+        },
+      };
+    } else if (column.name === "Est*Qty") {
+      return {
+        name: "Est*Qty",
+        options: {
+          filter: true,
+          sort: true,
+          viewColumns: false,
+          customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
+          customBodyRender: (value: any, tableMeta: any) => {
+            return (
+              <span>
+                {toHoursAndMinutes(
+                  tableMeta.rowData[11] * tableMeta.rowData[12]
+                )}
+              </span>
+            );
+          },
         },
       };
     } else if (column.name === "ReviewerId") {
@@ -819,6 +880,7 @@ const Datatable = ({
               newPage: number
             ) => {
               handlePageChangeWithFilter(newPage, setPage, setFilteredOject);
+              handleClearSelection();
             }}
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={(
@@ -830,6 +892,7 @@ const Datatable = ({
                 setPage,
                 setFilteredOject
               );
+              handleClearSelection();
             }}
           />
         </ThemeProvider>

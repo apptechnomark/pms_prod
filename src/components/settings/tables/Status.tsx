@@ -37,10 +37,10 @@ function Status({
       getStatusList();
       onDataFetch(() => fetchData());
     };
-
-    fetchData();
-
-    getStatusList();
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, []);
   const closeModal = () => {
     setIsDeleteOpen(false);
@@ -50,7 +50,10 @@ function Status({
     if (onSearchStatusData) {
       setStatusList(onSearchStatusData);
     } else {
-      getStatusList();
+      const timer = setTimeout(() => {
+        getStatusList();
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [onSearchStatusData]);
 

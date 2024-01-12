@@ -189,12 +189,6 @@ const Datatable = ({
   }, []);
 
   useEffect(() => {
-    handleClearSelection();
-    setRowsPerPage(10);
-    setPage(0);
-  }, [onDrawerClose]);
-
-  useEffect(() => {
     setRunning(
       workItemData.filter((data: any) => data.TimelogId > 0).length > 0
         ? workItemData.filter((data: any) => data.TimelogId > 0)[0].WorkitemId
@@ -280,15 +274,6 @@ const Datatable = ({
     };
     callAPI(url, params, successCallback, "POST");
   };
-
-  useEffect(() => {
-    setFilteredOject({
-      ...filteredObject,
-      ...currentFilterData,
-      GlobalSearch: searchValue,
-    });
-    getWorkItemList();
-  }, [currentFilterData, searchValue]);
 
   const getFilterList = async (filterId: number) => {
     if (filterId === 0) {
@@ -392,25 +377,33 @@ const Datatable = ({
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      await getWorkItemList();
-      onDataFetch(() => fetchData());
-    };
-    fetchData();
-    getWorkItemList();
-  }, []);
-
-  useEffect(() => {
     getFilterList(onCurrentFilterId);
   }, [onCurrentFilterId]);
 
   useEffect(() => {
-    getWorkItemList();
-  }, [onCurrentFilterId, filteredObject]);
+    setFilteredOject({
+      ...filteredObject,
+      ...currentFilterData,
+      GlobalSearch: searchValue,
+    });
+  }, [currentFilterData, searchValue]);
 
   useEffect(() => {
-    getWorkItemList();
-  }, [isOnBreak]);
+    const fetchData = async () => {
+      await getWorkItemList();
+      onDataFetch(() => fetchData());
+    };
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [
+    onCurrentFilterId,
+    filteredObject,
+    isOnBreak,
+    currentFilterData,
+    searchValue,
+  ]);
 
   useEffect(() => {
     onHandleExport(workItemData.length > 0 ? true : false);
@@ -429,8 +422,8 @@ const Datatable = ({
     }
   };
 
-  const generateCustomTaskNameBody = (bodyValue: any, TableMeta: any) => {
-    const IsRecurring = TableMeta.rowData[19];
+  const generateCustomTaskNameBody = (bodyValue: any, tableMeta: any) => {
+    const IsRecurring = tableMeta.rowData[tableMeta.rowData.length - 5];
     return (
       <div className="flex items-center gap-2">
         {bodyValue === null || bodyValue === "" ? (
@@ -531,7 +524,7 @@ const Datatable = ({
       name: "StatusName",
       label: "Status",
       bodyRenderer: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[9]),
+        generateStatusWithColor(value, tableMeta.rowData[10]),
     },
     {
       name: "EstimateTime",
@@ -545,7 +538,12 @@ const Datatable = ({
     },
     {
       name: "STDTime",
-      label: "Total Time",
+      label: "Std. Time",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
+      name: "PreparorTime",
+      label: "Preparation Time",
       bodyRenderer: generateCommonBodyRender,
     },
     {
@@ -672,6 +670,7 @@ const Datatable = ({
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 58 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 59 &&
                   tableMeta.rowData[tableMeta.rowData.length - 3] !== 60 &&
+                  tableMeta.rowData[tableMeta.rowData.length - 3] !== 61 &&
                   tableMeta.rowData[tableMeta.rowData.length - 1] !==
                     isRunning &&
                   (tableMeta.rowData[tableMeta.rowData.length - 2] === 0 ? (
@@ -783,7 +782,11 @@ const Datatable = ({
           sort: true,
           customHeadLabelRender: () => generateCustomHeaderName("Task ID"),
           customBodyRender: (value: any, tableMeta: any) => {
-            return generateCustomeTaskIdwithErrorLogs(value, tableMeta, 18);
+            return generateCustomeTaskIdwithErrorLogs(
+              value,
+              tableMeta,
+              tableMeta.rowData.length - 6
+            );
           },
         },
       };
@@ -814,8 +817,28 @@ const Datatable = ({
           sort: true,
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
-          customBodyRender: (value: any, tableMeta: any) =>
-            generateStatusWithColor(value, tableMeta.rowData[rowDataIndex]),
+          customBodyRender: (value: any, tableMeta: any) => {
+            const statusColorCode = tableMeta.rowData[10];
+
+            return (
+              <div>
+                {value === null ||
+                value === "" ||
+                value === 0 ||
+                value === "0" ? (
+                  "-"
+                ) : (
+                  <div className="inline-block mr-1">
+                    <div
+                      className="w-[10px] h-[10px] rounded-full inline-block mr-2"
+                      style={{ backgroundColor: statusColorCode }}
+                    ></div>
+                    {value}
+                  </div>
+                )}
+              </div>
+            );
+          },
         },
       };
     } else if (column.name === "TaskName") {
@@ -969,6 +992,7 @@ const Datatable = ({
               newPage: number
             ) => {
               handlePageChangeWithFilter(newPage, setPage, setFilteredOject);
+              handleClearSelection();
             }}
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={(
@@ -980,6 +1004,7 @@ const Datatable = ({
                 setPage,
                 setFilteredOject
               );
+              handleClearSelection();
             }}
           />
         </ThemeProvider>

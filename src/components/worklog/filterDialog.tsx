@@ -198,15 +198,26 @@ const FilterDialog: React.FC<FilterModalProps> = ({
       setStatusDropdownCompletedData(
         data.filter(
           (i: any) =>
+            i.Type !== "PendingFromAccounting" &&
+            i.Type !== "Assigned" &&
             i.Type !== "Errorlogs" &&
             i.Type !== "InProgress" &&
             i.Type !== "InReview" &&
+            i.Type !== "OnHoldFromClient" &&
+            i.Type !== "ReworkInReview" &&
+            i.Type !== "ReworkInProgress" &&
+            i.Type !== "ReworkPrepCompleted" &&
+            i.Type !== "ReworkSubmitted" &&
+            i.Type !== "SecondManagerReview" &&
+            i.Type !== "Submitted" &&
+            i.Type !== "SecondManagerReview" &&
             i.Type !== "NotStarted" &&
             i.Type !== "OnHoldFromClient" &&
             i.Type !== "PartialSubmitted" &&
             i.Type !== "Rework" &&
             i.Type !== "Reject" &&
             i.Type !== "Stop" &&
+            i.Type !== "WithdrawnbyClient" &&
             i.Type !== "WithDraw"
         )
       );

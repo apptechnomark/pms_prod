@@ -121,23 +121,6 @@ const Datatable_CompletedTask = ({
   };
 
   useEffect(() => {
-    if (onSearchWorkTypeData) {
-      setWorkItemData(onSearchWorkTypeData);
-    } else {
-      getWorkItemList();
-    }
-  }, [onSearchWorkTypeData]);
-
-  useEffect(() => {
-    setFilteredOject({ ...filteredObject, ...currentFilterData });
-    getWorkItemList();
-  }, [currentFilterData]);
-
-  useEffect(() => {
-    getWorkItemList();
-  }, [filteredObject]);
-
-  useEffect(() => {
     if (typeof window !== "undefined") {
       const pathname = window.location.href.includes("id=");
       if (pathname) {
@@ -169,12 +152,36 @@ const Datatable_CompletedTask = ({
   };
 
   useEffect(() => {
+    if (onSearchWorkTypeData) {
+      setWorkItemData(onSearchWorkTypeData);
+    } else {
+      const timer = setTimeout(() => {
+        getWorkItemList();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [onSearchWorkTypeData]);
+
+  useEffect(() => {
+    setFilteredOject({ ...filteredObject, ...currentFilterData });
+  }, [currentFilterData]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      getWorkItemList();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [filteredObject]);
+
+  useEffect(() => {
     const fetchData = async () => {
       await getWorkItemList();
       onDataFetch(() => fetchData());
     };
-    fetchData();
-    getWorkItemList();
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   const columns = [

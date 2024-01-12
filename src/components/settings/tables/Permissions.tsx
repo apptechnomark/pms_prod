@@ -29,7 +29,10 @@ const Permissions = ({
 
   useEffect(() => {
     if (permissionValue > 0) {
-      getData();
+      const timer = setTimeout(() => {
+        getData();
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [permissionValue]);
 
@@ -246,12 +249,6 @@ const Permissions = ({
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    if (permissionValue > 0) {
-      getData();
-    }
-  }, [permissionValue]);
 
   return (
     <>

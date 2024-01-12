@@ -66,14 +66,6 @@ const Datatable_Worklog = ({
   );
   const [filteredObject, setFilteredOject] = useState<any>(initialFilter);
 
-  useEffect(() => {
-    if (onSearchWorkTypeData) {
-      setWorkItemData(onSearchWorkTypeData);
-    } else {
-      getWorkItemList();
-    }
-  }, [onSearchWorkTypeData]);
-
   const handleRowSelect = (
     currentRowsSelected: any,
     allRowsSelected: any,
@@ -123,14 +115,6 @@ const Datatable_Worklog = ({
   };
 
   useEffect(() => {
-    setFilteredOject({ ...filteredObject, ...currentFilterData });
-  }, [currentFilterData]);
-
-  useEffect(() => {
-    getWorkItemList();
-  }, [filteredObject]);
-
-  useEffect(() => {
     if (typeof window !== "undefined") {
       const pathname = window.location.href.includes("id=");
       if (pathname) {
@@ -169,12 +153,36 @@ const Datatable_Worklog = ({
   };
 
   useEffect(() => {
+    setFilteredOject({ ...filteredObject, ...currentFilterData });
+  }, [currentFilterData]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      getWorkItemList();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [filteredObject]);
+
+  useEffect(() => {
+    if (onSearchWorkTypeData) {
+      setWorkItemData(onSearchWorkTypeData);
+    } else {
+      const timer = setTimeout(() => {
+        getWorkItemList();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [onSearchWorkTypeData]);
+
+  useEffect(() => {
     const fetchData = async () => {
       await getWorkItemList();
       onDataFetch(() => fetchData());
     };
-    fetchData();
-    getWorkItemList();
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   const propsForActionBar = {

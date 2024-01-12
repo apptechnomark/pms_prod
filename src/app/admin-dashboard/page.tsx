@@ -187,7 +187,7 @@ const Page = () => {
     "Not Started": <PendingActionsOutlinedIcon />,
     "Overdue Task": <RunningWithErrorsOutlinedIcon />,
     Rejected: <CancelOutlinedIcon />,
-    "On Hold From Client": <PauseCircleOutlineOutlinedIcon />,
+    "On Hold": <PauseCircleOutlineOutlinedIcon />,
     Withdraw: <Withdraw_Outlined />,
     Rework: <RestorePageOutlinedIcon />,
     "Total Received": <PlaylistAddCheckOutlinedIcon />,

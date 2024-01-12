@@ -1226,17 +1226,10 @@ const EditDrawer = ({
 
   const handleSaveClickWorklogs = async (e: any, i: any, type: any) => {
     e.preventDefault();
-    setValueEditWorklogsError(
-      valueEditWorklogs.trim().length < 5 ||
-        valueEditWorklogs.trim().length > 500
-    );
+    setValueEditWorklogsError(valueEditWorklogs.trim().length < 1);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (
-        valueEditWorklogs.trim().length >= 5 &&
-        valueEditWorklogs.trim().length < 501 &&
-        !valueEditWorklogsError
-      ) {
+      if (valueEditWorklogs.trim().length >= 1 && !valueEditWorklogsError) {
         setIsLoadingWorklogs(true);
         const params = {
           workitemId: onEdit,
@@ -1343,16 +1336,10 @@ const EditDrawer = ({
     type: any
   ) => {
     e.preventDefault();
-    setValueWorklogsError(
-      valueWorklogs.trim().length < 5 || valueWorklogs.trim().length > 500
-    );
+    setValueWorklogsError(valueWorklogs.trim().length < 5);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (
-        valueWorklogs.trim().length >= 5 &&
-        valueWorklogs.trim().length < 501 &&
-        !valueWorklogsError
-      ) {
+      if (valueWorklogs.trim().length >= 5 && !valueWorklogsError) {
         setIsLoadingWorklogs(true);
         const params = {
           workitemId: onEdit,
@@ -2211,6 +2198,7 @@ const EditDrawer = ({
           ? setStatusWorklogsDropdownDataUse(
               statusWorklogsDropdownData.filter(
                 (item: any) =>
+                  item.Type === "PendingFromAccounting" ||
                   item.Type === "Assigned" ||
                   item.Type === "OnHoldFromClient" ||
                   item.Type === "WithDraw" ||
@@ -2225,6 +2213,7 @@ const EditDrawer = ({
           : setStatusWorklogsDropdownDataUse(
               statusWorklogsDropdownData.filter(
                 (item: any) =>
+                  item.Type === "PendingFromAccounting" ||
                   item.Type === "Assigned" ||
                   item.Type === "OnHoldFromClient" ||
                   item.Type === "WithDraw" ||
@@ -2308,6 +2297,7 @@ const EditDrawer = ({
         (await setStatusWorklogsDropdownDataUse(
           statusData.filter(
             (item: any) =>
+              item.Type === "PendingFromAccounting" ||
               item.Type === "Assigned" ||
               item.Type === "NotStarted" ||
               item.Type === "InProgress" ||
@@ -4082,12 +4072,12 @@ const EditDrawer = ({
                               </Typography>
                               <div className="flex items-center gap-2">
                                 {editingCommentIndexWorklogs === index ? (
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-start gap-8">
                                     <div className="flex flex-col">
                                       <div className="flex items-start justify-center">
                                         <MentionsInput
                                           style={mentionsInputStyle}
-                                          className="!w-[100%] textareaOutlineNoneEdit"
+                                          className="!w-[100%] textareaOutlineNoneEdit max-w-[70%]"
                                           value={valueEditWorklogs}
                                           onChange={(e) => {
                                             setValueEditWorklogs(
@@ -4128,7 +4118,7 @@ const EditDrawer = ({
                                         </div>
                                         {commentAttachmentWorklogs[0]
                                           ?.SystemFileName.length > 0 && (
-                                          <div className="flex items-center justify-center gap-2">
+                                          <div className="flex items-start justify-center">
                                             <span className="ml-2 cursor-pointer">
                                               {
                                                 commentAttachmentWorklogs[0]
@@ -4157,24 +4147,10 @@ const EditDrawer = ({
                                         )}
                                       </div>
                                       <div className="flex flex-col">
-                                        {valueEditWorklogsError &&
-                                        valueEditWorklogs.trim().length > 1 &&
-                                        valueEditWorklogs.trim().length < 5 ? (
+                                        {valueEditWorklogsError && (
                                           <span className="text-defaultRed text-[14px]">
-                                            Minimum 5 characters required.
+                                            This is a required field.
                                           </span>
-                                        ) : valueEditWorklogsError &&
-                                          valueEditWorklogs.trim().length >
-                                            500 ? (
-                                          <span className="text-defaultRed text-[14px]">
-                                            Maximum 500 characters allowed.
-                                          </span>
-                                        ) : (
-                                          valueEditWorklogsError && (
-                                            <span className="text-defaultRed text-[14px]">
-                                              This is a required field.
-                                            </span>
-                                          )
                                         )}
                                       </div>
                                     </div>
@@ -4193,9 +4169,9 @@ const EditDrawer = ({
                                     </button>
                                   </div>
                                 ) : (
-                                  <>
+                                  <div className="flex items-start justify-center gap-8">
                                     <span className="hidden"></span>
-                                    <div className="flex items-start">
+                                    <div className="flex items-start max-w-[70%]">
                                       {extractText(i.Message).map((i: any) => {
                                         const assignee =
                                           commentWorklogsUserData.map(
@@ -4215,7 +4191,7 @@ const EditDrawer = ({
                                     </div>
                                     {i.Attachment[0]?.SystemFileName.length >
                                       0 && (
-                                      <div className="flex items-center justify-center gap-2">
+                                      <div className="flex items-start justify-center">
                                         <span className="ml-2 cursor-pointer">
                                           {i.Attachment[0]?.UserFileName}
                                         </span>
@@ -4269,7 +4245,7 @@ const EditDrawer = ({
                                           <EditIcon className="h-4 w-4" />
                                         </button>
                                       )}
-                                  </>
+                                  </div>
                                 )}
                               </div>
                             </div>
@@ -4339,11 +4315,6 @@ const EditDrawer = ({
                             valueWorklogs.trim().length < 5 ? (
                               <span className="text-defaultRed text-[14px] ml-20">
                                 Minimum 5 characters required.
-                              </span>
-                            ) : valueWorklogsError &&
-                              valueWorklogs.trim().length > 500 ? (
-                              <span className="text-defaultRed text-[14px] ml-20">
-                                Maximum 500 characters allowed.
                               </span>
                             ) : (
                               valueWorklogsError && (

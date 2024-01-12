@@ -27,6 +27,7 @@ const Datatable_OnHold: React.FC<OnHoldProps> = ({
     filterType: "checkbox",
     responsive: "standard",
     viewColumns: false,
+    pagination: false,
     filter: false,
     print: false,
     download: false,
