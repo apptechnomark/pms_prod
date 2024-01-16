@@ -22,9 +22,7 @@ interface SidebarItem {
   icon: JSX.Element;
 }
 
-let sidebarItems: SidebarItem[];
-
-const DashboardItems = ({ pathname, isCollapsed }: any) => {
+const DashboardItems = ({ pathname, isCollapsed, sidebarItems }: any) => {
   return (
     <>
       {sidebarItems?.length > 0 &&
@@ -63,6 +61,7 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
   const [isCollapsed, setCollapse] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [windowSize, setWindowSize] = useState(0);
+  const [sidebarItems, setSidebarItems] = useState<any>([]);
 
   useEffect(() => {
     const getUserDetails = async () => {
@@ -109,8 +108,9 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
 
     const getSidebarData = async (isClient: any) => {
       const permission: any = await localStorage.getItem("permission");
+
       if (permission.length > 0) {
-        sidebarItems = [
+        setSidebarItems([
           hasPermissionWorklog("", "View", "Dashboard") &&
             !isClient && {
               name: "Dashboard",
@@ -187,7 +187,7 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
               href: "/report",
               icon: <Reports />,
             },
-        ];
+        ]);
       }
     };
 
@@ -272,7 +272,11 @@ const Sidebar = ({ setOpen, setSetting, toggleDrawer }: any) => {
                 : "h-auto block"
             }`}
           >
-            <DashboardItems pathname={pathname} isCollapsed={isCollapsed} />
+            <DashboardItems
+              pathname={pathname}
+              isCollapsed={isCollapsed}
+              sidebarItems={sidebarItems}
+            />
           </div>
         </div>
         {windowSize >= 1024 && (
