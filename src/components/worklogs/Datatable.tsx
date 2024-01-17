@@ -189,6 +189,10 @@ const Datatable = ({
   }, []);
 
   useEffect(() => {
+    handleClearSelection();
+  }, [onDrawerClose]);
+
+  useEffect(() => {
     setRunning(
       workItemData.filter((data: any) => data.TimelogId > 0).length > 0
         ? workItemData.filter((data: any) => data.TimelogId > 0)[0].WorkitemId

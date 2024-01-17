@@ -109,6 +109,12 @@ const Datatable = ({
 
   useEffect(() => {
     if (onCloseDrawer === false || !onCloseDrawer) {
+      setRowsPerPage(10);
+    }
+  }, [onCloseDrawer]);
+
+  useEffect(() => {
+    if (onCloseDrawer === false || !onCloseDrawer) {
       // setRowsPerPage(10);
       setPage(0);
     }
@@ -497,11 +503,11 @@ const Datatable = ({
       label: "Edited Time",
       bodyRenderer: generateManualTimeBodyRender,
     },
-    {
-      name: "EmployeeIsManual",
-      label: "Is Manual",
-      bodyRenderer: generateIsManualBodyRender,
-    },
+    // {
+    //   name: "EmployeeIsManual",
+    //   label: "Is Manual",
+    //   bodyRenderer: generateIsManualBodyRender,
+    // },
     {
       name: "ManagerName",
       label: "Manager",

@@ -106,7 +106,8 @@ const User = ({ filteredData, searchValue, onHandleExport }: any) => {
 
   const isWeekend = (date: any) => {
     const day = dayjs(date).day();
-    return day === 6 || day === 0;
+    // return day === 6 || day === 0;
+    return day === 0;
   };
 
   const generateUserNameBodyRender = (bodyValue: any, TableMeta: any) => {

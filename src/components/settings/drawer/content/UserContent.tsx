@@ -268,10 +268,7 @@ const UserContent = forwardRef<
       onOpen && getData("/department/getdropdown");
       onOpen && getData("/Role/GetDropdown");
       onOpen && getData("/group/getdropdown");
-      onOpen &&
-        userId > 0 &&
-        department > 0 &&
-        getData("/user/GetRMUserDropdown");
+      onOpen && department > 0 && getData("/user/GetRMUserDropdown");
     }, [department, userId, onOpen]);
 
     const setEmployeeDataTrue = () => {
