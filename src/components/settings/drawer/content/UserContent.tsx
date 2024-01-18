@@ -689,6 +689,7 @@ const UserContent = forwardRef<
                   setReport(value);
                   value > 0 && setReportHasError(false);
                 }}
+                search
                 getError={(e) => setReportError(e)}
                 options={reportManagerDropdownData}
               />
