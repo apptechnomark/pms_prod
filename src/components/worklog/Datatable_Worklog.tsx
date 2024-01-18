@@ -129,7 +129,6 @@ const Datatable_Worklog = ({
   useEffect(() => {
     if (!onCloseDrawer || onCloseDrawer === false) {
       handleClearSelection();
-      setRowsPerPage(10);
     }
   }, [onCloseDrawer]);
 
@@ -157,21 +156,13 @@ const Datatable_Worklog = ({
   }, [currentFilterData]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      getWorkItemList();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [filteredObject]);
-
-  useEffect(() => {
-    if (onSearchWorkTypeData) {
-      setWorkItemData(onSearchWorkTypeData);
-    } else {
-      const timer = setTimeout(() => {
-        getWorkItemList();
-      }, 500);
-      return () => clearTimeout(timer);
-    }
+    setFilteredOject({
+      ...filteredObject,
+      PageNo: 1,
+      pageSize: pageSize,
+      GlobalSearch: onSearchWorkTypeData,
+    });
+    onSearchWorkTypeData.length > 0 && setPage(0);
   }, [onSearchWorkTypeData]);
 
   useEffect(() => {
@@ -183,7 +174,7 @@ const Datatable_Worklog = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [filteredObject]);
 
   const propsForActionBar = {
     selectedRowsCount,

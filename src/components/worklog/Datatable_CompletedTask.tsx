@@ -73,7 +73,6 @@ const Datatable_CompletedTask = ({
   useEffect(() => {
     if (!onCloseDrawer || onCloseDrawer === false) {
       handleClearSelection();
-      setRowsPerPage(10);
     }
   }, [onCloseDrawer]);
 
@@ -152,26 +151,18 @@ const Datatable_CompletedTask = ({
   };
 
   useEffect(() => {
-    if (onSearchWorkTypeData) {
-      setWorkItemData(onSearchWorkTypeData);
-    } else {
-      const timer = setTimeout(() => {
-        getWorkItemList();
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [onSearchWorkTypeData]);
-
-  useEffect(() => {
     setFilteredOject({ ...filteredObject, ...currentFilterData });
   }, [currentFilterData]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      getWorkItemList();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [filteredObject]);
+    setFilteredOject({
+      ...filteredObject,
+      PageNo: 1,
+      pageSize: pageSize,
+      GlobalSearch: onSearchWorkTypeData,
+    });
+    onSearchWorkTypeData.length > 0 && setPage(0);
+  }, [onSearchWorkTypeData]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -182,7 +173,7 @@ const Datatable_CompletedTask = ({
       fetchData();
     }, 500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [filteredObject]);
 
   const columns = [
     {

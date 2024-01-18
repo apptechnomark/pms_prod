@@ -398,6 +398,7 @@ const ProjectContent = forwardRef<
               setClient(e);
               e > 0 && setClientHasError(false);
             }}
+            search
             getError={(e) => setClientError(e)}
           />
           <Select

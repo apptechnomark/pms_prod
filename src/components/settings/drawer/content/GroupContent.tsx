@@ -114,8 +114,8 @@ const GroupContent = forwardRef<
     };
 
     useEffect(() => {
-      fetchEditData();
-      onOpen && getDropdownData();
+      onOpen && fetchEditData();
+      getDropdownData();
       setGroupNameError(false);
       setGroupNameHasError(false);
     }, [onEdit, onOpen]);

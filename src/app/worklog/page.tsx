@@ -33,9 +33,7 @@ const Worklog = () => {
   const [currentFilterData, setCurrentFilterData] = useState([]);
   const [errorLog, setErrorLog] = useState(false);
   const [isWorklogSearch, setIsWorklogSearch] = useState("");
-  const [workTypeData, setWorkTypeData] = useState([]);
   const [isWorklogCompleteSearch, setIsWorklogCompleteSearch] = useState("");
-  const [workTypeCompleteData, setWorkTypeCompleteData] = useState([]);
   const [isImportOpen, setIsImportOpen] = useState(false);
 
   useEffect(() => {
@@ -51,104 +49,6 @@ const Worklog = () => {
       router.push("/");
     }
   }, [router]);
-
-  const handleIsWorklogSearch = async (searchValue: any) => {
-    const params = {
-      PageNo: 1,
-      PageSize: 50000,
-      SortColumn: "",
-      IsDesc: true,
-      GlobalSearch: searchValue,
-      ProjectIds: null,
-      OverdueBy: null,
-      PriorityId: null,
-      StatusId: null,
-      WorkTypeId: null,
-      AssignedTo: null,
-      StartDate: null,
-      EndDate: null,
-      DueDate: null,
-      IsCreatedByClient: null,
-      IsCompletedTaskPage: false,
-      IsSignedOff: false,
-      ...currentFilterData,
-    };
-    const url = `${process.env.worklog_api_url}/ClientWorkitem/getworkitemlist`;
-    const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
-    ) => {
-      if (ResponseStatus === "Success" && error === false) {
-        setWorkTypeData(ResponseData.List);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
-
-  useEffect(() => {
-    const fetchOrgToken = async () => {
-      const orgToken = await localStorage.getItem("Org_Token");
-      if (orgToken && isWorklogClicked) {
-        if (isWorklogSearch.length >= 3) {
-          handleIsWorklogSearch(isWorklogSearch);
-        } else {
-          handleIsWorklogSearch("");
-        }
-      }
-    };
-
-    fetchOrgToken();
-  }, [isWorklogSearch, isWorklogClicked]);
-
-  const handleIsWorklogCompleteSearch = async (searchValue: any) => {
-    const params = {
-      PageNo: 1,
-      PageSize: 50000,
-      SortColumn: "",
-      IsDesc: true,
-      GlobalSearch: searchValue,
-      ProjectIds: null,
-      OverdueBy: null,
-      PriorityId: null,
-      StatusId: null,
-      WorkTypeId: null,
-      AssignedTo: null,
-      StartDate: null,
-      EndDate: null,
-      DueDate: null,
-      IsCreatedByClient: null,
-      IsCompletedTaskPage: true,
-      IsSignedOff: false,
-      ...currentFilterData,
-    };
-    const url = `${process.env.worklog_api_url}/ClientWorkitem/getworkitemlist`;
-    const successCallback = (
-      ResponseData: any,
-      error: any,
-      ResponseStatus: any
-    ) => {
-      if (ResponseStatus === "Success" && error === false) {
-        setWorkTypeCompleteData(ResponseData.List);
-      }
-    };
-    callAPI(url, params, successCallback, "POST");
-  };
-
-  useEffect(() => {
-    const fetchOrgToken = async () => {
-      const orgToken = await localStorage.getItem("Org_Token");
-      if (orgToken && isCompletedTaskClicked) {
-        if (isWorklogCompleteSearch.length >= 3) {
-          handleIsWorklogCompleteSearch(isWorklogCompleteSearch);
-        } else {
-          handleIsWorklogCompleteSearch("");
-        }
-      }
-    };
-
-    fetchOrgToken();
-  }, [isWorklogCompleteSearch, isCompletedTaskClicked]);
 
   const closeFilterModal = () => {
     setIsFilterOpen(false);
@@ -203,6 +103,7 @@ const Worklog = () => {
                 setIsWorklogClicked(true);
                 setIsCompletedTaskClicked(false);
                 setErrorLog(false);
+                setIsWorklogCompleteSearch("");
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isWorklogClicked
@@ -223,6 +124,7 @@ const Worklog = () => {
                 setIsCompletedTaskClicked(true);
                 setIsWorklogClicked(false);
                 setErrorLog(true);
+                setIsWorklogSearch("");
               }}
               className={`py-[10px] text-[16px] cursor-pointer select-none ${
                 isCompletedTaskClicked
@@ -325,7 +227,7 @@ const Worklog = () => {
           onDrawerOpen={handleDrawerOpen}
           onComment={handleSetComments}
           currentFilterData={currentFilterData}
-          onSearchWorkTypeData={workTypeData}
+          onSearchWorkTypeData={isWorklogSearch}
           onCloseDrawer={openDrawer}
         />
       )}
@@ -337,7 +239,7 @@ const Worklog = () => {
           onComment={handleSetComments}
           onErrorLog={handleSetErrorLog}
           currentFilterData={currentFilterData}
-          onSearchWorkTypeData={workTypeCompleteData}
+          onSearchWorkTypeData={isWorklogCompleteSearch}
           onCloseDrawer={openDrawer}
         />
       )}
