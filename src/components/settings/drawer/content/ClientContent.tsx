@@ -1058,7 +1058,7 @@ const ClientContent = forwardRef<
                   getError={(e) => setClientNameHasError(e)}
                   hasError={clientError}
                   autoComplete="off"
-                  minChar={5}
+                  minChar={2}
                   maxChar={50}
                 />
                 <Textarea
