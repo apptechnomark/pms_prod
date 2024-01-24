@@ -4217,91 +4217,81 @@ const EditDrawer = ({
               </div>
             )}
 
-            {(isManual === true || isManual === null) && (
-              <div
-                className="mt-14"
-                id={`${
-                  isManual === true || isManual === null ? "tabpanel-5" : ""
-                }`}
-              >
-                <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
-                  <span className="flex items-center">
-                    <ClockIcon />
-                    <span className="ml-[21px]">Manual Time</span>
-                  </span>
-                  <span
-                    className={`cursor-pointer ${
-                      manualTimeDrawer ? "rotate-180" : ""
-                    }`}
-                    onClick={() => setManualTimeDrawer(!manualTimeDrawer)}
-                  >
-                    <ChevronDownIcon />
-                  </span>
-                </div>
-                {manualTimeDrawer && (
-                  <>
-                    <div className="-mt-2 pl-6">
-                      {manualFieldsApprovals.map((field) => (
-                        <div key={field.Id}>
-                          <div
-                            className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]`}
-                          >
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                              <DatePicker
-                                label={
-                                  <span>
-                                    Date
-                                    <span className="!text-defaultRed">
-                                      &nbsp;*
-                                    </span>
+            <div className="mt-14" id="tabpanel-5">
+              <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
+                <span className="flex items-center">
+                  <ClockIcon />
+                  <span className="ml-[21px]">Manual Time</span>
+                </span>
+                <span
+                  className={`cursor-pointer ${
+                    manualTimeDrawer ? "rotate-180" : ""
+                  }`}
+                  onClick={() => setManualTimeDrawer(!manualTimeDrawer)}
+                >
+                  <ChevronDownIcon />
+                </span>
+              </div>
+              {manualTimeDrawer && (
+                <>
+                  <div className="-mt-2 pl-6">
+                    {manualFieldsApprovals.map((field) => (
+                      <div key={field.Id}>
+                        <div
+                          className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px]`}
+                        >
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              label={
+                                <span>
+                                  Date
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
                                   </span>
-                                }
-                                value={
-                                  field.inputDate === ""
-                                    ? null
-                                    : dayjs(field.inputDate)
-                                }
-                                readOnly
-                              />
-                            </LocalizationProvider>
-                          </div>
-                          <TextField
-                            label={
-                              <span>
-                                Start Time(24h)
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
                                 </span>
-                              </span>
-                            }
-                            placeholder="00:00:00"
-                            fullWidth
-                            value={field.startTime}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 230 }}
-                          />
-                          <TextField
-                            label={
-                              <span>
-                                End Time(24h)
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            placeholder="00:00:00"
-                            fullWidth
-                            value={field.endTime}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 230 }}
-                          />
-                          {/* <TextField
+                              }
+                              value={
+                                field.inputDate === ""
+                                  ? null
+                                  : dayjs(field.inputDate)
+                              }
+                              readOnly
+                            />
+                          </LocalizationProvider>
+                        </div>
+                        <TextField
+                          label={
+                            <span>
+                              Start Time(24h)
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          placeholder="00:00:00"
+                          fullWidth
+                          value={field.startTime}
+                          InputProps={{ readOnly: true }}
+                          inputProps={{ readOnly: true }}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 230 }}
+                        />
+                        <TextField
+                          label={
+                            <span>
+                              End Time(24h)
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          placeholder="00:00:00"
+                          fullWidth
+                          value={field.endTime}
+                          InputProps={{ readOnly: true }}
+                          inputProps={{ readOnly: true }}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 230 }}
+                        />
+                        {/* <TextField
                             label="Total Time"
                             disabled
                             fullWidth
@@ -4317,42 +4307,39 @@ const EditDrawer = ({
                             InputProps={{ readOnly: true }}
                             inputProps={{ readOnly: true }}
                           /> */}
-                          <TextField
-                            label="Total Time"
-                            disabled
-                            fullWidth
-                            value={field.totalTime}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 225 }}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
-                          />
-                          <TextField
-                            label={
-                              <span>
-                                Description
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            className="mt-4"
-                            fullWidth
-                            value={field.manualDesc}
-                            InputProps={{ readOnly: true }}
-                            inputProps={{ readOnly: true }}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+                        <TextField
+                          label="Total Time"
+                          disabled
+                          fullWidth
+                          value={field.totalTime}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 225 }}
+                          InputProps={{ readOnly: true }}
+                          inputProps={{ readOnly: true }}
+                        />
+                        <TextField
+                          label={
+                            <span>
+                              Description
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          className="mt-4"
+                          fullWidth
+                          value={field.manualDesc}
+                          InputProps={{ readOnly: true }}
+                          inputProps={{ readOnly: true }}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
 
             <div className="mt-14" id="tabpanel-6">
               <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">

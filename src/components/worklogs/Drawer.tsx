@@ -111,7 +111,7 @@ const EditDrawer = ({
           hasPermissionWorklog("CheckList", "View", "WorkLogs") && "Checklist",
           hasPermissionWorklog("Comment", "View", "WorkLogs") && "Comments",
           hasPermissionWorklog("Reccuring", "View", "WorkLogs") && "Recurring",
-          (isManual === true || isManual === null) && "Manual Time",
+          "Manual Time",
           hasPermissionWorklog("Reminder", "View", "WorkLogs") && "Reminder",
           hasPermissionWorklog("ErrorLog", "View", "WorkLogs") && "Error Logs",
           "Reviewer's Note",
@@ -4631,264 +4631,219 @@ const EditDrawer = ({
               </div>
             )}
 
-            {(isManual === true || isManual === null) && (
-              <div
-                className="mt-14"
-                id={`${onEdit > 0 ? "tabpanel-5" : "tabpanel-3"}`}
-              >
-                <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
-                  <span className="flex items-center">
-                    <ClockIcon />
-                    <span className="ml-[21px]">Manual Time</span>
+            <div
+              className="mt-14"
+              id={`${onEdit > 0 ? "tabpanel-5" : "tabpanel-3"}`}
+            >
+              <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
+                <span className="flex items-center">
+                  <ClockIcon />
+                  <span className="ml-[21px]">Manual Time</span>
+                </span>
+                <span className="flex items-center">
+                  {onEdit > 0 &&
+                    manualSwitchWorklogs &&
+                    !isIdDisabled &&
+                    !isUnassigneeClicked && (
+                      <Button
+                        variant="contained"
+                        className={`rounded-[4px] !h-[36px] mr-6 ${
+                          manualSubmitWorklogsDisable ? "" : "!bg-secondary"
+                        }`}
+                        disabled={manualSubmitWorklogsDisable}
+                        onClick={
+                          manualSubmitWorklogsDisable
+                            ? undefined
+                            : handleSubmitManualWorklogs
+                        }
+                      >
+                        Update
+                      </Button>
+                    )}
+                  <Switch
+                    checked={manualSwitchWorklogs}
+                    onChange={(e) => {
+                      setManualSwitchWorklogs(e.target.checked);
+                      setManualFieldsWorklogs([
+                        {
+                          AssigneeId: 0,
+                          Id: 0,
+                          inputDate: "",
+                          startTime: "",
+                          endTime: "",
+                          totalTime: "",
+                          manualDesc: "",
+                          IsApproved: false,
+                        },
+                      ]);
+                      setInputDateWorklogsErrors([false]);
+                      setStartTimeWorklogsErrors([false]);
+                      setEndTimeWorklogsErrors([false]);
+                      setManualDescWorklogsErrors([false]);
+                      setInputTypeWorklogsDate(["text"]);
+                      setManualDisableData([
+                        {
+                          AssigneeId: 0,
+                          Id: 0,
+                          inputDate: "",
+                          startTime: "",
+                          endTime: "",
+                          totalTime: "",
+                          manualDesc: "",
+                          IsApproved: false,
+                        },
+                      ]);
+                    }}
+                  />
+                  <span
+                    className={`cursor-pointer ${
+                      manualTimeWorklogsDrawer ? "rotate-180" : ""
+                    }`}
+                    onClick={() =>
+                      setManualTimeWorklogsDrawer(!manualTimeWorklogsDrawer)
+                    }
+                  >
+                    <ChevronDownIcon />
                   </span>
-                  <span className="flex items-center">
-                    {onEdit > 0 &&
-                      manualSwitchWorklogs &&
-                      !isIdDisabled &&
-                      !isUnassigneeClicked && (
-                        <Button
-                          variant="contained"
-                          className={`rounded-[4px] !h-[36px] mr-6 ${
-                            manualSubmitWorklogsDisable ? "" : "!bg-secondary"
+                </span>
+              </div>
+              {manualTimeWorklogsDrawer && (
+                <>
+                  <div className="-mt-2 pl-6">
+                    {manualFieldsWorklogs.map((field, index) => (
+                      <div key={index} className="flex items-center">
+                        <div
+                          className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
+                            inputDateWorklogsErrors[index]
+                              ? "datepickerError"
+                              : ""
                           }`}
-                          disabled={manualSubmitWorklogsDisable}
-                          onClick={
-                            manualSubmitWorklogsDisable
-                              ? undefined
-                              : handleSubmitManualWorklogs
-                          }
                         >
-                          Update
-                        </Button>
-                      )}
-                    <Switch
-                      checked={manualSwitchWorklogs}
-                      onChange={(e) => {
-                        setManualSwitchWorklogs(e.target.checked);
-                        setManualFieldsWorklogs([
-                          {
-                            AssigneeId: 0,
-                            Id: 0,
-                            inputDate: "",
-                            startTime: "",
-                            endTime: "",
-                            totalTime: "",
-                            manualDesc: "",
-                            IsApproved: false,
-                          },
-                        ]);
-                        setInputDateWorklogsErrors([false]);
-                        setStartTimeWorklogsErrors([false]);
-                        setEndTimeWorklogsErrors([false]);
-                        setManualDescWorklogsErrors([false]);
-                        setInputTypeWorklogsDate(["text"]);
-                        setManualDisableData([
-                          {
-                            AssigneeId: 0,
-                            Id: 0,
-                            inputDate: "",
-                            startTime: "",
-                            endTime: "",
-                            totalTime: "",
-                            manualDesc: "",
-                            IsApproved: false,
-                          },
-                        ]);
-                      }}
-                    />
-                    <span
-                      className={`cursor-pointer ${
-                        manualTimeWorklogsDrawer ? "rotate-180" : ""
-                      }`}
-                      onClick={() =>
-                        setManualTimeWorklogsDrawer(!manualTimeWorklogsDrawer)
-                      }
-                    >
-                      <ChevronDownIcon />
-                    </span>
-                  </span>
-                </div>
-                {manualTimeWorklogsDrawer && (
-                  <>
-                    <div className="-mt-2 pl-6">
-                      {manualFieldsWorklogs.map((field, index) => (
-                        <div key={index} className="flex items-center">
-                          <div
-                            className={`inline-flex mt-[12px] mb-[8px] mx-[6px] muiDatepickerCustomizer w-full max-w-[230px] ${
-                              inputDateWorklogsErrors[index]
-                                ? "datepickerError"
-                                : ""
-                            }`}
-                          >
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                              <DatePicker
-                                label={
-                                  <span>
-                                    Date
-                                    <span className="!text-defaultRed">
-                                      &nbsp;*
-                                    </span>
+                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              label={
+                                <span>
+                                  Date
+                                  <span className="!text-defaultRed">
+                                    &nbsp;*
                                   </span>
-                                }
-                                minDate={dayjs(recurringStartDate)}
-                                maxDate={dayjs(new Date())}
-                                disabled={
-                                  !manualSwitchWorklogs ||
-                                  field.IsApproved ||
-                                  (field.AssigneeId !== 0 &&
-                                    field.AssigneeId !== userId) ||
-                                  isIdDisabled ||
-                                  isUnassigneeClicked
-                                }
-                                onError={() => {
-                                  if (
-                                    field.inputDate[index]?.trim().length > 0
-                                  ) {
-                                    const newInputDateWorklogsErrors = [
-                                      ...inputDateWorklogsErrors,
-                                    ];
-                                    newInputDateWorklogsErrors[index] = false;
-                                    setInputDateWorklogsErrors(
-                                      newInputDateWorklogsErrors
-                                    );
-                                  }
-                                }}
-                                value={
-                                  field.inputDate === ""
-                                    ? null
-                                    : dayjs(field.inputDate)
-                                }
-                                onChange={(newDate: any) => {
-                                  handleInputDateChangeWorklogs(
-                                    newDate.$d,
-                                    index
+                                </span>
+                              }
+                              minDate={dayjs(recurringStartDate)}
+                              maxDate={dayjs(new Date())}
+                              disabled={
+                                !manualSwitchWorklogs ||
+                                field.IsApproved ||
+                                (field.AssigneeId !== 0 &&
+                                  field.AssigneeId !== userId) ||
+                                isIdDisabled ||
+                                isUnassigneeClicked
+                              }
+                              onError={() => {
+                                if (field.inputDate[index]?.trim().length > 0) {
+                                  const newInputDateWorklogsErrors = [
+                                    ...inputDateWorklogsErrors,
+                                  ];
+                                  newInputDateWorklogsErrors[index] = false;
+                                  setInputDateWorklogsErrors(
+                                    newInputDateWorklogsErrors
                                   );
-                                }}
-                                slotProps={{
-                                  textField: {
-                                    helperText: inputDateWorklogsErrors[index]
-                                      ? "This is a required field."
-                                      : "",
-                                    readOnly: true,
-                                  } as Record<string, any>,
-                                }}
-                              />
-                            </LocalizationProvider>
-                          </div>
-                          <TextField
-                            label={
-                              <span>
-                                Start Time(24h)
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            placeholder="00:00:00"
-                            disabled={
-                              !manualSwitchWorklogs ||
-                              field.IsApproved ||
-                              (field.AssigneeId !== 0 &&
-                                field.AssigneeId !== userId) ||
-                              isIdDisabled ||
-                              isUnassigneeClicked
-                            }
-                            fullWidth
-                            value={field.startTime}
-                            onChange={(e) =>
-                              handleStartTimeChangeWorklogs(e, index)
-                            }
-                            onBlur={(e: any) => {
-                              if (e.target.value.trim().length > 7) {
-                                const newStartTimeWorklogsErrors = [
-                                  ...startTimeWorklogsErrors,
-                                ];
-                                newStartTimeWorklogsErrors[index] = false;
-                                setStartTimeWorklogsErrors(
-                                  newStartTimeWorklogsErrors
-                                );
+                                }
+                              }}
+                              value={
+                                field.inputDate === ""
+                                  ? null
+                                  : dayjs(field.inputDate)
                               }
-                            }}
-                            error={startTimeWorklogsErrors[index]}
-                            helperText={
-                              field.startTime.trim().length > 0 &&
-                              field.startTime.trim().length < 8 &&
-                              startTimeWorklogsErrors[index]
-                                ? "Start time must be in HH:MM:SS"
-                                : field.startTime.trim().length <= 0 &&
-                                  startTimeWorklogsErrors[index]
-                                ? "This is a required field"
-                                : ""
-                            }
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 225 }}
-                          />
-                          <TextField
-                            label={
-                              <span>
-                                End Time(24h)
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            placeholder="00:00:00"
-                            disabled={
-                              !manualSwitchWorklogs ||
-                              field.IsApproved ||
-                              (field.AssigneeId !== 0 &&
-                                field.AssigneeId !== userId) ||
-                              isIdDisabled ||
-                              isUnassigneeClicked
-                            }
-                            fullWidth
-                            value={field.endTime}
-                            onChange={(e) =>
-                              handleEndTimeChangeWorklogs(e, index)
-                            }
-                            onBlur={(e: any) => {
-                              if (
-                                e.target.value.trim().length > 7 &&
-                                field.endTime > field.startTime &&
-                                field.startTime
-                                  .split(":")
-                                  .reduce(
-                                    (acc, timePart, index) =>
-                                      acc +
-                                      parseInt(timePart) * [3600, 60, 1][index],
-                                    0
-                                  ) +
-                                  "07:59:59"
-                                    .split(":")
-                                    .reduce(
-                                      (acc, timePart, index) =>
-                                        acc +
-                                        parseInt(timePart) *
-                                          [3600, 60, 1][index],
-                                      0
-                                    ) <
-                                  field.endTime
-                                    .split(":")
-                                    .reduce(
-                                      (acc, timePart, index) =>
-                                        acc +
-                                        parseInt(timePart) *
-                                          [3600, 60, 1][index],
-                                      0
-                                    )
-                              ) {
-                                const newEndTimeWorklogsErrors = [
-                                  ...endTimeWorklogsErrors,
-                                ];
-                                newEndTimeWorklogsErrors[index] = false;
-                                setEndTimeWorklogsErrors(
-                                  newEndTimeWorklogsErrors
+                              onChange={(newDate: any) => {
+                                handleInputDateChangeWorklogs(
+                                  newDate.$d,
+                                  index
                                 );
-                              }
-                            }}
-                            error={endTimeWorklogsErrors[index]}
-                            helperText={
+                              }}
+                              slotProps={{
+                                textField: {
+                                  helperText: inputDateWorklogsErrors[index]
+                                    ? "This is a required field."
+                                    : "",
+                                  readOnly: true,
+                                } as Record<string, any>,
+                              }}
+                            />
+                          </LocalizationProvider>
+                        </div>
+                        <TextField
+                          label={
+                            <span>
+                              Start Time(24h)
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          placeholder="00:00:00"
+                          disabled={
+                            !manualSwitchWorklogs ||
+                            field.IsApproved ||
+                            (field.AssigneeId !== 0 &&
+                              field.AssigneeId !== userId) ||
+                            isIdDisabled ||
+                            isUnassigneeClicked
+                          }
+                          fullWidth
+                          value={field.startTime}
+                          onChange={(e) =>
+                            handleStartTimeChangeWorklogs(e, index)
+                          }
+                          onBlur={(e: any) => {
+                            if (e.target.value.trim().length > 7) {
+                              const newStartTimeWorklogsErrors = [
+                                ...startTimeWorklogsErrors,
+                              ];
+                              newStartTimeWorklogsErrors[index] = false;
+                              setStartTimeWorklogsErrors(
+                                newStartTimeWorklogsErrors
+                              );
+                            }
+                          }}
+                          error={startTimeWorklogsErrors[index]}
+                          helperText={
+                            field.startTime.trim().length > 0 &&
+                            field.startTime.trim().length < 8 &&
+                            startTimeWorklogsErrors[index]
+                              ? "Start time must be in HH:MM:SS"
+                              : field.startTime.trim().length <= 0 &&
+                                startTimeWorklogsErrors[index]
+                              ? "This is a required field"
+                              : ""
+                          }
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 225 }}
+                        />
+                        <TextField
+                          label={
+                            <span>
+                              End Time(24h)
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          placeholder="00:00:00"
+                          disabled={
+                            !manualSwitchWorklogs ||
+                            field.IsApproved ||
+                            (field.AssigneeId !== 0 &&
+                              field.AssigneeId !== userId) ||
+                            isIdDisabled ||
+                            isUnassigneeClicked
+                          }
+                          fullWidth
+                          value={field.endTime}
+                          onChange={(e) =>
+                            handleEndTimeChangeWorklogs(e, index)
+                          }
+                          onBlur={(e: any) => {
+                            if (
+                              e.target.value.trim().length > 7 &&
+                              field.endTime > field.startTime &&
                               field.startTime
                                 .split(":")
                                 .reduce(
@@ -4905,149 +4860,174 @@ const EditDrawer = ({
                                       parseInt(timePart) * [3600, 60, 1][index],
                                     0
                                   ) <
-                              field.endTime
+                                field.endTime
+                                  .split(":")
+                                  .reduce(
+                                    (acc, timePart, index) =>
+                                      acc +
+                                      parseInt(timePart) * [3600, 60, 1][index],
+                                    0
+                                  )
+                            ) {
+                              const newEndTimeWorklogsErrors = [
+                                ...endTimeWorklogsErrors,
+                              ];
+                              newEndTimeWorklogsErrors[index] = false;
+                              setEndTimeWorklogsErrors(
+                                newEndTimeWorklogsErrors
+                              );
+                            }
+                          }}
+                          error={endTimeWorklogsErrors[index]}
+                          helperText={
+                            field.startTime
+                              .split(":")
+                              .reduce(
+                                (acc, timePart, index) =>
+                                  acc +
+                                  parseInt(timePart) * [3600, 60, 1][index],
+                                0
+                              ) +
+                              "07:59:59"
                                 .split(":")
                                 .reduce(
                                   (acc, timePart, index) =>
                                     acc +
                                     parseInt(timePart) * [3600, 60, 1][index],
                                   0
-                                )
-                                ? "Time must be less than 07:59:59"
-                                : field.endTime.trim().length > 0 &&
-                                  field.endTime.trim().length < 8 &&
-                                  endTimeWorklogsErrors[index]
-                                ? "Start time must be in HH:MM:SS"
-                                : field.endTime.trim().length <= 0 &&
-                                  endTimeWorklogsErrors[index]
-                                ? "This is a required field"
-                                : endTimeWorklogsErrors[index] &&
-                                  field.endTime <= field.startTime
-                                ? "End time must be grater than start time"
-                                : ""
-                            }
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 225 }}
-                          />
-                          <TextField
-                            label="Total Time"
-                            disabled
-                            fullWidth
-                            value={field.totalTime}
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 225 }}
-                          />
-                          <TextField
-                            label={
-                              <span>
-                                Description
-                                <span className="!text-defaultRed">
-                                  &nbsp;*
-                                </span>
-                              </span>
-                            }
-                            className="mt-4"
-                            disabled={
-                              !manualSwitchWorklogs ||
-                              field.IsApproved ||
-                              (field.AssigneeId !== 0 &&
-                                field.AssigneeId !== userId) ||
-                              isIdDisabled ||
-                              isUnassigneeClicked
-                            }
-                            fullWidth
-                            value={field.manualDesc}
-                            onChange={(e) =>
-                              handleManualDescChangeWorklogs(e, index)
-                            }
-                            onBlur={(e: any) => {
-                              if (e.target.value.trim().length > 0) {
-                                const newManualDescWorklogsErrors = [
-                                  ...manualDescWorklogsErrors,
-                                ];
-                                newManualDescWorklogsErrors[index] = false;
-                                setManualDescWorklogsErrors(
-                                  newManualDescWorklogsErrors
-                                );
-                              }
-                            }}
-                            error={manualDescWorklogsErrors[index]}
-                            helperText={
-                              manualDescWorklogsErrors[index] &&
-                              field.manualDesc.length > 0 &&
-                              field.manualDesc.length < 5
-                                ? "Minumum 5 characters required."
-                                : manualDescWorklogsErrors[index] &&
-                                  field.manualDesc.length > 500
-                                ? "Maximum 500 characters allowed."
-                                : manualDescWorklogsErrors[index]
-                                ? "This is a required field."
-                                : ""
-                            }
-                            margin="normal"
-                            variant="standard"
-                            sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
-                          />
-                          {index === 0
-                            ? manualSwitchWorklogs &&
-                              !isIdDisabled &&
-                              !isUnassigneeClicked && (
-                                <span
-                                  className="cursor-pointer"
-                                  onClick={addManulaFieldWorklogs}
-                                >
-                                  <svg
-                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                    focusable="false"
-                                    aria-hidden="true"
-                                    viewBox="0 0 24 24"
-                                    data-testid="AddIcon"
-                                  >
-                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
-                                  </svg>
-                                </span>
+                                ) <
+                            field.endTime
+                              .split(":")
+                              .reduce(
+                                (acc, timePart, index) =>
+                                  acc +
+                                  parseInt(timePart) * [3600, 60, 1][index],
+                                0
                               )
-                            : manualSwitchWorklogs &&
-                              !isIdDisabled &&
-                              !isUnassigneeClicked &&
-                              !field.IsApproved && (
-                                <span
-                                  className="cursor-pointer"
-                                  onClick={() =>
-                                    removePhoneFieldWorklogs(index)
-                                  }
+                              ? "Time must be less than 07:59:59"
+                              : field.endTime.trim().length > 0 &&
+                                field.endTime.trim().length < 8 &&
+                                endTimeWorklogsErrors[index]
+                              ? "Start time must be in HH:MM:SS"
+                              : field.endTime.trim().length <= 0 &&
+                                endTimeWorklogsErrors[index]
+                              ? "This is a required field"
+                              : endTimeWorklogsErrors[index] &&
+                                field.endTime <= field.startTime
+                              ? "End time must be grater than start time"
+                              : ""
+                          }
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 225 }}
+                        />
+                        <TextField
+                          label="Total Time"
+                          disabled
+                          fullWidth
+                          value={field.totalTime}
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 225 }}
+                        />
+                        <TextField
+                          label={
+                            <span>
+                              Description
+                              <span className="!text-defaultRed">&nbsp;*</span>
+                            </span>
+                          }
+                          className="mt-4"
+                          disabled={
+                            !manualSwitchWorklogs ||
+                            field.IsApproved ||
+                            (field.AssigneeId !== 0 &&
+                              field.AssigneeId !== userId) ||
+                            isIdDisabled ||
+                            isUnassigneeClicked
+                          }
+                          fullWidth
+                          value={field.manualDesc}
+                          onChange={(e) =>
+                            handleManualDescChangeWorklogs(e, index)
+                          }
+                          onBlur={(e: any) => {
+                            if (e.target.value.trim().length > 0) {
+                              const newManualDescWorklogsErrors = [
+                                ...manualDescWorklogsErrors,
+                              ];
+                              newManualDescWorklogsErrors[index] = false;
+                              setManualDescWorklogsErrors(
+                                newManualDescWorklogsErrors
+                              );
+                            }
+                          }}
+                          error={manualDescWorklogsErrors[index]}
+                          helperText={
+                            manualDescWorklogsErrors[index] &&
+                            field.manualDesc.length > 0 &&
+                            field.manualDesc.length < 5
+                              ? "Minumum 5 characters required."
+                              : manualDescWorklogsErrors[index] &&
+                                field.manualDesc.length > 500
+                              ? "Maximum 500 characters allowed."
+                              : manualDescWorklogsErrors[index]
+                              ? "This is a required field."
+                              : ""
+                          }
+                          margin="normal"
+                          variant="standard"
+                          sx={{ mx: 0.75, maxWidth: 230, mt: 2 }}
+                        />
+                        {index === 0
+                          ? manualSwitchWorklogs &&
+                            !isIdDisabled &&
+                            !isUnassigneeClicked && (
+                              <span
+                                className="cursor-pointer"
+                                onClick={addManulaFieldWorklogs}
+                              >
+                                <svg
+                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px]  mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                  focusable="false"
+                                  aria-hidden="true"
+                                  viewBox="0 0 24 24"
+                                  data-testid="AddIcon"
                                 >
-                                  <svg
-                                    className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                                    focusable="false"
-                                    aria-hidden="true"
-                                    viewBox="0 0 24 24"
-                                    data-testid="RemoveIcon"
-                                  >
-                                    <path d="M19 13H5v-2h14v2z"></path>
-                                  </svg>
-                                </span>
-                              )}
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+                                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                                </svg>
+                              </span>
+                            )
+                          : manualSwitchWorklogs &&
+                            !isIdDisabled &&
+                            !isUnassigneeClicked &&
+                            !field.IsApproved && (
+                              <span
+                                className="cursor-pointer"
+                                onClick={() => removePhoneFieldWorklogs(index)}
+                              >
+                                <svg
+                                  className="MuiSvgIcon-root !w-[24px] !h-[24px] !mt-[24px] mx-[10px] MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                  focusable="false"
+                                  aria-hidden="true"
+                                  viewBox="0 0 24 24"
+                                  data-testid="RemoveIcon"
+                                >
+                                  <path d="M19 13H5v-2h14v2z"></path>
+                                </svg>
+                              </span>
+                            )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
 
             {hasPermissionWorklog("Reminder", "View", "WorkLogs") && (
               <div
                 className="my-14"
-                id={`${
-                  onEdit > 0 && (isManual === true || isManual === null)
-                    ? "tabpanel-6"
-                    : onEdit > 0
-                    ? "tabpanel-5"
-                    : "tabpanel-4"
-                }`}
+                id={`${onEdit > 0 ? "tabpanel-6" : "tabpanel-4"}`}
               >
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
@@ -5330,14 +5310,7 @@ const EditDrawer = ({
 
             {hasPermissionWorklog("ErrorLog", "View", "WorkLogs") &&
               onEdit > 0 && (
-                <div
-                  className="mt-14"
-                  id={`${
-                    isManual === true || isManual === null
-                      ? "tabpanel-7"
-                      : "tabpanel-6"
-                  }`}
-                >
+                <div className="mt-14" id="tabpanel-7">
                   <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                     <span className="flex items-center">
                       <TaskIcon />
@@ -5738,14 +5711,7 @@ const EditDrawer = ({
               )}
 
             {onEdit > 0 && (
-              <div
-                className="mt-14"
-                id={`${
-                  isManual === true || isManual === null
-                    ? "tabpanel-8"
-                    : "tabpanel-7"
-                }`}
-              >
+              <div className="mt-14" id="tabpanel-8">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
                     <HistoryIcon />
@@ -5822,14 +5788,7 @@ const EditDrawer = ({
 
             {/* Logs */}
             {onEdit > 0 && (
-              <div
-                className="mt-14"
-                id={`${
-                  isManual === true || isManual === null
-                    ? "tabpanel-9"
-                    : "tabpanel-8"
-                }`}
-              >
+              <div className="mt-14" id="tabpanel-9">
                 <div className="py-[10px] px-8 flex items-center justify-between font-medium border-dashed border-b border-lightSilver">
                   <span className="flex items-center">
                     <HistoryIcon />

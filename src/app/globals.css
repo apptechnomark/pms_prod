@@ -196,3 +196,26 @@ input[type="time"]::-moz-time-text {
   margin-top: 8px !important;
   margin-bottom: 0px !important;
 }
+
+.muiTableAction tbody tr {
+  position: relative;
+}
+
+.muiTableAction thead tr th:last-child {
+  width: 0px;
+}
+
+.muiTableAction thead tr th:last-child span {
+  display: flex;
+  justify-content: end;
+}
+
+.muiTableAction tbody tr td:last-child {
+  /* width: 2px !important; */
+  display: flex;
+  justify-content: end;
+  height: auto;
+  margin-top: 8px;
+  padding-bottom: 16px;
+  padding-right: 3rem;
+}
