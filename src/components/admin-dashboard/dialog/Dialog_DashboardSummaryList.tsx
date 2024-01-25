@@ -175,7 +175,7 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
                 ))}
               </Select>
             </FormControl>
-            {/* <ColorToolTip title="Export" placement="top" arrow>
+            <ColorToolTip title="Export" placement="top" arrow>
               <span
                 className={`${
                   isExporting ? "cursor-default" : "cursor-pointer"
@@ -184,7 +184,7 @@ const Dialog_DashboardSummaryList: React.FC<DashboardSummaryListProps> = ({
               >
                 {isExporting ? <Loading /> : <ExportIcon />}
               </span>
-            </ColorToolTip> */}
+            </ColorToolTip>
           </div>
           <Datatable_DashboardSummaryList
             onSelectedWorkType={onSelectedWorkType}
