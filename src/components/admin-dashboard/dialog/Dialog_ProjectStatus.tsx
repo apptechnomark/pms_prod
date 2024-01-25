@@ -186,7 +186,7 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
                 ))}
               </Select>
             </FormControl>
-            <ColorToolTip title="Export" placement="top" arrow>
+            {/* <ColorToolTip title="Export" placement="top" arrow>
               <span
                 className={`${
                   isExporting ? "cursor-default" : "cursor-pointer"
@@ -195,7 +195,7 @@ const Dialog_ProjectStatus: React.FC<ProjectStatusDialogProps> = ({
               >
                 {isExporting ? <Loading /> : <ExportIcon />}
               </span>
-            </ColorToolTip>
+            </ColorToolTip> */}
           </div>
           <Datatable_ProjectStatus
             onSelectedWorkType={onSelectedWorkType}

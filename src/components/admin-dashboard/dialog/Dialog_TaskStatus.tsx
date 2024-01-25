@@ -195,7 +195,7 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
                   ))}
                 </Select>
               </FormControl>
-              <ColorToolTip title="Export" placement="top" arrow>
+              {/* <ColorToolTip title="Export" placement="top" arrow>
                 <span
                   className={`${
                     isExporting ? "cursor-default" : "cursor-pointer"
@@ -204,7 +204,7 @@ const Dialog_TaskStatus: React.FC<TaskStatusInfoDialogProps> = ({
                 >
                   {isExporting ? <Loading /> : <ExportIcon />}
                 </span>
-              </ColorToolTip>
+              </ColorToolTip> */}
             </div>
           </div>
           <Datatable_TaskStatus
