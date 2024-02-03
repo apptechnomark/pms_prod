@@ -427,6 +427,11 @@ const Datatable = ({
       bodyRenderer: generateCommonBodyRender,
     },
     {
+      name: "ReviewerName",
+      label: "Reviewer Name",
+      bodyRenderer: generateCommonBodyRender,
+    },
+    {
       name: "PriorityName",
       label: "Priority",
       bodyRenderer: generatePriorityWithColor,
@@ -444,7 +449,7 @@ const Datatable = ({
       name: "StatusName",
       label: "Status",
       bodyRenderer: (value: any, tableMeta: any) =>
-        generateStatusWithColor(value, tableMeta.rowData[9]),
+        generateStatusWithColor(value, tableMeta.rowData[10]),
     },
     {
       name: "EstimateTime",
@@ -568,7 +573,7 @@ const Datatable = ({
               <div className="w-44 h-7 flex items-center">
                 <ColorToolTip
                   title={`Estimated Time: ${toHoursAndMinutes(
-                    tableMeta.rowData[11] * tableMeta.rowData[12]
+                    tableMeta.rowData[12] * tableMeta.rowData[13]
                   )}`}
                   placement="top"
                   arrow
@@ -739,7 +744,7 @@ const Datatable = ({
           viewColumns: false,
           customHeadLabelRender: () => generateCustomHeaderName("Status"),
           customBodyRender: (value: any, tableMeta: any) => {
-            const statusColorCode = tableMeta.rowData[9];
+            const statusColorCode = tableMeta.rowData[10];
 
             return (
               <div>
@@ -774,7 +779,7 @@ const Datatable = ({
             return (
               <span>
                 {toHoursAndMinutes(
-                  tableMeta.rowData[11] * tableMeta.rowData[12]
+                  tableMeta.rowData[12] * tableMeta.rowData[13]
                 )}
               </span>
             );
