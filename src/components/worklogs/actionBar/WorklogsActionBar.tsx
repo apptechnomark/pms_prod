@@ -621,7 +621,8 @@ const WorklogsActionBar = ({
             workItemData
               .map((i: any) =>
                 selectedRowIds.includes(i.WorkitemId) &&
-                (i.ReturnYear === 0 || i.ReturnYear === null)
+                (i.ReturnYear === 0 || i.ReturnYear === null) &&
+                i.WorkTypeId === 3
                   ? i.WorkitemId
                   : undefined
               )
@@ -629,7 +630,8 @@ const WorklogsActionBar = ({
             workItemData
               .map((i: any) =>
                 selectedRowIds.includes(i.WorkitemId) &&
-                (i.ReturnYear > 0 || i.ReturnYear !== null)
+                (i.ReturnYear > 0 || i.ReturnYear !== null) &&
+                i.WorkTypeId === 3
                   ? i.WorkitemId
                   : undefined
               )
