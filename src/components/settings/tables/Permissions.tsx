@@ -8,24 +8,17 @@ import axios from "axios";
 import ReportLoader from "@/components/common/ReportLoader";
 import { toast } from "react-toastify";
 
-interface Action {
-  IsChecked: boolean;
-}
-
 const Permissions = ({
   onOpen,
   permissionValue,
+  permissionValueType,
   sendDataToParent,
   expanded,
   loading,
   getOrgDetailsFunction,
   canView,
-  canEdit,
-  canDelete,
-  onHandleExport,
 }: any) => {
   const [data, setData] = useState<any>([]);
-  const [isAction, setIsAction] = useState<string>("");
 
   useEffect(() => {
     if (permissionValue > 0) {
@@ -120,7 +113,22 @@ const Permissions = ({
               childIndex +
               action.ActionId.toString();
 
-        return (
+        return permissionValueType === 2 ? (
+          action.ActionId !== 12 && (
+            <CheckBox
+              key={uniqueId}
+              label={action.ActionName}
+              type="checkbox"
+              id={uniqueId}
+              checked={action.IsChecked}
+              onChange={() =>
+                parentId === 3 && data.length === 3
+                  ? handleCheckboxChange(2, childIndex, index)
+                  : handleCheckboxChange(parentId, childIndex, index)
+              }
+            />
+          )
+        ) : (
           <CheckBox
             key={uniqueId}
             label={action.ActionName}
@@ -225,7 +233,6 @@ const Permissions = ({
             const isAction = actionNames.find(
               (actionName) => actionName !== null
             );
-            setIsAction(isAction);
           }
 
           sendDataToParent(response.data.ResponseData);

@@ -73,7 +73,9 @@ const Datatable = ({
   onComment,
   searchValue,
   isUnassigneeClicked,
-  onChangeLoader,
+  onChangeTimeLoader,
+  onChangeTodayTimeLoader,
+  setLoading,
 }: any) => {
   const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
     useState(false);
@@ -108,6 +110,10 @@ const Datatable = ({
   const [comment, setComment] = useState<string>("");
   const [commentErrText, setCommentErrText] = useState<string>("");
   const [isTimeExceed, setIsTimeExceed] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsLoadingWorklogsDatatable(setLoading);
+  }, [setLoading]);
 
   const handleRowSelect = (
     currentRowsSelected: any,
@@ -258,6 +264,7 @@ const Datatable = ({
   };
 
   const handleSync = async (selectedRowId: number) => {
+    setIsLoadingWorklogsDatatable(true);
     const params = {
       workitemId: selectedRowId,
     };
@@ -382,7 +389,8 @@ const Datatable = ({
       ResponseStatus: any
     ) => {
       if (ResponseStatus === "Success" && error === false) {
-        onChangeLoader(ResponseData.TotalTime);
+        onChangeTimeLoader(ResponseData.TotalTime);
+        onChangeTodayTimeLoader(ResponseData.TodaysTime);
         onHandleExport(ResponseData.List.length > 0 ? true : false);
         setLoaded(true);
         setWorkItemData(ResponseData.List);

@@ -1638,9 +1638,9 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                     <Grid item xs={3} className="pt-4">
                       <Autocomplete
                         id="combo-box-demo"
-                        options={statusWorklogsDropdownDataUse}
+                        options={statusWorklogsDropdownData}
                         value={
-                          statusWorklogsDropdownDataUse.find(
+                          statusWorklogsDropdownData.find(
                             (i: any) => i.value === statusWorklogsEdit
                           ) || null
                         }

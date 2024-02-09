@@ -49,7 +49,10 @@ const exportBody = {
 
 const Page = () => {
   const router = useRouter();
+  const [isLoadingWorklogsDatatable, setIsLoadingWorklogsDatatable] =
+    useState(false);
   const [timeValue, setTimeValue] = useState(null);
+  const [todayTimeValue, setTodayTimeValue] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [hasEdit, setHasEdit] = useState(0);
@@ -226,6 +229,7 @@ const Page = () => {
   };
 
   const setBreak = async () => {
+    setIsLoadingWorklogsDatatable(true);
     const params = {
       breakId: breakId,
     };
@@ -238,6 +242,9 @@ const Page = () => {
       if (ResponseStatus === "Success" && error === false) {
         getBreakData();
         setBreakID((prev) => (ResponseData === prev ? 0 : ResponseData));
+        setIsLoadingWorklogsDatatable(false);
+      } else {
+        setIsLoadingWorklogsDatatable(false);
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -347,9 +354,14 @@ const Page = () => {
           </div>
           <div className="flex items-center justify-center gap-[10px]">
             {isTaskClicked && (
-              <span className="text-secondary font-light text-[14px]">
-                Total time: {timeValue}
-              </span>
+              <div className="flex flex-col items-end justify-center">
+                <span className="text-secondary font-light text-[14px]">
+                  Total time: {timeValue}
+                </span>
+                <span className="text-secondary font-light text-[14px]">
+                  Today&apos;s time: {todayTimeValue}
+                </span>
+              </div>
             )}
             <div className="relative">
               <InputBase
@@ -572,7 +584,9 @@ const Page = () => {
             onHandleExport={handleCanExport}
             isTaskClicked={isTaskClicked}
             isUnassigneeClicked={isUnassigneeClicked}
-            onChangeLoader={(e: any) => setTimeValue(e)}
+            onChangeTimeLoader={(e: any) => setTimeValue(e)}
+            onChangeTodayTimeLoader={(e: any) => setTodayTimeValue(e)}
+            setLoading={isLoadingWorklogsDatatable}
           />
         )}
         {isUnassigneeClicked && (

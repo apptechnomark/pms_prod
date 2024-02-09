@@ -100,6 +100,7 @@ const Page = () => {
   const [getOrgDetailsFunction, setGetOrgDetailsFunction] = useState<
     (() => void) | null
   >(null);
+  const [permissionValueType, setPermissionValueType] = useState<any>(0);
   const [permissionValue, setPermissionValue] = useState(0);
   const [permissionDropdownData, setPermissionDropdownData] = useState([]);
   const [isPermissionExpanded, setPermissionExpanded] =
@@ -959,6 +960,11 @@ const Page = () => {
                     defaultValue={permissionValue === 0 ? "" : permissionValue}
                     getValue={(value) => {
                       setPermissionValue(value);
+                      setPermissionValueType(
+                        permissionDropdownData
+                          .map((i: any) => i.value === value && i.Type)
+                          .filter((j: any) => j !== false)[0]
+                      );
                     }}
                     getError={(e) => {
                       console.error(e);
@@ -1199,6 +1205,7 @@ const Page = () => {
             onEdit={handleEdit}
             expanded={isPermissionExpanded}
             permissionValue={permissionValue}
+            permissionValueType={permissionValueType}
             sendDataToParent={(data: any) => setUpdatedPermissionsData(data)}
             getOrgDetailsFunction={getOrgDetailsFunction}
             canView={hasPermissionWorklog("permission", "view", "settings")}
