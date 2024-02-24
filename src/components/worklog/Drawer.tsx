@@ -378,10 +378,11 @@ const Drawer = ({
         .split("(")
         .map((i: any, index: number) => {
           if (i.includes(")")) {
-            return parseInt(i.split(")")[0]);
+            const parsedValue = parseInt(i.split(")")[0]);
+            return isNaN(parsedValue) ? null : parsedValue;
           }
         })
-        .filter((i: any) => i !== undefined)
+        .filter((i: any) => i !== undefined && i !== null)
     );
     setCommentValueClientWorklogError(false);
   };
@@ -1883,9 +1884,9 @@ const Drawer = ({
                                 <div className="flex items-center gap-2">
                                   {editingCommentIndexClientWorklog ===
                                   index ? (
-                                    <div className="flex items-center gap-2">
-                                      <div className="flex flex-col items-start">
-                                        <div className="flex items-start justify-center">
+                                    <div className="flex items-start gap-2">
+                                      <div className="flex flex-col">
+                                        <div className="flex items-start justify-start w-[70vw]">
                                           <MentionsInput
                                             style={mentionsInputStyle}
                                             className="!w-[100%] textareaOutlineNoneEdit"
@@ -1990,9 +1991,9 @@ const Drawer = ({
                                       </button>
                                     </div>
                                   ) : (
-                                    <>
+                                    <div className="flex items-start justify-start gap-8 w-[70vw]">
                                       <span className="hidden"></span>
-                                      <div className="flex items-start">
+                                      <div className="max-w-[60vw]">
                                         {extractText(i.Message).map(
                                           (i: any) => {
                                             const assignee =
@@ -2072,7 +2073,7 @@ const Drawer = ({
                                             <EditIcon className="h-4 w-4" />
                                           </button>
                                         )}
-                                    </>
+                                    </div>
                                   )}
                                 </div>
                               </div>

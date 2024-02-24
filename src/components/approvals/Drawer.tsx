@@ -810,10 +810,10 @@ const EditDrawer = ({
 
   const handleSaveClickApprovals = async (e: any, i: any, type: any) => {
     e.preventDefault();
-    setValueEditError(valueEdit.trim().length < 51);
+    setValueEditError(valueEdit.trim().length < 1);
 
     if (hasPermissionWorklog("Comment", "Save", "WorkLogs")) {
-      if (valueEdit.trim().length > 51 && !valueEditError) {
+      if (valueEdit.trim().length > 1 && !valueEditError) {
         setIsLoadingApprovals(true);
         const params = {
           workitemId: onEdit,
@@ -866,10 +866,11 @@ const EditDrawer = ({
         .split("(")
         .map((i: any, index: number) => {
           if (i.includes(")")) {
-            return parseInt(i.split(")")[0]);
+            const parsedValue = parseInt(i.split(")")[0]);
+            return isNaN(parsedValue) ? null : parsedValue;
           }
         })
-        .filter((i: any) => i !== undefined)
+        .filter((i: any) => i !== undefined && i !== null)
     );
     setValueError(false);
   };
@@ -3771,10 +3772,10 @@ const EditDrawer = ({
                               {editingCommentIndexApprovals === index ? (
                                 <div className="flex items-start justify-center gap-8">
                                   <div className="flex flex-col">
-                                    <div className="flex items-start justify-center">
+                                    <div className="flex items-start justify-start w-[70vw]">
                                       <MentionsInput
                                         style={mentionsInputStyle}
-                                        className="!w-[100%] textareaOutlineNoneEdit max-w-[70%]"
+                                        className="!w-[100%] textareaOutlineNoneEdit max-w-[60vw]"
                                         value={valueEdit}
                                         onChange={(e) => {
                                           setValueEdit(e.target.value);
@@ -3859,9 +3860,9 @@ const EditDrawer = ({
                                   </button>
                                 </div>
                               ) : (
-                                <div className="flex items-start justify-center gap-8">
+                                <div className="flex items-start justify-start gap-8 w-[70vw]">
                                   <span className="hidden"></span>
-                                  <div className="flex items-start max-w-[70%]">
+                                  <div className="max-w-[60vw]">
                                     {extractText(i.Message).map((i: any) => {
                                       const assignee =
                                         commentUserDataApprovals.map(
@@ -4205,9 +4206,9 @@ const EditDrawer = ({
                           : recurringTimeApprovals === 2
                           ? `Occurs every ${selectedDays
                               .sort()
-                              .map((day: any) => " " + days[day])} ${
-                              selectedDays.length <= 0 && "day"
-                            } starting from today`
+                              .map(
+                                (day: any) => " " + days[day]
+                              )} starting from today`
                           : recurringTimeApprovals === 3 &&
                             "Occurs every month starting from today"}
                       </span>

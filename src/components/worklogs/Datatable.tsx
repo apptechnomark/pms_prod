@@ -214,8 +214,16 @@ const Datatable = ({
 
   useEffect(() => {
     setRunning(
-      workItemData.filter((data: any) => data.TimelogId > 0).length > 0
-        ? workItemData.filter((data: any) => data.TimelogId > 0)[0].WorkitemId
+      workItemData.filter(
+        (data: any) =>
+          data.TimelogId > 0 &&
+          data.AssignedToId == localStorage.getItem("UserId")
+      ).length > 0
+        ? workItemData.filter(
+            (data: any) =>
+              data.TimelogId > 0 &&
+              data.AssignedToId == localStorage.getItem("UserId")
+          )[0].WorkitemId
         : -1
     );
     setWorkitemTimeId(
@@ -230,10 +238,10 @@ const Datatable = ({
     selectedRowId: number,
     workitemTimeId?: number
   ) => {
-    if (state === 1 && isOnBreak !== 0) {
-      onGetBreakData();
-      onSetBreak();
-    }
+    // if (state === 1 && isOnBreak !== 0) {
+    //   onGetBreakData();
+    //   // onSetBreak();
+    // }
 
     setIsLoadingWorklogsDatatable(true);
     const params = {
@@ -256,8 +264,11 @@ const Datatable = ({
         setRunning((prev) => (selectedRowId !== prev ? selectedRowId : -1));
         getWorkItemList();
         setIsLoadingWorklogsDatatable(false);
+        onGetBreakData();
       } else {
         setIsLoadingWorklogsDatatable(false);
+        getWorkItemList();
+        onGetBreakData();
       }
     };
     callAPI(url, params, successCallback, "POST");
@@ -290,6 +301,7 @@ const Datatable = ({
           );
           setIsLoadingWorklogsDatatable(false);
         } else {
+          setRunning(-1);
           getWorkItemList();
           setIsLoadingWorklogsDatatable(false);
         }
@@ -713,6 +725,9 @@ const Datatable = ({
                       </span>
                     </ColorToolTip>
                   ) : (
+                    tableMeta.rowData[
+                      tableMeta.rowData.length - 4
+                    ].toString() === localStorage.getItem("UserId") &&
                     (workItemData[tableMeta.rowIndex].IsManual === false ||
                       !workItemData[tableMeta.rowIndex].IsManual) &&
                     tableMeta.rowData[tableMeta.rowData.length - 2] === 2 && (
@@ -733,64 +748,66 @@ const Datatable = ({
                       </ColorToolTip>
                     )
                   ))}
-                {(tableMeta.rowData[tableMeta.rowData.length - 2] === 1 ||
-                  tableMeta.rowData[tableMeta.rowData.length - 1] ===
-                    isRunning) && (
-                  <div className="flex">
-                    <ColorToolTip title="Pause" placement="top" arrow>
-                      <span
-                        className="cursor-pointer"
-                        onClick={() => {
-                          setRunning(
-                            tableMeta.rowData[tableMeta.rowData.length - 1]
-                          );
-                          handleTimer(
-                            2,
-                            tableMeta.rowData[tableMeta.rowData.length - 1],
-                            workitemTimeId
-                          );
-                          handleClearSelection();
-                        }}
-                      >
-                        <PauseButton />
-                      </span>
-                    </ColorToolTip>
-                    <ColorToolTip title="Stop" placement="top" arrow>
-                      <span
-                        className="cursor-pointer mt-[2px]"
-                        onClick={() => {
-                          handleSync(
-                            tableMeta.rowData[tableMeta.rowData.length - 1]
-                          );
-                          setRunning(
-                            tableMeta.rowData[tableMeta.rowData.length - 1]
-                          );
-                          setStopTimerDialog(true);
-                          value > estimatedTimeInSeconds
-                            ? setIsTimeExceed(true)
-                            : setIsTimeExceed(false);
+                {tableMeta.rowData[tableMeta.rowData.length - 4].toString() ===
+                  localStorage.getItem("UserId") &&
+                  (tableMeta.rowData[tableMeta.rowData.length - 2] === 1 ||
+                    tableMeta.rowData[tableMeta.rowData.length - 1] ===
+                      isRunning) && (
+                    <div className="flex">
+                      <ColorToolTip title="Pause" placement="top" arrow>
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => {
+                            setRunning(
+                              tableMeta.rowData[tableMeta.rowData.length - 1]
+                            );
+                            handleTimer(
+                              2,
+                              tableMeta.rowData[tableMeta.rowData.length - 1],
+                              workitemTimeId
+                            );
+                            handleClearSelection();
+                          }}
+                        >
+                          <PauseButton />
+                        </span>
+                      </ColorToolTip>
+                      <ColorToolTip title="Stop" placement="top" arrow>
+                        <span
+                          className="cursor-pointer mt-[2px]"
+                          onClick={() => {
+                            handleSync(
+                              tableMeta.rowData[tableMeta.rowData.length - 1]
+                            );
+                            setRunning(
+                              tableMeta.rowData[tableMeta.rowData.length - 1]
+                            );
+                            setStopTimerDialog(true);
+                            value > estimatedTimeInSeconds
+                              ? setIsTimeExceed(true)
+                              : setIsTimeExceed(false);
 
-                          handleClearSelection();
-                        }}
-                      >
-                        <StopButton />
-                      </span>
-                    </ColorToolTip>
-                    <ColorToolTip title="Sync" placement="top" arrow>
-                      <span
-                        className="cursor-pointer"
-                        onClick={() => {
-                          handleSync(
-                            tableMeta.rowData[tableMeta.rowData.length - 1]
-                          );
-                          handleClearSelection();
-                        }}
-                      >
-                        <RestartButton />
-                      </span>
-                    </ColorToolTip>
-                  </div>
-                )}
+                            handleClearSelection();
+                          }}
+                        >
+                          <StopButton />
+                        </span>
+                      </ColorToolTip>
+                      <ColorToolTip title="Sync" placement="top" arrow>
+                        <span
+                          className="cursor-pointer"
+                          onClick={() => {
+                            handleSync(
+                              tableMeta.rowData[tableMeta.rowData.length - 1]
+                            );
+                            handleClearSelection();
+                          }}
+                        >
+                          <RestartButton />
+                        </span>
+                      </ColorToolTip>
+                    </div>
+                  )}
               </div>
             );
           },
@@ -1049,8 +1066,13 @@ const Datatable = ({
               <span>
                 {runningTimerData.length > 0
                   ? toHoursAndMinutes(
-                      (toSeconds(runningTimerData[0].EstimateTime) ?? 0) *
-                        runningTimerData[0]?.Quantity
+                      isNaN(
+                        (toSeconds(runningTimerData[0].EstimateTime) ?? 0) *
+                          runningTimerData[0]?.Quantity
+                      )
+                        ? 0
+                        : (toSeconds(runningTimerData[0].EstimateTime) ?? 0) *
+                            runningTimerData[0]?.Quantity
                     )
                   : "00:00:00"}
               </span>
@@ -1058,11 +1080,13 @@ const Datatable = ({
             <div className="w-full flex items-center justify-between border-b border-gray-500 py-2 my-3">
               <span>Yout total time spent</span>
               <span>
-                {toHoursAndMinutes(
-                  runningTimerData.length > 0
-                    ? runningTimerData[0].Timer
-                    : "00:00:00"
-                )}
+                {runningTimerData.length > 0
+                  ? toHoursAndMinutes(
+                      isNaN(runningTimerData[0].Timer)
+                        ? 0
+                        : runningTimerData[0].Timer
+                    )
+                  : "00:00:00"}
               </span>
             </div>
           </DialogContentText>

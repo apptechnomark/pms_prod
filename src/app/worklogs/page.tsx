@@ -217,6 +217,12 @@ const Page = () => {
         if (ResponseData.BreakId === null && ResponseData.TotalTime === null) {
           setBreakID(0);
           setTimer("00:00:00");
+        } else if (
+          ResponseData.BreakId === null &&
+          ResponseData.TotalTime !== null
+        ) {
+          setBreakID(0);
+          setTimer(ResponseData.TotalTime);
         } else if (!ResponseData.IsStared && ResponseData.TotalTime !== null) {
           setTimer(ResponseData.TotalTime);
         } else if (ResponseData.IsStared && ResponseData.BreakId !== null) {
@@ -245,6 +251,7 @@ const Page = () => {
         setIsLoadingWorklogsDatatable(false);
       } else {
         setIsLoadingWorklogsDatatable(false);
+        getBreakData();
       }
     };
     callAPI(url, params, successCallback, "POST");
