@@ -122,7 +122,11 @@ const EditDialog: React.FC<EditModalProps> = ({
   }
 
   useEffect(() => {
-    if (onSelectedSubmissionId > 0 && onSelectedSubmissionId !== null) {
+    if (
+      onSelectedSubmissionId > 0 &&
+      onSelectedSubmissionId !== null &&
+      onOpen
+    ) {
       const getDataForManualTime = async () => {
         const params = {
           SubmissionId: onSelectedSubmissionId,
@@ -148,7 +152,7 @@ const EditDialog: React.FC<EditModalProps> = ({
 
       getDataForManualTime();
     }
-  }, [onSelectedSubmissionId]);
+  }, [onSelectedSubmissionId, onOpen]);
 
   const updateManualTime = async () => {
     const [hours, minutes, seconds] = editTime.split(":");

@@ -48,7 +48,7 @@ export const dashboardReport_Options: any = {
 export const approvals_Dt_Options: any = {
   filterType: "checkbox",
   responsive: "standard",
-  tableBodyHeight: "73vh",
+  tableBodyHeight: "70vh",
   elevation: 0,
   viewColumns: false,
   filter: false,

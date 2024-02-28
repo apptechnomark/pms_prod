@@ -181,6 +181,10 @@ const Datatable = ({
     setIsPopupOpen(allRowsSelected);
   };
 
+  useEffect(() => {
+    handleClearSelection();
+  }, [onDrawerClose]);
+
   const handleClearSelection = () => {
     setSelectedRowsCount(0);
     setSelectedRows([]);

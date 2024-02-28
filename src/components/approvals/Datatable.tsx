@@ -109,6 +109,7 @@ const Datatable = ({
 
   useEffect(() => {
     if (onCloseDrawer === false || !onCloseDrawer) {
+      handleClearSelection();
       setRowsPerPage(10);
     }
   }, [onCloseDrawer]);
@@ -602,7 +603,8 @@ const Datatable = ({
                 {reviewList[tableMeta.rowIndex].ReviewerId ==
                   localStorage.getItem("UserId") &&
                   reviewList.length > 0 &&
-                  (reviewList[tableMeta.rowIndex].StatusId === 56 ||
+                  (reviewList[tableMeta.rowIndex].StatusId === 62 ||
+                    reviewList[tableMeta.rowIndex].StatusId === 56 ||
                     reviewList[tableMeta.rowIndex].StatusId === 58 ||
                     reviewList[tableMeta.rowIndex].StatusId === 59 ||
                     reviewList[tableMeta.rowIndex].StatusId === 6 ||
@@ -615,14 +617,15 @@ const Datatable = ({
                     <ColorToolTip title="Start" placement="top" arrow>
                       <span
                         className="cursor-pointer"
-                        onClick={() =>
+                        onClick={() => {
                           handleReviewTimer(
                             1,
                             tableMeta.rowData[tableMeta.rowData.length - 1],
                             tableMeta.rowData[tableMeta.rowData.length - 3],
                             0
-                          )
-                        }
+                          );
+                          handleClearSelection();
+                        }}
                       >
                         <PlayButton />
                       </span>
@@ -632,14 +635,15 @@ const Datatable = ({
                       <ColorToolTip title="Resume" placement="top" arrow>
                         <span
                           className="cursor-pointer"
-                          onClick={() =>
+                          onClick={() => {
                             handleReviewTimer(
                               1,
                               tableMeta.rowData[tableMeta.rowData.length - 1],
                               tableMeta.rowData[tableMeta.rowData.length - 3],
                               0
-                            )
-                          }
+                            );
+                            handleClearSelection();
+                          }}
                         >
                           <PlayPause />
                         </span>
@@ -665,6 +669,7 @@ const Datatable = ({
                               tableMeta.rowData[tableMeta.rowData.length - 3],
                               workitemTimeId
                             );
+                            handleClearSelection();
                           }}
                         >
                           <PauseButton />
@@ -673,7 +678,10 @@ const Datatable = ({
                       <ColorToolTip title="Stop" placement="top" arrow>
                         <span
                           className="cursor-pointer mt-[2px]"
-                          onClick={() => setStopReviewTimer(true)}
+                          onClick={() => {
+                            setStopReviewTimer(true);
+                            handleClearSelection();
+                          }}
                         >
                           <StopButton />
                         </span>
@@ -681,18 +689,20 @@ const Datatable = ({
                       <ColorToolTip title="Sync" placement="top" arrow>
                         <span
                           className="cursor-pointer"
-                          onClick={() =>
+                          onClick={() => {
                             handleReviewSync(
                               tableMeta.rowData[tableMeta.rowData.length - 3]
-                            )
-                          }
+                            );
+                            handleClearSelection();
+                          }}
                         >
                           <RestartButton />
                         </span>
                       </ColorToolTip>
                     </div>
                   )}
-                {(reviewList[tableMeta.rowIndex].StatusId === 56 ||
+                {(reviewList[tableMeta.rowIndex].StatusId === 62 ||
+                  reviewList[tableMeta.rowIndex].StatusId === 56 ||
                   reviewList[tableMeta.rowIndex].StatusId === 58 ||
                   reviewList[tableMeta.rowIndex].StatusId === 59 ||
                   reviewList[tableMeta.rowIndex].StatusId === 6 ||
@@ -707,12 +717,13 @@ const Datatable = ({
                     >
                       <span
                         className="ml-2 cursor-pointer"
-                        onClick={() =>
+                        onClick={() => {
                           handleReviewerManualTime(
                             tableMeta.rowData[tableMeta.rowData.length - 1],
                             tableMeta.rowData[tableMeta.rowData.length - 3]
-                          )
-                        }
+                          );
+                          handleClearSelection();
+                        }}
                       >
                         <ClockIcon />
                       </span>

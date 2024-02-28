@@ -109,6 +109,7 @@ const Status = ({
               : item.Type === "ReworkInReview" ||
                 item.Type === "ReworkSubmitted" ||
                 item.Type === "ReworkAccept") ||
+            item.Type === "InReviewWithClients" ||
             item.Type === "SecondManagerReview" ||
             item.Type === "OnHoldFromClient" ||
             item.Type === "WithDraw" ||
