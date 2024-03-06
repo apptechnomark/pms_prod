@@ -105,7 +105,7 @@ const RatingReport = ({ filteredData, searchValue, onHandleExport }: any) => {
         title={undefined}
         columns={reportsRatingCols}
         data={ratingReportFields.data}
-        options={options}
+        options={{ ...options, tableBodyHeight: "73vh" }}
       />
       <TablePagination
         component="div"

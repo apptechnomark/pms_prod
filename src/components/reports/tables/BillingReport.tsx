@@ -161,6 +161,12 @@ const BillingReport = ({
     callAPI(url, params, successCallback, "POST");
   };
 
+  const handleClearSelection = () => {
+    setSelectedIndex([]);
+    setRaisedInvoice([]);
+    setBTCData([]);
+  };
+
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number
@@ -172,6 +178,7 @@ const BillingReport = ({
       pageNo: newPage + 1,
       pageSize: billingRowsPerPage,
     });
+    handleClearSelection();
   };
 
   const handleChangeRowsPerPage = (
@@ -185,6 +192,7 @@ const BillingReport = ({
       pageNo: 1,
       pageSize: event.target.value,
     });
+    handleClearSelection();
   };
 
   const handleBTCData = (newValue: any, workItemId: any) => {
@@ -376,7 +384,7 @@ const BillingReport = ({
         filter: true,
         sort: true,
         customHeadLabelRender: () =>
-          generateCustomHeaderName("Preparation Date"),
+          generateCustomHeaderName("Date of Preparation"),
         customBodyRender: (value: any) => {
           return generateDateWithTime(value);
         },
@@ -387,7 +395,7 @@ const BillingReport = ({
       options: {
         filter: true,
         sort: true,
-        customHeadLabelRender: () => generateCustomHeaderName("Reviewer Date"),
+        customHeadLabelRender: () => generateCustomHeaderName("Date of Review"),
         customBodyRender: (value: any) => {
           return generateDateWithTime(value);
         },
@@ -434,6 +442,17 @@ const BillingReport = ({
         customHeadLabelRender: () => generateCustomHeaderName("Std. Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "ReturnYear",
+      options: {
+        sort: true,
+        filter: true,
+        customHeadLabelRender: () => generateCustomHeaderName("Return Year"),
+        customBodyRender: (value: any) => {
+          return generateCommonBodyRender(value);
         },
       },
     },
@@ -514,6 +533,7 @@ const BillingReport = ({
         title={undefined}
         options={{
           ...options,
+          tableBodyHeight: "73vh",
           selectableRows: "multiple",
           rowsSelected: isBTCSaved ? [] : selectedIndex,
           onRowSelectionChange: (i: any, j: any, selectedRowsIndex: any) => {
@@ -545,6 +565,18 @@ const BillingReport = ({
         onPageChange={handleChangePage}
         rowsPerPage={billingRowsPerPage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        rowsPerPageOptions={
+          // billingReportFields.dataCount <= 10
+          //   ?
+          [10, 25, 50, 100, 500]
+          // : billingReportFields.dataCount <= 20
+          // ? [10, billingReportFields.dataCount]
+          // : billingReportFields.dataCount <= 30
+          // ? [10, 20, billingReportFields.dataCount]
+          // : billingReportFields.dataCount <= 50
+          // ? [10, 25, billingReportFields.dataCount]
+          // : [10, 25, 50, billingReportFields.dataCount]
+        }
       />
     </ThemeProvider>
   ) : (

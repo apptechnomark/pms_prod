@@ -94,7 +94,7 @@ const Audit = ({ filteredData, searchValue, onHandleExport }: any) => {
         title={undefined}
         columns={reportsAuditCols}
         data={auditFields.data}
-        options={options}
+        options={{ ...options, tableBodyHeight: "73vh" }}
       />
       <TablePagination
         component="div"

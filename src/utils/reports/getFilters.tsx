@@ -93,6 +93,8 @@ export const billingreport_InitialFilter = {
   globalSearch: "",
   startDate: null,
   endDate: null,
+  startDateReview: null,
+  endDateReview: null,
   isDownload: false,
   clients: [],
   IsBTC: false,
@@ -129,6 +131,8 @@ export const customreport_InitialFilter = {
   allInfoDate: null,
   startDate: null,
   endDate: null,
+  startDateReview: null,
+  endDateReview: null,
   isDownload: false,
 };
 

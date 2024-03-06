@@ -256,7 +256,7 @@ const Workload = ({ filteredData, searchValue, onHandleExport }: any) => {
         title={undefined}
         columns={columns}
         data={workloadFields.data}
-        options={options}
+        options={{ ...options, tableBodyHeight: "73vh" }}
       />
       <TablePagination
         component="div"

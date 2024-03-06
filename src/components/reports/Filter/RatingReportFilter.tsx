@@ -346,10 +346,10 @@ const RatingReportFilter = ({
   };
 
   const handleRatingReport_SavedFilterDelete = async () => {
-    const params = `${process.env.worklog_api_url}/filter/delete`;
-    const url = {
+    const params = {
       filterId: ratingreport_currentFilterId,
     };
+    const url = `${process.env.worklog_api_url}/filter/delete`;
     const successCallback = (
       ResponseData: any,
       error: any,

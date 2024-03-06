@@ -89,7 +89,7 @@ const UserLogs = ({ filteredData, searchValue, onHandleExport }: any) => {
         title={undefined}
         columns={reportsUserLogsCols}
         data={userlogFields.data}
-        options={options}
+        options={{ ...options, tableBodyHeight: "73vh" }}
       />
       <TablePagination
         component="div"
