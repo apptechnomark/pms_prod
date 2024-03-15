@@ -506,6 +506,11 @@ const Datatable = ({
       bodyRenderer: generateCustomFormatDate,
     },
     {
+      name: "ReviewDate",
+      label: "Review Date",
+      bodyRenderer: generateCustomFormatDate,
+    },
+    {
       name: "EmpolyeeName",
       label: "Employee",
       bodyRenderer: generateCommonBodyRender,

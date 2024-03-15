@@ -33,6 +33,7 @@ import {
   getProjectDropdownData,
 } from "@/utils/commonDropdownApiCall";
 import { callAPI } from "@/utils/API/callAPI";
+const ALL = -1;
 
 const BillingReportFilter = ({
   isFiltering,
@@ -282,7 +283,10 @@ const BillingReportFilter = ({
 
   useEffect(() => {
     const filterDropdowns = async () => {
-      setClientDropdown(await getClientDropdownData());
+      setClientDropdown([
+        { label: "Select All", value: ALL },
+        ...(await getClientDropdownData()),
+      ]);
       setProjectDropdown(
         await getProjectDropdownData(clientName.length > 0 ? clientName[0] : 0)
       );
@@ -497,15 +501,33 @@ const BillingReportFilter = ({
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={clientDropdown.filter(
-                      (option) =>
-                        !clients.find((client) => client.value === option.value)
-                    )}
+                    options={
+                      clientDropdown.length - 1 === clients.length
+                        ? []
+                        : clientDropdown.filter(
+                            (option) =>
+                              !clients.find(
+                                (client) => client.value === option.value
+                              )
+                          )
+                    }
                     getOptionLabel={(option: any) => option.label}
                     onChange={(e: any, data: any) => {
-                      setClients(data);
-                      setClientName(data.map((d: any) => d.value));
-                      setProjectName(null);
+                      if (data.some((d: any) => d.value === -1)) {
+                        setClients(
+                          clientDropdown.filter((d: any) => d.value !== -1)
+                        );
+                        setClientName(
+                          clientDropdown
+                            .filter((d: any) => d.value !== -1)
+                            .map((d: any) => d.value)
+                        );
+                        setProjectName(null);
+                      } else {
+                        setClients(data);
+                        setClientName(data.map((d: any) => d.value));
+                        setProjectName(null);
+                      }
                     }}
                     value={clients}
                     renderInput={(params: any) => (
@@ -602,7 +624,7 @@ const BillingReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Preparation From"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(endDate)}
                       value={startDate === "" ? null : dayjs(startDate)}
                       onChange={(newValue: any) => setStartDate(newValue)}
@@ -622,7 +644,7 @@ const BillingReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Preparation To"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(startDate)}
                       maxDate={dayjs(Date.now())}
                       value={endDate === "" ? null : dayjs(endDate)}
@@ -641,7 +663,7 @@ const BillingReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Review From"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(endDateReview)}
                       value={
                         startDateReview === "" ? null : dayjs(startDateReview)
@@ -661,7 +683,7 @@ const BillingReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Review To"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(startDateReview)}
                       maxDate={dayjs(Date.now())}
                       value={endDateReview === "" ? null : dayjs(endDateReview)}

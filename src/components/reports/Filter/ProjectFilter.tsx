@@ -235,16 +235,22 @@ const ProjectFilter = ({
   useEffect(() => {
     const filterDropdowns = async () => {
       setProject_ClientDropdown(await getClientDropdownData());
-      setProject_ProjectDropdown(
-        await getProjectDropdownData(project_clientName[0])
-      );
-      project_clientName.length > 0 &&
-        setProject_WorkTypeDropdown(
-          await getTypeOfWorkDropdownData(project_clientName[0])
-        );
       setProject_BillingTypeDropdown(await getBillingTypeData());
     };
     filterDropdowns();
+  }, []);
+
+  useEffect(() => {
+    const filterDropdowns = async () => {
+      setProject_ProjectDropdown(
+        await getProjectDropdownData(project_clientName[0])
+      );
+      setProject_WorkTypeDropdown(
+        await getTypeOfWorkDropdownData(project_clientName[0])
+      );
+    };
+
+    project_clientName.length > 0 && filterDropdowns();
 
     if (project_clientName.length > 0 || project_resetting) {
       onDialogClose(true);
@@ -457,7 +463,7 @@ const ProjectFilter = ({
                   <Autocomplete
                     multiple
                     id="tags-standard"
-                    options={project_clientDropdown.filter(
+                    options={project_clientDropdown?.filter(
                       (option) =>
                         !project_clients.find(
                           (client) => client.value === option.value
@@ -553,7 +559,7 @@ const ProjectFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(project_endDate)}
                       value={
                         project_startDate === ""
@@ -578,7 +584,7 @@ const ProjectFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(project_startDate)}
                       maxDate={dayjs(Date.now())}
                       value={

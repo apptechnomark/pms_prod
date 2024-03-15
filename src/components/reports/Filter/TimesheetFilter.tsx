@@ -425,7 +425,7 @@ const TimesheetFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(timesheetEndDate)}
                       value={
                         timesheetStartDate === ""
@@ -451,7 +451,7 @@ const TimesheetFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(timesheetStartDate)}
                       maxDate={dayjs(Date.now())}
                       value={

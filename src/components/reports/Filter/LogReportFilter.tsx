@@ -577,7 +577,7 @@ const LogReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(logReport_endDate)}
                       value={
                         logReport_startDate === ""
@@ -602,7 +602,7 @@ const LogReportFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(logReport_startDate)}
                       maxDate={dayjs(Date.now())}
                       value={

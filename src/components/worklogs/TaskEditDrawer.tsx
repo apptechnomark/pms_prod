@@ -2075,6 +2075,7 @@ const TaskEditDrawer = ({ onOpen, onClose, onEdit, onDataFetch }: any) => {
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
                             label="All Info Date"
+                            shouldDisableDate={isWeekend}
                             value={
                               allInfoDateWorklogsEdit === ""
                                 ? null

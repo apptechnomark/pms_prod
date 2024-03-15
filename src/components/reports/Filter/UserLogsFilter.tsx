@@ -425,7 +425,7 @@ const UserLogsFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now())}
                       value={
                         userlogs_dateFilter === ""

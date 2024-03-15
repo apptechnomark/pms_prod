@@ -402,7 +402,7 @@ const UserFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="Start Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       maxDate={dayjs(Date.now()) || dayjs(user_endDate)}
                       value={
                         user_startDate === "" ? null : dayjs(user_startDate)
@@ -424,7 +424,7 @@ const UserFilter = ({
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
                       label="End Date"
-                      shouldDisableDate={isWeekend}
+                      // shouldDisableDate={isWeekend}
                       minDate={dayjs(user_startDate)}
                       maxDate={dayjs(Date.now())}
                       value={user_endDate === "" ? null : dayjs(user_endDate)}

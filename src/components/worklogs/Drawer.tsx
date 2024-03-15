@@ -3322,6 +3322,7 @@ const EditDrawer = ({
                           <DatePicker
                             label="All Info Date"
                             disabled={isIdDisabled}
+                            shouldDisableDate={isWeekend}
                             value={
                               allInfoDateWorklogs === ""
                                 ? null

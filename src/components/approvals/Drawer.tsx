@@ -3050,6 +3050,7 @@ const EditDrawer = ({
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
                             label="All Info Date"
+                            shouldDisableDate={isWeekend}
                             value={
                               allInfoDateApprovals === ""
                                 ? null
