@@ -38,6 +38,8 @@ const initialFilter = {
   dueDate: null,
   startDate: null,
   endDate: null,
+  startDateReview: null,
+  endDateReview: null,
 };
 
 const FilterDialog_Approval: React.FC<FilterModalProps> = ({

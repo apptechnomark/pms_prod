@@ -537,12 +537,60 @@ const CustomReport = ({ filteredData, searchValue, onHandleExport }: any) => {
       },
     },
     {
+      name: "AssigneeAutoTimeTracked",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Assignee Auto Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "AssigneeManualTimeTracked",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Assignee Manual Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
       name: "AssigneeTimeTracked",
       options: {
         filter: true,
         sort: true,
         customHeadLabelRender: () =>
           generateCustomHeaderName("Assignee Time Tracked"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "ReviewerAutoTimeTracked",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Reviewer Auto Time"),
+        customBodyRender: (value: any) => {
+          return generateInitialTimer(value);
+        },
+      },
+    },
+    {
+      name: "ReviewerManualTimeTracked",
+      options: {
+        filter: true,
+        sort: true,
+        customHeadLabelRender: () =>
+          generateCustomHeaderName("Reviewer Manual Time"),
         customBodyRender: (value: any) => {
           return generateInitialTimer(value);
         },
